@@ -193,13 +193,13 @@ export default function AuthPage() {
                   <AccordionTrigger className="text-left">
                     <div className="flex items-center space-x-2">
                       <i className="fas fa-question-circle text-primary"></i>
-                      <span>What is GBTC Mining?</span>
+                      <span>What is GBTC?</span>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground">
-                    GBTC (Green Bitcoin) is a revolutionary cryptocurrency mining platform that simulates Bitcoin mining 
-                    with eco-friendly principles. Mine GBTC tokens using hashrate power, with blocks generated every 10 minutes 
-                    just like Bitcoin. Our platform features a fixed supply of 21 million tokens and real USDT deposits.
+                    GBTC (Green Bitcoin) is a decentralized token inspired by Bitcoin's scarcity model, with a total supply 
+                    of 21 million tokens and a fair mining + hashrate-based distribution system. It features real USDT deposits, 
+                    10-minute block times, and rewards based on your purchased hash power.
                   </AccordionContent>
                 </AccordionItem>
 
@@ -207,99 +207,149 @@ export default function AuthPage() {
                   <AccordionTrigger className="text-left">
                     <div className="flex items-center space-x-2">
                       <i className="fas fa-rocket text-chart-4"></i>
-                      <span>How to Start Mining?</span>
+                      <span>How can I start mining GBTC?</span>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground">
                     <ol className="list-decimal list-inside space-y-2">
-                      <li>Create your account with a unique username</li>
-                      <li>Make a USDT deposit (minimum 10 USDT)</li>
-                      <li>Purchase hashrate power (1 USDT = 1 GH/s)</li>
-                      <li>Start mining automatically - earn rewards every 10 minutes!</li>
-                      <li>Claim your rewards within 24 hours to avoid penalties</li>
+                      <li>Sign up with your account</li>
+                      <li>Deposit USDT into the project's main wallet</li>
+                      <li>Purchase hash power (your mining strength)</li>
+                      <li>Start mining automatically</li>
+                      <li>Without a deposit, your hash power = 0 (no mining)</li>
                     </ol>
+                    <p className="text-xs mt-2 text-warning">Note: You must claim rewards daily to stay active!</p>
                   </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="how-to-earn">
+                <AccordionItem value="how-mining-works">
                   <AccordionTrigger className="text-left">
                     <div className="flex items-center space-x-2">
                       <i className="fas fa-coins text-accent"></i>
-                      <span>How to Earn & Mine?</span>
+                      <span>How are tokens mined?</span>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground">
                     <div className="space-y-3">
                       <div>
-                        <strong className="text-foreground">Mining Rewards:</strong>
-                        <p>Your share of rewards = (Your Hashrate ÷ Total Network Hashrate) × Block Reward</p>
-                        <p className="text-xs mt-1">Example: With 100 GH/s in a 10,000 GH/s network, you earn 1% of each block</p>
-                      </div>
-                      <div>
-                        <strong className="text-foreground">Deposit Methods:</strong>
-                        <ul className="list-disc list-inside text-sm mt-1">
-                          <li>TRC20 (Tron Network)</li>
-                          <li>BEP20 (Binance Smart Chain)</li>
-                          <li>ERC20 (Ethereum Network)</li>
+                        <strong className="text-foreground">Mining Process:</strong>
+                        <ul className="list-disc list-inside text-sm space-y-1 mt-1">
+                          <li>Every 10 minutes = 1 block mined</li>
+                          <li>Active miners share the block reward based on their hash power</li>
+                          <li>Your share = (Your Hashrate ÷ Total Network Hashrate) × Block Reward</li>
                         </ul>
                       </div>
+                      <div className="p-3 bg-warning/10 rounded-lg border border-warning/20">
+                        <strong className="text-warning">⚠️ Daily Claiming Required:</strong>
+                        <p className="text-sm mt-1">If you don't claim daily, your account is marked inactive. You won't receive rewards until you return active.</p>
+                      </div>
                       <div>
-                        <strong className="text-foreground">Important:</strong>
-                        <p className="text-sm">Claim rewards within 24 hours or lose 50% as penalty!</p>
+                        <strong className="text-foreground">Supply Model:</strong>
+                        <ul className="list-disc list-inside text-sm space-y-1 mt-1">
+                          <li>Total supply = 21M GBTC</li>
+                          <li>Supply gets harder as more miners join</li>
+                          <li>Reward per block decreases over time</li>
+                        </ul>
                       </div>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="referral-commission">
+                <AccordionItem value="referral-system">
                   <AccordionTrigger className="text-left">
                     <div className="flex items-center space-x-2">
                       <i className="fas fa-users text-chart-3"></i>
-                      <span>Referral Commission in USDT</span>
+                      <span>How does the referral system work?</span>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground">
                     <div className="space-y-3">
                       <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
-                        <strong className="text-primary">Earn 10% Commission!</strong>
-                        <p className="text-sm mt-1">Get 10% USDT commission from every hashrate purchase made by your referrals</p>
+                        <strong className="text-primary">Two-Level Commission System:</strong>
+                        <p className="text-sm mt-2">When your referral purchases hash power:</p>
+                        <ul className="list-disc list-inside text-sm space-y-1 mt-1">
+                          <li><strong>Level 1 (direct):</strong> You earn 10% USDT commission</li>
+                          <li><strong>Level 2 (indirect):</strong> You earn 5% USDT commission</li>
+                        </ul>
                       </div>
                       <div>
                         <strong className="text-foreground">How it works:</strong>
                         <ol className="list-decimal list-inside text-sm space-y-1 mt-1">
                           <li>Share your unique referral link</li>
                           <li>Friends register using your link</li>
-                          <li>When they purchase hashrate, you get 10% in USDT</li>
+                          <li>When they purchase hashrate, you get commission</li>
                           <li>Use commission to buy hashrate without depositing!</li>
                         </ol>
                       </div>
-                      <div className="text-sm">
-                        <strong>Example:</strong> Your friend buys 100 GH/s for 100 USDT → You earn 10 USDT instantly!
+                      <div className="p-3 bg-accent/10 rounded-lg">
+                        <strong className="text-accent">Important:</strong>
+                        <p className="text-sm mt-1">You can withdraw USDT earned through referral commissions anytime!</p>
                       </div>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="mining-status">
+                <AccordionItem value="withdrawals-transfers">
                   <AccordionTrigger className="text-left">
                     <div className="flex items-center space-x-2">
-                      <i className="fas fa-info-circle text-chart-2"></i>
-                      <span>Mining Status for New Users</span>
+                      <i className="fas fa-exchange-alt text-chart-2"></i>
+                      <span>Withdrawals & Transfers</span>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground">
-                    <div className="space-y-2">
-                      <div className="p-3 bg-destructive/10 rounded-lg border border-destructive/20">
-                        <strong className="text-destructive">⚠️ Mining Inactive by Default</strong>
-                        <p className="text-sm mt-1">New users start with INACTIVE mining status</p>
+                    <div className="space-y-3">
+                      <div>
+                        <strong className="text-foreground">Can I withdraw mined tokens?</strong>
+                        <p className="text-sm mt-1">No, mined tokens can only be transferred between existing users inside the system until 25% of total supply is mined. After that, GBTC becomes tradable on exchanges.</p>
                       </div>
                       <div>
-                        <strong className="text-foreground">To Activate Mining:</strong>
+                        <strong className="text-foreground">What can I withdraw now?</strong>
+                        <p className="text-sm mt-1">You can only withdraw USDT earned through referral commissions.</p>
+                      </div>
+                      <div>
+                        <strong className="text-foreground">Internal Transfers:</strong>
+                        <p className="text-sm mt-1">Yes, you can transfer GBTC tokens to other users within the system (user-to-user transfer) until exchange listing.</p>
+                      </div>
+                      <div className="p-3 bg-primary/10 rounded-lg">
+                        <strong className="text-primary">25% Milestone:</strong>
+                        <p className="text-sm mt-1">At 25% mined, GBTC lists on exchanges. Mining continues long-term with decreasing rewards.</p>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="important-rules">
+                  <AccordionTrigger className="text-left">
+                    <div className="flex items-center space-x-2">
+                      <i className="fas fa-exclamation-triangle text-warning"></i>
+                      <span>Important Rules & Warnings</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    <div className="space-y-3">
+                      <div className="p-3 bg-destructive/10 rounded-lg border border-destructive/20">
+                        <strong className="text-destructive">⚠️ Fake Deposits:</strong>
+                        <p className="text-sm mt-1">If you fake a deposit transaction, your account can be frozen or blocked permanently. Only real blockchain transactions are accepted.</p>
+                      </div>
+                      <div>
+                        <strong className="text-foreground">Daily Claiming:</strong>
+                        <p className="text-sm mt-1">If you don't claim your mined tokens daily, your hash power becomes temporarily inactive, and you skip that block's reward. You start earning again from the next block after reactivation.</p>
+                      </div>
+                      <div>
+                        <strong className="text-foreground">Admin Controls:</strong>
                         <ul className="list-disc list-inside text-sm space-y-1 mt-1">
-                          <li>Make a USDT deposit AND purchase hashrate, OR</li>
-                          <li>Earn referral commission and use it to buy hashrate</li>
-                          <li>Mining starts automatically after hashrate purchase</li>
-                          <li>Keep claiming rewards to stay active (24-hour rule)</li>
+                          <li>Approve/Reject deposits</li>
+                          <li>Approve/Reject withdrawals</li>
+                          <li>Freeze/Unfreeze accounts if rules are broken</li>
+                        </ul>
+                      </div>
+                      <div className="p-3 bg-accent/10 rounded-lg">
+                        <strong className="text-accent">Why is the system fair?</strong>
+                        <ul className="list-disc list-inside text-sm space-y-1 mt-1">
+                          <li>Rewards depend on real investment (hash power)</li>
+                          <li>Inactive users don't get free tokens</li>
+                          <li>Global supply calculator ensures transparent tokenomics</li>
+                          <li>Admin cannot manipulate balances—only approve deposits/withdrawals</li>
                         </ul>
                       </div>
                     </div>
