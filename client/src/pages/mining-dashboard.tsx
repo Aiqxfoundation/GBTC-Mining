@@ -139,6 +139,41 @@ export default function MiningDashboard() {
       </div>
 
       <div className="relative z-10 p-4 space-y-4">
+        {/* Dashboard Header */}
+        <div className="text-center mb-3">
+          <h1 className="text-2xl font-heading font-bold text-gradient mb-1">Mining Dashboard</h1>
+          <p className="text-sm text-muted-foreground">Your personal mining control panel</p>
+        </div>
+        
+        {/* Wallet Section */}
+        <Card className="mining-block">
+          <h3 className="text-sm font-heading font-bold text-muted-foreground uppercase tracking-wider mb-3">
+            <i className="fas fa-wallet mr-2 text-primary"></i>
+            Wallet Balance
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="data-card">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs text-muted-foreground uppercase">Available USDT</span>
+                <i className="fas fa-dollar-sign text-accent"></i>
+              </div>
+              <div className="text-2xl font-mono font-bold text-accent">
+                ${parseFloat(user?.usdtBalance || '0').toFixed(2)}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">Ready to use</div>
+            </div>
+            <div className="data-card">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs text-muted-foreground uppercase">GBTC Balance</span>
+                <i className="fas fa-coins text-primary"></i>
+              </div>
+              <div className="text-2xl font-mono font-bold text-gradient">
+                {parseFloat(user?.gbtcBalance || '0').toFixed(4)}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">Mined tokens</div>
+            </div>
+          </div>
+        </Card>
         {/* Mining Status Terminal */}
         <div className="terminal-window">
           <div className="terminal-header">
@@ -318,40 +353,68 @@ export default function MiningDashboard() {
           </div>
         </Card>
 
-        {/* Quick Actions */}
+        {/* Navigation Buttons */}
         <div className="grid grid-cols-4 gap-2">
           <button 
-            onClick={() => setLocation('/deposit')}
-            className="data-card text-center py-3 transition-all hover:scale-105"
-            data-testid="button-deposit"
+            className="data-card text-center py-3 bg-primary/10 border-primary/30"
+            disabled
+            data-testid="button-mining"
           >
-            <i className="fas fa-download text-xl text-primary mb-1"></i>
-            <div className="text-xs font-heading uppercase">Deposit</div>
-          </button>
-          <button 
-            onClick={() => setLocation('/withdraw')}
-            className="data-card text-center py-3 transition-all hover:scale-105"
-            data-testid="button-withdraw"
-          >
-            <i className="fas fa-upload text-xl text-accent mb-1"></i>
-            <div className="text-xs font-heading uppercase">Withdraw</div>
+            <i className="fas fa-cube text-xl text-primary mb-1"></i>
+            <div className="text-xs font-heading uppercase">Mining</div>
+            <div className="text-xs text-green-500 mt-1">Active</div>
           </button>
           <button 
             onClick={() => setLocation('/power')}
             className="data-card text-center py-3 transition-all hover:scale-105"
-            data-testid="button-power"
+            data-testid="button-hashrate"
           >
             <i className="fas fa-bolt text-xl text-chart-4 mb-1"></i>
-            <div className="text-xs font-heading uppercase">Upgrade</div>
+            <div className="text-xs font-heading uppercase">Hashrate</div>
+            <div className="text-xs text-muted-foreground mt-1">Purchase</div>
           </button>
           <button 
-            onClick={() => setLocation('/transfer')}
+            onClick={() => setLocation('/wallet')}
             className="data-card text-center py-3 transition-all hover:scale-105"
-            data-testid="button-transfer"
+            data-testid="button-wallet"
           >
-            <i className="fas fa-exchange-alt text-xl text-chart-3 mb-1"></i>
-            <div className="text-xs font-heading uppercase">Transfer</div>
+            <i className="fas fa-wallet text-xl text-accent mb-1"></i>
+            <div className="text-xs font-heading uppercase">Wallet</div>
+            <div className="text-xs text-muted-foreground mt-1">Manage</div>
           </button>
+          <button 
+            onClick={() => setLocation('/referral')}
+            className="data-card text-center py-3 transition-all hover:scale-105"
+            data-testid="button-referral"
+          >
+            <i className="fas fa-users text-xl text-chart-3 mb-1"></i>
+            <div className="text-xs font-heading uppercase">Referral</div>
+            <div className="text-xs text-muted-foreground mt-1">Inactive</div>
+          </button>
+        </div>
+        
+        {/* Deposit & Withdrawal Quick Actions */}
+        <div className="grid grid-cols-2 gap-3">
+          <Button 
+            className="btn-primary h-auto py-3"
+            onClick={() => setLocation('/deposit')}
+            data-testid="button-deposit"
+          >
+            <div className="text-center">
+              <i className="fas fa-download text-xl mb-1"></i>
+              <div className="text-sm font-heading">Deposit USDT</div>
+            </div>
+          </Button>
+          <Button 
+            className="btn-secondary h-auto py-3"
+            onClick={() => setLocation('/withdraw')}
+            data-testid="button-withdraw"
+          >
+            <div className="text-center">
+              <i className="fas fa-upload text-xl mb-1"></i>
+              <div className="text-sm font-heading">Withdraw</div>
+            </div>
+          </Button>
         </div>
 
         {/* Mining History */}
