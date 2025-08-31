@@ -9,15 +9,23 @@ export default function GlobalInfoPage() {
   const percentMined = (totalMinted / totalSupply) * 100;
   const targetPercent = 25; // 25% target for exchange listing
   
+  const globalHashrate = 584732.50; // GH/s
+  const getHashrateDisplay = (hashrate: number) => {
+    if (hashrate >= 1000000) return `${(hashrate / 1000000).toFixed(2)} PH/s`;
+    if (hashrate >= 1000) return `${(hashrate / 1000).toFixed(2)} TH/s`;
+    return `${hashrate.toFixed(2)} GH/s`;
+  };
+
   const stats = {
     totalDeposits: 584732.50,
     totalWithdrawals: 127341.20,
     activeMiners: 1847,
     registeredUsers: 5432,
-    globalHP: 5847.32,
+    networkHashrate: globalHashrate,
     nextBlock: 432,
     blocksToday: 87,
-    avgBlockReward: 6.25
+    avgBlockReward: 6.25,
+    difficulty: 47.8 // T
   };
 
   return (
@@ -77,9 +85,9 @@ export default function GlobalInfoPage() {
               </p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-1">GLOBAL HP</p>
+              <p className="text-xs text-muted-foreground mb-1">NETWORK HASHRATE</p>
               <p className="text-lg font-display font-bold text-chart-4">
-                {stats.globalHP.toFixed(2)}
+                {getHashrateDisplay(stats.networkHashrate)}
               </p>
             </div>
             <div>
@@ -169,7 +177,7 @@ export default function GlobalInfoPage() {
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-chart-4 rounded-full"></div>
-              <span className="text-muted-foreground">100 HP purchased</span>
+              <span className="text-muted-foreground">100 GH/s purchased</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-primary rounded-full mining-pulse"></div>

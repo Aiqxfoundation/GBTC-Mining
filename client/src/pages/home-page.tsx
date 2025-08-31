@@ -182,23 +182,23 @@ export default function HomePage() {
                 <div className="hologram-card p-6 rounded-xl flex items-center justify-between block-3d">
                   <div className="flex items-center space-x-4">
                     <div className="w-4 h-4 bg-primary rounded-full mining-pulse"></div>
-                    <span className="font-display font-bold text-primary">QUANTUM MINING</span>
+                    <span className="font-display font-bold text-primary">LIFETIME MOBILE MINING</span>
                   </div>
-                  <span className="font-display font-black text-2xl text-primary">65%</span>
+                  <span className="font-display font-black text-2xl text-primary">60%</span>
                 </div>
                 
                 <div className="hologram-card p-6 rounded-xl flex items-center justify-between block-3d">
                   <div className="flex items-center space-x-4">
                     <div className="w-4 h-4 bg-chart-4 rounded-full mining-pulse" style={{animationDelay: '0.5s'}}></div>
-                    <span className="font-display font-bold text-chart-4">PRESALE PROTOCOL</span>
+                    <span className="font-display font-bold text-chart-4">EARLY MINING</span>
                   </div>
-                  <span className="font-display font-black text-2xl text-chart-4">15%</span>
+                  <span className="font-display font-black text-2xl text-chart-4">25%</span>
                 </div>
                 
                 <div className="hologram-card p-6 rounded-xl flex items-center justify-between block-3d">
                   <div className="flex items-center space-x-4">
                     <div className="w-4 h-4 bg-accent rounded-full mining-pulse" style={{animationDelay: '1s'}}></div>
-                    <span className="font-display font-bold text-accent">DEX LIQUIDITY</span>
+                    <span className="font-display font-bold text-accent">EXCHANGE LISTINGS</span>
                   </div>
                   <span className="font-display font-black text-2xl text-accent">10%</span>
                 </div>
@@ -206,17 +206,9 @@ export default function HomePage() {
                 <div className="hologram-card p-6 rounded-xl flex items-center justify-between block-3d">
                   <div className="flex items-center space-x-4">
                     <div className="w-4 h-4 bg-chart-3 rounded-full mining-pulse" style={{animationDelay: '1.5s'}}></div>
-                    <span className="font-display font-bold text-chart-3">DEVELOPMENT</span>
+                    <span className="font-display font-bold text-chart-3">RESERVE FUND</span>
                   </div>
-                  <span className="font-display font-black text-2xl text-chart-3">7%</span>
-                </div>
-                
-                <div className="hologram-card p-6 rounded-xl flex items-center justify-between block-3d">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-4 h-4 bg-chart-5 rounded-full mining-pulse" style={{animationDelay: '2s'}}></div>
-                    <span className="font-display font-bold text-chart-5">EMERGENCY RESERVE</span>
-                  </div>
-                  <span className="font-display font-black text-2xl text-chart-5">3%</span>
+                  <span className="font-display font-black text-2xl text-chart-3">5%</span>
                 </div>
               </div>
               

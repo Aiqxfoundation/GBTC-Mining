@@ -3,13 +3,13 @@ import { Route, Switch, Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
-import MiningDashboard from "@/pages/mining-dashboard";
-import PurchasePowerPage from "@/pages/purchase-power-page";
-import DepositPage from "@/pages/deposit-page";
-import WithdrawPage from "@/pages/withdraw-page";
-import TransferPage from "@/pages/transfer-page";
-import GlobalInfoPage from "@/pages/global-info-page";
-import ReferralPage from "@/pages/referral-page";
+import MiningDashboard from "@/pages/mining-dashboard.tsx";
+import PurchasePowerPage from "@/pages/purchase-power-page.tsx";
+import DepositPage from "@/pages/deposit-page.tsx";
+import WithdrawPage from "@/pages/withdraw-page.tsx";
+import TransferPage from "@/pages/transfer-page.tsx";
+import GlobalInfoPage from "@/pages/global-info-page.tsx";
+import ReferralPage from "@/pages/referral-page.tsx";
 import AdminPage from "@/pages/admin-page";
 import { ProtectedRoute } from "@/lib/protected-route";
 
@@ -39,8 +39,8 @@ export default function MobileApp() {
     },
     { 
       path: "/power", 
-      icon: "fas fa-bolt", 
-      label: "Power",
+      icon: "fas fa-microchip", 
+      label: "Hashrate",
       color: "text-chart-4"
     },
     { 

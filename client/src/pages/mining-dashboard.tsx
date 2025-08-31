@@ -13,6 +13,8 @@ export default function MiningDashboard() {
   const { toast } = useToast();
   const [blockTimer, setBlockTimer] = useState(600); // 10 minutes in seconds
   const [lastClaimed, setLastClaimed] = useState<Date | null>(null);
+  const [currentHash, setCurrentHash] = useState<string>('');  
+  const [miningActive, setMiningActive] = useState(true);
 
   // Calculate hours since last claim
   const getHoursSinceLastClaim = () => {
@@ -47,12 +49,33 @@ export default function MiningDashboard() {
 
   const blockProgress = ((600 - blockTimer) / 600) * 100;
 
-  // Mock data (replace with real API calls)
-  const myHP = parseFloat(user?.hashPower || '0');
-  const globalHP = 5847.32;
+  // Convert to real hashrate units
+  const myHashrate = parseFloat(user?.hashPower || '0');
+  const getHashrateDisplay = (hashrate: number) => {
+    if (hashrate >= 1000000) return `${(hashrate / 1000000).toFixed(2)} PH/s`;
+    if (hashrate >= 1000) return `${(hashrate / 1000).toFixed(2)} TH/s`;
+    return `${hashrate.toFixed(2)} GH/s`;
+  };
+
+  const globalHashrate = 584732.50; // GH/s
   const currentBlockReward = 6.25;
-  const myEstimatedReward = globalHP > 0 ? (myHP / globalHP) * currentBlockReward : 0;
+  const myEstimatedReward = globalHashrate > 0 ? (myHashrate / globalHashrate) * currentBlockReward : 0;
   const unclaimedGBTC = parseFloat(user?.unclaimedBalance || '0');
+  const difficulty = 47.8; // Mining difficulty in T
+
+  // Generate random hash
+  useEffect(() => {
+    const generateHash = () => {
+      const chars = '0123456789abcdef';
+      let hash = '0000';
+      for (let i = 0; i < 60; i++) {
+        hash += chars[Math.floor(Math.random() * chars.length)];
+      }
+      setCurrentHash(hash);
+    };
+    const interval = setInterval(generateHash, 100);
+    return () => clearInterval(interval);
+  }, []);
 
   const claimRewardsMutation = useMutation({
     mutationFn: async () => {
@@ -114,56 +137,91 @@ export default function MiningDashboard() {
             </p>
           </Card>
           <Card className="mobile-card">
-            <p className="text-xs text-muted-foreground font-mono mb-1">MY HASH POWER</p>
+            <p className="text-xs text-muted-foreground font-mono mb-1">MY HASHRATE</p>
             <p className="text-xl font-display font-black text-primary">
-              {myHP.toFixed(2)} HP
+              {getHashrateDisplay(myHashrate)}
             </p>
           </Card>
         </div>
 
-        {/* 3D Mining Block Animation */}
-        <Card className="mobile-card p-6">
-          <div className="flex flex-col items-center">
+        {/* Advanced Bitcoin Block Mining Animation */}
+        <Card className="mobile-card p-6 bg-gradient-to-br from-card to-background overflow-hidden">
+          <div className="flex flex-col items-center relative">
+            {/* Hash Stream Animation */}
+            <div className="hash-stream">
+              {[...Array(5)].map((_, i) => (
+                <div
+                  key={i}
+                  className="hash-line"
+                  style={{
+                    left: `${20 + i * 20}%`,
+                    animationDelay: `${i * 0.6}s`
+                  }}
+                >
+                  {currentHash.substring(i * 12, i * 12 + 12)}
+                </div>
+              ))}
+            </div>
+
             <div className="relative mb-4">
-              <div className="mining-block-3d">
+              <div className="bitcoin-block">
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-32 h-32 cyber-border rounded-2xl bg-gradient-to-br from-primary/20 to-chart-4/20 flex items-center justify-center">
-                    <img src={bitcoinLogo} alt="Mining" className="w-16 h-16 mining-float" />
+                  <div className="w-32 h-32 cyber-border rounded-lg bg-black/80 backdrop-blur flex flex-col items-center justify-center mining-rig">
+                    <img src={bitcoinLogo} alt="Mining" className="w-12 h-12 mb-2" />
+                    <div className="text-xs font-mono text-primary">
+                      BLOCK #{Math.floor(820000 + blockTimer / 60)}
+                    </div>
+                    <div className="text-xs font-mono text-muted-foreground mt-1">
+                      {miningActive ? 'MINING...' : 'IDLE'}
+                    </div>
                   </div>
                 </div>
-                {/* Progress ring */}
+                {/* Mining Progress Ring */}
                 <svg className="absolute inset-0 w-full h-full -rotate-90">
                   <circle
                     cx="100"
                     cy="100"
                     r="90"
                     stroke="currentColor"
-                    strokeWidth="4"
+                    strokeWidth="6"
                     fill="none"
-                    className="text-secondary"
+                    className="text-secondary/30"
                   />
                   <circle
                     cx="100"
                     cy="100"
                     r="90"
-                    stroke="currentColor"
-                    strokeWidth="4"
+                    stroke="url(#mining-gradient)"
+                    strokeWidth="6"
                     fill="none"
-                    className="text-primary"
                     strokeDasharray={`${2 * Math.PI * 90}`}
                     strokeDashoffset={`${2 * Math.PI * 90 * (1 - blockProgress / 100)}`}
+                    strokeLinecap="round"
                     style={{ transition: 'stroke-dashoffset 1s linear' }}
                   />
+                  <defs>
+                    <linearGradient id="mining-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="hsl(var(--primary))" />
+                      <stop offset="50%" stopColor="hsl(var(--chart-4))" />
+                      <stop offset="100%" stopColor="hsl(var(--accent))" />
+                    </linearGradient>
+                  </defs>
                 </svg>
               </div>
             </div>
 
-            <div className="text-center">
+            <div className="text-center w-full">
+              <div className="difficulty-badge mb-3">
+                DIFFICULTY: {difficulty}T
+              </div>
               <p className="text-xs text-muted-foreground font-mono mb-2">NEXT BLOCK IN</p>
               <p className="text-4xl font-display font-black text-primary glow-green">
                 {formatTime(blockTimer)}
               </p>
-              <p className="text-sm text-muted-foreground font-mono mt-2">
+              <div className="hashrate-meter mt-4 mb-2">
+                <div className="hashrate-fill" style={{ width: `${blockProgress}%` }} />
+              </div>
+              <p className="text-sm text-muted-foreground font-mono">
                 Block Reward: {currentBlockReward} GBTC
               </p>
             </div>
@@ -174,21 +232,21 @@ export default function MiningDashboard() {
         <Card className="mobile-card">
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground font-mono">My HP</span>
+              <span className="text-sm text-muted-foreground font-mono">My Hashrate</span>
               <span className="text-sm font-display font-bold text-primary">
-                {myHP.toFixed(2)} HP
+                {getHashrateDisplay(myHashrate)}
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground font-mono">Global HP</span>
+              <span className="text-sm text-muted-foreground font-mono">Network Hashrate</span>
               <span className="text-sm font-display font-bold">
-                {globalHP.toFixed(2)} HP
+                {getHashrateDisplay(globalHashrate)}
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground font-mono">My Share</span>
+              <span className="text-sm text-muted-foreground font-mono">Mining Power</span>
               <span className="text-sm font-display font-bold text-chart-4">
-                {globalHP > 0 ? ((myHP / globalHP) * 100).toFixed(2) : 0}%
+                {globalHashrate > 0 ? ((myHashrate / globalHashrate) * 100).toFixed(4) : 0}%
               </span>
             </div>
             <div className="flex justify-between items-center">

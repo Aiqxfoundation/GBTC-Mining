@@ -209,21 +209,123 @@
     @apply glow-green;
   }
 
-  /* Mining Block 3D */
-  .mining-block-3d {
+  /* Bitcoin Block Mining Animation */
+  .bitcoin-block {
     @apply relative;
     width: 200px;
     height: 200px;
     transform-style: preserve-3d;
-    animation: rotate-3d 20s linear infinite;
+    animation: block-mining 4s ease-in-out infinite;
   }
 
-  @keyframes rotate-3d {
+  @keyframes block-mining {
+    0%, 100% {
+      transform: perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1);
+    }
+    25% {
+      transform: perspective(1000px) rotateX(10deg) rotateY(180deg) scale(1.05);
+    }
+    50% {
+      transform: perspective(1000px) rotateX(-10deg) rotateY(360deg) scale(1.1);
+    }
+    75% {
+      transform: perspective(1000px) rotateX(5deg) rotateY(540deg) scale(1.05);
+    }
+  }
+
+  /* Mining Hash Animation */
+  .hash-stream {
+    @apply absolute inset-0 overflow-hidden;
+    pointer-events: none;
+  }
+
+  .hash-line {
+    @apply absolute text-primary font-mono text-xs;
+    animation: hash-flow 3s linear infinite;
+    opacity: 0;
+  }
+
+  @keyframes hash-flow {
+    0% {
+      transform: translateY(-20px);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.8;
+    }
+    90% {
+      opacity: 0.8;
+    }
+    100% {
+      transform: translateY(220px);
+      opacity: 0;
+    }
+  }
+
+  /* Block Chain Animation */
+  .blockchain-visual {
+    @apply flex items-center space-x-2;
+    animation: chain-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes chain-pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.02);
+    }
+  }
+
+  .block-cube {
+    @apply w-12 h-12 bg-gradient-to-br from-primary to-chart-4;
+    transform-style: preserve-3d;
+    animation: cube-rotate 6s linear infinite;
+  }
+
+  @keyframes cube-rotate {
     from {
       transform: rotateX(0deg) rotateY(0deg);
     }
     to {
       transform: rotateX(360deg) rotateY(360deg);
+    }
+  }
+
+  /* Mining Rig Animation */
+  .mining-rig {
+    @apply relative;
+    animation: rig-vibrate 0.5s ease-in-out infinite;
+  }
+
+  @keyframes rig-vibrate {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-1px);
+    }
+    75% {
+      transform: translateX(1px);
+    }
+  }
+
+  /* Hashrate Meter */
+  .hashrate-meter {
+    @apply relative h-4 bg-secondary rounded-full overflow-hidden;
+  }
+
+  .hashrate-fill {
+    @apply absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-chart-4 to-accent;
+    animation: hashrate-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes hashrate-pulse {
+    0%, 100% {
+      opacity: 0.8;
+    }
+    50% {
+      opacity: 1;
     }
   }
 
@@ -264,6 +366,22 @@
     @apply animate-pulse;
   }
 
+  /* Mining Difficulty Indicator */
+  .difficulty-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-mono;
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--chart-4) / 0.2));
+    border: 1px solid hsl(var(--primary) / 0.3);
+    animation: difficulty-glow 3s ease-in-out infinite;
+  }
+
+  @keyframes difficulty-glow {
+    0%, 100% {
+      box-shadow: 0 0 10px hsl(var(--primary) / 0.3);
+    }
+    50% {
+      box-shadow: 0 0 20px hsl(var(--primary) / 0.6);
+    }
+  }
 }
 
 @layer utilities {

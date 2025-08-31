@@ -16,7 +16,14 @@ export default function PurchasePowerPage() {
   const [powerAmount, setPowerAmount] = useState([10]);
   
   const usdtBalance = parseFloat(user?.usdtBalance || '0');
-  const currentHP = parseFloat(user?.hashPower || '0');
+  const currentHashrate = parseFloat(user?.hashPower || '0');
+  
+  // Hashrate display helper
+  const getHashrateDisplay = (hashrate: number) => {
+    if (hashrate >= 1000000) return `${(hashrate / 1000000).toFixed(2)} PH/s`;
+    if (hashrate >= 1000) return `${(hashrate / 1000).toFixed(2)} TH/s`;
+    return `${hashrate.toFixed(2)} GH/s`;
+  };
 
   const purchasePowerMutation = useMutation({
     mutationFn: async (amount: number) => {
@@ -25,8 +32,8 @@ export default function PurchasePowerPage() {
     },
     onSuccess: () => {
       toast({ 
-        title: "Power Purchased!", 
-        description: `Successfully purchased ${powerAmount[0]} HP` 
+        title: "Hashrate Purchased!", 
+        description: `Successfully purchased ${powerAmount[0]} GH/s` 
       });
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       setLocation("/dashboard");
@@ -53,17 +60,17 @@ export default function PurchasePowerPage() {
   };
 
   // Calculate new stats after purchase
-  const newHP = currentHP + powerAmount[0];
-  const globalHP = 5847.32; // Mock global HP
-  const newShare = ((newHP / (globalHP + powerAmount[0])) * 100).toFixed(2);
+  const newHashrate = currentHashrate + powerAmount[0];
+  const globalHashrate = 584732.50; // Mock global hashrate in GH/s
+  const newShare = ((newHashrate / (globalHashrate + powerAmount[0])) * 100).toFixed(4);
 
   return (
     <div className="mobile-page">
       {/* Header */}
       <div className="mobile-header">
         <div>
-          <h1 className="text-lg font-display font-bold text-primary">PURCHASE POWER</h1>
-          <p className="text-xs text-muted-foreground font-mono">1 USDT = 1 HP</p>
+          <h1 className="text-lg font-display font-bold text-primary">PURCHASE HASHRATE</h1>
+          <p className="text-xs text-muted-foreground font-mono">1 USDT = 1 GH/s</p>
         </div>
         <div className="text-right">
           <p className="text-xs text-muted-foreground font-mono">AVAILABLE</p>
@@ -79,9 +86,9 @@ export default function PurchasePowerPage() {
         <Card className="mobile-card bg-gradient-to-br from-primary/10 to-chart-4/10">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs text-muted-foreground font-mono mb-1">CURRENT HP</p>
+              <p className="text-xs text-muted-foreground font-mono mb-1">CURRENT HASHRATE</p>
               <p className="text-2xl font-display font-black text-primary">
-                {currentHP.toFixed(2)}
+                {getHashrateDisplay(currentHashrate)}
               </p>
             </div>
             <div>
@@ -123,9 +130,9 @@ export default function PurchasePowerPage() {
           <div className="p-4 bg-background rounded-xl text-center">
             <p className="text-xs text-muted-foreground font-mono mb-2">YOU WILL RECEIVE</p>
             <div className="flex items-center justify-center space-x-3">
-              <i className="fas fa-bolt text-3xl text-primary"></i>
+              <i className="fas fa-microchip text-3xl text-primary"></i>
               <p className="text-4xl font-display font-black text-primary glow-green">
-                {powerAmount[0]} HP
+                {powerAmount[0]} GH/s
               </p>
             </div>
           </div>
@@ -136,9 +143,9 @@ export default function PurchasePowerPage() {
           <p className="text-sm font-mono text-muted-foreground mb-3">AFTER PURCHASE</p>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">New HP Total</span>
+              <span className="text-sm text-muted-foreground">New Hashrate</span>
               <span className="text-sm font-display font-bold text-primary">
-                {newHP.toFixed(2)} HP
+                {getHashrateDisplay(newHashrate)}
               </span>
             </div>
             <div className="flex justify-between items-center">
@@ -161,9 +168,9 @@ export default function PurchasePowerPage() {
           <div className="flex items-start space-x-3">
             <i className="fas fa-info-circle text-warning mt-1"></i>
             <div className="text-xs text-muted-foreground">
-              <p className="mb-2">• No HP without deposit</p>
+              <p className="mb-2">• No hashrate without deposit</p>
               <p className="mb-2">• 10% referral commission to your upline</p>
-              <p>• Hash power starts mining immediately</p>
+              <p>• Hashrate starts mining immediately</p>
             </div>
           </div>
         </Card>
@@ -182,8 +189,8 @@ export default function PurchasePowerPage() {
             </>
           ) : (
             <>
-              <i className="fas fa-bolt mr-3"></i>
-              PURCHASE {powerAmount[0]} HP
+              <i className="fas fa-microchip mr-3"></i>
+              PURCHASE {powerAmount[0]} GH/s
             </>
           )}
         </Button>
