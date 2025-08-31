@@ -76,6 +76,196 @@
   }
 }
 
+@layer components {
+  /* Mobile App Container */
+  .mobile-app {
+    @apply min-h-screen bg-background;
+    @apply flex flex-col;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* App Content Area */
+  .app-content {
+    @apply flex-1 overflow-y-auto;
+    @apply relative;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+
+  /* Bottom Navigation */
+  .bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 z-50;
+    @apply border-t;
+    @apply px-2;
+    background: hsl(var(--card) / 0.95);
+    backdrop-filter: blur(12px);
+    border-color: hsl(var(--primary) / 0.2);
+    padding-bottom: env(safe-area-inset-bottom);
+    height: calc(4.5rem + env(safe-area-inset-bottom));
+  }
+
+  .nav-container {
+    @apply flex items-center justify-around;
+    @apply h-full pt-1;
+  }
+
+  .nav-item {
+    @apply flex flex-col items-center justify-center;
+    @apply relative w-full h-full;
+    @apply transition-all duration-200;
+    @apply rounded-lg;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .nav-item.active {
+    @apply scale-105;
+  }
+
+  .nav-icon {
+    @apply text-xl mb-1;
+    @apply transition-all duration-200;
+  }
+
+  .nav-label {
+    @apply text-[10px] font-mono font-bold;
+    @apply transition-all duration-200;
+  }
+
+  .nav-indicator {
+    @apply absolute -top-1 w-8 h-1;
+    @apply bg-primary rounded-full;
+    @apply glow-green;
+  }
+
+  /* Mobile Page Container */
+  .mobile-page {
+    @apply min-h-screen;
+    @apply flex flex-col;
+    @apply relative;
+  }
+
+  /* Mobile Header */
+  .mobile-header {
+    @apply sticky top-0 z-40;
+    @apply border-b;
+    @apply px-4 py-3;
+    @apply flex items-center justify-between;
+    background: hsl(var(--card) / 0.95);
+    backdrop-filter: blur(12px);
+    border-color: hsl(var(--primary) / 0.2);
+  }
+
+  /* Mobile Content */
+  .mobile-content {
+    @apply flex-1;
+    @apply px-4 py-4;
+    @apply space-y-4;
+  }
+
+  /* Mobile Card */
+  .mobile-card {
+    @apply hologram-card;
+    @apply rounded-2xl p-4;
+    @apply border;
+    border-color: hsl(var(--primary) / 0.2);
+  }
+
+  /* Mobile Button */
+  .mobile-btn {
+    @apply w-full py-4 px-6;
+    @apply rounded-xl;
+    @apply font-display font-bold;
+    @apply transition-all duration-200;
+    @apply active:scale-95;
+  }
+
+  .mobile-btn-primary {
+    @apply mobile-btn;
+    @apply bg-primary text-primary-foreground;
+    @apply glow-green;
+  }
+
+  .mobile-btn-accent {
+    @apply mobile-btn;
+    @apply bg-accent text-accent-foreground;
+  }
+
+  /* Power Slider */
+  .power-slider {
+    @apply w-full;
+  }
+
+  .power-slider-track {
+    @apply h-3 rounded-full;
+    @apply bg-secondary;
+  }
+
+  .power-slider-thumb {
+    @apply w-8 h-8 rounded-full;
+    @apply bg-primary border-4 border-background;
+    @apply glow-green;
+  }
+
+  /* Mining Block 3D */
+  .mining-block-3d {
+    @apply relative;
+    width: 200px;
+    height: 200px;
+    transform-style: preserve-3d;
+    animation: rotate-3d 20s linear infinite;
+  }
+
+  @keyframes rotate-3d {
+    from {
+      transform: rotateX(0deg) rotateY(0deg);
+    }
+    to {
+      transform: rotateX(360deg) rotateY(360deg);
+    }
+  }
+
+  /* FOMO Ticker */
+  .fomo-ticker {
+    @apply rounded-xl p-4;
+    @apply text-center border;
+    background: linear-gradient(to right, hsl(var(--primary) / 0.2), hsl(var(--chart-4) / 0.2));
+    border-color: hsl(var(--primary) / 0.3);
+  }
+
+  .fomo-progress {
+    @apply h-3 rounded-full bg-secondary;
+    @apply overflow-hidden;
+  }
+
+  .fomo-progress-bar {
+    @apply h-full bg-gradient-to-r from-primary to-chart-4;
+    @apply transition-all duration-500;
+    @apply glow-green;
+  }
+
+  /* Claim Button */
+  .claim-button {
+    @apply relative;
+    @apply bg-gradient-to-r from-primary to-chart-4;
+    @apply text-primary-foreground;
+    @apply py-6 px-8 rounded-2xl;
+    @apply font-display font-black text-lg;
+    @apply glow-green mining-pulse;
+  }
+
+  .claim-warning {
+    @apply absolute -top-2 -right-2;
+    @apply bg-yellow-500 text-black;
+    @apply px-2 py-1 rounded-full;
+    @apply text-xs font-bold;
+    @apply animate-pulse;
+  }
+
+}
+
 @layer utilities {
   .font-display {
     font-family: var(--font-display);

@@ -1,0 +1,258 @@
+import { useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
+
+const networkAddresses = {
+  BSC: '0xc1de03ab9892b9eb1deed8a2dd453b7fcefea9e9',
+  ETH: '0xc1de03ab9892b9eb1deed8a2dd453b7fcefea9e9',
+  TRC20: 'THLwx1Ejfo8nSUjeVahCxTbxm7jCLkusPc',
+  APTOS: '0xa02e7dfd29bde133c04b2b2c3a6f6623bcab6865211635dbc8271d51ec8ae053'
+};
+
+export default function DepositPage() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [selectedNetwork, setSelectedNetwork] = useState<string>('BSC');
+  const [txid, setTxid] = useState('');
+  const [amount, setAmount] = useState('');
+  const [note, setNote] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const submitDepositMutation = useMutation({
+    mutationFn: async (data: { txid: string; amount: number; network: string; note?: string }) => {
+      const res = await apiRequest("POST", "/api/deposits", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ 
+        title: "Deposit Submitted!", 
+        description: "Your deposit is pending admin approval" 
+      });
+      setTxid('');
+      setAmount('');
+      setNote('');
+      queryClient.invalidateQueries({ queryKey: ["/api/deposits"] });
+    },
+    onError: (error: Error) => {
+      toast({ 
+        title: "Submission Failed", 
+        description: error.message, 
+        variant: "destructive" 
+      });
+    }
+  });
+
+  const handleCopyAddress = () => {
+    navigator.clipboard.writeText(networkAddresses[selectedNetwork as keyof typeof networkAddresses]);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    toast({ 
+      title: "Address Copied!", 
+      description: "Deposit address copied to clipboard" 
+    });
+  };
+
+  const handleSubmit = () => {
+    if (!txid || !amount) {
+      toast({ 
+        title: "Missing Information", 
+        description: "Please enter TXID and amount", 
+        variant: "destructive" 
+      });
+      return;
+    }
+    
+    submitDepositMutation.mutate({
+      txid,
+      amount: parseFloat(amount),
+      network: selectedNetwork,
+      note
+    });
+  };
+
+  return (
+    <div className="mobile-page">
+      {/* Header */}
+      <div className="mobile-header">
+        <div>
+          <h1 className="text-lg font-display font-bold text-primary">DEPOSIT USDT</h1>
+          <p className="text-xs text-muted-foreground font-mono">Min deposit: 10 USDT</p>
+        </div>
+        <div className="text-right">
+          <p className="text-xs text-muted-foreground font-mono">BALANCE</p>
+          <p className="text-sm font-display font-bold text-accent">
+            ${parseFloat(user?.usdtBalance || '0').toFixed(2)}
+          </p>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="mobile-content">
+        {/* Network Selection */}
+        <Card className="mobile-card">
+          <p className="text-sm font-mono text-muted-foreground mb-3">SELECT NETWORK</p>
+          <div className="grid grid-cols-2 gap-2">
+            {Object.keys(networkAddresses).map((network) => (
+              <button
+                key={network}
+                onClick={() => setSelectedNetwork(network)}
+                className={`p-3 rounded-lg border transition-all ${
+                  selectedNetwork === network 
+                    ? 'border-primary bg-primary/10 glow-green' 
+                    : 'border-border hover:border-primary/50'
+                }`}
+                data-testid={`network-${network.toLowerCase()}`}
+              >
+                <p className="font-display font-bold text-sm">
+                  {network}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {network === 'BSC' ? 'BEP-20' : 
+                   network === 'ETH' ? 'ERC-20' : 
+                   network === 'TRC20' ? 'TRC-20' : 'APT'}
+                </p>
+              </button>
+            ))}
+          </div>
+        </Card>
+
+        {/* Deposit Address */}
+        <Card className="mobile-card bg-gradient-to-br from-primary/10 to-chart-4/10">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-mono text-muted-foreground">DEPOSIT ADDRESS</p>
+            <div className={`w-3 h-3 rounded-full mining-pulse bg-primary glow-green`}></div>
+          </div>
+          
+          <div className="bg-background rounded-lg p-3 mb-3">
+            <p className="text-xs font-mono break-all text-foreground">
+              {networkAddresses[selectedNetwork as keyof typeof networkAddresses]}
+            </p>
+          </div>
+
+          <Button
+            onClick={handleCopyAddress}
+            className="w-full"
+            variant="outline"
+            data-testid="button-copy-address"
+          >
+            <i className={`fas fa-${copied ? 'check' : 'copy'} mr-2`}></i>
+            {copied ? 'Copied!' : 'Copy Address'}
+          </Button>
+        </Card>
+
+        {/* TXID Submission Form */}
+        <Card className="mobile-card">
+          <p className="text-sm font-mono text-muted-foreground mb-3">SUBMIT TRANSACTION</p>
+          
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs text-muted-foreground font-mono mb-1 block">
+                TRANSACTION ID (TXID) *
+              </label>
+              <Input
+                value={txid}
+                onChange={(e) => setTxid(e.target.value)}
+                placeholder="Enter transaction hash"
+                className="font-mono text-xs"
+                data-testid="input-txid"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs text-muted-foreground font-mono mb-1 block">
+                AMOUNT (USDT) *
+              </label>
+              <Input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.00"
+                min="10"
+                step="0.01"
+                data-testid="input-amount"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs text-muted-foreground font-mono mb-1 block">
+                NOTE (Optional)
+              </label>
+              <Textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Additional information"
+                className="min-h-[60px] text-xs"
+                data-testid="input-note"
+              />
+            </div>
+          </div>
+        </Card>
+
+        {/* Warning */}
+        <Card className="mobile-card bg-destructive/10 border-destructive/30">
+          <div className="flex items-start space-x-3">
+            <i className="fas fa-exclamation-triangle text-destructive mt-1"></i>
+            <div className="text-xs text-destructive">
+              <p className="font-bold mb-1">⚠️ WARNING</p>
+              <p>Fake TXID will lead to account freeze/block. Only submit real transactions sent to the address above.</p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Submit Button */}
+        <Button
+          onClick={handleSubmit}
+          disabled={submitDepositMutation.isPending || !txid || !amount}
+          className="mobile-btn-primary text-lg"
+          data-testid="button-submit-deposit"
+        >
+          {submitDepositMutation.isPending ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin mr-2" />
+              Submitting...
+            </>
+          ) : (
+            <>
+              <i className="fas fa-paper-plane mr-3"></i>
+              SUBMIT DEPOSIT
+            </>
+          )}
+        </Button>
+
+        {/* Instructions */}
+        <Card className="mobile-card">
+          <p className="text-sm font-mono text-muted-foreground mb-3">HOW TO DEPOSIT</p>
+          <div className="space-y-2 text-xs text-muted-foreground">
+            <div className="flex items-start">
+              <span className="mr-2">1.</span>
+              <p>Select your preferred network above</p>
+            </div>
+            <div className="flex items-start">
+              <span className="mr-2">2.</span>
+              <p>Send USDT to the displayed address</p>
+            </div>
+            <div className="flex items-start">
+              <span className="mr-2">3.</span>
+              <p>Wait for transaction confirmation</p>
+            </div>
+            <div className="flex items-start">
+              <span className="mr-2">4.</span>
+              <p>Submit the TXID and amount here</p>
+            </div>
+            <div className="flex items-start">
+              <span className="mr-2">5.</span>
+              <p>Admin will verify and approve</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
