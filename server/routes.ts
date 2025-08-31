@@ -324,6 +324,29 @@ export function registerRoutes(app: Express): Server {
     }
   });
   
+  // Claim all blocks at once
+  app.post("/api/claim-all-blocks", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const result = await storage.claimAllBlocks(req.user!.id);
+      
+      if (result.count === 0) {
+        return res.status(400).json({ message: "No blocks to claim" });
+      }
+      
+      res.json({ 
+        message: "All blocks claimed successfully",
+        count: result.count,
+        totalReward: result.totalReward 
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+  
   // Transfer GBTC
   app.post("/api/transfer", async (req, res, next) => {
     try {

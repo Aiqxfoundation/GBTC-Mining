@@ -64,6 +64,7 @@ export interface IStorage {
   createUnclaimedBlock(userId: string, blockNumber: number, txHash: string, reward: string): Promise<void>;
   getUnclaimedBlocks(userId: string): Promise<any[]>;
   claimBlock(blockId: string, userId: string): Promise<{ success: boolean; reward?: string }>;
+  claimAllBlocks(userId: string): Promise<{ count: number; totalReward: string }>;
   expireOldBlocks(): Promise<void>;
   
   // Transfers
@@ -307,6 +308,43 @@ export class DatabaseStorage implements IStorage {
     await this.updateMinerActivity(userId, true);
     
     return { success: true, reward: block.reward };
+  }
+  
+  async claimAllBlocks(userId: string): Promise<{ count: number; totalReward: string }> {
+    const blocks = await db.select()
+      .from(unclaimedBlocks)
+      .where(sql`${unclaimedBlocks.userId} = ${userId} AND ${unclaimedBlocks.claimed} = false AND ${unclaimedBlocks.expiresAt} > NOW()`);
+    
+    if (blocks.length === 0) {
+      return { count: 0, totalReward: '0' };
+    }
+    
+    // Calculate total reward
+    let totalReward = 0;
+    for (const block of blocks) {
+      totalReward += parseFloat(block.reward);
+    }
+    
+    // Mark all blocks as claimed
+    await db.update(unclaimedBlocks)
+      .set({ claimed: true, claimedAt: new Date() })
+      .where(sql`${unclaimedBlocks.userId} = ${userId} AND ${unclaimedBlocks.claimed} = false AND ${unclaimedBlocks.expiresAt} > NOW()`);
+    
+    // Update user balance
+    const user = await this.getUser(userId);
+    if (user) {
+      const newBalance = (parseFloat(user.gbtcBalance) + totalReward).toFixed(8);
+      await db.update(users)
+        .set({ gbtcBalance: newBalance })
+        .where(eq(users.id, userId));
+    }
+    
+    await this.updateMinerActivity(userId, true);
+    
+    return { 
+      count: blocks.length, 
+      totalReward: totalReward.toFixed(8) 
+    };
   }
   
   async expireOldBlocks(): Promise<void> {

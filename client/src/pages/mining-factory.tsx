@@ -5,14 +5,17 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users, Zap, Cpu, Clock, TrendingUp, Coins } from "lucide-react";
+import { Loader2, Hammer, Cpu, TrendingUp, Clock, Zap, Award, Hash } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function MiningFactory() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [runningHashes, setRunningHashes] = useState<string[]>([]);
+  const [isMining, setIsMining] = useState(false);
+  const [currentHash, setCurrentHash] = useState("");
+  const [hashPool, setHashPool] = useState<string[]>([]);
   const [nextBlockTime, setNextBlockTime] = useState("00:00");
-  const [currentTime, setCurrentTime] = useState(Date.now());
+  const [hammerAnimation, setHammerAnimation] = useState(false);
 
   const hashPower = parseFloat(user?.hashPower || '0');
   const gbtcBalance = parseFloat(user?.gbtcBalance || '0');
@@ -26,17 +29,30 @@ export default function MiningFactory() {
   // Fetch unclaimed blocks
   const { data: unclaimedBlocks, isLoading: blocksLoading } = useQuery({
     queryKey: ["/api/unclaimed-blocks"],
-    refetchInterval: 10000,
+    refetchInterval: 30000, // Check every 30 seconds instead of 10
     enabled: !!user,
   });
 
-  // Generate smooth scrolling hashes
+  // Mining animation effect
   useEffect(() => {
-    if (hashPower <= 0) return;
+    if (hashPower > 0) {
+      setIsMining(true);
+      const interval = setInterval(() => {
+        setHammerAnimation(prev => !prev);
+      }, 1000);
+      return () => clearInterval(interval);
+    } else {
+      setIsMining(false);
+    }
+  }, [hashPower]);
+
+  // Generate realistic hash strings
+  useEffect(() => {
+    if (!isMining) return;
 
     const generateHash = () => {
       const chars = '0123456789abcdef';
-      let hash = '0x';
+      let hash = '';
       for (let i = 0; i < 64; i++) {
         hash += chars[Math.floor(Math.random() * chars.length)];
       }
@@ -44,28 +60,20 @@ export default function MiningFactory() {
     };
 
     const interval = setInterval(() => {
-      setRunningHashes(prev => {
-        const newHashes = [...prev];
-        if (newHashes.length >= 10) {
-          newHashes.shift();
-        }
-        newHashes.push(generateHash());
-        return newHashes;
+      const newHash = generateHash();
+      setCurrentHash(newHash);
+      setHashPool(prev => {
+        const updated = [newHash, ...prev.slice(0, 4)];
+        return updated;
       });
-    }, 1000);
-
-    // Initialize with some hashes
-    setRunningHashes(Array(5).fill(0).map(() => generateHash()));
+    }, 100); // Fast hash generation for visual effect
 
     return () => clearInterval(interval);
-  }, [hashPower]);
+  }, [isMining]);
 
-  // Update countdown timer
+  // Countdown timer for next block
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(Date.now());
-      
-      // Calculate time until next block (10-minute intervals)
       const now = new Date();
       const minutesInCycle = now.getMinutes() % 10;
       const secondsInCycle = now.getSeconds();
@@ -80,7 +88,7 @@ export default function MiningFactory() {
     return () => clearInterval(timer);
   }, []);
 
-  // Claim block mutation
+  // Claim single block mutation
   const claimBlockMutation = useMutation({
     mutationFn: async (blockId: string) => {
       const res = await apiRequest("POST", "/api/claim-block", { blockId });
@@ -103,12 +111,42 @@ export default function MiningFactory() {
     }
   });
 
-  const formatHashrate = (hashrate: number) => {
-    if (hashrate >= 1000000000) return `${(hashrate / 1000000000).toFixed(2)} P`;
-    if (hashrate >= 1000000) return `${(hashrate / 1000000).toFixed(2)} T`;
-    if (hashrate >= 1000) return `${(hashrate / 1000).toFixed(2)} G`;
-    if (hashrate >= 1) return `${hashrate.toFixed(2)} M`;
-    return `${(hashrate * 1000).toFixed(2)} K`;
+  // Claim all blocks mutation
+  const claimAllMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/claim-all-blocks");
+      return res.json();
+    },
+    onSuccess: (data) => {
+      toast({ 
+        title: "All Blocks Claimed!", 
+        description: `Successfully claimed ${data.totalReward} GBTC from ${data.count} blocks` 
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/unclaimed-blocks"] });
+    },
+    onError: (error: Error) => {
+      toast({ 
+        title: "Claim Failed", 
+        description: error.message, 
+        variant: "destructive" 
+      });
+    }
+  });
+
+  // Calculate mining stats
+  const totalSupply = 21000000;
+  const blockHeight = globalStats?.blockHeight || 1;
+  const globalHashrate = globalStats?.totalHashrate || 0;
+  const circulation = globalStats?.circulation || 0;
+  const currentBlockReward = globalStats?.currentBlockReward || 6.25;
+  const networkShare = globalHashrate > 0 ? ((hashPower / globalHashrate) * 100) : 0;
+  const estimatedDaily = globalHashrate > 0 ? ((144 * currentBlockReward) * (hashPower / globalHashrate)) : 0;
+
+  const formatHashrate = (rate: number) => {
+    if (rate >= 1000000) return `${(rate / 1000000).toFixed(2)} PH/s`;
+    if (rate >= 1000) return `${(rate / 1000).toFixed(2)} TH/s`;
+    return `${rate.toFixed(2)} GH/s`;
   };
 
   const getTimeRemaining = (expiresAt: string) => {
@@ -121,27 +159,19 @@ export default function MiningFactory() {
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     
-    if (hours > 0) return `${hours}h ${minutes}m`;
-    return `${minutes}m`;
+    return `${hours}h ${minutes}m`;
   };
 
-  // Calculate stats
-  const totalSupply = 21000000; // 21 Million GBTC (like Bitcoin)
-  const blockHeight = globalStats?.blockHeight || 1;
-  const globalHashrate = globalStats?.totalHashrate || 0;
-  const blocksMinedTotal = globalStats?.totalBlocksMined || 0;
-  const circulation = globalStats?.circulation || 0;
-  const currentBlockReward = globalStats?.currentBlockReward || 6.25;
-  const mySharePercent = globalHashrate > 0 ? ((hashPower / globalHashrate) * 100).toFixed(4) : '0';
-  const estimatedRewardPerBlock = globalHashrate > 0 ? (currentBlockReward * (hashPower / globalHashrate)).toFixed(8) : '0.00000000';
-  const activeMiners = globalStats?.activeMiners || 0;
+  const totalUnclaimedReward = unclaimedBlocks?.reduce((sum: number, block: any) => 
+    sum + parseFloat(block.reward), 0
+  ) || 0;
 
   return (
-    <div className="mobile-page bg-black">
+    <div className="mobile-page bg-gradient-to-b from-black via-gray-900 to-black">
       {/* Header */}
-      <div className="mobile-header bg-gradient-to-r from-primary/20 to-accent/20 backdrop-blur-md">
+      <div className="mobile-header bg-black/80 backdrop-blur-lg border-b border-primary/20">
         <div>
-          <h1 className="text-xl font-display font-black text-primary glow-green">
+          <h1 className="text-xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
             MINING FACTORY
           </h1>
           <p className="text-xs text-muted-foreground font-mono">
@@ -150,236 +180,245 @@ export default function MiningFactory() {
         </div>
         <div className="text-right">
           <p className="text-xs text-muted-foreground font-mono">BALANCE</p>
-          <p className="text-lg font-display font-bold text-accent glow-gold">
+          <p className="text-lg font-display font-bold text-accent">
             {gbtcBalance.toFixed(8)} GBTC
           </p>
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="mobile-content">
-        {/* Statistics Grid */}
+        {/* Mining Animation Section */}
+        <Card className="mobile-card bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20 overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none"></div>
+          
+          <div className="relative z-10 p-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <div className={`w-3 h-3 rounded-full ${isMining ? 'bg-success animate-pulse' : 'bg-destructive'}`}></div>
+                <span className="text-sm font-mono text-primary">
+                  {isMining ? 'MINING ACTIVE' : 'MINING INACTIVE'}
+                </span>
+              </div>
+              <span className="text-sm font-mono text-accent">
+                {formatHashrate(hashPower)}
+              </span>
+            </div>
+
+            {/* Golden Hammer Mining Animation */}
+            <div className="flex justify-center my-6">
+              <div className="relative">
+                <motion.div
+                  animate={hammerAnimation ? { rotate: -30, y: -10 } : { rotate: 0, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-6xl"
+                >
+                  🔨
+                </motion.div>
+                <motion.div
+                  animate={isMining ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                  className="absolute -bottom-2 left-1/2 transform -translate-x-1/2"
+                >
+                  <div className="w-16 h-3 bg-gradient-to-r from-yellow-600 to-yellow-400 rounded-sm shadow-lg"></div>
+                </motion.div>
+              </div>
+            </div>
+
+            {/* Hash Display */}
+            {isMining && (
+              <div className="bg-black/50 rounded-lg p-3 mt-4">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Hash className="w-4 h-4 text-primary" />
+                  <span className="text-xs font-mono text-primary">CALCULATING HASHES</span>
+                </div>
+                <div className="font-mono text-[10px] text-green-400 break-all">
+                  {currentHash}
+                </div>
+                <div className="mt-2 space-y-1">
+                  {hashPool.map((hash, index) => (
+                    <motion.div
+                      key={`${hash}-${index}`}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1 - (index * 0.2), x: 0 }}
+                      className="font-mono text-[9px] text-green-400/60 truncate"
+                    >
+                      {hash}
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
+
+        {/* Network Stats Grid */}
         <div className="grid grid-cols-2 gap-3 mb-4">
-          {/* Total Supply */}
-          <Card className="mobile-card bg-gradient-to-br from-primary/10 to-transparent border-primary/30">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground font-mono mb-1">TotalSupply</p>
-                <p className="text-lg font-display font-bold text-primary">
-                  {(totalSupply / 1000000).toFixed(0)} M
-                </p>
+          <Card className="mobile-card bg-black/50 border-primary/20">
+            <div className="p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] text-muted-foreground uppercase">Total Supply</span>
+                <Award className="w-4 h-4 text-primary/50" />
               </div>
-              <Coins className="w-5 h-5 text-primary/50" />
-            </div>
-          </Card>
-
-          {/* Circulation */}
-          <Card className="mobile-card bg-gradient-to-br from-accent/10 to-transparent border-accent/30">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground font-mono mb-1">Circulation</p>
-                <p className="text-lg font-display font-bold text-accent">
-                  {circulation.toFixed(2)} GBTC
-                </p>
-              </div>
-              <TrendingUp className="w-5 h-5 text-accent/50" />
-            </div>
-          </Card>
-
-          {/* Block Height */}
-          <Card className="mobile-card bg-gradient-to-br from-chart-3/10 to-transparent border-chart-3/30">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground font-mono mb-1">BlockHeight</p>
-                <p className="text-lg font-display font-bold text-chart-3">
-                  {blockHeight.toLocaleString()}
-                </p>
-              </div>
-              <Cpu className="w-5 h-5 text-chart-3/50" />
-            </div>
-          </Card>
-
-          {/* Hashrate */}
-          <Card className="mobile-card bg-gradient-to-br from-chart-4/10 to-transparent border-chart-4/30">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground font-mono mb-1">Hashrate</p>
-                <p className="text-lg font-display font-bold text-chart-4">
-                  {formatHashrate(globalHashrate)} H
-                </p>
-              </div>
-              <Zap className="w-5 h-5 text-chart-4/50" />
-            </div>
-          </Card>
-
-          {/* Your Share */}
-          <Card className="mobile-card bg-gradient-to-br from-success/10 to-transparent border-success/30">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground font-mono mb-1">Your Share</p>
-                <p className="text-lg font-display font-bold text-success">
-                  {mySharePercent}%
-                </p>
-              </div>
-              <TrendingUp className="w-5 h-5 text-success/50" />
-            </div>
-          </Card>
-
-          {/* Next Block */}
-          <Card className="mobile-card bg-gradient-to-br from-warning/10 to-transparent border-warning/30">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground font-mono mb-1">NextBlock</p>
-                <p className="text-lg font-display font-bold text-warning">
-                  {nextBlockTime}
-                </p>
-              </div>
-              <Clock className="w-5 h-5 text-warning/50 animate-pulse" />
-            </div>
-          </Card>
-        </div>
-
-        {/* Personal Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          {/* My Hash */}
-          <Card className="mobile-card bg-black border-primary/30">
-            <div>
-              <p className="text-xs text-muted-foreground font-mono mb-1">MyHash</p>
-              <p className="text-base font-display font-bold text-primary">
-                {formatHashrate(hashPower / 1000)} K
-              </p>
-            </div>
-          </Card>
-
-          {/* Est. Reward */}
-          <Card className="mobile-card bg-black border-accent/30">
-            <div>
-              <p className="text-xs text-muted-foreground font-mono mb-1">Est/Block</p>
-              <p className="text-base font-display font-bold text-accent">
-                {estimatedRewardPerBlock}
-              </p>
+              <p className="text-lg font-bold text-primary">{(totalSupply / 1000000).toFixed(0)}M</p>
               <p className="text-[10px] text-muted-foreground">GBTC</p>
             </div>
           </Card>
 
-          {/* Active Miners */}
-          <Card className="mobile-card bg-black border-chart-3/30">
-            <div>
-              <p className="text-xs text-muted-foreground font-mono mb-1">ActiveMiners</p>
-              <p className="text-base font-display font-bold text-chart-3">
-                {activeMiners} <span className="text-xs">users</span>
-              </p>
+          <Card className="mobile-card bg-black/50 border-accent/20">
+            <div className="p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] text-muted-foreground uppercase">Circulation</span>
+                <TrendingUp className="w-4 h-4 text-accent/50" />
+              </div>
+              <p className="text-lg font-bold text-accent">{circulation.toFixed(2)}</p>
+              <p className="text-[10px] text-muted-foreground">GBTC</p>
+            </div>
+          </Card>
+
+          <Card className="mobile-card bg-black/50 border-chart-3/20">
+            <div className="p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] text-muted-foreground uppercase">Block Height</span>
+                <Cpu className="w-4 h-4 text-chart-3/50" />
+              </div>
+              <p className="text-lg font-bold text-chart-3">#{blockHeight}</p>
+              <p className="text-[10px] text-muted-foreground">CURRENT</p>
+            </div>
+          </Card>
+
+          <Card className="mobile-card bg-black/50 border-warning/20">
+            <div className="p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] text-muted-foreground uppercase">Next Block</span>
+                <Clock className="w-4 h-4 text-warning/50 animate-pulse" />
+              </div>
+              <p className="text-lg font-bold text-warning">{nextBlockTime}</p>
+              <p className="text-[10px] text-muted-foreground">COUNTDOWN</p>
             </div>
           </Card>
         </div>
 
-        {/* Transaction Hashes (Non-vibrating) */}
-        {hashPower > 0 && (
-          <Card className="mobile-card bg-black border-primary/30 overflow-hidden mb-4">
-            <div className="mb-2">
-              <p className="text-xs font-mono text-primary">PROCESSING TRANSACTIONS</p>
-            </div>
-            <div className="bg-black/50 rounded p-3 font-mono text-[10px] space-y-1 h-24 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80 pointer-events-none z-10"></div>
-              {runningHashes.map((hash, index) => (
-                <div
-                  key={`${hash}-${index}`}
-                  className="truncate transition-all duration-500"
-                  style={{
-                    opacity: 1 - (index * 0.15),
-                    color: index === runningHashes.length - 1 ? '#00ff00' : '#00ff0080',
-                    transform: `translateY(${index === runningHashes.length - 1 ? '0' : '0'})`,
-                  }}
-                >
-                  {hash}
-                </div>
-              ))}
-            </div>
-            <div className="mt-2 flex items-center space-x-2">
-              <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
-              <p className="text-xs text-muted-foreground font-mono">
-                Mining at {formatHashrate(hashPower / 1000)} KH/s
-              </p>
+        {/* Personal Mining Stats */}
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          <Card className="mobile-card bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
+            <div className="p-2 text-center">
+              <Zap className="w-5 h-5 text-primary mx-auto mb-1" />
+              <p className="text-[10px] text-muted-foreground">Network Share</p>
+              <p className="text-sm font-bold text-primary">{networkShare.toFixed(4)}%</p>
             </div>
           </Card>
-        )}
 
-        {/* Unclaimed Blocks */}
+          <Card className="mobile-card bg-gradient-to-br from-accent/10 to-transparent border-accent/20">
+            <div className="p-2 text-center">
+              <Hammer className="w-5 h-5 text-accent mx-auto mb-1" />
+              <p className="text-[10px] text-muted-foreground">Your Hashrate</p>
+              <p className="text-sm font-bold text-accent">{formatHashrate(hashPower)}</p>
+            </div>
+          </Card>
+
+          <Card className="mobile-card bg-gradient-to-br from-success/10 to-transparent border-success/20">
+            <div className="p-2 text-center">
+              <TrendingUp className="w-5 h-5 text-success mx-auto mb-1" />
+              <p className="text-[10px] text-muted-foreground">Est. Daily</p>
+              <p className="text-sm font-bold text-success">{estimatedDaily.toFixed(4)}</p>
+            </div>
+          </Card>
+        </div>
+
+        {/* Unclaimed Blocks Section */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <p className="text-sm font-mono text-primary">UNCLAIMED BLOCKS</p>
-            <p className="text-xs text-muted-foreground font-mono">
-              Claim within 24 hours
-            </p>
+            {unclaimedBlocks && unclaimedBlocks.length > 1 && (
+              <Button
+                onClick={() => claimAllMutation.mutate()}
+                disabled={claimAllMutation.isPending}
+                size="sm"
+                className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
+                data-testid="button-claim-all"
+              >
+                {claimAllMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <Award className="w-4 h-4 mr-2" />
+                )}
+                CLAIM ALL ({totalUnclaimedReward.toFixed(8)} GBTC)
+              </Button>
+            )}
           </div>
 
           {blocksLoading ? (
-            <Card className="mobile-card bg-black border-primary/30">
+            <Card className="mobile-card bg-black/50 border-primary/20">
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
               </div>
             </Card>
           ) : unclaimedBlocks && unclaimedBlocks.length > 0 ? (
-            <div className="space-y-2">
+            <div className="space-y-2 max-h-64 overflow-y-auto">
               {unclaimedBlocks.map((block: any) => (
                 <Card 
                   key={block.id} 
-                  className="mobile-card bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30"
+                  className="mobile-card bg-gradient-to-r from-black/50 to-primary/5 border-primary/20"
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                      <Cpu className="w-5 h-5 text-primary animate-pulse" />
-                      <div>
-                        <p className="text-sm font-display font-bold text-primary">
-                          BLOCK #{block.blockNumber}
+                  <div className="p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded flex items-center justify-center">
+                          <span className="text-xs font-bold">#{block.blockNumber}</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-primary">BLOCK #{block.blockNumber}</p>
+                          <p className="text-[9px] font-mono text-muted-foreground truncate max-w-[120px]">
+                            {block.txHash}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-base font-bold text-accent">
+                          {parseFloat(block.reward).toFixed(8)}
                         </p>
-                        <p className="text-[10px] font-mono text-muted-foreground truncate max-w-[150px]">
-                          {block.txHash}
-                        </p>
+                        <p className="text-[10px] text-primary">GBTC</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-lg font-display font-black text-accent glow-gold">
-                        {parseFloat(block.reward).toFixed(8)}
-                      </p>
-                      <p className="text-xs text-primary">GBTC</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className={`text-xs font-mono px-2 py-1 rounded ${
-                      getTimeRemaining(block.expiresAt) === 'EXPIRED' 
-                        ? 'bg-destructive/20 text-destructive' 
-                        : 'bg-warning/20 text-warning'
-                    }`}>
-                      <Clock className="w-3 h-3 inline mr-1" />
-                      {getTimeRemaining(block.expiresAt)}
-                    </div>
                     
-                    <Button
-                      onClick={() => claimBlockMutation.mutate(block.id)}
-                      disabled={
-                        claimBlockMutation.isPending || 
-                        getTimeRemaining(block.expiresAt) === 'EXPIRED'
-                      }
-                      className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
-                      size="sm"
-                      data-testid={`button-claim-${block.id}`}
-                    >
-                      {claimBlockMutation.isPending ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <>CLAIM</>
-                      )}
-                    </Button>
+                    <div className="flex items-center justify-between">
+                      <div className={`text-xs font-mono px-2 py-1 rounded ${
+                        getTimeRemaining(block.expiresAt) === 'EXPIRED' 
+                          ? 'bg-destructive/20 text-destructive' 
+                          : 'bg-warning/20 text-warning'
+                      }`}>
+                        <Clock className="w-3 h-3 inline mr-1" />
+                        {getTimeRemaining(block.expiresAt)}
+                      </div>
+                      
+                      <Button
+                        onClick={() => claimBlockMutation.mutate(block.id)}
+                        disabled={
+                          claimBlockMutation.isPending || 
+                          getTimeRemaining(block.expiresAt) === 'EXPIRED'
+                        }
+                        className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
+                        size="sm"
+                        data-testid={`button-claim-${block.id}`}
+                      >
+                        {claimBlockMutation.isPending ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <>
+                            <Award className="w-3 h-3 mr-1" />
+                            CLAIM
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </Card>
               ))}
             </div>
           ) : (
-            <Card className="mobile-card bg-black border-primary/30">
+            <Card className="mobile-card bg-black/50 border-primary/20">
               <div className="text-center py-8">
-                <Cpu className="w-10 h-10 text-muted-foreground mb-3 mx-auto" />
+                <Hammer className="w-10 h-10 text-muted-foreground mb-3 mx-auto" />
                 <p className="text-sm text-muted-foreground">No blocks to claim</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   {hashPower > 0 
@@ -393,13 +432,13 @@ export default function MiningFactory() {
 
         {/* No Hashrate Warning */}
         {hashPower <= 0 && (
-          <Card className="mobile-card bg-destructive/10 border-destructive/30 mt-4">
-            <div className="flex items-center space-x-3">
-              <Zap className="w-5 h-5 text-destructive" />
+          <Card className="mobile-card bg-gradient-to-r from-destructive/10 to-destructive/5 border-destructive/30 mt-4">
+            <div className="flex items-center space-x-3 p-3">
+              <Zap className="w-6 h-6 text-destructive" />
               <div>
-                <p className="text-sm font-semibold text-destructive">Mining Inactive</p>
+                <p className="text-sm font-semibold text-destructive">Mining Power Required</p>
                 <p className="text-xs text-muted-foreground">
-                  Purchase hashrate to start mining GBTC
+                  Purchase hashrate to start mining and earning GBTC rewards
                 </p>
               </div>
             </div>
