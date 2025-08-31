@@ -3,159 +3,250 @@ import bitcoinLogo from "@assets/file_00000000221c61fab63936953b889556_175663390
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-50">
+    <div className="min-h-screen matrix-bg">
+      {/* Floating particles effect */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-primary rounded-full mining-float opacity-60"></div>
+        <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-chart-4 rounded-full mining-float opacity-40" style={{animationDelay: '2s'}}></div>
+        <div className="absolute bottom-1/4 left-1/3 w-1.5 h-1.5 bg-accent rounded-full mining-float opacity-50" style={{animationDelay: '4s'}}></div>
+        <div className="absolute top-1/2 right-1/4 w-1 h-1 bg-primary rounded-full mining-float opacity-30" style={{animationDelay: '1s'}}></div>
+      </div>
+
+      {/* Cyber Header */}
+      <header className="bg-card/80 border-b border-primary/20 sticky top-0 z-50 backdrop-blur-md">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                <img src={bitcoinLogo} alt="GBTC" className="w-6 h-6" />
+              <div className="relative">
+                <div className="w-12 h-12 cyber-border rounded-xl flex items-center justify-center glow-bitcoin">
+                  <img src={bitcoinLogo} alt="GBTC" className="w-8 h-8 mining-pulse" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full mining-pulse"></div>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-primary">Green Bitcoin</h1>
-                <p className="text-xs text-muted-foreground">GBTC Mining Platform</p>
+                <h1 className="text-2xl font-display font-bold text-primary glow-green">
+                  GBTC<span className="text-chart-4">MINE</span>
+                </h1>
+                <p className="text-xs text-muted-foreground font-mono">Next-Gen Mining Protocol</p>
               </div>
             </div>
             
-            <nav className="hidden md:flex items-center space-x-6">
-              <button className="text-primary transition-colors">
-                <i className="fas fa-home mr-2"></i>Home
+            <nav className="hidden md:flex items-center space-x-8">
+              <button className="text-primary font-medium transition-all hover:glow-green font-display">
+                <i className="fas fa-cube mr-2 mining-spin"></i>Mine
               </button>
-              <Link href="/auth" className="text-foreground hover:text-primary transition-colors">
-                <i className="fas fa-sign-in-alt mr-2"></i>Login
+              <Link href="/auth" className="text-foreground hover:text-primary transition-colors font-medium">
+                <i className="fas fa-user-astronaut mr-2"></i>Enter
               </Link>
-              <Link href="/dashboard" className="text-foreground hover:text-primary transition-colors">
-                <i className="fas fa-tachometer-alt mr-2"></i>Dashboard
+              <Link href="/dashboard" className="text-foreground hover:text-primary transition-colors font-medium">
+                <i className="fas fa-satellite-dish mr-2"></i>Control
               </Link>
-              <Link href="/admin" className="text-foreground hover:text-primary transition-colors">
-                <i className="fas fa-cog mr-2"></i>Admin
+              <Link href="/mining" className="text-foreground hover:text-primary transition-colors font-medium">
+                <i className="fas fa-microchip mr-2"></i>Mining
               </Link>
             </nav>
             
             <div className="flex items-center space-x-4">
-              <div className="hidden lg:flex items-center space-x-2 text-sm">
-                <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                <span className="text-muted-foreground">Network Active</span>
+              <div className="hidden lg:flex items-center space-x-2 text-sm hologram-card px-3 py-1 rounded-full">
+                <div className="w-2 h-2 bg-primary rounded-full mining-pulse"></div>
+                <span className="text-primary font-mono font-bold">ONLINE</span>
               </div>
-              <button className="md:hidden text-foreground">
-                <i className="fas fa-bars"></i>
-              </button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-background to-card py-20">
-        <div className="container mx-auto px-4 text-center">
-          <div className="max-w-4xl mx-auto">
-            <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center mx-auto mb-8 glow-green">
-              <img src={bitcoinLogo} alt="GBTC" className="w-12 h-12" />
+      {/* Cyber Hero Section */}
+      <section className="relative py-32 overflow-hidden">
+        <div className="mining-grid absolute inset-0 opacity-30"></div>
+        <div className="container mx-auto px-4 text-center relative">
+          <div className="max-w-6xl mx-auto">
+            {/* 3D Bitcoin Logo */}
+            <div className="relative mx-auto mb-12">
+              <div className="w-32 h-32 mx-auto relative block-3d">
+                <div className="cyber-border rounded-2xl w-full h-full flex items-center justify-center glow-bitcoin">
+                  <img src={bitcoinLogo} alt="GBTC" className="w-20 h-20 mining-float" />
+                </div>
+                <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full mining-pulse glow-green"></div>
+                <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-chart-4 rounded-full mining-pulse"></div>
+              </div>
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              Green Bitcoin <span className="text-primary">Mining</span>
+
+            <h1 className="text-6xl md:text-8xl font-display font-black mb-8 leading-tight">
+              <span className="text-primary glow-green">QUANTUM</span>
+              <br />
+              <span className="text-chart-4 glow-bitcoin">MINING</span>
+              <br />
+              <span className="text-foreground">PROTOCOL</span>
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Experience the future of sustainable cryptocurrency mining with GBTC. 
-              A Bitcoin-inspired token with eco-friendly approach and fixed 21M supply.
+            
+            <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto font-mono leading-relaxed">
+              Harness the power of distributed quantum mining. 
+              <br />
+              <span className="text-primary">21,000,000 GBTC</span> • 
+              <span className="text-chart-4">Next-Gen Proof</span> • 
+              <span className="text-accent">Real Rewards</span>
             </p>
-            <Link href="/auth">
-              <button 
-                className="bg-primary text-primary-foreground px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary/90 transition-all transform hover:scale-105 glow-green"
-                data-testid="button-start-mining"
-              >
-                Start Mining Now
-                <i className="fas fa-arrow-right ml-2"></i>
-              </button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-card p-8 rounded-lg border border-border hover:border-primary/50 transition-colors">
-              <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mb-4">
-                <i className="fas fa-coins text-primary text-xl"></i>
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Fixed Supply</h3>
-              <p className="text-muted-foreground">Total supply capped at 21,000,000 GBTC tokens, ensuring scarcity and value preservation.</p>
-            </div>
             
-            <div className="bg-card p-8 rounded-lg border border-border hover:border-primary/50 transition-colors">
-              <div className="w-12 h-12 bg-accent/20 rounded-lg flex items-center justify-center mb-4">
-                <i className="fas fa-clock text-accent text-xl"></i>
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Halving Cycle</h3>
-              <p className="text-muted-foreground">Block rewards halve every 2 years, creating a deflationary mechanism similar to Bitcoin.</p>
-            </div>
-            
-            <div className="bg-card p-8 rounded-lg border border-border hover:border-primary/50 transition-colors">
-              <div className="w-12 h-12 bg-chart-3/20 rounded-lg flex items-center justify-center mb-4">
-                <i className="fas fa-leaf text-chart-3 text-xl"></i>
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Eco-Friendly</h3>
-              <p className="text-muted-foreground">Sustainable mining approach with reduced energy consumption compared to traditional mining.</p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+              <Link href="/auth">
+                <button 
+                  className="cyber-border bg-gradient-to-r from-primary to-chart-4 text-primary-foreground px-10 py-5 rounded-xl font-display font-bold text-lg hover:scale-105 transition-all glow-green mining-pulse"
+                  data-testid="button-start-mining"
+                >
+                  <i className="fas fa-rocket mr-3"></i>
+                  INITIALIZE MINING
+                </button>
+              </Link>
+              
+              <Link href="/mining">
+                <button className="hologram-card text-foreground px-10 py-5 rounded-xl font-display font-bold text-lg hover:scale-105 transition-all">
+                  <i className="fas fa-chart-line mr-3"></i>
+                  VIEW PROTOCOL
+                </button>
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Tokenomics Section */}
-      <section className="py-20 bg-card">
+      {/* Protocol Features */}
+      <section className="py-24 relative">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">Tokenomics</h2>
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div>
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between p-4 bg-background rounded-lg">
-                    <span className="text-foreground">Mining</span>
-                    <span className="text-primary font-semibold">50%</span>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
+              <span className="text-primary">QUANTUM</span> PROTOCOL FEATURES
+            </h2>
+            <p className="text-xl text-muted-foreground font-mono">Advanced mining technology with proven economics</p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="hologram-card p-8 rounded-xl block-3d group">
+              <div className="w-16 h-16 cyber-border rounded-xl flex items-center justify-center mb-6 glow-bitcoin group-hover:mining-pulse">
+                <i className="fas fa-atom text-primary text-2xl"></i>
+              </div>
+              <h3 className="text-xl font-display font-bold mb-4 text-primary">QUANTUM CORE</h3>
+              <p className="text-muted-foreground font-mono text-sm leading-relaxed">
+                Advanced quantum-resistant algorithm with 21M fixed supply ensuring maximum scarcity
+              </p>
+            </div>
+            
+            <div className="hologram-card p-8 rounded-xl block-3d group">
+              <div className="w-16 h-16 cyber-border rounded-xl flex items-center justify-center mb-6 glow-green group-hover:mining-pulse">
+                <i className="fas fa-microchip text-chart-4 text-2xl"></i>
+              </div>
+              <h3 className="text-xl font-display font-bold mb-4 text-chart-4">SMART HALVING</h3>
+              <p className="text-muted-foreground font-mono text-sm leading-relaxed">
+                Automated reward reduction every 365 days maintaining deflationary pressure
+              </p>
+            </div>
+            
+            <div className="hologram-card p-8 rounded-xl block-3d group">
+              <div className="w-16 h-16 cyber-border rounded-xl flex items-center justify-center mb-6 glow-green group-hover:mining-pulse">
+                <i className="fas fa-bolt text-accent text-2xl"></i>
+              </div>
+              <h3 className="text-xl font-display font-bold mb-4 text-accent">INSTANT REWARDS</h3>
+              <p className="text-muted-foreground font-mono text-sm leading-relaxed">
+                Real-time mining rewards with instant claim and USDT-backed hash power
+              </p>
+            </div>
+            
+            <div className="hologram-card p-8 rounded-xl block-3d group">
+              <div className="w-16 h-16 cyber-border rounded-xl flex items-center justify-center mb-6 glow-bitcoin group-hover:mining-pulse">
+                <i className="fas fa-shield-alt text-chart-3 text-2xl"></i>
+              </div>
+              <h3 className="text-xl font-display font-bold mb-4 text-chart-3">SECURE VAULT</h3>
+              <p className="text-muted-foreground font-mono text-sm leading-relaxed">
+                Multi-network deposits with admin verification for maximum security
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Quantum Economics */}
+      <section className="py-24 bg-gradient-to-br from-card/50 to-background relative">
+        <div className="absolute inset-0 mining-grid opacity-20"></div>
+        <div className="container mx-auto px-4 relative">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
+                <span className="text-chart-4">QUANTUM</span> ECONOMICS
+              </h2>
+              <p className="text-xl text-muted-foreground font-mono">Mathematically perfect distribution protocol</p>
+            </div>
+            
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              {/* Token Distribution */}
+              <div className="space-y-6">
+                <div className="hologram-card p-6 rounded-xl flex items-center justify-between block-3d">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-4 h-4 bg-primary rounded-full mining-pulse"></div>
+                    <span className="font-display font-bold text-primary">QUANTUM MINING</span>
                   </div>
-                  <div className="flex items-center justify-between p-4 bg-background rounded-lg">
-                    <span className="text-foreground">Presale</span>
-                    <span className="text-accent font-semibold">25%</span>
+                  <span className="font-display font-black text-2xl text-primary">65%</span>
+                </div>
+                
+                <div className="hologram-card p-6 rounded-xl flex items-center justify-between block-3d">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-4 h-4 bg-chart-4 rounded-full mining-pulse" style={{animationDelay: '0.5s'}}></div>
+                    <span className="font-display font-bold text-chart-4">PRESALE PROTOCOL</span>
                   </div>
-                  <div className="flex items-center justify-between p-4 bg-background rounded-lg">
-                    <span className="text-foreground">Listings</span>
-                    <span className="text-chart-3 font-semibold">10%</span>
+                  <span className="font-display font-black text-2xl text-chart-4">15%</span>
+                </div>
+                
+                <div className="hologram-card p-6 rounded-xl flex items-center justify-between block-3d">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-4 h-4 bg-accent rounded-full mining-pulse" style={{animationDelay: '1s'}}></div>
+                    <span className="font-display font-bold text-accent">DEX LIQUIDITY</span>
                   </div>
-                  <div className="flex items-center justify-between p-4 bg-background rounded-lg">
-                    <span className="text-foreground">VCs</span>
-                    <span className="text-chart-4 font-semibold">5%</span>
+                  <span className="font-display font-black text-2xl text-accent">10%</span>
+                </div>
+                
+                <div className="hologram-card p-6 rounded-xl flex items-center justify-between block-3d">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-4 h-4 bg-chart-3 rounded-full mining-pulse" style={{animationDelay: '1.5s'}}></div>
+                    <span className="font-display font-bold text-chart-3">DEVELOPMENT</span>
                   </div>
-                  <div className="flex items-center justify-between p-4 bg-background rounded-lg">
-                    <span className="text-foreground">Team</span>
-                    <span className="text-chart-5 font-semibold">5%</span>
+                  <span className="font-display font-black text-2xl text-chart-3">7%</span>
+                </div>
+                
+                <div className="hologram-card p-6 rounded-xl flex items-center justify-between block-3d">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-4 h-4 bg-chart-5 rounded-full mining-pulse" style={{animationDelay: '2s'}}></div>
+                    <span className="font-display font-bold text-chart-5">EMERGENCY RESERVE</span>
                   </div>
-                  <div className="flex items-center justify-between p-4 bg-background rounded-lg">
-                    <span className="text-foreground">Reserve</span>
-                    <span className="text-muted-foreground font-semibold">5%</span>
-                  </div>
+                  <span className="font-display font-black text-2xl text-chart-5">3%</span>
                 </div>
               </div>
-              <div className="bg-background p-8 rounded-lg">
-                <h3 className="text-xl font-semibold mb-6">Key Metrics</h3>
-                <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Total Supply:</span>
-                    <span className="font-semibold">21,000,000 GBTC</span>
+              
+              {/* Protocol Metrics */}
+              <div className="cyber-border p-8 rounded-xl bg-gradient-to-br from-card/80 to-background/80 backdrop-blur-sm">
+                <h3 className="text-2xl font-display font-bold mb-8 text-primary glow-green">PROTOCOL METRICS</h3>
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground font-mono">TOTAL_SUPPLY:</span>
+                    <span className="font-display font-black text-xl text-primary">21,000,000</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Current Reward:</span>
-                    <span className="font-semibold text-primary">6.25 GBTC</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground font-mono">GENESIS_REWARD:</span>
+                    <span className="font-display font-black text-xl text-chart-4">12.5 GBTC</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Next Halving:</span>
-                    <span className="font-semibold">730 days</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground font-mono">HALVING_CYCLE:</span>
+                    <span className="font-display font-black text-xl text-accent">365 DAYS</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Block Time:</span>
-                    <span className="font-semibold">10 minutes</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground font-mono">BLOCK_TIME:</span>
+                    <span className="font-display font-black text-xl text-chart-3">600 SEC</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground font-mono">HASH_POWER_RATE:</span>
+                    <span className="font-display font-black text-xl text-chart-5">1:1 USDT</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground font-mono">NEXT_HALVING:</span>
+                    <span className="font-display font-black text-xl text-destructive mining-pulse">287 DAYS</span>
                   </div>
                 </div>
               </div>
