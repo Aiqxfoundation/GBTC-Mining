@@ -18,6 +18,8 @@ export default function MiningDashboard() {
   const [miningActive, setMiningActive] = useState(true);
   const [blockProgress, setBlockProgress] = useState(0);
   const [activeTab, setActiveTab] = useState('mining'); // Tab state
+  const [coins, setCoins] = useState<number[]>([]);
+  const [isBlockAnimating, setIsBlockAnimating] = useState(false)
 
   // Calculate hours since last claim
   const getHoursSinceLastClaim = () => {
@@ -29,12 +31,25 @@ export default function MiningDashboard() {
   const hoursSinceLastClaim = getHoursSinceLastClaim();
   const showClaimWarning = hoursSinceLastClaim > 18;
   const isInactive = hoursSinceLastClaim >= 24;
+  
+  // Fair distribution calculation based on hashpower
+  const myHashrate = parseFloat(user?.hashPower || '0');
+  const baseGlobalHashrate = 584732.50; // Base global hashrate in GH/s
+  const networkGrowthRate = 1.0012; // 0.12% hourly growth to simulate network expansion
+  const currentHour = new Date().getHours();
+  const globalHashrate = baseGlobalHashrate * Math.pow(networkGrowthRate, currentHour);
 
-  // Block timer countdown
+  // Block timer countdown and coin generation
   useEffect(() => {
     const timer = setInterval(() => {
       setBlockTimer(prev => {
         if (prev <= 1) {
+          // Generate a coin when block completes
+          if (myHashrate > 0) {
+            setCoins(c => [...c, Date.now()]);
+            setIsBlockAnimating(true);
+            setTimeout(() => setIsBlockAnimating(false), 500);
+          }
           return 600; // Reset to 10 minutes
         }
         return prev - 1;
@@ -42,7 +57,7 @@ export default function MiningDashboard() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [myHashrate]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -53,14 +68,6 @@ export default function MiningDashboard() {
   useEffect(() => {
     setBlockProgress(((600 - blockTimer) / 600) * 100);
   }, [blockTimer]);
-
-  // Fair distribution calculation based on hashpower
-  // Each user earns: (User Hashpower ÷ Total Global Hashpower) × Block Reward
-  const myHashrate = parseFloat(user?.hashPower || '0');
-  const baseGlobalHashrate = 584732.50; // Base global hashrate in GH/s
-  const networkGrowthRate = 1.0012; // 0.12% hourly growth to simulate network expansion
-  const currentHour = new Date().getHours();
-  const globalHashrate = baseGlobalHashrate * Math.pow(networkGrowthRate, currentHour);
   
   const getHashrateDisplay = (hashrate: number) => {
     if (hashrate >= 1000000) return `${(hashrate / 1000000).toFixed(3)} PH/s`;
@@ -116,6 +123,17 @@ export default function MiningDashboard() {
   const handleClaim = () => {
     claimRewardsMutation.mutate();
   };
+  
+  const handleClaimCoins = () => {
+    if (coins.length > 0) {
+      const coinRewards = coins.length * myEstimatedReward;
+      setCoins([]);
+      toast({ 
+        title: `Claimed ${coins.length} blocks!`, 
+        description: `${coinRewards.toFixed(4)} GBTC added to unclaimed rewards.` 
+      });
+    }
+  };
 
   // Show loading state
   if (isLoading) {
@@ -161,78 +179,86 @@ export default function MiningDashboard() {
         {/* Mining Factory Header */}
         <div className="text-center mb-4">
           <h1 className="text-2xl font-heading font-bold text-gradient mb-1">Mining Factory</h1>
-          <p className="text-sm text-muted-foreground">Your industrial-scale mining operation</p>
         </div>
         
-        {/* Tab Navigation */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          <button 
-            onClick={() => setActiveTab('mining')}
-            className={`data-card text-center py-3 transition-all ${activeTab === 'mining' ? 'bg-primary/10 border-primary/30' : 'hover:scale-105'}`}
-            data-testid="tab-mining"
-          >
-            <i className="fas fa-cube text-xl text-primary mb-1"></i>
-            <div className="text-xs font-heading uppercase">Mining</div>
-          </button>
-          <button 
-            onClick={() => setActiveTab('miners')}
-            className={`data-card text-center py-3 transition-all ${activeTab === 'miners' ? 'bg-primary/10 border-primary/30' : 'hover:scale-105'}`}
-            data-testid="tab-miners"
-          >
-            <i className="fas fa-server text-xl text-chart-4 mb-1"></i>
-            <div className="text-xs font-heading uppercase">My Miners</div>
-          </button>
-          <button 
-            onClick={() => setActiveTab('wallet')}
-            className={`data-card text-center py-3 transition-all ${activeTab === 'wallet' ? 'bg-primary/10 border-primary/30' : 'hover:scale-105'}`}
-            data-testid="tab-wallet"
-          >
-            <i className="fas fa-wallet text-xl text-accent mb-1"></i>
-            <div className="text-xs font-heading uppercase">My Wallet</div>
-          </button>
-        </div>
-        
-        {/* Tab Content */}
-        {activeTab === 'mining' && (
-          <>
-        {/* Mining Status Terminal */}
-        <div className="terminal-window">
-          <div className="terminal-header">
-            <div className="flex items-center space-x-2">
-              <div className={`terminal-dot ${miningActive ? 'bg-green-500' : 'bg-red-500'}`}></div>
-              <div className="terminal-dot bg-yellow-500"></div>
-              <div className="terminal-dot bg-gray-500"></div>
+        {/* 3D Mining Block */}
+        <div className="relative h-64 flex flex-col items-center justify-center mb-6">
+          <div className="relative">
+            {/* 3D Block */}
+            <div className={`mining-block-3d ${isBlockAnimating ? 'block-pulse' : ''}`}>
+              <div className="block-face block-front"></div>
+              <div className="block-face block-back"></div>
+              <div className="block-face block-left"></div>
+              <div className="block-face block-right"></div>
+              <div className="block-face block-top"></div>
+              <div className="block-face block-bottom"></div>
             </div>
-            <span className="ml-auto text-xs text-muted-foreground font-mono">
-              {isNewUser ? 'New User - Inactive' : `Mining Node #${user?.id?.toString().substring(0, 6)}`}
-            </span>
+            
+            {/* Mining Status */}
+            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+              <div className={`px-3 py-1 rounded-full text-xs font-mono flex items-center ${
+                miningActive && !isNewUser ? 'bg-green-500/20 text-green-500 border border-green-500/30' : 'bg-red-500/20 text-red-500'
+              }`}>
+                <div className={`w-2 h-2 rounded-full mr-2 ${miningActive && !isNewUser ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+                {isNewUser ? 'INACTIVE' : miningActive ? 'MINING' : 'PAUSED'}
+              </div>
+            </div>
+            
+            {/* Block Progress */}
+            {!isNewUser && (
+              <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-center">
+                <div className="text-xs text-muted-foreground mb-1">Block Progress</div>
+                <div className="text-lg font-mono font-bold text-primary">{formatTime(blockTimer)}</div>
+                <div className="w-32 h-1 bg-background rounded-full overflow-hidden mt-1">
+                  <div 
+                    className="h-full bg-gradient-to-r from-primary to-chart-4 transition-all duration-1000"
+                    style={{ width: `${blockProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
-          <div className="terminal-content space-y-1">
-            <div className={isNewUser ? "text-yellow-500" : "text-green-500"}>
-              [SYSTEM] Mining {isNewUser ? 'INACTIVE - Deposit Required' : miningActive ? 'ACTIVE' : 'PAUSED'}
-            </div>
-            <div className="text-cyan-500">[HASH] {isNewUser ? 'Waiting for initialization...' : `Processing: 0x${currentHash.substring(0, 32)}...`}</div>
-            <div className="text-yellow-500">[POOL] {isNewUser ? 'Not connected' : 'Connected to GBTC Mining Pool'}</div>
-            <div className={isNewUser ? "text-red-500" : "text-green-500"}>
-              [STATS] Hashrate: {getHashrateDisplay(myHashrate)} {isNewUser && '(Purchase Required)'}
-            </div>
-            <div className="text-blue-500">[BLOCK] Progress: {isNewUser ? 'N/A' : `${blockProgress.toFixed(1)}%`}</div>
-            {isNewUser && (
-              <div className="text-warning">[INFO] Deposit USDT and purchase hashrate to start mining!</div>
+        </div>
+        
+        {/* Coins Collection Area */}
+        <div className="relative h-32 mb-6">
+          <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent rounded-lg border border-primary/20">
+            {coins.length > 0 ? (
+              <div className="p-4">
+                <div className="flex flex-wrap gap-2 mb-3 justify-center">
+                  {coins.slice(-12).map((coin, index) => (
+                    <div 
+                      key={coin} 
+                      className="coin-3d"
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <i className="fas fa-coins text-2xl text-yellow-500"></i>
+                    </div>
+                  ))}
+                </div>
+                <Button
+                  className="w-full btn-primary"
+                  onClick={handleClaimCoins}
+                  data-testid="button-claim-coins"
+                >
+                  <i className="fas fa-hand-holding-usd mr-2"></i>
+                  CLAIM ALL ({coins.length} blocks)
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-xs text-muted-foreground">
+                  {isNewUser ? 'Start mining to collect coins' : 'Coins will appear here as blocks complete'}
+                </p>
+              </div>
             )}
           </div>
         </div>
 
-        {/* Main Mining Stats */}
+        {/* Personal Mining Stats */}
         <Card className="mining-block">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-heading font-bold">Mining Operation</h2>
-            <div className={`px-3 py-1 rounded-full text-xs font-mono flex items-center ${
-              miningActive ? 'bg-green-500/20 text-green-500 border border-green-500/30' : 'bg-red-500/20 text-red-500'
-            }`}>
-              <div className={`w-2 h-2 rounded-full mr-2 ${miningActive ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
-              {miningActive ? 'MINING' : 'PAUSED'}
-            </div>
+            <h2 className="text-lg font-heading font-bold">Your Mining Stats</h2>
           </div>
 
           {/* Hashrate Display */}
@@ -373,9 +399,6 @@ export default function MiningDashboard() {
             )}
           </div>
         </Card>
-
-          </>
-        )}
         
         {/* My Miners Tab */}
         {activeTab === 'miners' && (
