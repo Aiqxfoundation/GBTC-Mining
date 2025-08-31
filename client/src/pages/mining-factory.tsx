@@ -126,12 +126,15 @@ export default function MiningFactory() {
   };
 
   // Calculate stats
-  const totalSupply = 2100000000; // 2.1 Billion
-  const circulation = globalStats?.circulation || 217340000;
-  const blockHeight = globalStats?.blockHeight || 43469;
-  const globalHashrate = globalStats?.totalHashrate || 712110;
-  const hashGains = hashPower > 0 ? (parseFloat(user?.unclaimedRewards || '0') / hashPower * 1000).toFixed(8) : '0.00000000';
-  const myMiners = globalStats?.activeMiners || 4;
+  const totalSupply = 21000000; // 21 Million GBTC (like Bitcoin)
+  const blockHeight = globalStats?.blockHeight || 1;
+  const globalHashrate = globalStats?.totalHashrate || 0;
+  const blocksMinedTotal = globalStats?.totalBlocksMined || 0;
+  const circulation = globalStats?.circulation || 0;
+  const currentBlockReward = globalStats?.currentBlockReward || 6.25;
+  const mySharePercent = globalHashrate > 0 ? ((hashPower / globalHashrate) * 100).toFixed(4) : '0';
+  const estimatedRewardPerBlock = globalHashrate > 0 ? (currentBlockReward * (hashPower / globalHashrate)).toFixed(8) : '0.00000000';
+  const activeMiners = globalStats?.activeMiners || 0;
 
   return (
     <div className="mobile-page bg-black">
@@ -163,7 +166,7 @@ export default function MiningFactory() {
               <div>
                 <p className="text-xs text-muted-foreground font-mono mb-1">TotalSupply</p>
                 <p className="text-lg font-display font-bold text-primary">
-                  {(totalSupply / 1000000000).toFixed(1)} Bn
+                  {(totalSupply / 1000000).toFixed(0)} M
                 </p>
               </div>
               <Coins className="w-5 h-5 text-primary/50" />
@@ -176,7 +179,7 @@ export default function MiningFactory() {
               <div>
                 <p className="text-xs text-muted-foreground font-mono mb-1">Circulation</p>
                 <p className="text-lg font-display font-bold text-accent">
-                  {(circulation / 1000000).toFixed(2)} Mn
+                  {circulation.toFixed(2)} GBTC
                 </p>
               </div>
               <TrendingUp className="w-5 h-5 text-accent/50" />
@@ -209,13 +212,13 @@ export default function MiningFactory() {
             </div>
           </Card>
 
-          {/* Hash Gains */}
+          {/* Your Share */}
           <Card className="mobile-card bg-gradient-to-br from-success/10 to-transparent border-success/30">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-muted-foreground font-mono mb-1">HashGains</p>
+                <p className="text-xs text-muted-foreground font-mono mb-1">Your Share</p>
                 <p className="text-lg font-display font-bold text-success">
-                  {hashGains} <span className="text-xs">M/B</span>
+                  {mySharePercent}%
                 </p>
               </div>
               <TrendingUp className="w-5 h-5 text-success/50" />
@@ -248,23 +251,23 @@ export default function MiningFactory() {
             </div>
           </Card>
 
-          {/* Contributed */}
+          {/* Est. Reward */}
           <Card className="mobile-card bg-black border-accent/30">
             <div>
-              <p className="text-xs text-muted-foreground font-mono mb-1">Contributed</p>
+              <p className="text-xs text-muted-foreground font-mono mb-1">Est/Block</p>
               <p className="text-base font-display font-bold text-accent">
-                {(hashPower / 1000).toFixed(2)} K
+                {estimatedRewardPerBlock}
               </p>
-              <p className="text-[10px] text-muted-foreground">Rules</p>
+              <p className="text-[10px] text-muted-foreground">GBTC</p>
             </div>
           </Card>
 
-          {/* My Miners */}
+          {/* Active Miners */}
           <Card className="mobile-card bg-black border-chart-3/30">
             <div>
-              <p className="text-xs text-muted-foreground font-mono mb-1">MyMiners</p>
+              <p className="text-xs text-muted-foreground font-mono mb-1">ActiveMiners</p>
               <p className="text-base font-display font-bold text-chart-3">
-                {myMiners} <span className="text-xs">ppl</span>
+                {activeMiners} <span className="text-xs">users</span>
               </p>
             </div>
           </Card>

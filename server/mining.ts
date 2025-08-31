@@ -10,13 +10,9 @@ export function setupMining() {
   // Initialize block reward from database
   initializeSettings();
   
-  // Generate a new block every 10 minutes (for demo purposes)
+  // Generate a new block AND distribute rewards every 10 minutes
   cron.schedule("*/10 * * * *", async () => {
     await generateBlock();
-  });
-  
-  // Distribute rewards every minute
-  cron.schedule("* * * * *", async () => {
     await distributeRewards();
   });
 }
@@ -75,10 +71,7 @@ async function distributeRewards() {
       currentBlockReward = parseFloat(blockRewardSetting.value);
     }
     
-    // Calculate rewards per minute (block time is 10 minutes)
-    const rewardPerMinute = currentBlockReward / 10;
-    
-    console.log(`Distributing ${rewardPerMinute} GBTC rewards per minute across ${totalHashPowerNum} TH/s`);
+    console.log(`Block ${blockNumber - 1} distributing ${currentBlockReward} GBTC across ${totalHashPowerNum} TH/s`);
     
     // Get all users with hash power
     const allUsers = await db.select().from(users);
@@ -88,16 +81,16 @@ async function distributeRewards() {
     for (const user of usersWithPower) {
       const userHashPower = parseFloat(user.hashPower);
       const userShare = userHashPower / totalHashPowerNum;
-      const userReward = (rewardPerMinute * userShare).toFixed(8);
+      const userReward = (currentBlockReward * userShare).toFixed(8);
       
-      if (parseFloat(userReward) > 0) {
+      if (parseFloat(userReward) > 0.00000001) { // Only create block if reward is meaningful
         // Generate transaction hash
         const txHash = '0x' + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('');
         
-        // Create unclaimed block for this user
+        // Create unclaimed block for this user with the current block number
         await storage.createUnclaimedBlock(
           user.id,
-          blockNumber,
+          blockNumber - 1, // Use the block that was just mined
           txHash,
           userReward
         );

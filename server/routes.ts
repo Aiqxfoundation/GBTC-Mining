@@ -253,11 +253,33 @@ export function registerRoutes(app: Express): Server {
       const totalHashPower = await storage.getTotalHashPower();
       const blockHeight = await storage.getSystemSetting("blockNumber");
       const activeMiners = await storage.getActiveMinerCount();
+      const blockReward = await storage.getSystemSetting("blockReward");
+      
+      const currentBlock = blockHeight ? parseInt(blockHeight.value) : 1;
+      const currentReward = blockReward ? parseFloat(blockReward.value) : 6.25;
+      
+      // Calculate total blocks mined (current block - 1 since block numbering starts at 1)
+      const totalBlocksMined = Math.max(currentBlock - 1, 0);
+      
+      // Calculate circulation based on blocks mined and halving schedule
+      // Bitcoin halving every 210,000 blocks: 50 -> 25 -> 12.5 -> 6.25 -> 3.125
+      let totalCirculation = 0;
+      let tempBlocks = totalBlocksMined;
+      let tempReward = 50;
+      
+      while (tempBlocks > 0 && tempReward > 0) {
+        const blocksInThisEra = Math.min(tempBlocks, 210000);
+        totalCirculation += blocksInThisEra * tempReward;
+        tempBlocks -= blocksInThisEra;
+        tempReward = tempReward / 2;
+      }
       
       res.json({
         totalHashrate: parseFloat(totalHashPower),
-        blockHeight: blockHeight ? parseInt(blockHeight.value) : 1,
-        circulation: 217340000, // Fixed for now, can be calculated based on mined blocks
+        blockHeight: currentBlock,
+        totalBlocksMined: totalBlocksMined,
+        circulation: totalCirculation,
+        currentBlockReward: currentReward,
         activeMiners: activeMiners
       });
     } catch (error) {
