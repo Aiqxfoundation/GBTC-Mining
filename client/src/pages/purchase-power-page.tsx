@@ -5,6 +5,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { Loader2 } from "lucide-react";
@@ -13,7 +14,7 @@ export default function PurchasePowerPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const [powerAmount, setPowerAmount] = useState([10]);
+  const [powerAmount, setPowerAmount] = useState([100]);
   
   const usdtBalance = parseFloat(user?.usdtBalance || '0');
   const currentHashrate = parseFloat(user?.hashPower || '0');
@@ -33,7 +34,7 @@ export default function PurchasePowerPage() {
     onSuccess: () => {
       toast({ 
         title: "Hashrate Purchased!", 
-        description: `Successfully purchased ${powerAmount[0]} GH/s` 
+        description: `Successfully purchased ${getHashrateDisplay(powerAmount[0])}` 
       });
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       setLocation("/dashboard");
@@ -105,15 +106,27 @@ export default function PurchasePowerPage() {
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
               <p className="text-sm font-mono text-muted-foreground">SELECT AMOUNT</p>
-              <p className="text-lg font-display font-black text-primary">
-                {powerAmount[0]} USDT
-              </p>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  value={powerAmount[0]}
+                  onChange={(e) => {
+                    const val = Math.min(Math.floor(usdtBalance), Math.max(1, parseInt(e.target.value) || 1));
+                    setPowerAmount([val]);
+                  }}
+                  className="w-24 text-right font-display font-black text-primary"
+                  min={1}
+                  max={Math.floor(usdtBalance)}
+                  data-testid="input-power-amount"
+                />
+                <span className="text-sm font-mono text-muted-foreground">USDT</span>
+              </div>
             </div>
 
             <Slider
               value={powerAmount}
               onValueChange={setPowerAmount}
-              max={Math.min(100, Math.floor(usdtBalance))}
+              max={Math.floor(usdtBalance)}
               min={1}
               step={1}
               className="power-slider"
@@ -122,7 +135,7 @@ export default function PurchasePowerPage() {
 
             <div className="flex justify-between text-xs text-muted-foreground font-mono mt-2">
               <span>1 USDT</span>
-              <span>{Math.min(100, Math.floor(usdtBalance))} USDT</span>
+              <span>UNLIMITED (Max: {Math.floor(usdtBalance).toLocaleString()} USDT)</span>
             </div>
           </div>
 
@@ -131,10 +144,13 @@ export default function PurchasePowerPage() {
             <p className="text-xs text-muted-foreground font-mono mb-2">YOU WILL RECEIVE</p>
             <div className="flex items-center justify-center space-x-3">
               <i className="fas fa-microchip text-3xl text-primary"></i>
-              <p className="text-4xl font-display font-black text-primary glow-green">
-                {powerAmount[0]} GH/s
+              <p className="text-3xl font-display font-black text-primary glow-green">
+                {getHashrateDisplay(powerAmount[0])}
               </p>
             </div>
+            <p className="text-xs text-muted-foreground font-mono mt-2">
+              (1 GH/s = 1000 MH/s | 1 TH/s = 1000 GH/s | 1 PH/s = 1000 TH/s)
+            </p>
           </div>
         </Card>
 
@@ -170,7 +186,8 @@ export default function PurchasePowerPage() {
             <div className="text-xs text-muted-foreground">
               <p className="mb-2">• No hashrate without deposit</p>
               <p className="mb-2">• 10% referral commission to your upline</p>
-              <p>• Hashrate starts mining immediately</p>
+              <p className="mb-2">• Hashrate starts mining immediately</p>
+              <p>• Unlimited purchase - buy as much as you want!</p>
             </div>
           </div>
         </Card>
@@ -190,7 +207,7 @@ export default function PurchasePowerPage() {
           ) : (
             <>
               <i className="fas fa-microchip mr-3"></i>
-              PURCHASE {powerAmount[0]} GH/s
+              PURCHASE {getHashrateDisplay(powerAmount[0])}
             </>
           )}
         </Button>
