@@ -53,10 +53,11 @@ export default function MiningDashboard() {
     setBlockProgress(((600 - blockTimer) / 600) * 100);
   }, [blockTimer]);
 
-  // Enhanced hashrate calculations with dynamic network growth
+  // Fair distribution calculation based on hashpower
+  // Each user earns: (User Hashpower ÷ Total Global Hashpower) × Block Reward
   const myHashrate = parseFloat(user?.hashPower || '0');
-  const baseGlobalHashrate = 584732.50; // Base GH/s
-  const networkGrowthRate = 1.0012; // 0.12% hourly growth
+  const baseGlobalHashrate = 584732.50; // Base global hashrate in GH/s
+  const networkGrowthRate = 1.0012; // 0.12% hourly growth to simulate network expansion
   const currentHour = new Date().getHours();
   const globalHashrate = baseGlobalHashrate * Math.pow(networkGrowthRate, currentHour);
   
@@ -67,12 +68,12 @@ export default function MiningDashboard() {
     return `${(hashrate * 1000).toFixed(0)} MH/s`;
   };
 
-  const currentBlockReward = 6.25;
-  const myMiningShare = myHashrate > 0 ? (myHashrate / globalHashrate) : 0;
-  const myEstimatedReward = myMiningShare * currentBlockReward;
-  const dailyEstimatedRewards = myEstimatedReward * 144; // 144 blocks per day
+  // Fair distribution formula: Your reward = (Your hashpower / Total hashpower) × Block reward
+  const currentBlockReward = 6.25; // GBTC per block
+  const myMiningShare = myHashrate > 0 ? (myHashrate / globalHashrate) * 100 : 0; // Percentage
+  const myEstimatedReward = (myHashrate / globalHashrate) * currentBlockReward; // GBTC per block
+  const dailyEstimatedRewards = myEstimatedReward * 144; // 144 blocks per day (every 10 minutes)
   const unclaimedGBTC = parseFloat(user?.unclaimedBalance || '0');
-  const difficulty = 53.91; // Mining difficulty in T
   const isNewUser = myHashrate === 0;
 
   // Generate random hash
@@ -189,7 +190,7 @@ export default function MiningDashboard() {
                 {getHashrateDisplay(myHashrate)}
               </div>
               <div className="text-xs text-muted-foreground mt-1">
-                Network Share: {(myMiningShare * 100).toFixed(6)}%
+                Network Share: {myMiningShare.toFixed(6)}%
               </div>
             </div>
 
@@ -237,19 +238,29 @@ export default function MiningDashboard() {
             </div>
           )}
 
-          {/* Mining Metrics Grid */}
-          <div className="grid grid-cols-3 gap-2 mb-4">
+          {/* Personal Mining Stats */}
+          <div className="grid grid-cols-3 gap-2 mb-3">
             <div className="text-center p-2 rounded-lg bg-background">
-              <div className="text-xl font-mono font-bold text-chart-2">87</div>
-              <div className="text-xs text-muted-foreground">Blocks Today</div>
+              <div className="text-xl font-mono font-bold text-chart-2">{myMiningShare.toFixed(4)}%</div>
+              <div className="text-xs text-muted-foreground">Your Share</div>
             </div>
             <div className="text-center p-2 rounded-lg bg-background">
-              <div className="text-xl font-mono font-bold text-chart-3">{difficulty}T</div>
-              <div className="text-xs text-muted-foreground">Difficulty</div>
+              <div className="text-xl font-mono font-bold text-chart-3">{myEstimatedReward.toFixed(6)}</div>
+              <div className="text-xs text-muted-foreground">GBTC/Block</div>
             </div>
             <div className="text-center p-2 rounded-lg bg-background">
-              <div className="text-xl font-mono font-bold text-chart-4">1,847</div>
-              <div className="text-xs text-muted-foreground">Active Miners</div>
+              <div className="text-xl font-mono font-bold text-chart-4">{dailyEstimatedRewards.toFixed(4)}</div>
+              <div className="text-xs text-muted-foreground">Daily Est.</div>
+            </div>
+          </div>
+          
+          {/* Fair Distribution Formula */}
+          <div className="p-2 bg-primary/5 rounded-lg border border-primary/20">
+            <div className="text-xs text-muted-foreground text-center">
+              <span className="font-semibold">Fair Distribution Formula:</span>
+              <div className="font-mono mt-1 text-primary">
+                ({myHashrate.toFixed(2)} GH/s ÷ {globalHashrate.toFixed(0)} GH/s) × 6.25 GBTC = {myEstimatedReward.toFixed(6)} GBTC/block
+              </div>
             </div>
           </div>
         </Card>
