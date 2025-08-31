@@ -1,0 +1,252 @@
+import type { Express } from "express";
+import { createServer, type Server } from "http";
+import { setupAuth } from "./auth";
+import { setupMining } from "./mining";
+import { storage } from "./storage";
+import { insertDepositSchema, insertWithdrawalSchema } from "@shared/schema";
+import { z } from "zod";
+
+export function registerRoutes(app: Express): Server {
+  // Setup authentication routes
+  setupAuth(app);
+  
+  // Setup mining simulation
+  setupMining();
+
+  // Deposit routes
+  app.post("/api/deposits", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const depositData = insertDepositSchema.parse(req.body);
+      const deposit = await storage.createDeposit({
+        ...depositData,
+        userId: req.user!.id
+      });
+
+      res.status(201).json(deposit);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get("/api/deposits/pending", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated() || !req.user!.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const pendingDeposits = await storage.getPendingDeposits();
+      res.json(pendingDeposits);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.patch("/api/deposits/:id/approve", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated() || !req.user!.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { adminNote } = req.body;
+      await storage.approveDeposit(req.params.id, adminNote);
+      res.json({ message: "Deposit approved" });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.patch("/api/deposits/:id/reject", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated() || !req.user!.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { adminNote } = req.body;
+      await storage.rejectDeposit(req.params.id, adminNote);
+      res.json({ message: "Deposit rejected" });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Hash power purchase
+  app.post("/api/purchase-power", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { amount } = z.object({ amount: z.number().min(1) }).parse(req.body);
+      const user = req.user!;
+
+      if (parseFloat(user.usdtBalance) < amount) {
+        return res.status(400).json({ message: "Insufficient USDT balance" });
+      }
+
+      const newUsdtBalance = (parseFloat(user.usdtBalance) - amount).toFixed(2);
+      const newHashPower = (parseFloat(user.hashPower) + amount).toFixed(2);
+
+      await storage.updateUserBalance(
+        user.id, 
+        newUsdtBalance, 
+        newHashPower, 
+        user.gbtcBalance, 
+        user.unclaimedBalance
+      );
+
+      res.json({ message: "Hash power purchased successfully" });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Claim mining rewards
+  app.post("/api/claim-rewards", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const user = req.user!;
+      const unclaimedAmount = parseFloat(user.unclaimedBalance);
+      
+      if (unclaimedAmount <= 0) {
+        return res.status(400).json({ message: "No rewards to claim" });
+      }
+
+      const newGbtcBalance = (parseFloat(user.gbtcBalance) + unclaimedAmount).toFixed(8);
+
+      await storage.updateUserBalance(
+        user.id,
+        user.usdtBalance,
+        user.hashPower,
+        newGbtcBalance,
+        "0.00000000"
+      );
+
+      res.json({ message: "Rewards claimed successfully", amount: unclaimedAmount });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Withdrawal
+  app.post("/api/withdrawals", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const withdrawalData = insertWithdrawalSchema.parse(req.body);
+      const user = req.user!;
+
+      if (parseFloat(user.gbtcBalance) < parseFloat(withdrawalData.amount)) {
+        return res.status(400).json({ message: "Insufficient GBTC balance" });
+      }
+
+      const newGbtcBalance = (parseFloat(user.gbtcBalance) - parseFloat(withdrawalData.amount)).toFixed(8);
+      
+      await storage.updateUserBalance(
+        user.id,
+        user.usdtBalance,
+        user.hashPower,
+        newGbtcBalance,
+        user.unclaimedBalance
+      );
+
+      const withdrawal = await storage.createWithdrawal({
+        ...withdrawalData,
+        userId: user.id
+      });
+
+      res.status(201).json(withdrawal);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Admin stats
+  app.get("/api/admin/stats", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated() || !req.user!.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const userCount = await storage.getUserCount();
+      const totalDeposits = await storage.getTotalDeposits();
+      const totalWithdrawals = await storage.getTotalWithdrawals();
+      const totalHashPower = await storage.getTotalHashPower();
+
+      res.json({
+        userCount,
+        totalDeposits,
+        totalWithdrawals,
+        totalHashPower
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // System settings
+  app.get("/api/settings/:key", async (req, res, next) => {
+    try {
+      const setting = await storage.getSystemSetting(req.params.key);
+      res.json(setting);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post("/api/settings", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated() || !req.user!.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { key, value } = z.object({
+        key: z.string(),
+        value: z.string()
+      }).parse(req.body);
+
+      await storage.setSystemSetting(key, value);
+      res.json({ message: "Setting updated" });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // User management
+  app.patch("/api/users/:id/freeze", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated() || !req.user!.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      await storage.freezeUser(req.params.id);
+      res.json({ message: "User frozen" });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.patch("/api/users/:id/unfreeze", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated() || !req.user!.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      await storage.unfreezeUser(req.params.id);
+      res.json({ message: "User unfrozen" });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  const httpServer = createServer(app);
+  return httpServer;
+}

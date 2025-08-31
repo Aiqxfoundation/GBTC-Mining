@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(216, 10%, 6%);
+  --foreground: hsl(213, 31%, 91%);
+  --card: hsl(217, 10%, 8%);
+  --card-foreground: hsl(213, 31%, 91%);
+  --popover: hsl(217, 10%, 8%);
+  --popover-foreground: hsl(213, 31%, 91%);
+  --primary: hsl(147, 100%, 50%);
+  --primary-foreground: hsl(216, 10%, 6%);
+  --secondary: hsl(217, 10%, 12%);
+  --secondary-foreground: hsl(213, 31%, 91%);
+  --muted: hsl(217, 10%, 12%);
+  --muted-foreground: hsl(215, 16%, 47%);
+  --accent: hsl(38, 92%, 50%);
+  --accent-foreground: hsl(216, 10%, 6%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --border: hsl(217, 10%, 12%);
+  --input: hsl(217, 10%, 12%);
+  --ring: hsl(147, 100%, 50%);
+  --chart-1: hsl(147, 100%, 50%);
+  --chart-2: hsl(38, 92%, 50%);
+  --chart-3: hsl(280, 100%, 70%);
+  --chart-4: hsl(200, 100%, 70%);
+  --chart-5: hsl(340, 100%, 70%);
+  --sidebar: hsl(217, 10%, 8%);
+  --sidebar-foreground: hsl(213, 31%, 91%);
+  --sidebar-primary: hsl(147, 100%, 50%);
+  --sidebar-primary-foreground: hsl(216, 10%, 6%);
+  --sidebar-accent: hsl(217, 10%, 12%);
+  --sidebar-accent-foreground: hsl(213, 31%, 91%);
+  --sidebar-border: hsl(217, 10%, 12%);
+  --sidebar-ring: hsl(147, 100%, 50%);
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: hsl(216, 10%, 6%);
+  --foreground: hsl(213, 31%, 91%);
+  --card: hsl(217, 10%, 8%);
+  --card-foreground: hsl(213, 31%, 91%);
+  --popover: hsl(217, 10%, 8%);
+  --popover-foreground: hsl(213, 31%, 91%);
+  --primary: hsl(147, 100%, 50%);
+  --primary-foreground: hsl(216, 10%, 6%);
+  --secondary: hsl(217, 10%, 12%);
+  --secondary-foreground: hsl(213, 31%, 91%);
+  --muted: hsl(217, 10%, 12%);
+  --muted-foreground: hsl(215, 16%, 47%);
+  --accent: hsl(38, 92%, 50%);
+  --accent-foreground: hsl(216, 10%, 6%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --border: hsl(217, 10%, 12%);
+  --input: hsl(217, 10%, 12%);
+  --ring: hsl(147, 100%, 50%);
+  --chart-1: hsl(147, 100%, 50%);
+  --chart-2: hsl(38, 92%, 50%);
+  --chart-3: hsl(280, 100%, 70%);
+  --chart-4: hsl(200, 100%, 70%);
+  --chart-5: hsl(340, 100%, 70%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .code-font {
+    font-family: var(--font-mono);
+  }
+  
+  .glow-green {
+    box-shadow: 0 0 20px hsla(147, 100%, 50%, 0.3);
+  }
+  
+  .mining-animation {
+    background: linear-gradient(45deg, #00ff9d, #00cc7a, #00ff9d);
+    background-size: 200% 200%;
+    animation: gradient 2s ease infinite;
+  }
+  
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  .network-badge {
+    transition: all 0.2s ease;
+  }
+  
+  .network-badge:hover {
+    transform: translateY(-1px);
+  }
+}
