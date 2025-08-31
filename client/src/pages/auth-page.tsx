@@ -51,12 +51,30 @@ export default function AuthPage() {
               <div className="absolute inset-0 bg-primary/20 rounded-full animate-pulse"></div>
               <div className="relative w-full h-full bg-gradient-to-br from-primary to-chart-4 rounded-full flex items-center justify-center glow-orange">
                 <div className="w-16 h-16 bg-background rounded-full flex items-center justify-center">
-                  <span className="text-2xl font-bold text-gradient">₿</span>
+                  <span className="text-2xl font-bold text-gradient animate-pulse">₿</span>
                 </div>
               </div>
             </div>
-            <h2 className="text-3xl font-heading font-bold text-gradient">Welcome to GBTC</h2>
-            <p className="mt-2 text-muted-foreground">Join the green mining revolution</p>
+            <h2 className="text-2xl sm:text-3xl font-heading font-bold mb-3">
+              <span className="inline-block animate-fade-in-up" style={{ animationDelay: '0.1s' }}>🌍</span>
+              <span className="ml-2 bg-gradient-to-r from-primary via-accent to-chart-4 text-transparent bg-clip-text animate-gradient">
+                Green Bitcoin (GBTC)
+              </span>
+            </h2>
+            <p className="text-lg font-semibold text-foreground mb-3 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+              Empowering Miners
+            </p>
+            <div className="space-y-2 text-sm text-muted-foreground max-w-md mx-auto">
+              <p className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+                GBTC is an L1 blockchain with its own native gas currency.
+              </p>
+              <p className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+                It fixes what Bitcoin left behind: accessibility, fair distribution, and real miner control.
+              </p>
+              <p className="animate-fade-in-up font-medium text-primary" style={{ animationDelay: '0.5s' }}>
+                We empower miners through mobile-first mining, ensuring rewards go to individuals — not just corporations.
+              </p>
+            </div>
           </div>
 
           {/* Auth Tabs */}
@@ -363,26 +381,26 @@ export default function AuthPage() {
           <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
             <CardContent className="pt-6">
               <div className="grid grid-cols-2 gap-4 text-center">
-                <div>
-                  <div className="w-12 h-12 mx-auto mb-2 bg-primary/20 rounded-full flex items-center justify-center">
-                    <i className="fas fa-shield-alt text-primary"></i>
+                <div className="animate-scale-in" style={{ animationDelay: '0.6s' }}>
+                  <div className="w-12 h-12 mx-auto mb-2 bg-primary/20 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+                    <i className="fas fa-mobile-alt text-primary"></i>
                   </div>
-                  <p className="text-xs font-semibold">Secure Platform</p>
+                  <p className="text-xs font-semibold">Mobile-First</p>
                 </div>
-                <div>
-                  <div className="w-12 h-12 mx-auto mb-2 bg-accent/20 rounded-full flex items-center justify-center">
-                    <i className="fas fa-clock text-accent"></i>
+                <div className="animate-scale-in" style={{ animationDelay: '0.7s' }}>
+                  <div className="w-12 h-12 mx-auto mb-2 bg-accent/20 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+                    <i className="fas fa-users text-accent"></i>
                   </div>
-                  <p className="text-xs font-semibold">10 Min Blocks</p>
+                  <p className="text-xs font-semibold">Fair Distribution</p>
                 </div>
-                <div>
-                  <div className="w-12 h-12 mx-auto mb-2 bg-chart-3/20 rounded-full flex items-center justify-center">
-                    <i className="fas fa-percentage text-chart-3"></i>
+                <div className="animate-scale-in" style={{ animationDelay: '0.8s' }}>
+                  <div className="w-12 h-12 mx-auto mb-2 bg-chart-3/20 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+                    <i className="fas fa-link text-chart-3"></i>
                   </div>
-                  <p className="text-xs font-semibold">10% Referral</p>
+                  <p className="text-xs font-semibold">L1 Blockchain</p>
                 </div>
-                <div>
-                  <div className="w-12 h-12 mx-auto mb-2 bg-chart-4/20 rounded-full flex items-center justify-center">
+                <div className="animate-scale-in" style={{ animationDelay: '0.9s' }}>
+                  <div className="w-12 h-12 mx-auto mb-2 bg-chart-4/20 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
                     <i className="fas fa-coins text-chart-4"></i>
                   </div>
                   <p className="text-xs font-semibold">21M Supply</p>
