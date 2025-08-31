@@ -9,9 +9,25 @@ export default function GlobalInfoPage() {
   const percentMined = (totalMinted / totalSupply) * 100;
   const targetPercent = 25; // 25% target for exchange listing
   
-  const globalHashrate = 584732.50; // GH/s
+  // Dynamic hashrate with network growth
+  const baseHashrate = 584732.50;
+  const networkGrowthRate = 1.0012;
+  const currentHour = new Date().getHours();
+  const globalHashrate = baseHashrate * Math.pow(networkGrowthRate, currentHour);
+  
+  // Calculate block reward based on global hashrate (logarithmic decay)
+  const calculateBlockReward = (hashrate: number) => {
+    const baseReward = 6.25;
+    const decayFactor = Math.log10(hashrate / 100000); // Logarithmic scaling
+    const adjustedReward = baseReward / (1 + decayFactor * 0.1);
+    return Math.max(0.1, adjustedReward); // Minimum 0.1 GBTC
+  };
+  
+  const currentBlockReward = calculateBlockReward(globalHashrate);
+  const currentBlockHeight = 871000 + Math.floor(Date.now() / 600000); // Increment every 10 mins
+  
   const getHashrateDisplay = (hashrate: number) => {
-    if (hashrate >= 1000000) return `${(hashrate / 1000000).toFixed(2)} PH/s`;
+    if (hashrate >= 1000000) return `${(hashrate / 1000000).toFixed(3)} PH/s`;
     if (hashrate >= 1000) return `${(hashrate / 1000).toFixed(2)} TH/s`;
     return `${hashrate.toFixed(2)} GH/s`;
   };
@@ -22,10 +38,10 @@ export default function GlobalInfoPage() {
     activeMiners: 1847,
     registeredUsers: 5432,
     networkHashrate: globalHashrate,
-    nextBlock: 432,
-    blocksToday: 87,
-    avgBlockReward: 6.25,
-    difficulty: 47.8 // T
+    blockHeight: currentBlockHeight,
+    blocksToday: 87 + Math.floor(currentHour * 6 / 24), // ~6 blocks per hour
+    blockReward: currentBlockReward,
+    difficulty: 47.8 + (globalHashrate / 100000) // Dynamic difficulty
   };
 
   return (
@@ -91,9 +107,9 @@ export default function GlobalInfoPage() {
               </p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-1">AVG REWARD</p>
+              <p className="text-xs text-muted-foreground mb-1">BLOCK REWARD</p>
               <p className="text-lg font-display font-bold text-accent">
-                {stats.avgBlockReward}
+                {stats.blockReward.toFixed(4)}
               </p>
             </div>
           </div>
@@ -122,9 +138,9 @@ export default function GlobalInfoPage() {
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs text-muted-foreground">Next Block</span>
+              <span className="text-xs text-muted-foreground">Block Height</span>
               <span className="text-sm font-display font-bold text-accent">
-                #{stats.nextBlock}
+                #{stats.blockHeight.toLocaleString()}
               </span>
             </div>
           </div>
@@ -149,17 +165,21 @@ export default function GlobalInfoPage() {
           </div>
         </Card>
 
-        {/* Recent Blocks */}
+        {/* Recent Blocks with Dynamic Rewards */}
         <Card className="mobile-card">
           <p className="text-sm font-mono text-muted-foreground mb-3">RECENT BLOCKS</p>
           <div className="space-y-2">
-            {[431, 430, 429, 428, 427].map(blockNum => (
-              <div key={blockNum} className="flex justify-between items-center p-2 bg-background rounded">
-                <span className="text-xs font-mono">Block #{blockNum}</span>
-                <span className="text-xs text-muted-foreground">6.25 GBTC</span>
-                <span className="text-xs text-primary">✓ Mined</span>
-              </div>
-            ))}
+            {[0, 1, 2, 3, 4].map(offset => {
+              const blockNum = currentBlockHeight - offset;
+              const blockReward = calculateBlockReward(globalHashrate * (1 - offset * 0.001));
+              return (
+                <div key={blockNum} className="flex justify-between items-center p-2 bg-background rounded">
+                  <span className="text-xs font-mono">Block #{blockNum.toLocaleString()}</span>
+                  <span className="text-xs text-muted-foreground">{blockReward.toFixed(4)} GBTC</span>
+                  <span className="text-xs text-primary">✓ Mined</span>
+                </div>
+              );
+            })}
           </div>
         </Card>
 
@@ -181,7 +201,7 @@ export default function GlobalInfoPage() {
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-primary rounded-full mining-pulse"></div>
-              <span className="text-muted-foreground">Block #431 mined</span>
+              <span className="text-muted-foreground">Block #{currentBlockHeight} mined</span>
             </div>
           </div>
         </Card>
