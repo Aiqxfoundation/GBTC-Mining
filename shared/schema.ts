@@ -38,6 +38,37 @@ export const withdrawals = pgTable("withdrawals", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const unclaimedBlocks = pgTable("unclaimed_blocks", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: uuid("user_id").references(() => users.id).notNull(),
+  blockNumber: integer("block_number").notNull(),
+  txHash: text("tx_hash").notNull(),
+  reward: decimal("reward", { precision: 18, scale: 8 }).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  claimed: boolean("claimed").default(false),
+  claimedAt: timestamp("claimed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const minerActivity = pgTable("miner_activity", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: uuid("user_id").references(() => users.id).notNull().unique(),
+  lastClaimTime: timestamp("last_claim_time"),
+  totalClaims: integer("total_claims").default(0),
+  missedClaims: integer("missed_claims").default(0),
+  isActive: boolean("is_active").default(true),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const transfers = pgTable("transfers", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  fromUserId: uuid("from_user_id").references(() => users.id).notNull(),
+  toUserId: uuid("to_user_id").references(() => users.id).notNull(),
+  amount: decimal("amount", { precision: 18, scale: 8 }).notNull(),
+  txHash: text("tx_hash").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const miningBlocks = pgTable("mining_blocks", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   blockNumber: integer("block_number").notNull(),
@@ -77,9 +108,18 @@ export const systemSettings = pgTable("system_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ many, one }) => ({
   deposits: many(deposits),
   withdrawals: many(withdrawals),
+  unclaimedBlocks: many(unclaimedBlocks),
+  sentTransfers: many(transfers, {
+    relationName: "sentTransfers",
+  }),
+  receivedTransfers: many(transfers, {
+    relationName: "receivedTransfers",
+  }),
+  minerActivity: one(minerActivity),
+  miningStats: one(userMiningStats),
 }));
 
 export const depositsRelations = relations(deposits, ({ one }) => ({
@@ -96,17 +136,38 @@ export const withdrawalsRelations = relations(withdrawals, ({ one }) => ({
   }),
 }));
 
+export const unclaimedBlocksRelations = relations(unclaimedBlocks, ({ one }) => ({
+  user: one(users, {
+    fields: [unclaimedBlocks.userId],
+    references: [users.id],
+  }),
+}));
+
+export const minerActivityRelations = relations(minerActivity, ({ one }) => ({
+  user: one(users, {
+    fields: [minerActivity.userId],
+    references: [users.id],
+  }),
+}));
+
+export const transfersRelations = relations(transfers, ({ one }) => ({
+  fromUser: one(users, {
+    fields: [transfers.fromUserId],
+    references: [users.id],
+    relationName: "sentTransfers",
+  }),
+  toUser: one(users, {
+    fields: [transfers.toUserId],
+    references: [users.id],
+    relationName: "receivedTransfers",
+  }),
+}));
+
 export const userMiningStatsRelations = relations(userMiningStats, ({ one }) => ({
   user: one(users, {
     fields: [userMiningStats.userId],
     references: [users.id],
   }),
-}));
-
-export const usersRelationsUpdated = relations(users, ({ many, one }) => ({
-  deposits: many(deposits),
-  withdrawals: many(withdrawals),
-  miningStats: one(userMiningStats),
 }));
 
 export const insertUserSchema = createInsertSchema(users).omit({
@@ -137,6 +198,21 @@ export const insertWithdrawalSchema = createInsertSchema(withdrawals).omit({
   createdAt: true,
 });
 
+export const insertTransferSchema = createInsertSchema(transfers).omit({
+  id: true,
+  fromUserId: true,
+  txHash: true,
+  createdAt: true,
+});
+
+export const insertUnclaimedBlockSchema = createInsertSchema(unclaimedBlocks).omit({
+  id: true,
+  userId: true,
+  claimed: true,
+  claimedAt: true,
+  createdAt: true,
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Deposit = typeof deposits.$inferSelect;
@@ -147,3 +223,8 @@ export type MiningBlock = typeof miningBlocks.$inferSelect;
 export type SystemSetting = typeof systemSettings.$inferSelect;
 export type MiningStats = typeof miningStats.$inferSelect;
 export type UserMiningStats = typeof userMiningStats.$inferSelect;
+export type UnclaimedBlock = typeof unclaimedBlocks.$inferSelect;
+export type InsertUnclaimedBlock = z.infer<typeof insertUnclaimedBlockSchema>;
+export type Transfer = typeof transfers.$inferSelect;
+export type InsertTransfer = z.infer<typeof insertTransferSchema>;
+export type MinerActivity = typeof minerActivity.$inferSelect;

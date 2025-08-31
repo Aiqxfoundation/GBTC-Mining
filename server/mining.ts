@@ -1,4 +1,6 @@
 import { storage } from "./storage";
+import { db } from "./db";
+import { users } from "@shared/schema";
 import cron from "node-cron";
 
 let blockNumber = 1;
@@ -76,9 +78,34 @@ async function distributeRewards() {
     // Calculate rewards per minute (block time is 10 minutes)
     const rewardPerMinute = currentBlockReward / 10;
     
-    // This would need to be optimized for production with batch updates
-    // For now, we'll track rewards in unclaimed balance
     console.log(`Distributing ${rewardPerMinute} GBTC rewards per minute across ${totalHashPowerNum} TH/s`);
+    
+    // Get all users with hash power
+    const allUsers = await db.select().from(users);
+    const usersWithPower = allUsers.filter(u => parseFloat(u.hashPower) > 0);
+    
+    // Create unclaimed blocks for each user based on their hash power share
+    for (const user of usersWithPower) {
+      const userHashPower = parseFloat(user.hashPower);
+      const userShare = userHashPower / totalHashPowerNum;
+      const userReward = (rewardPerMinute * userShare).toFixed(8);
+      
+      if (parseFloat(userReward) > 0) {
+        // Generate transaction hash
+        const txHash = '0x' + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+        
+        // Create unclaimed block for this user
+        await storage.createUnclaimedBlock(
+          user.id,
+          blockNumber,
+          txHash,
+          userReward
+        );
+      }
+    }
+    
+    // Expire old blocks
+    await storage.expireOldBlocks();
   } catch (error) {
     console.error("Error distributing rewards:", error);
   }

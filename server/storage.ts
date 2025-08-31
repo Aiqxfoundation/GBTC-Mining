@@ -4,6 +4,9 @@ import {
   withdrawals, 
   miningBlocks, 
   systemSettings,
+  unclaimedBlocks,
+  minerActivity,
+  transfers,
   type User, 
   type InsertUser, 
   type Deposit, 
@@ -11,7 +14,10 @@ import {
   type Withdrawal,
   type InsertWithdrawal,
   type MiningBlock,
-  type SystemSetting
+  type SystemSetting,
+  type UnclaimedBlock,
+  type Transfer,
+  type MinerActivity
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql } from "drizzle-orm";
@@ -53,11 +59,11 @@ export interface IStorage {
   getTotalDeposits(): Promise<string>;
   getTotalWithdrawals(): Promise<string>;
   
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 }
 
 export class DatabaseStorage implements IStorage {
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 
   constructor() {
     this.sessionStore = new PostgresSessionStore({ 
@@ -240,6 +246,142 @@ export class DatabaseStorage implements IStorage {
       .from(withdrawals)
       .where(eq(withdrawals.status, "completed"));
     return result?.total || "0";
+  }
+  
+  async createUnclaimedBlock(userId: string, blockNumber: number, txHash: string, reward: string): Promise<UnclaimedBlock> {
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24);
+    
+    const [block] = await db.insert(unclaimedBlocks).values({
+      userId,
+      blockNumber,
+      txHash,
+      reward,
+      expiresAt
+    }).returning();
+    return block;
+  }
+  
+  async getUnclaimedBlocks(userId: string): Promise<UnclaimedBlock[]> {
+    return await db.select()
+      .from(unclaimedBlocks)
+      .where(sql`${unclaimedBlocks.userId} = ${userId} AND ${unclaimedBlocks.claimed} = false AND ${unclaimedBlocks.expiresAt} > NOW()`)
+      .orderBy(desc(unclaimedBlocks.createdAt));
+  }
+  
+  async claimBlock(blockId: string, userId: string): Promise<{ success: boolean; reward?: string }> {
+    const [block] = await db.select()
+      .from(unclaimedBlocks)
+      .where(sql`${unclaimedBlocks.id} = ${blockId} AND ${unclaimedBlocks.userId} = ${userId} AND ${unclaimedBlocks.claimed} = false AND ${unclaimedBlocks.expiresAt} > NOW()`);
+    
+    if (!block) {
+      return { success: false };
+    }
+    
+    await db.update(unclaimedBlocks)
+      .set({ claimed: true, claimedAt: new Date() })
+      .where(eq(unclaimedBlocks.id, blockId));
+    
+    const user = await this.getUser(userId);
+    if (user) {
+      const newBalance = (parseFloat(user.gbtcBalance) + parseFloat(block.reward)).toFixed(8);
+      await db.update(users)
+        .set({ gbtcBalance: newBalance })
+        .where(eq(users.id, userId));
+    }
+    
+    await this.updateMinerActivity(userId, true);
+    
+    return { success: true, reward: block.reward };
+  }
+  
+  async expireOldBlocks(): Promise<void> {
+    const expiredBlocks = await db.select()
+      .from(unclaimedBlocks)
+      .where(sql`${unclaimedBlocks.claimed} = false AND ${unclaimedBlocks.expiresAt} <= NOW()`);
+    
+    for (const block of expiredBlocks) {
+      await this.updateMinerActivity(block.userId, false);
+    }
+  }
+  
+  async createTransfer(fromUserId: string, toUsername: string, amount: string): Promise<Transfer> {
+    const toUser = await this.getUserByUsername(toUsername);
+    if (!toUser) {
+      throw new Error('Recipient not found');
+    }
+    
+    const fromUser = await this.getUser(fromUserId);
+    if (!fromUser) {
+      throw new Error('Sender not found');
+    }
+    
+    const senderBalance = parseFloat(fromUser.gbtcBalance);
+    if (senderBalance < parseFloat(amount)) {
+      throw new Error('Insufficient balance');
+    }
+    
+    await db.update(users)
+      .set({ gbtcBalance: (senderBalance - parseFloat(amount)).toFixed(8) })
+      .where(eq(users.id, fromUserId));
+    
+    await db.update(users)
+      .set({ gbtcBalance: (parseFloat(toUser.gbtcBalance) + parseFloat(amount)).toFixed(8) })
+      .where(eq(users.id, toUser.id));
+    
+    const txHash = '0x' + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+    const [transfer] = await db.insert(transfers).values({
+      fromUserId,
+      toUserId: toUser.id,
+      amount,
+      txHash
+    }).returning();
+    
+    return transfer;
+  }
+  
+  async updateMinerActivity(userId: string, claimed: boolean): Promise<void> {
+    const [activity] = await db.select()
+      .from(minerActivity)
+      .where(eq(minerActivity.userId, userId));
+    
+    if (!activity) {
+      await db.insert(minerActivity).values({
+        userId,
+        lastClaimTime: claimed ? new Date() : null,
+        totalClaims: claimed ? 1 : 0,
+        missedClaims: claimed ? 0 : 1,
+        isActive: claimed
+      });
+    } else {
+      const now = new Date();
+      const lastClaim = activity.lastClaimTime ? new Date(activity.lastClaimTime) : null;
+      const hoursSinceLastClaim = lastClaim ? (now.getTime() - lastClaim.getTime()) / (1000 * 60 * 60) : 999;
+      
+      await db.update(minerActivity)
+        .set({
+          lastClaimTime: claimed ? now : activity.lastClaimTime,
+          totalClaims: claimed ? (activity.totalClaims || 0) + 1 : (activity.totalClaims || 0),
+          missedClaims: claimed ? (activity.missedClaims || 0) : (activity.missedClaims || 0) + 1,
+          isActive: hoursSinceLastClaim < 48,
+          updatedAt: now
+        })
+        .where(eq(minerActivity.userId, userId));
+    }
+  }
+  
+  async getMinersStatus(): Promise<(MinerActivity & { user: User })[]> {
+    const result = await db.select({
+      minerActivity,
+      user: users
+    })
+    .from(minerActivity)
+    .leftJoin(users, eq(minerActivity.userId, users.id));
+    
+    return result.map(r => ({
+      ...r.minerActivity,
+      user: r.user!
+    }));
   }
 }
 

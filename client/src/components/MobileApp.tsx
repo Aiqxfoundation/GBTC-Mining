@@ -3,13 +3,13 @@ import { Route, Switch, Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
-import MiningDashboard from "@/pages/mining-dashboard.tsx";
+import MiningFactory from "@/pages/mining-factory.tsx";
 import PurchasePowerPage from "@/pages/purchase-power-page.tsx";
+import WalletPage from "@/pages/wallet-page.tsx";
 import DepositPage from "@/pages/deposit-page.tsx";
 import WithdrawPage from "@/pages/withdraw-page.tsx";
 import TransferPage from "@/pages/transfer-page.tsx";
-import GlobalInfoPage from "@/pages/global-info-page.tsx";
-import ReferralPage from "@/pages/referral-page.tsx";
+import MyMiners from "@/pages/my-miners.tsx";
 import AdminPage from "@/pages/admin-page";
 import { ProtectedRoute } from "@/lib/protected-route";
 import LoadingScreen from "./LoadingScreen";
@@ -43,15 +43,15 @@ export default function MobileApp() {
 
   const navItems = [
     { 
-      path: "/dashboard", 
-      icon: "fas fa-cube", 
-      label: "Mine",
+      path: "/mining", 
+      icon: "fas fa-industry", 
+      label: "Factory",
       color: "text-primary"
     },
     { 
-      path: "/deposit", 
+      path: "/wallet", 
       icon: "fas fa-wallet", 
-      label: "Deposit",
+      label: "Wallet",
       color: "text-accent"
     },
     { 
@@ -61,15 +61,9 @@ export default function MobileApp() {
       color: "text-chart-4"
     },
     { 
-      path: "/global", 
-      icon: "fas fa-globe", 
-      label: "Global",
-      color: "text-chart-3"
-    },
-    { 
-      path: "/referral", 
+      path: "/miners", 
       icon: "fas fa-users", 
-      label: "Referral",
+      label: "My Miners",
       color: "text-chart-5"
     }
   ];
@@ -90,13 +84,13 @@ export default function MobileApp() {
         <Switch>
           <Route path="/" component={HomePage} />
           <Route path="/auth" component={AuthPage} />
-          <ProtectedRoute path="/dashboard" component={MiningDashboard} />
+          <ProtectedRoute path="/mining" component={MiningFactory} />
+          <ProtectedRoute path="/wallet" component={WalletPage} />
           <ProtectedRoute path="/power" component={PurchasePowerPage} />
+          <ProtectedRoute path="/miners" component={MyMiners} />
           <ProtectedRoute path="/deposit" component={DepositPage} />
           <ProtectedRoute path="/withdraw" component={WithdrawPage} />
           <ProtectedRoute path="/transfer" component={TransferPage} />
-          <ProtectedRoute path="/global" component={GlobalInfoPage} />
-          <ProtectedRoute path="/referral" component={ReferralPage} />
           <ProtectedRoute path="/admin" component={AdminPage} />
         </Switch>
       </div>

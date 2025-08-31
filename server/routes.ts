@@ -246,6 +246,100 @@ export function registerRoutes(app: Express): Server {
       next(error);
     }
   });
+  
+  // Get unclaimed blocks for user
+  app.get("/api/unclaimed-blocks", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const blocks = await storage.getUnclaimedBlocks(req.user!.id);
+      res.json(blocks);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Claim a block
+  app.post("/api/claim-block", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const { blockId } = req.body;
+      const result = await storage.claimBlock(blockId, req.user!.id);
+      
+      if (!result.success) {
+        return res.status(400).json({ message: "Unable to claim block" });
+      }
+      
+      res.json({ 
+        message: "Block claimed successfully",
+        reward: result.reward 
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Transfer GBTC
+  app.post("/api/transfer", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const { toUsername, amount } = req.body;
+      
+      if (!toUsername || !amount || parseFloat(amount) <= 0) {
+        return res.status(400).json({ message: "Invalid transfer details" });
+      }
+      
+      const transfer = await storage.createTransfer(req.user!.id, toUsername, amount);
+      res.json({ 
+        message: "Transfer successful",
+        transfer 
+      });
+    } catch (error: any) {
+      if (error.message.includes('not found') || error.message.includes('Insufficient')) {
+        return res.status(400).json({ message: error.message });
+      }
+      next(error);
+    }
+  });
+  
+  // Get miners status
+  app.get("/api/my-miners", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const minersWithUsers = await storage.getMinersStatus();
+      
+      // Calculate total hash power and format response
+      const miners = minersWithUsers.map(m => ({
+        id: m.user.id,
+        username: m.user.username,
+        hashPower: parseFloat(m.user.hashPower),
+        lastClaimTime: m.lastClaimTime,
+        isActive: m.isActive,
+        totalClaims: m.totalClaims,
+        missedClaims: m.missedClaims
+      }));
+      
+      const totalHashPower = miners.reduce((sum, m) => sum + m.hashPower, 0);
+      
+      res.json({ 
+        miners,
+        totalHashPower 
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
