@@ -52,19 +52,27 @@ export default function MiningDashboard() {
     setBlockProgress(((600 - blockTimer) / 600) * 100);
   }, [blockTimer]);
 
-  // Convert to real hashrate units
+  // Enhanced hashrate calculations with dynamic network growth
   const myHashrate = parseFloat(user?.hashPower || '0');
+  const baseGlobalHashrate = 584732.50; // Base GH/s
+  const networkGrowthRate = 1.0012; // 0.12% hourly growth
+  const currentHour = new Date().getHours();
+  const globalHashrate = baseGlobalHashrate * Math.pow(networkGrowthRate, currentHour);
+  
   const getHashrateDisplay = (hashrate: number) => {
-    if (hashrate >= 1000000) return `${(hashrate / 1000000).toFixed(2)} PH/s`;
-    if (hashrate >= 1000) return `${(hashrate / 1000).toFixed(2)} TH/s`;
-    return `${hashrate.toFixed(2)} GH/s`;
+    if (hashrate >= 1000000) return `${(hashrate / 1000000).toFixed(3)} PH/s`;
+    if (hashrate >= 1000) return `${(hashrate / 1000).toFixed(3)} TH/s`;
+    if (hashrate >= 1) return `${hashrate.toFixed(2)} GH/s`;
+    return `${(hashrate * 1000).toFixed(0)} MH/s`;
   };
 
-  const globalHashrate = 584732.50; // GH/s
   const currentBlockReward = 6.25;
-  const myEstimatedReward = globalHashrate > 0 ? (myHashrate / globalHashrate) * currentBlockReward : 0;
+  const myMiningShare = myHashrate > 0 ? (myHashrate / globalHashrate) : 0;
+  const myEstimatedReward = myMiningShare * currentBlockReward;
+  const dailyEstimatedRewards = myEstimatedReward * 144; // 144 blocks per day
   const unclaimedGBTC = parseFloat(user?.unclaimedBalance || '0');
-  const difficulty = 47.8; // Mining difficulty in T
+  const difficulty = 53.91; // Mining difficulty in T
+  const isNewUser = myHashrate === 0;
 
   // Generate random hash
   useEffect(() => {
@@ -138,15 +146,22 @@ export default function MiningDashboard() {
               <div className="terminal-dot bg-gray-500"></div>
             </div>
             <span className="ml-auto text-xs text-muted-foreground font-mono">
-              Mining Node #{user?.id?.toString().padStart(6, '0') || '000000'}
+              {isNewUser ? 'New User - Inactive' : `Mining Node #${user?.id?.toString().substring(0, 6)}`}
             </span>
           </div>
           <div className="terminal-content space-y-1">
-            <div className="text-green-500">[SYSTEM] Mining operation {miningActive ? 'ACTIVE' : 'PAUSED'}</div>
-            <div className="text-cyan-500">[HASH] Processing: 0x{currentHash.substring(0, 32)}...</div>
-            <div className="text-yellow-500">[POOL] Connected to GBTC Mining Pool</div>
-            <div className="text-green-500">[STATS] Hashrate: {getHashrateDisplay(myHashrate)}</div>
-            <div className="text-blue-500">[BLOCK] Progress: {blockProgress.toFixed(1)}%</div>
+            <div className={isNewUser ? "text-yellow-500" : "text-green-500"}>
+              [SYSTEM] Mining {isNewUser ? 'INACTIVE - Deposit Required' : miningActive ? 'ACTIVE' : 'PAUSED'}
+            </div>
+            <div className="text-cyan-500">[HASH] {isNewUser ? 'Waiting for initialization...' : `Processing: 0x${currentHash.substring(0, 32)}...`}</div>
+            <div className="text-yellow-500">[POOL] {isNewUser ? 'Not connected' : 'Connected to GBTC Mining Pool'}</div>
+            <div className={isNewUser ? "text-red-500" : "text-green-500"}>
+              [STATS] Hashrate: {getHashrateDisplay(myHashrate)} {isNewUser && '(Purchase Required)'}
+            </div>
+            <div className="text-blue-500">[BLOCK] Progress: {isNewUser ? 'N/A' : `${blockProgress.toFixed(1)}%`}</div>
+            {isNewUser && (
+              <div className="text-warning">[INFO] Deposit USDT and purchase hashrate to start mining!</div>
+            )}
           </div>
         </div>
 
@@ -173,7 +188,7 @@ export default function MiningDashboard() {
                 {getHashrateDisplay(myHashrate)}
               </div>
               <div className="text-xs text-muted-foreground mt-1">
-                Network Share: {((myHashrate / globalHashrate) * 100).toFixed(4)}%
+                Network Share: {(myMiningShare * 100).toFixed(6)}%
               </div>
             </div>
 
@@ -186,30 +201,40 @@ export default function MiningDashboard() {
                 {myHashrate.toFixed(0)}
               </div>
               <div className="text-xs text-accent mt-1">
-                +{myEstimatedReward.toFixed(6)} GBTC/block
+                +{myEstimatedReward.toFixed(8)} GBTC/block
               </div>
             </div>
           </div>
 
           {/* Block Progress */}
-          <div className="mb-6">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-xs text-muted-foreground uppercase">Current Block Mining</span>
-              <span className="text-xs font-mono text-primary">{formatTime(blockTimer)}</span>
-            </div>
-            <div className="h-3 bg-background rounded-full overflow-hidden border border-border">
-              <div 
-                className="h-full bg-gradient-to-r from-primary to-chart-4 transition-all duration-1000"
-                style={{ width: `${blockProgress}%` }}
-              >
-                <div className="h-full bg-white/20 animate-pulse"></div>
+          {isNewUser ? (
+            <div className="mb-6 p-4 bg-warning/10 border border-warning/30 rounded-lg">
+              <div className="text-center">
+                <i className="fas fa-exclamation-triangle text-warning text-2xl mb-2"></i>
+                <p className="text-sm font-bold text-warning">Mining Not Started</p>
+                <p className="text-xs text-muted-foreground mt-1">Deposit USDT and purchase hashrate to begin mining</p>
               </div>
             </div>
-            <div className="flex justify-between mt-2 text-xs text-muted-foreground">
-              <span>Block #871235</span>
-              <span>Est. Reward: {currentBlockReward} GBTC</span>
+          ) : (
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs text-muted-foreground uppercase">Current Block Mining</span>
+                <span className="text-xs font-mono text-primary">{formatTime(blockTimer)}</span>
+              </div>
+              <div className="h-3 bg-background rounded-full overflow-hidden border border-border">
+                <div 
+                  className="h-full bg-gradient-to-r from-primary to-chart-4 transition-all duration-1000"
+                  style={{ width: `${blockProgress}%` }}
+                >
+                  <div className="h-full bg-white/20 animate-pulse"></div>
+                </div>
+              </div>
+              <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+                <span>Block #871235</span>
+                <span>Your Est.: {myEstimatedReward.toFixed(8)} GBTC</span>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Mining Metrics Grid */}
           <div className="grid grid-cols-3 gap-2 mb-4">
@@ -242,7 +267,7 @@ export default function MiningDashboard() {
                   {unclaimedGBTC.toFixed(8)} GBTC
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">
-                  ≈ ${(unclaimedGBTC * 0.0156).toFixed(2)} USD
+                  Daily Est.: {dailyEstimatedRewards.toFixed(4)} GBTC
                 </div>
               </div>
               <div className="text-right">

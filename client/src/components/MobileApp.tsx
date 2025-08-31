@@ -12,17 +12,34 @@ import GlobalInfoPage from "@/pages/global-info-page.tsx";
 import ReferralPage from "@/pages/referral-page.tsx";
 import AdminPage from "@/pages/admin-page";
 import { ProtectedRoute } from "@/lib/protected-route";
+import LoadingScreen from "./LoadingScreen";
 
 export default function MobileApp() {
   const { user } = useAuth();
   const [location] = useLocation();
+  const [showLoading, setShowLoading] = useState(() => {
+    // Check for referral link or first load
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.has('ref') || sessionStorage.getItem('firstLoad') !== 'false';
+  });
   const [showBottomNav, setShowBottomNav] = useState(true);
+  
+  useEffect(() => {
+    // Mark that we've loaded once
+    if (showLoading) {
+      sessionStorage.setItem('firstLoad', 'false');
+    }
+  }, [showLoading]);
 
   // Hide bottom nav on certain pages
   useEffect(() => {
     const hideNavPages = ["/", "/auth"];
     setShowBottomNav(!hideNavPages.includes(location));
   }, [location]);
+
+  if (showLoading) {
+    return <LoadingScreen onComplete={() => setShowLoading(false)} />;
+  }
 
   const navItems = [
     { 

@@ -27,12 +27,23 @@ export default function HomePage() {
   }, []);
 
   // Calculate hashrate display
+  // Improved hashrate calculations with better mathematics
   const userHashrate = parseFloat(user?.hashPower || '0');
+  const globalHashrate = 584732.50; // Base global hashrate in GH/s
+  const networkGrowthFactor = 1.0012; // 0.12% hourly growth
+  const currentHour = new Date().getHours();
+  const dynamicGlobalHashrate = globalHashrate * Math.pow(networkGrowthFactor, currentHour);
+  
   const getHashrateDisplay = (hashrate: number) => {
-    if (hashrate >= 1000000) return `${(hashrate / 1000000).toFixed(2)} PH/s`;
-    if (hashrate >= 1000) return `${(hashrate / 1000).toFixed(2)} TH/s`;
-    return `${hashrate.toFixed(2)} GH/s`;
+    if (hashrate >= 1000000) return `${(hashrate / 1000000).toFixed(3)} PH/s`;
+    if (hashrate >= 1000) return `${(hashrate / 1000).toFixed(3)} TH/s`;
+    if (hashrate >= 1) return `${hashrate.toFixed(2)} GH/s`;
+    return `${(hashrate * 1000).toFixed(0)} MH/s`;
   };
+  
+  // Calculate user's mining share more accurately
+  const userMiningShare = userHashrate > 0 ? (userHashrate / dynamicGlobalHashrate) * 100 : 0;
+  const estimatedDailyRewards = userHashrate > 0 ? (userMiningShare / 100) * 6.25 * 144 : 0; // 144 blocks per day
 
   return (
     <div className="min-h-screen pb-24 relative overflow-hidden">
@@ -101,11 +112,20 @@ export default function HomePage() {
             <h2 className="text-sm font-heading font-bold text-muted-foreground uppercase tracking-wider">
               Your Mining Operation
             </h2>
-            <div className="difficulty-badge">
+            <div className={`difficulty-badge ${userHashrate === 0 ? 'border-destructive/30 text-destructive' : ''}`}>
               <i className="fas fa-microchip mr-2"></i>
-              ACTIVE
+              {userHashrate === 0 ? 'INACTIVE' : 'ACTIVE'}
             </div>
           </div>
+          
+          {userHashrate === 0 && (
+            <div className="mb-4 p-3 bg-warning/10 border border-warning/30 rounded-lg">
+              <p className="text-xs text-warning font-medium">
+                <i className="fas fa-exclamation-triangle mr-2"></i>
+                Mining inactive! Deposit USDT and purchase hashrate to start mining.
+              </p>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
@@ -113,11 +133,17 @@ export default function HomePage() {
               <div className="text-2xl font-mono font-bold text-gradient">
                 {getHashrateDisplay(userHashrate)}
               </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                {userHashrate === 0 ? '⚠️ Inactive' : '✓ Active'}
+              </div>
             </div>
             <div>
               <div className="stat-label mb-1">Mining Rewards</div>
               <div className="text-2xl font-mono font-bold text-gradient-green">
                 {parseFloat(user?.unclaimedBalance || '0').toFixed(4)} GBTC
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                Est. Daily: {estimatedDailyRewards.toFixed(4)}
               </div>
             </div>
           </div>
@@ -125,12 +151,12 @@ export default function HomePage() {
           <div className="space-y-2">
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Mining Progress</span>
-              <span className="font-mono text-primary">{((userHashrate / 584732.50) * 100).toFixed(4)}%</span>
+              <span className="font-mono text-primary">{userMiningShare.toFixed(6)}%</span>
             </div>
             <div className="progress-bar">
               <div 
                 className="progress-fill"
-                style={{ width: `${Math.min((userHashrate / 584732.50) * 100, 100)}%` }}
+                style={{ width: `${Math.min(userMiningShare, 100)}%` }}
               ></div>
             </div>
           </div>
@@ -259,9 +285,9 @@ export default function HomePage() {
             <div className="text-xs text-muted-foreground">~10 min/block</div>
           </Card>
           <Card className="data-card">
-            <div className="text-xs text-muted-foreground mb-1">GBTC Price</div>
-            <div className="text-lg font-mono font-bold text-gradient">$0.0156</div>
-            <div className="text-xs text-accent">+5.2%</div>
+            <div className="text-xs text-muted-foreground mb-1">Hash/USD Rate</div>
+            <div className="text-lg font-mono font-bold text-gradient">1 GH/s</div>
+            <div className="text-xs text-muted-foreground">= 1 USDT</div>
           </Card>
         </div>
       </div>
