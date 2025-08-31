@@ -5,47 +5,80 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Loader2, Users, Zap, Cpu, Clock, TrendingUp, Coins } from "lucide-react";
 
 export default function MiningFactory() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [runningHashes, setRunningHashes] = useState<string[]>([]);
-  const [currentHashIndex, setCurrentHashIndex] = useState(0);
+  const [nextBlockTime, setNextBlockTime] = useState("00:00");
+  const [currentTime, setCurrentTime] = useState(Date.now());
 
   const hashPower = parseFloat(user?.hashPower || '0');
   const gbtcBalance = parseFloat(user?.gbtcBalance || '0');
 
-  // Generate random transaction hashes
-  const generateHash = () => {
-    const chars = '0123456789abcdef';
-    let hash = '0x';
-    for (let i = 0; i < 64; i++) {
-      hash += chars[Math.floor(Math.random() * chars.length)];
-    }
-    return hash;
-  };
-
-  // Simulate running hashes
-  useEffect(() => {
-    if (hashPower <= 0) return;
-
-    const interval = setInterval(() => {
-      const newHashes = Array(5).fill(0).map(() => generateHash());
-      setRunningHashes(newHashes);
-      setCurrentHashIndex(prev => (prev + 1) % 5);
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, [hashPower]);
+  // Fetch global mining stats
+  const { data: globalStats } = useQuery({
+    queryKey: ["/api/global-stats"],
+    refetchInterval: 5000,
+  });
 
   // Fetch unclaimed blocks
   const { data: unclaimedBlocks, isLoading: blocksLoading } = useQuery({
     queryKey: ["/api/unclaimed-blocks"],
-    refetchInterval: 10000, // Refresh every 10 seconds
+    refetchInterval: 10000,
     enabled: !!user,
   });
+
+  // Generate smooth scrolling hashes
+  useEffect(() => {
+    if (hashPower <= 0) return;
+
+    const generateHash = () => {
+      const chars = '0123456789abcdef';
+      let hash = '0x';
+      for (let i = 0; i < 64; i++) {
+        hash += chars[Math.floor(Math.random() * chars.length)];
+      }
+      return hash;
+    };
+
+    const interval = setInterval(() => {
+      setRunningHashes(prev => {
+        const newHashes = [...prev];
+        if (newHashes.length >= 10) {
+          newHashes.shift();
+        }
+        newHashes.push(generateHash());
+        return newHashes;
+      });
+    }, 1000);
+
+    // Initialize with some hashes
+    setRunningHashes(Array(5).fill(0).map(() => generateHash()));
+
+    return () => clearInterval(interval);
+  }, [hashPower]);
+
+  // Update countdown timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(Date.now());
+      
+      // Calculate time until next block (10-minute intervals)
+      const now = new Date();
+      const minutesInCycle = now.getMinutes() % 10;
+      const secondsInCycle = now.getSeconds();
+      const totalSecondsRemaining = (10 - minutesInCycle - 1) * 60 + (60 - secondsInCycle);
+      
+      const minutes = Math.floor(totalSecondsRemaining / 60);
+      const seconds = totalSecondsRemaining % 60;
+      
+      setNextBlockTime(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   // Claim block mutation
   const claimBlockMutation = useMutation({
@@ -70,10 +103,12 @@ export default function MiningFactory() {
     }
   });
 
-  const getHashrateDisplay = (hashrate: number) => {
-    if (hashrate >= 1000000) return `${(hashrate / 1000000).toFixed(2)} PH/s`;
-    if (hashrate >= 1000) return `${(hashrate / 1000).toFixed(2)} TH/s`;
-    return `${hashrate.toFixed(2)} GH/s`;
+  const formatHashrate = (hashrate: number) => {
+    if (hashrate >= 1000000000) return `${(hashrate / 1000000000).toFixed(2)} P`;
+    if (hashrate >= 1000000) return `${(hashrate / 1000000).toFixed(2)} T`;
+    if (hashrate >= 1000) return `${(hashrate / 1000).toFixed(2)} G`;
+    if (hashrate >= 1) return `${hashrate.toFixed(2)} M`;
+    return `${(hashrate * 1000).toFixed(2)} K`;
   };
 
   const getTimeRemaining = (expiresAt: string) => {
@@ -90,9 +125,17 @@ export default function MiningFactory() {
     return `${minutes}m`;
   };
 
+  // Calculate stats
+  const totalSupply = 2100000000; // 2.1 Billion
+  const circulation = globalStats?.circulation || 217340000;
+  const blockHeight = globalStats?.blockHeight || 43469;
+  const globalHashrate = globalStats?.totalHashrate || 712110;
+  const hashGains = hashPower > 0 ? (parseFloat(user?.unclaimedRewards || '0') / hashPower * 1000).toFixed(8) : '0.00000000';
+  const myMiners = globalStats?.activeMiners || 4;
+
   return (
     <div className="mobile-page bg-black">
-      {/* Professional Header */}
+      {/* Header */}
       <div className="mobile-header bg-gradient-to-r from-primary/20 to-accent/20 backdrop-blur-md">
         <div>
           <h1 className="text-xl font-display font-black text-primary glow-green">
@@ -112,64 +155,147 @@ export default function MiningFactory() {
 
       {/* Main Content */}
       <div className="mobile-content">
-        {/* Mining Status Card */}
-        <Card className="mobile-card bg-black border-primary/30">
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-mono text-muted-foreground">MINING STATUS</span>
-              <span className={`text-xs font-mono px-2 py-1 rounded ${
-                hashPower > 0 ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
-              }`}>
-                {hashPower > 0 ? 'ACTIVE' : 'INACTIVE'}
-              </span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <i className={`fas fa-microchip text-3xl ${
-                hashPower > 0 ? 'text-primary animate-pulse' : 'text-muted-foreground'
-              }`}></i>
+        {/* Statistics Grid */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          {/* Total Supply */}
+          <Card className="mobile-card bg-gradient-to-br from-primary/10 to-transparent border-primary/30">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-display font-black text-primary">
-                  {getHashrateDisplay(hashPower)}
+                <p className="text-xs text-muted-foreground font-mono mb-1">TotalSupply</p>
+                <p className="text-lg font-display font-bold text-primary">
+                  {(totalSupply / 1000000000).toFixed(1)} Bn
                 </p>
-                <p className="text-xs text-muted-foreground">Total Hashrate</p>
               </div>
+              <Coins className="w-5 h-5 text-primary/50" />
             </div>
-          </div>
-        </Card>
+          </Card>
 
-        {/* Transaction Hashes Terminal */}
+          {/* Circulation */}
+          <Card className="mobile-card bg-gradient-to-br from-accent/10 to-transparent border-accent/30">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground font-mono mb-1">Circulation</p>
+                <p className="text-lg font-display font-bold text-accent">
+                  {(circulation / 1000000).toFixed(2)} Mn
+                </p>
+              </div>
+              <TrendingUp className="w-5 h-5 text-accent/50" />
+            </div>
+          </Card>
+
+          {/* Block Height */}
+          <Card className="mobile-card bg-gradient-to-br from-chart-3/10 to-transparent border-chart-3/30">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground font-mono mb-1">BlockHeight</p>
+                <p className="text-lg font-display font-bold text-chart-3">
+                  {blockHeight.toLocaleString()}
+                </p>
+              </div>
+              <Cpu className="w-5 h-5 text-chart-3/50" />
+            </div>
+          </Card>
+
+          {/* Hashrate */}
+          <Card className="mobile-card bg-gradient-to-br from-chart-4/10 to-transparent border-chart-4/30">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground font-mono mb-1">Hashrate</p>
+                <p className="text-lg font-display font-bold text-chart-4">
+                  {formatHashrate(globalHashrate)} H
+                </p>
+              </div>
+              <Zap className="w-5 h-5 text-chart-4/50" />
+            </div>
+          </Card>
+
+          {/* Hash Gains */}
+          <Card className="mobile-card bg-gradient-to-br from-success/10 to-transparent border-success/30">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground font-mono mb-1">HashGains</p>
+                <p className="text-lg font-display font-bold text-success">
+                  {hashGains} <span className="text-xs">M/B</span>
+                </p>
+              </div>
+              <TrendingUp className="w-5 h-5 text-success/50" />
+            </div>
+          </Card>
+
+          {/* Next Block */}
+          <Card className="mobile-card bg-gradient-to-br from-warning/10 to-transparent border-warning/30">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground font-mono mb-1">NextBlock</p>
+                <p className="text-lg font-display font-bold text-warning">
+                  {nextBlockTime}
+                </p>
+              </div>
+              <Clock className="w-5 h-5 text-warning/50 animate-pulse" />
+            </div>
+          </Card>
+        </div>
+
+        {/* Personal Stats */}
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          {/* My Hash */}
+          <Card className="mobile-card bg-black border-primary/30">
+            <div>
+              <p className="text-xs text-muted-foreground font-mono mb-1">MyHash</p>
+              <p className="text-base font-display font-bold text-primary">
+                {formatHashrate(hashPower / 1000)} K
+              </p>
+            </div>
+          </Card>
+
+          {/* Contributed */}
+          <Card className="mobile-card bg-black border-accent/30">
+            <div>
+              <p className="text-xs text-muted-foreground font-mono mb-1">Contributed</p>
+              <p className="text-base font-display font-bold text-accent">
+                {(hashPower / 1000).toFixed(2)} K
+              </p>
+              <p className="text-[10px] text-muted-foreground">Rules</p>
+            </div>
+          </Card>
+
+          {/* My Miners */}
+          <Card className="mobile-card bg-black border-chart-3/30">
+            <div>
+              <p className="text-xs text-muted-foreground font-mono mb-1">MyMiners</p>
+              <p className="text-base font-display font-bold text-chart-3">
+                {myMiners} <span className="text-xs">ppl</span>
+              </p>
+            </div>
+          </Card>
+        </div>
+
+        {/* Transaction Hashes (Non-vibrating) */}
         {hashPower > 0 && (
-          <Card className="mobile-card bg-black border-primary/30 overflow-hidden">
+          <Card className="mobile-card bg-black border-primary/30 overflow-hidden mb-4">
             <div className="mb-2">
               <p className="text-xs font-mono text-primary">PROCESSING TRANSACTIONS</p>
             </div>
-            <div className="bg-black/50 rounded p-3 font-mono text-xs space-y-1 max-h-32 overflow-hidden">
-              <AnimatePresence mode="popLayout">
-                {runningHashes.map((hash, index) => (
-                  <motion.div
-                    key={`${hash}-${currentHashIndex}`}
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ 
-                      opacity: index === currentHashIndex ? 1 : 0.3,
-                      y: 0,
-                      color: index === currentHashIndex ? '#00ff00' : '#00ff0080'
-                    }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.3 }}
-                    className="truncate"
-                  >
-                    {index === currentHashIndex && (
-                      <span className="text-primary mr-2">➤</span>
-                    )}
-                    {hash}
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+            <div className="bg-black/50 rounded p-3 font-mono text-[10px] space-y-1 h-24 overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80 pointer-events-none z-10"></div>
+              {runningHashes.map((hash, index) => (
+                <div
+                  key={`${hash}-${index}`}
+                  className="truncate transition-all duration-500"
+                  style={{
+                    opacity: 1 - (index * 0.15),
+                    color: index === runningHashes.length - 1 ? '#00ff00' : '#00ff0080',
+                    transform: `translateY(${index === runningHashes.length - 1 ? '0' : '0'})`,
+                  }}
+                >
+                  {hash}
+                </div>
+              ))}
             </div>
             <div className="mt-2 flex items-center space-x-2">
               <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
               <p className="text-xs text-muted-foreground font-mono">
-                Mining at {getHashrateDisplay(hashPower)}
+                Mining at {formatHashrate(hashPower / 1000)} KH/s
               </p>
             </div>
           </Card>
@@ -199,12 +325,12 @@ export default function MiningFactory() {
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-2">
-                      <i className="fas fa-cube text-2xl text-primary animate-pulse"></i>
+                      <Cpu className="w-5 h-5 text-primary animate-pulse" />
                       <div>
                         <p className="text-sm font-display font-bold text-primary">
                           BLOCK #{block.blockNumber}
                         </p>
-                        <p className="text-xs font-mono text-muted-foreground truncate max-w-[150px]">
+                        <p className="text-[10px] font-mono text-muted-foreground truncate max-w-[150px]">
                           {block.txHash}
                         </p>
                       </div>
@@ -223,7 +349,7 @@ export default function MiningFactory() {
                         ? 'bg-destructive/20 text-destructive' 
                         : 'bg-warning/20 text-warning'
                     }`}>
-                      <i className="fas fa-clock mr-1"></i>
+                      <Clock className="w-3 h-3 inline mr-1" />
                       {getTimeRemaining(block.expiresAt)}
                     </div>
                     
@@ -240,10 +366,7 @@ export default function MiningFactory() {
                       {claimBlockMutation.isPending ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
-                        <>
-                          <i className="fas fa-hand-holding-usd mr-2"></i>
-                          CLAIM
-                        </>
+                        <>CLAIM</>
                       )}
                     </Button>
                   </div>
@@ -253,7 +376,7 @@ export default function MiningFactory() {
           ) : (
             <Card className="mobile-card bg-black border-primary/30">
               <div className="text-center py-8">
-                <i className="fas fa-cube text-4xl text-muted-foreground mb-3"></i>
+                <Cpu className="w-10 h-10 text-muted-foreground mb-3 mx-auto" />
                 <p className="text-sm text-muted-foreground">No blocks to claim</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   {hashPower > 0 
@@ -265,32 +388,11 @@ export default function MiningFactory() {
           )}
         </div>
 
-        {/* Mining Info */}
-        <Card className="mobile-card bg-black border-primary/30 mt-4">
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <div>
-              <i className="fas fa-network-wired text-xl text-chart-3 mb-2"></i>
-              <p className="text-xs text-muted-foreground">Network</p>
-              <p className="text-sm font-display font-bold text-chart-3">100%</p>
-            </div>
-            <div>
-              <i className="fas fa-tachometer-alt text-xl text-chart-4 mb-2"></i>
-              <p className="text-xs text-muted-foreground">Efficiency</p>
-              <p className="text-sm font-display font-bold text-chart-4">98.5%</p>
-            </div>
-            <div>
-              <i className="fas fa-fire text-xl text-warning mb-2"></i>
-              <p className="text-xs text-muted-foreground">Temperature</p>
-              <p className="text-sm font-display font-bold text-warning">72°C</p>
-            </div>
-          </div>
-        </Card>
-
         {/* No Hashrate Warning */}
         {hashPower <= 0 && (
-          <Card className="mobile-card bg-destructive/10 border-destructive/30">
+          <Card className="mobile-card bg-destructive/10 border-destructive/30 mt-4">
             <div className="flex items-center space-x-3">
-              <i className="fas fa-exclamation-triangle text-destructive text-xl"></i>
+              <Zap className="w-5 h-5 text-destructive" />
               <div>
                 <p className="text-sm font-semibold text-destructive">Mining Inactive</p>
                 <p className="text-xs text-muted-foreground">

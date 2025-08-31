@@ -58,6 +58,20 @@ export interface IStorage {
   getUserCount(): Promise<number>;
   getTotalDeposits(): Promise<string>;
   getTotalWithdrawals(): Promise<string>;
+  getActiveMinerCount(): Promise<number>;
+  
+  // Unclaimed blocks
+  createUnclaimedBlock(userId: string, blockNumber: number, txHash: string, reward: string): Promise<void>;
+  getUnclaimedBlocks(userId: string): Promise<any[]>;
+  claimBlock(blockId: string, userId: string): Promise<{ success: boolean; reward?: string }>;
+  expireOldBlocks(): Promise<void>;
+  
+  // Transfers
+  createTransfer(fromUserId: string, toUsername: string, amount: string): Promise<any>;
+  
+  // Miner activity
+  getMinersStatus(): Promise<any[]>;
+  updateMinerActivity(userId: string, claimed: boolean): Promise<void>;
   
   sessionStore: session.Store;
 }
@@ -382,6 +396,14 @@ export class DatabaseStorage implements IStorage {
       ...r.minerActivity,
       user: r.user!
     }));
+  }
+  
+  async getActiveMinerCount(): Promise<number> {
+    const [result] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(minerActivity)
+      .where(eq(minerActivity.isActive, true));
+    return result?.count || 0;
   }
 }
 

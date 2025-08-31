@@ -247,6 +247,24 @@ export function registerRoutes(app: Express): Server {
     }
   });
   
+  // Get global mining stats
+  app.get("/api/global-stats", async (req, res, next) => {
+    try {
+      const totalHashPower = await storage.getTotalHashPower();
+      const blockHeight = await storage.getSystemSetting("blockNumber");
+      const activeMiners = await storage.getActiveMinerCount();
+      
+      res.json({
+        totalHashrate: parseFloat(totalHashPower),
+        blockHeight: blockHeight ? parseInt(blockHeight.value) : 1,
+        circulation: 217340000, // Fixed for now, can be calculated based on mined blocks
+        activeMiners: activeMiners
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
   // Get unclaimed blocks for user
   app.get("/api/unclaimed-blocks", async (req, res, next) => {
     try {
