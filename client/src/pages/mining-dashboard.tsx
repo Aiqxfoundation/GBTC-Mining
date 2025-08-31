@@ -9,7 +9,7 @@ import { Link, useLocation } from "wouter";
 import bitcoinLogo from "@assets/file_00000000221c61fab63936953b889556_1756633909848.png";
 
 export default function MiningDashboard() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [blockTimer, setBlockTimer] = useState(600); // 10 minutes in seconds
@@ -116,6 +116,24 @@ export default function MiningDashboard() {
   const handleClaim = () => {
     claimRewardsMutation.mutate();
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <i className="fas fa-spinner fa-spin text-4xl text-primary mb-4"></i>
+          <p className="text-sm text-muted-foreground">Loading Mining Factory...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect to auth if not logged in
+  if (!user) {
+    setLocation('/auth');
+    return null;
+  }
 
   return (
     <div className="min-h-screen pb-24 relative overflow-hidden">
