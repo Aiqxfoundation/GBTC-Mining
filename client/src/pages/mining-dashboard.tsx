@@ -5,12 +5,13 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import bitcoinLogo from "@assets/file_00000000221c61fab63936953b889556_1756633909848.png";
 
 export default function MiningDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [blockTimer, setBlockTimer] = useState(600); // 10 minutes in seconds
   const [lastClaimed, setLastClaimed] = useState<Date | null>(null);
   const [currentHash, setCurrentHash] = useState<string>('');  
@@ -305,6 +306,42 @@ export default function MiningDashboard() {
             )}
           </div>
         </Card>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-4 gap-2">
+          <button 
+            onClick={() => setLocation('/deposit')}
+            className="data-card text-center py-3 transition-all hover:scale-105"
+            data-testid="button-deposit"
+          >
+            <i className="fas fa-download text-xl text-primary mb-1"></i>
+            <div className="text-xs font-heading uppercase">Deposit</div>
+          </button>
+          <button 
+            onClick={() => setLocation('/withdraw')}
+            className="data-card text-center py-3 transition-all hover:scale-105"
+            data-testid="button-withdraw"
+          >
+            <i className="fas fa-upload text-xl text-accent mb-1"></i>
+            <div className="text-xs font-heading uppercase">Withdraw</div>
+          </button>
+          <button 
+            onClick={() => setLocation('/power')}
+            className="data-card text-center py-3 transition-all hover:scale-105"
+            data-testid="button-power"
+          >
+            <i className="fas fa-bolt text-xl text-chart-4 mb-1"></i>
+            <div className="text-xs font-heading uppercase">Upgrade</div>
+          </button>
+          <button 
+            onClick={() => setLocation('/transfer')}
+            className="data-card text-center py-3 transition-all hover:scale-105"
+            data-testid="button-transfer"
+          >
+            <i className="fas fa-exchange-alt text-xl text-chart-3 mb-1"></i>
+            <div className="text-xs font-heading uppercase">Transfer</div>
+          </button>
+        </div>
 
         {/* Mining History */}
         <Card className="mining-block">

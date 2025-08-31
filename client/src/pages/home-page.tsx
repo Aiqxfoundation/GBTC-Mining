@@ -8,11 +8,15 @@ export default function HomePage() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [currentHash, setCurrentHash] = useState("");
+  const [activeMiners, setActiveMiners] = useState(1847);
+  const [totalDeposits, setTotalDeposits] = useState(584732.50);
+  const [blocksToday, setBlocksToday] = useState(87);
   const [networkStats, setNetworkStats] = useState({
     difficulty: "53.91T",
-    hashrate: "584.73 EH/s",
+    hashrate: "584.73 PH/s",
     blockHeight: 871234,
-    nextHalving: 420000,
+    totalSupply: 21000000,
+    circulating: 1312500,
   });
 
   // Generate random hash for visual effect
@@ -68,155 +72,138 @@ export default function HomePage() {
 
       {/* Main Content */}
       <div className="relative z-10 p-4 space-y-6">
-        {/* Header Terminal */}
+        {/* Global Network Header */}
         <div className="terminal-window">
           <div className="terminal-header">
             <div className="terminal-dot bg-red-500"></div>
             <div className="terminal-dot bg-yellow-500"></div>
             <div className="terminal-dot bg-green-500"></div>
-            <span className="ml-2 text-xs text-muted-foreground">GBTC Mining Node v2.0.1</span>
+            <span className="ml-2 text-xs text-muted-foreground">GBTC Global Network Monitor</span>
           </div>
           <div className="terminal-content">
             <div className="text-green-500 font-mono text-xs space-y-1">
-              <div>[{new Date().toLocaleTimeString()}] Mining operation active...</div>
-              <div>[SYSTEM] Connected to network: MAINNET</div>
-              <div>[HASH] Current: 0x{currentHash.substring(0, 16)}...</div>
-              <div>[USER] Wallet: {user?.username || 'anonymous'}</div>
+              <div className="text-primary">[{new Date().toLocaleTimeString()}] GLOBAL NETWORK STATUS</div>
+              <div>[NETWORK] Active Miners: {activeMiners.toLocaleString()}</div>
+              <div>[BLOCKS] Generated Today: {blocksToday}</div>
+              <div>[HASH] Network Hash: 0x{currentHash.substring(0, 16)}...</div>
+              <div>[SUPPLY] Mined: {((networkStats.circulating / networkStats.totalSupply) * 100).toFixed(2)}% of 21M</div>
             </div>
           </div>
         </div>
 
-        {/* Network Status Grid */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="data-card">
-            <div className="stat-label">Network Difficulty</div>
-            <div className="stat-value">{networkStats.difficulty}</div>
-          </div>
-          <div className="data-card">
-            <div className="stat-label">Global Hashrate</div>
-            <div className="stat-value text-lg">{networkStats.hashrate}</div>
-          </div>
-          <div className="data-card">
-            <div className="stat-label">Block Height</div>
-            <div className="stat-value text-lg">#{networkStats.blockHeight}</div>
-          </div>
-          <div className="data-card">
-            <div className="stat-label">Next Halving</div>
-            <div className="stat-value text-lg">{networkStats.nextHalving}</div>
-          </div>
-        </div>
-
-        {/* User Mining Status */}
+        {/* Global Statistics Grid */}
         <Card className="mining-block">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-heading font-bold text-muted-foreground uppercase tracking-wider">
-              Your Mining Operation
-            </h2>
-            <div className={`difficulty-badge ${userHashrate === 0 ? 'border-destructive/30 text-destructive' : ''}`}>
-              <i className="fas fa-microchip mr-2"></i>
-              {userHashrate === 0 ? 'INACTIVE' : 'ACTIVE'}
+          <h2 className="text-sm font-heading font-bold text-muted-foreground uppercase tracking-wider mb-4">
+            🌍 Global Network Statistics
+          </h2>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="data-card">
+              <div className="stat-label">Total Hashrate</div>
+              <div className="stat-value text-primary">{networkStats.hashrate}</div>
             </div>
-          </div>
-          
-          {userHashrate === 0 && (
-            <div className="mb-4 p-3 bg-warning/10 border border-warning/30 rounded-lg">
-              <p className="text-xs text-warning font-medium">
-                <i className="fas fa-exclamation-triangle mr-2"></i>
-                Mining inactive! Deposit USDT and purchase hashrate to start mining.
-              </p>
+            <div className="data-card">
+              <div className="stat-label">Active Miners</div>
+              <div className="stat-value text-accent">{activeMiners.toLocaleString()}</div>
             </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <div className="stat-label mb-1">Your Hashrate</div>
-              <div className="text-2xl font-mono font-bold text-gradient">
-                {getHashrateDisplay(userHashrate)}
-              </div>
-              <div className="text-xs text-muted-foreground mt-1">
-                {userHashrate === 0 ? '⚠️ Inactive' : '✓ Active'}
-              </div>
+            <div className="data-card">
+              <div className="stat-label">Block Height</div>
+              <div className="stat-value text-chart-3">#{networkStats.blockHeight.toLocaleString()}</div>
             </div>
-            <div>
-              <div className="stat-label mb-1">Mining Rewards</div>
-              <div className="text-2xl font-mono font-bold text-gradient-green">
-                {parseFloat(user?.unclaimedBalance || '0').toFixed(4)} GBTC
-              </div>
-              <div className="text-xs text-muted-foreground mt-1">
-                Est. Daily: {estimatedDailyRewards.toFixed(4)}
-              </div>
+            <div className="data-card">
+              <div className="stat-label">Network Difficulty</div>
+              <div className="stat-value text-chart-4">{networkStats.difficulty}</div>
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Mining Progress</span>
-              <span className="font-mono text-primary">{userMiningShare.toFixed(6)}%</span>
+            <div className="data-card">
+              <div className="stat-label">Total Deposits</div>
+              <div className="stat-value text-accent">${(totalDeposits / 1000).toFixed(1)}K</div>
             </div>
-            <div className="progress-bar">
-              <div 
-                className="progress-fill"
-                style={{ width: `${Math.min(userMiningShare, 100)}%` }}
-              ></div>
+            <div className="data-card">
+              <div className="stat-label">Blocks Today</div>
+              <div className="stat-value text-primary">{blocksToday}</div>
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 mt-4">
-            <Button 
-              className="btn-primary w-full"
-              onClick={() => setLocation('/mining')}
-            >
-              <i className="fas fa-chart-line mr-2"></i>
-              Dashboard
-            </Button>
-            <Button 
-              className="btn-secondary w-full"
-              onClick={() => setLocation('/power')}
-            >
-              <i className="fas fa-bolt mr-2"></i>
-              Upgrade
-            </Button>
           </div>
         </Card>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-3 gap-3">
-          <button 
-            onClick={() => setLocation('/deposit')}
-            className="data-card text-center py-4 transition-all hover:scale-105"
-          >
-            <i className="fas fa-download text-2xl text-primary mb-2"></i>
-            <div className="text-xs font-heading uppercase">Deposit</div>
-          </button>
-          <button 
-            onClick={() => setLocation('/withdraw')}
-            className="data-card text-center py-4 transition-all hover:scale-105"
-          >
-            <i className="fas fa-upload text-2xl text-accent mb-2"></i>
-            <div className="text-xs font-heading uppercase">Withdraw</div>
-          </button>
-          <button 
-            onClick={() => setLocation('/transfer')}
-            className="data-card text-center py-4 transition-all hover:scale-105"
-          >
-            <i className="fas fa-exchange-alt text-2xl text-chart-3 mb-2"></i>
-            <div className="text-xs font-heading uppercase">Transfer</div>
-          </button>
-        </div>
-
-        {/* Live Mining Feed */}
+        {/* Supply Progress */}
         <Card className="mining-block">
           <h3 className="text-sm font-heading font-bold text-muted-foreground uppercase tracking-wider mb-3">
-            Network Activity
+            📊 GBTC Supply Progress
+          </h3>
+          <div className="mb-4">
+            <div className="flex justify-between mb-2">
+              <span className="text-sm font-medium">Circulating Supply</span>
+              <span className="text-sm font-mono text-primary">
+                {(networkStats.circulating / 1000000).toFixed(2)}M / 21M GBTC
+              </span>
+            </div>
+            <div className="h-4 bg-background rounded-full overflow-hidden border border-border">
+              <div 
+                className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-1000"
+                style={{ width: `${(networkStats.circulating / networkStats.totalSupply) * 100}%` }}
+              >
+                <div className="h-full bg-white/20 animate-pulse"></div>
+              </div>
+            </div>
+            <div className="mt-2 text-xs text-muted-foreground">
+              🏁 Exchange listing at 25% (5.25M GBTC)
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-3 gap-2">
+            <div className="text-center p-2 rounded-lg bg-background">
+              <div className="text-lg font-mono font-bold text-chart-2">{((networkStats.circulating / networkStats.totalSupply) * 100).toFixed(2)}%</div>
+              <div className="text-xs text-muted-foreground">Mined</div>
+            </div>
+            <div className="text-center p-2 rounded-lg bg-background">
+              <div className="text-lg font-mono font-bold text-chart-3">6.25</div>
+              <div className="text-xs text-muted-foreground">Per Block</div>
+            </div>
+            <div className="text-center p-2 rounded-lg bg-background">
+              <div className="text-lg font-mono font-bold text-chart-4">10min</div>
+              <div className="text-xs text-muted-foreground">Block Time</div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Quick Navigation */}
+        <div className="grid grid-cols-2 gap-3">
+          <Button 
+            className="btn-primary h-auto py-4"
+            onClick={() => setLocation('/mining')}
+          >
+            <div className="text-center">
+              <i className="fas fa-cube text-2xl mb-2"></i>
+              <div className="text-sm font-heading">My Dashboard</div>
+              <div className="text-xs text-primary-foreground/70">View your mining stats</div>
+            </div>
+          </Button>
+          <Button 
+            className="btn-secondary h-auto py-4"
+            onClick={() => setLocation('/power')}
+          >
+            <div className="text-center">
+              <i className="fas fa-bolt text-2xl mb-2"></i>
+              <div className="text-sm font-heading">Purchase Power</div>
+              <div className="text-xs text-muted-foreground">Upgrade hashrate</div>
+            </div>
+          </Button>
+        </div>
+
+        {/* Global Live Feed */}
+        <Card className="mining-block">
+          <h3 className="text-sm font-heading font-bold text-muted-foreground uppercase tracking-wider mb-3">
+            🌐 Global Network Activity
           </h3>
           <div className="space-y-2">
             {[
-              { type: 'block', icon: 'fa-cube', text: 'Block #871234 mined', time: '2 mins ago', color: 'text-primary' },
-              { type: 'reward', icon: 'fa-coins', text: '6.25 BTC distributed', time: '2 mins ago', color: 'text-accent' },
-              { type: 'hash', icon: 'fa-microchip', text: 'New miner joined', time: '5 mins ago', color: 'text-chart-3' },
-              { type: 'difficulty', icon: 'fa-chart-line', text: 'Difficulty adjusted +2.1%', time: '1 hour ago', color: 'text-chart-4' },
+              { type: 'block', icon: 'fa-cube', text: `Block #${networkStats.blockHeight} mined`, time: 'Just now', color: 'text-primary' },
+              { type: 'reward', icon: 'fa-coins', text: '6.25 GBTC distributed to miners', time: '2 mins ago', color: 'text-accent' },
+              { type: 'miner', icon: 'fa-user-plus', text: 'New miner from USA joined', time: '3 mins ago', color: 'text-chart-3' },
+              { type: 'deposit', icon: 'fa-wallet', text: '$500 USDT deposited', time: '5 mins ago', color: 'text-chart-4' },
+              { type: 'power', icon: 'fa-bolt', text: '1000 GH/s purchased', time: '7 mins ago', color: 'text-primary' },
+              { type: 'difficulty', icon: 'fa-chart-line', text: 'Difficulty adjusted +2.1%', time: '1 hour ago', color: 'text-accent' },
             ].map((item, i) => (
-              <div key={i} className="flex items-center space-x-3 p-2 rounded-lg bg-background/50">
+              <div key={i} className="flex items-center space-x-3 p-2 rounded-lg bg-background/50 animate-fade-in-up" style={{animationDelay: `${i * 0.1}s`}}>
                 <i className={`fas ${item.icon} ${item.color}`}></i>
                 <div className="flex-1">
                   <div className="text-xs font-medium">{item.text}</div>
