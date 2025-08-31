@@ -15,6 +15,7 @@ export default function MiningDashboard() {
   const [lastClaimed, setLastClaimed] = useState<Date | null>(null);
   const [currentHash, setCurrentHash] = useState<string>('');  
   const [miningActive, setMiningActive] = useState(true);
+  const [blockProgress, setBlockProgress] = useState(0);
 
   // Calculate hours since last claim
   const getHoursSinceLastClaim = () => {
@@ -47,7 +48,9 @@ export default function MiningDashboard() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const blockProgress = ((600 - blockTimer) / 600) * 100;
+  useEffect(() => {
+    setBlockProgress(((600 - blockTimer) / 600) * 100);
+  }, [blockTimer]);
 
   // Convert to real hashrate units
   const myHashrate = parseFloat(user?.hashPower || '0');
@@ -104,233 +107,225 @@ export default function MiningDashboard() {
   };
 
   return (
-    <div className="mobile-page">
-      {/* Header */}
-      <div className="mobile-header">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 cyber-border rounded-xl flex items-center justify-center glow-bitcoin">
-            <img src={bitcoinLogo} alt="GBTC" className="w-6 h-6" />
+    <div className="min-h-screen pb-24 relative overflow-hidden">
+      {/* Background Grid */}
+      <div className="fixed inset-0 bitcoin-grid opacity-20"></div>
+
+      {/* Hash Rain Effect */}
+      <div className="fixed inset-0 pointer-events-none">
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute font-mono text-xs text-green-500/20"
+            style={{
+              left: `${12.5 * i}%`,
+              animation: `hash-stream ${10 + i * 2}s linear infinite`,
+              animationDelay: `${i * 0.5}s`
+            }}
+          >
+            {currentHash.substring(0, 8)}
           </div>
-          <div>
-            <h1 className="text-lg font-display font-bold text-primary">GBTC MINING</h1>
-            <p className="text-xs text-muted-foreground font-mono">
-              {isInactive ? "⚠️ INACTIVE" : "✓ ACTIVE"}
-            </p>
-          </div>
-        </div>
-        <div className="text-right">
-          <p className="text-xs text-muted-foreground font-mono">BALANCE</p>
-          <p className="text-sm font-display font-bold text-primary">
-            {parseFloat(user?.gbtcBalance || '0').toFixed(4)} GBTC
-          </p>
-        </div>
+        ))}
       </div>
 
-      {/* Main Content */}
-      <div className="mobile-content">
-        {/* Top Stats Bar */}
-        <div className="grid grid-cols-2 gap-3">
-          <Card className="mobile-card">
-            <p className="text-xs text-muted-foreground font-mono mb-1">USDT BALANCE</p>
-            <p className="text-xl font-display font-black text-accent">
-              ${parseFloat(user?.usdtBalance || '0').toFixed(2)}
-            </p>
-          </Card>
-          <Card className="mobile-card">
-            <p className="text-xs text-muted-foreground font-mono mb-1">MY HASHRATE</p>
-            <p className="text-xl font-display font-black text-primary">
-              {getHashrateDisplay(myHashrate)}
-            </p>
-          </Card>
+      <div className="relative z-10 p-4 space-y-4">
+        {/* Mining Status Terminal */}
+        <div className="terminal-window">
+          <div className="terminal-header">
+            <div className="flex items-center space-x-2">
+              <div className={`terminal-dot ${miningActive ? 'bg-green-500' : 'bg-red-500'}`}></div>
+              <div className="terminal-dot bg-yellow-500"></div>
+              <div className="terminal-dot bg-gray-500"></div>
+            </div>
+            <span className="ml-auto text-xs text-muted-foreground font-mono">
+              Mining Node #{user?.id?.toString().padStart(6, '0') || '000000'}
+            </span>
+          </div>
+          <div className="terminal-content space-y-1">
+            <div className="text-green-500">[SYSTEM] Mining operation {miningActive ? 'ACTIVE' : 'PAUSED'}</div>
+            <div className="text-cyan-500">[HASH] Processing: 0x{currentHash.substring(0, 32)}...</div>
+            <div className="text-yellow-500">[POOL] Connected to GBTC Mining Pool</div>
+            <div className="text-green-500">[STATS] Hashrate: {getHashrateDisplay(myHashrate)}</div>
+            <div className="text-blue-500">[BLOCK] Progress: {blockProgress.toFixed(1)}%</div>
+          </div>
         </div>
 
-        {/* Advanced Bitcoin Block Mining Animation */}
-        <Card className="mobile-card p-6 bg-gradient-to-br from-card to-background overflow-hidden">
-          <div className="flex flex-col items-center relative">
-            {/* Hash Stream Animation */}
-            <div className="hash-stream">
-              {[...Array(5)].map((_, i) => (
-                <div
-                  key={i}
-                  className="hash-line"
-                  style={{
-                    left: `${20 + i * 20}%`,
-                    animationDelay: `${i * 0.6}s`
-                  }}
-                >
-                  {currentHash.substring(i * 12, i * 12 + 12)}
-                </div>
-              ))}
+        {/* Main Mining Stats */}
+        <Card className="mining-block">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-heading font-bold">Mining Operation</h2>
+            <div className={`px-3 py-1 rounded-full text-xs font-mono flex items-center ${
+              miningActive ? 'bg-green-500/20 text-green-500 border border-green-500/30' : 'bg-red-500/20 text-red-500'
+            }`}>
+              <div className={`w-2 h-2 rounded-full mr-2 ${miningActive ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+              {miningActive ? 'MINING' : 'PAUSED'}
+            </div>
+          </div>
+
+          {/* Hashrate Display */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="data-card">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs text-muted-foreground uppercase">Your Hashrate</span>
+                <i className="fas fa-microchip text-primary"></i>
+              </div>
+              <div className="text-2xl font-mono font-bold text-gradient">
+                {getHashrateDisplay(myHashrate)}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                Network Share: {((myHashrate / globalHashrate) * 100).toFixed(4)}%
+              </div>
             </div>
 
-            <div className="relative mb-4">
-              <div className="bitcoin-block">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-32 h-32 cyber-border rounded-lg bg-black/80 backdrop-blur flex flex-col items-center justify-center mining-rig">
-                    <img src={bitcoinLogo} alt="Mining" className="w-12 h-12 mb-2" />
-                    <div className="text-xs font-mono text-primary">
-                      BLOCK #{Math.floor(820000 + blockTimer / 60)}
-                    </div>
-                    <div className="text-xs font-mono text-muted-foreground mt-1">
-                      {miningActive ? 'MINING...' : 'IDLE'}
-                    </div>
+            <div className="data-card">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs text-muted-foreground uppercase">Mining Power</span>
+                <i className="fas fa-bolt text-chart-4"></i>
+              </div>
+              <div className="text-2xl font-mono font-bold text-gradient">
+                {myHashrate.toFixed(0)}
+              </div>
+              <div className="text-xs text-accent mt-1">
+                +{myEstimatedReward.toFixed(6)} GBTC/block
+              </div>
+            </div>
+          </div>
+
+          {/* Block Progress */}
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-xs text-muted-foreground uppercase">Current Block Mining</span>
+              <span className="text-xs font-mono text-primary">{formatTime(blockTimer)}</span>
+            </div>
+            <div className="h-3 bg-background rounded-full overflow-hidden border border-border">
+              <div 
+                className="h-full bg-gradient-to-r from-primary to-chart-4 transition-all duration-1000"
+                style={{ width: `${blockProgress}%` }}
+              >
+                <div className="h-full bg-white/20 animate-pulse"></div>
+              </div>
+            </div>
+            <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+              <span>Block #871235</span>
+              <span>Est. Reward: {currentBlockReward} GBTC</span>
+            </div>
+          </div>
+
+          {/* Mining Metrics Grid */}
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            <div className="text-center p-2 rounded-lg bg-background">
+              <div className="text-xl font-mono font-bold text-chart-2">87</div>
+              <div className="text-xs text-muted-foreground">Blocks Today</div>
+            </div>
+            <div className="text-center p-2 rounded-lg bg-background">
+              <div className="text-xl font-mono font-bold text-chart-3">{difficulty}T</div>
+              <div className="text-xs text-muted-foreground">Difficulty</div>
+            </div>
+            <div className="text-center p-2 rounded-lg bg-background">
+              <div className="text-xl font-mono font-bold text-chart-4">1,847</div>
+              <div className="text-xs text-muted-foreground">Active Miners</div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Rewards Section */}
+        <Card className="mining-block relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-accent/20 to-transparent rounded-full blur-2xl"></div>
+          
+          <h3 className="text-lg font-heading font-bold mb-4">Mining Rewards</h3>
+          
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <div className="text-xs text-muted-foreground uppercase mb-1">Unclaimed Rewards</div>
+                <div className="text-3xl font-mono font-bold text-gradient-green">
+                  {unclaimedGBTC.toFixed(8)} GBTC
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  ≈ ${(unclaimedGBTC * 0.0156).toFixed(2)} USD
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-warning mb-1">⚠️ Claim within 24h</div>
+                <div className="text-xs text-muted-foreground">or lose 50%</div>
+              </div>
+            </div>
+
+            <Button 
+              className="w-full btn-primary"
+              onClick={handleClaim}
+              disabled={unclaimedGBTC === 0 || claimRewardsMutation.isPending}
+              data-testid="button-claim-rewards"
+            >
+              {claimRewardsMutation.isPending ? (
+                <>
+                  <i className="fas fa-spinner fa-spin mr-2"></i>
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-coins mr-2"></i>
+                  CLAIM {unclaimedGBTC.toFixed(4)} GBTC
+                </>
+              )}
+            </Button>
+
+            {unclaimedGBTC > 0 && showClaimWarning && (
+              <div className="mt-3 p-2 rounded-lg bg-warning/10 border border-warning/30">
+                <div className="text-xs text-warning">
+                  <i className="fas fa-exclamation-triangle mr-1"></i>
+                  Rewards expire in {24 - hoursSinceLastClaim} hours
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
+
+        {/* Mining History */}
+        <Card className="mining-block">
+          <h3 className="text-lg font-heading font-bold mb-4">Recent Blocks</h3>
+          <div className="space-y-2">
+            {[
+              { block: 871234, reward: 0.0234, time: '2 mins ago', status: 'confirmed' },
+              { block: 871233, reward: 0.0229, time: '12 mins ago', status: 'confirmed' },
+              { block: 871232, reward: 0.0241, time: '22 mins ago', status: 'confirmed' },
+              { block: 871231, reward: 0.0218, time: '32 mins ago', status: 'confirmed' },
+              { block: 871230, reward: 0.0236, time: '42 mins ago', status: 'confirmed' },
+            ].map((item) => (
+              <div key={item.block} className="flex items-center justify-between p-3 rounded-lg bg-background/50">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center">
+                    <i className="fas fa-cube text-primary text-xs"></i>
+                  </div>
+                  <div>
+                    <div className="text-sm font-mono">Block #{item.block}</div>
+                    <div className="text-xs text-muted-foreground">{item.time}</div>
                   </div>
                 </div>
-                {/* Mining Progress Ring */}
-                <svg className="absolute inset-0 w-full h-full -rotate-90">
-                  <circle
-                    cx="100"
-                    cy="100"
-                    r="90"
-                    stroke="currentColor"
-                    strokeWidth="6"
-                    fill="none"
-                    className="text-secondary/30"
-                  />
-                  <circle
-                    cx="100"
-                    cy="100"
-                    r="90"
-                    stroke="url(#mining-gradient)"
-                    strokeWidth="6"
-                    fill="none"
-                    strokeDasharray={`${2 * Math.PI * 90}`}
-                    strokeDashoffset={`${2 * Math.PI * 90 * (1 - blockProgress / 100)}`}
-                    strokeLinecap="round"
-                    style={{ transition: 'stroke-dashoffset 1s linear' }}
-                  />
-                  <defs>
-                    <linearGradient id="mining-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="hsl(var(--primary))" />
-                      <stop offset="50%" stopColor="hsl(var(--chart-4))" />
-                      <stop offset="100%" stopColor="hsl(var(--accent))" />
-                    </linearGradient>
-                  </defs>
-                </svg>
+                <div className="text-right">
+                  <div className="text-sm font-mono font-bold text-accent">+{item.reward} GBTC</div>
+                  <div className="text-xs text-green-500">
+                    <i className="fas fa-check-circle mr-1"></i>
+                    {item.status}
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <div className="text-center w-full">
-              <div className="difficulty-badge mb-3">
-                DIFFICULTY: {difficulty}T
-              </div>
-              <p className="text-xs text-muted-foreground font-mono mb-2">NEXT BLOCK IN</p>
-              <p className="text-4xl font-display font-black text-primary glow-green">
-                {formatTime(blockTimer)}
-              </p>
-              <div className="hashrate-meter mt-4 mb-2">
-                <div className="hashrate-fill" style={{ width: `${blockProgress}%` }} />
-              </div>
-              <p className="text-sm text-muted-foreground font-mono">
-                Block Reward: {currentBlockReward} GBTC
-              </p>
-            </div>
+            ))}
           </div>
         </Card>
 
-        {/* Mining Stats */}
-        <Card className="mobile-card">
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground font-mono">My Hashrate</span>
-              <span className="text-sm font-display font-bold text-primary">
-                {getHashrateDisplay(myHashrate)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground font-mono">Network Hashrate</span>
-              <span className="text-sm font-display font-bold">
-                {getHashrateDisplay(globalHashrate)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground font-mono">Mining Power</span>
-              <span className="text-sm font-display font-bold text-chart-4">
-                {globalHashrate > 0 ? ((myHashrate / globalHashrate) * 100).toFixed(4) : 0}%
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground font-mono">Est. Reward</span>
-              <span className="text-sm font-display font-bold text-accent">
-                {myEstimatedReward.toFixed(6)} GBTC
-              </span>
-            </div>
-          </div>
-        </Card>
-
-        {/* Unclaimed Rewards */}
-        <Card className="mobile-card bg-gradient-to-br from-primary/10 to-chart-4/10">
-          <div className="text-center mb-4">
-            <p className="text-sm text-muted-foreground font-mono mb-2">UNCLAIMED REWARDS</p>
-            <p className="text-3xl font-display font-black text-primary">
-              {unclaimedGBTC.toFixed(6)} GBTC
-            </p>
-            {lastClaimed && (
-              <p className="text-xs text-muted-foreground font-mono mt-2">
-                Last claimed: {hoursSinceLastClaim}h ago
-              </p>
-            )}
-          </div>
-
-          <button
-            onClick={handleClaim}
-            disabled={unclaimedGBTC === 0 || claimRewardsMutation.isPending}
-            className="claim-button w-full relative"
-            data-testid="button-claim-rewards"
-          >
-            {showClaimWarning && (
-              <span className="claim-warning">!</span>
-            )}
-            <i className="fas fa-hand-holding-usd mr-3"></i>
-            CLAIM REWARDS
-          </button>
-
-          {isInactive && (
-            <div className="mt-3 p-3 bg-destructive/20 rounded-lg">
-              <p className="text-xs text-destructive text-center font-mono">
-                ⚠️ You are inactive! Claim now to resume mining.
-              </p>
-            </div>
-          )}
-        </Card>
-
-        {/* Quick Actions */}
+        {/* Performance Stats */}
         <div className="grid grid-cols-2 gap-3">
-          <Link href="/power">
-            <Button className="mobile-btn-primary h-auto" data-testid="button-purchase-power">
-              <div className="py-2">
-                <i className="fas fa-bolt text-2xl mb-2"></i>
-                <p className="text-xs">Purchase Power</p>
-              </div>
-            </Button>
-          </Link>
-          
-          <Link href="/transfer">
-            <Button className="mobile-btn bg-chart-4 text-primary-foreground h-auto" data-testid="button-transfer">
-              <div className="py-2">
-                <i className="fas fa-exchange-alt text-2xl mb-2"></i>
-                <p className="text-xs">Transfer</p>
-              </div>
-            </Button>
-          </Link>
-          
-          <Link href="/deposit">
-            <Button className="mobile-btn-accent h-auto" data-testid="button-deposit">
-              <div className="py-2">
-                <i className="fas fa-wallet text-2xl mb-2"></i>
-                <p className="text-xs">Deposit</p>
-              </div>
-            </Button>
-          </Link>
-          
-          <Link href="/withdraw">
-            <Button className="mobile-btn bg-chart-3 text-primary-foreground h-auto" data-testid="button-withdraw">
-              <div className="py-2">
-                <i className="fas fa-money-bill-wave text-2xl mb-2"></i>
-                <p className="text-xs">Withdraw</p>
-              </div>
-            </Button>
-          </Link>
+          <Card className="data-card">
+            <div className="text-xs text-muted-foreground mb-1">24h Earnings</div>
+            <div className="text-xl font-mono font-bold text-gradient-green">0.5432 GBTC</div>
+            <div className="text-xs text-accent">+12.5%</div>
+          </Card>
+          <Card className="data-card">
+            <div className="text-xs text-muted-foreground mb-1">Total Mined</div>
+            <div className="text-xl font-mono font-bold text-gradient">127.384 GBTC</div>
+            <div className="text-xs text-muted-foreground">All time</div>
+          </Card>
         </div>
       </div>
     </div>

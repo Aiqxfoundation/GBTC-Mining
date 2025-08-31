@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
 @tailwind base;
@@ -6,64 +6,79 @@
 @tailwind utilities;
 
 :root {
-  --background: hsl(240, 10%, 3.9%);
-  --foreground: hsl(0, 0%, 98%);
-  --card: hsl(240, 10%, 6%);
-  --card-foreground: hsl(0, 0%, 98%);
-  --popover: hsl(240, 10%, 6%);
-  --popover-foreground: hsl(0, 0%, 98%);
-  --primary: hsl(142, 76%, 36%);
-  --primary-foreground: hsl(355.7, 100%, 97.3%);
-  --secondary: hsl(240, 3.7%, 15.9%);
-  --secondary-foreground: hsl(0, 0%, 98%);
-  --muted: hsl(240, 3.7%, 15.9%);
-  --muted-foreground: hsl(240, 5%, 64.9%);
-  --accent: hsl(12, 76%, 61%);
-  --accent-foreground: hsl(0, 0%, 98%);
-  --destructive: hsl(0, 62.8%, 30.6%);
-  --destructive-foreground: hsl(0, 85.7%, 97.3%);
-  --border: hsl(240, 3.7%, 15.9%);
-  --input: hsl(240, 3.7%, 15.9%);
-  --ring: hsl(142, 76%, 36%);
-  --chart-1: hsl(142, 76%, 36%);
-  --chart-2: hsl(12, 76%, 61%);
-  --chart-3: hsl(197, 37%, 24%);
-  --chart-4: hsl(43, 74%, 66%);
-  --chart-5: hsl(27, 87%, 67%);
-  --mining-glow: hsl(142, 76%, 36%);
-  --bitcoin-gold: hsl(43, 74%, 66%);
-  --warning: hsl(38, 92%, 50%);
-  --font-display: 'Orbitron', monospace;
-  --font-mono: 'Space Mono', monospace;
-  --font-sans: 'Rajdhani', sans-serif;
-  --radius: 0.5rem;
+  /* Core Colors - Professional Mining Theme */
+  --background: hsl(0, 0%, 2%);
+  --foreground: hsl(0, 0%, 93%);
+  --card: hsl(0, 0%, 4%);
+  --card-foreground: hsl(0, 0%, 93%);
+  --popover: hsl(0, 0%, 6%);
+  --popover-foreground: hsl(0, 0%, 93%);
+  
+  /* Bitcoin Orange - Primary Brand Color */
+  --primary: hsl(30, 100%, 50%);
+  --primary-foreground: hsl(0, 0%, 0%);
+  
+  /* Dark Surfaces */
+  --secondary: hsl(0, 0%, 10%);
+  --secondary-foreground: hsl(0, 0%, 93%);
+  --muted: hsl(0, 0%, 15%);
+  --muted-foreground: hsl(0, 0%, 55%);
+  
+  /* Success Green - Mining Rewards */
+  --accent: hsl(142, 71%, 45%);
+  --accent-foreground: hsl(0, 0%, 0%);
+  
+  /* System States */
+  --destructive: hsl(0, 72%, 50%);
+  --destructive-foreground: hsl(0, 0%, 93%);
+  --border: hsl(0, 0%, 12%);
+  --input: hsl(0, 0%, 8%);
+  --ring: hsl(30, 100%, 50%);
+  
+  /* Data Visualization */
+  --chart-1: hsl(30, 100%, 50%);
+  --chart-2: hsl(142, 71%, 45%); 
+  --chart-3: hsl(199, 89%, 48%);
+  --chart-4: hsl(45, 93%, 47%);
+  --chart-5: hsl(0, 0%, 35%);
+  
+  /* Special Effects */
+  --bitcoin-orange: hsl(30, 100%, 50%);
+  --mining-green: hsl(142, 71%, 45%);
+  --terminal-cyan: hsl(199, 89%, 48%);
+  --hash-gold: hsl(45, 93%, 47%);
+  --circuit-gray: hsl(0, 0%, 12%);
+  --data-blue: hsl(210, 100%, 50%);
+  --warning-amber: hsl(30, 100%, 50%);
+  
+  /* Typography */
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --font-heading: 'Space Grotesk', 'Inter', sans-serif;
+  
+  --radius: 0.75rem;
 }
 
 .dark {
-  --background: hsl(216, 10%, 6%);
-  --foreground: hsl(213, 31%, 91%);
-  --card: hsl(217, 10%, 8%);
-  --card-foreground: hsl(213, 31%, 91%);
-  --popover: hsl(217, 10%, 8%);
-  --popover-foreground: hsl(213, 31%, 91%);
-  --primary: hsl(147, 100%, 50%);
-  --primary-foreground: hsl(216, 10%, 6%);
-  --secondary: hsl(217, 10%, 12%);
-  --secondary-foreground: hsl(213, 31%, 91%);
-  --muted: hsl(217, 10%, 12%);
-  --muted-foreground: hsl(215, 16%, 47%);
-  --accent: hsl(38, 92%, 50%);
-  --accent-foreground: hsl(216, 10%, 6%);
-  --destructive: hsl(0, 84%, 60%);
-  --destructive-foreground: hsl(0, 0%, 98%);
-  --border: hsl(217, 10%, 12%);
-  --input: hsl(217, 10%, 12%);
-  --ring: hsl(147, 100%, 50%);
-  --chart-1: hsl(147, 100%, 50%);
-  --chart-2: hsl(38, 92%, 50%);
-  --chart-3: hsl(280, 100%, 70%);
-  --chart-4: hsl(200, 100%, 70%);
-  --chart-5: hsl(340, 100%, 70%);
+  --background: hsl(0, 0%, 2%);
+  --foreground: hsl(0, 0%, 93%);
+  --card: hsl(0, 0%, 4%);
+  --card-foreground: hsl(0, 0%, 93%);
+  --popover: hsl(0, 0%, 6%);
+  --popover-foreground: hsl(0, 0%, 93%);
+  --primary: hsl(30, 100%, 50%);
+  --primary-foreground: hsl(0, 0%, 0%);
+  --secondary: hsl(0, 0%, 10%);
+  --secondary-foreground: hsl(0, 0%, 93%);
+  --muted: hsl(0, 0%, 15%);
+  --muted-foreground: hsl(0, 0%, 55%);
+  --accent: hsl(142, 71%, 45%);
+  --accent-foreground: hsl(0, 0%, 0%);
+  --destructive: hsl(0, 72%, 50%);
+  --destructive-foreground: hsl(0, 0%, 93%);
+  --border: hsl(0, 0%, 12%);
+  --input: hsl(0, 0%, 8%);
+  --ring: hsl(30, 100%, 50%);
 }
 
 @layer base {
@@ -73,14 +88,50 @@
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    font-family: var(--font-display);
+    background: 
+      radial-gradient(ellipse at top left, hsl(30, 100%, 50%, 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at bottom right, hsl(142, 71%, 45%, 0.05) 0%, transparent 50%),
+      linear-gradient(180deg, hsl(0, 0%, 2%) 0%, hsl(0, 0%, 3%) 100%);
+    min-height: 100vh;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      repeating-linear-gradient(0deg, 
+        transparent, 
+        transparent 2px, 
+        hsl(30, 100%, 50%, 0.02) 2px, 
+        hsl(30, 100%, 50%, 0.02) 4px);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  code, pre, .font-mono {
+    font-family: var(--font-mono);
   }
 }
 
 @layer components {
   /* Mobile App Container */
   .mobile-app {
-    @apply min-h-screen bg-background;
+    @apply min-h-screen;
     @apply flex flex-col;
+    position: relative;
+    z-index: 2;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -95,16 +146,19 @@
     overscroll-behavior-y: contain;
   }
 
-  /* Bottom Navigation */
+  /* Bottom Navigation - Professional Style */
   .bottom-nav {
     @apply fixed bottom-0 left-0 right-0 z-50;
-    @apply border-t;
-    @apply px-2;
-    background: hsl(var(--card) / 0.95);
-    backdrop-filter: blur(12px);
-    border-color: hsl(var(--primary) / 0.2);
+    background: linear-gradient(180deg, 
+      hsl(0, 0%, 4%, 0.95) 0%, 
+      hsl(0, 0%, 2%, 0.98) 100%);
+    backdrop-filter: blur(20px) saturate(1.5);
+    border-top: 1px solid hsl(30, 100%, 50%, 0.2);
     padding-bottom: env(safe-area-inset-bottom);
     height: calc(4.5rem + env(safe-area-inset-bottom));
+    box-shadow: 
+      0 -10px 40px hsl(0, 0%, 0%, 0.5),
+      inset 0 1px 0 hsl(30, 100%, 50%, 0.1);
   }
 
   .nav-container {
@@ -124,262 +178,356 @@
     @apply scale-105;
   }
 
+  .nav-item.active::before {
+    content: '';
+    @apply absolute inset-0 rounded-lg;
+    background: radial-gradient(ellipse at center, 
+      hsl(30, 100%, 50%, 0.1) 0%, 
+      transparent 70%);
+  }
+
   .nav-icon {
-    @apply text-xl mb-1;
+    @apply text-2xl mb-1;
     @apply transition-all duration-200;
+  }
+
+  .nav-item.active .nav-icon {
+    @apply text-primary;
+    filter: drop-shadow(0 0 8px hsl(30, 100%, 50%, 0.6));
   }
 
   .nav-label {
-    @apply text-[10px] font-mono font-bold;
+    @apply text-[10px] font-medium;
     @apply transition-all duration-200;
+    font-family: var(--font-heading);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
 
-  .nav-indicator {
-    @apply absolute -top-1 w-8 h-1;
-    @apply bg-primary rounded-full;
-    @apply glow-green;
+  .nav-item.active .nav-label {
+    @apply text-primary font-bold;
   }
 
-  /* Mobile Page Container */
-  .mobile-page {
-    @apply min-h-screen;
-    @apply flex flex-col;
-    @apply relative;
-  }
-
-  /* Mobile Header */
-  .mobile-header {
-    @apply sticky top-0 z-40;
-    @apply border-b;
-    @apply px-4 py-3;
-    @apply flex items-center justify-between;
-    background: hsl(var(--card) / 0.95);
-    backdrop-filter: blur(12px);
-    border-color: hsl(var(--primary) / 0.2);
-  }
-
-  /* Mobile Content */
-  .mobile-content {
-    @apply flex-1;
-    @apply px-4 py-4;
-    @apply space-y-4;
-  }
-
-  /* Mobile Card */
+  /* Professional Cards */
   .mobile-card {
-    @apply hologram-card;
-    @apply rounded-2xl p-4;
-    @apply border;
-    border-color: hsl(var(--primary) / 0.2);
+    @apply rounded-xl p-4;
+    background: linear-gradient(135deg, 
+      hsl(0, 0%, 4%) 0%, 
+      hsl(0, 0%, 5%) 100%);
+    border: 1px solid hsl(0, 0%, 12%);
+    position: relative;
+    overflow: hidden;
   }
 
-  /* Mobile Button */
-  .mobile-btn {
-    @apply w-full py-4 px-6;
-    @apply rounded-xl;
-    @apply font-display font-bold;
-    @apply transition-all duration-200;
-    @apply active:scale-95;
+  .mobile-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+      transparent,
+      hsl(30, 100%, 50%, 0.3),
+      transparent);
   }
 
-  .mobile-btn-primary {
-    @apply mobile-btn;
-    @apply bg-primary text-primary-foreground;
-    @apply glow-green;
+  /* Data Display Card */
+  .data-card {
+    @apply rounded-lg p-3;
+    background: hsl(0, 0%, 3%);
+    border: 1px solid hsl(30, 100%, 50%, 0.1);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    position: relative;
+    overflow: hidden;
   }
 
-  .mobile-btn-accent {
-    @apply mobile-btn;
-    @apply bg-accent text-accent-foreground;
+  .data-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, 
+      transparent,
+      hsl(30, 100%, 50%, 0.8),
+      transparent);
+    animation: scan-line 3s linear infinite;
   }
 
-  /* Power Slider */
-  .power-slider {
-    @apply w-full;
+  @keyframes scan-line {
+    0% { left: -100%; }
+    100% { left: 100%; }
   }
 
-  .power-slider-track {
-    @apply h-3 rounded-full;
-    @apply bg-secondary;
+  /* Mining Blocks - Professional Style */
+  .mining-block {
+    @apply relative overflow-hidden rounded-xl p-6;
+    background: 
+      linear-gradient(135deg, 
+        hsl(0, 0%, 4%) 0%, 
+        hsl(0, 0%, 6%) 100%);
+    border: 1px solid hsl(30, 100%, 50%, 0.2);
+    box-shadow: 
+      0 10px 40px hsl(0, 0%, 0%, 0.5),
+      inset 0 1px 0 hsl(30, 100%, 50%, 0.1),
+      inset 0 -1px 0 hsl(0, 0%, 0%, 0.5);
+    position: relative;
   }
 
-  .power-slider-thumb {
-    @apply w-8 h-8 rounded-full;
-    @apply bg-primary border-4 border-background;
-    @apply glow-green;
+  .mining-block::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, 
+      hsl(30, 100%, 50%, 0.3),
+      transparent,
+      hsl(142, 71%, 45%, 0.3));
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
   }
 
-  /* Bitcoin Block Mining Animation */
-  .bitcoin-block {
-    @apply relative;
-    width: 200px;
-    height: 200px;
-    transform-style: preserve-3d;
-    animation: block-mining 4s ease-in-out infinite;
+  .mining-block:hover::before {
+    opacity: 1;
   }
 
-  @keyframes block-mining {
-    0%, 100% {
-      transform: perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1);
-    }
-    25% {
-      transform: perspective(1000px) rotateX(10deg) rotateY(180deg) scale(1.05);
-    }
-    50% {
-      transform: perspective(1000px) rotateX(-10deg) rotateY(360deg) scale(1.1);
-    }
-    75% {
-      transform: perspective(1000px) rotateX(5deg) rotateY(540deg) scale(1.05);
-    }
+  /* Hash Display Effect */
+  .hash-display {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: hsl(142, 71%, 45%);
+    text-shadow: 0 0 10px hsl(142, 71%, 45%, 0.5);
+    letter-spacing: 0.1em;
   }
 
-  /* Mining Hash Animation */
+  /* Mining Terminal */
+  .terminal-window {
+    @apply rounded-lg overflow-hidden;
+    background: hsl(0, 0%, 2%);
+    border: 1px solid hsl(30, 100%, 50%, 0.2);
+    font-family: var(--font-mono);
+  }
+
+  .terminal-header {
+    @apply px-3 py-2 flex items-center space-x-2;
+    background: hsl(0, 0%, 4%);
+    border-bottom: 1px solid hsl(30, 100%, 50%, 0.1);
+  }
+
+  .terminal-dot {
+    @apply w-3 h-3 rounded-full;
+  }
+
+  .terminal-content {
+    @apply p-3 text-xs;
+    color: hsl(142, 71%, 45%);
+    min-height: 100px;
+  }
+
+  /* Professional Buttons */
+  .btn-primary {
+    @apply px-6 py-3 rounded-lg font-semibold;
+    background: linear-gradient(135deg, 
+      hsl(30, 100%, 50%) 0%, 
+      hsl(30, 100%, 45%) 100%);
+    color: hsl(0, 0%, 0%);
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 
+      0 4px 20px hsl(30, 100%, 50%, 0.3),
+      inset 0 1px 0 hsl(30, 100%, 60%, 0.5),
+      inset 0 -1px 0 hsl(30, 100%, 40%, 0.5);
+    transition: all 0.2s ease;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 
+      0 6px 30px hsl(30, 100%, 50%, 0.4),
+      inset 0 1px 0 hsl(30, 100%, 60%, 0.5),
+      inset 0 -1px 0 hsl(30, 100%, 40%, 0.5);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 rounded-lg font-semibold;
+    background: hsl(0, 0%, 8%);
+    border: 1px solid hsl(30, 100%, 50%, 0.3);
+    color: hsl(30, 100%, 50%);
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.2s ease;
+  }
+
+  .btn-secondary:hover {
+    background: hsl(0, 0%, 10%);
+    border-color: hsl(30, 100%, 50%, 0.5);
+    box-shadow: 0 0 20px hsl(30, 100%, 50%, 0.2);
+  }
+
+  /* Stats Display */
+  .stat-value {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, 
+      hsl(30, 100%, 50%), 
+      hsl(45, 93%, 47%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-label {
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: hsl(0, 0%, 55%);
+  }
+
+  /* Progress Bars */
+  .progress-bar {
+    @apply h-2 rounded-full overflow-hidden;
+    background: hsl(0, 0%, 8%);
+    border: 1px solid hsl(0, 0%, 12%);
+  }
+
+  .progress-fill {
+    @apply h-full rounded-full;
+    background: linear-gradient(90deg, 
+      hsl(30, 100%, 50%) 0%, 
+      hsl(45, 93%, 47%) 100%);
+    box-shadow: 0 0 10px hsl(30, 100%, 50%, 0.5);
+    transition: width 0.3s ease;
+  }
+
+  /* Mining Timer */
+  .mining-timer {
+    @apply inline-flex items-center px-4 py-2 rounded-lg;
+    background: linear-gradient(135deg, 
+      hsl(30, 100%, 50%, 0.1), 
+      hsl(30, 100%, 50%, 0.05));
+    border: 1px solid hsl(30, 100%, 50%, 0.3);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: hsl(30, 100%, 50%);
+    text-shadow: 0 0 10px hsl(30, 100%, 50%, 0.5);
+  }
+
+  /* Hash Streaming Effect */
   .hash-stream {
-    @apply absolute inset-0 overflow-hidden;
+    position: absolute;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: hsl(142, 71%, 45%, 0.3);
+    animation: hash-stream 8s linear infinite;
+    white-space: nowrap;
     pointer-events: none;
   }
 
-  .hash-line {
-    @apply absolute text-primary font-mono text-xs;
-    animation: hash-flow 3s linear infinite;
-    opacity: 0;
-  }
-
-  @keyframes hash-flow {
+  @keyframes hash-stream {
     0% {
-      transform: translateY(-20px);
+      transform: translateY(100vh) translateZ(0);
       opacity: 0;
     }
     10% {
-      opacity: 0.8;
+      opacity: 0.3;
     }
     90% {
-      opacity: 0.8;
+      opacity: 0.3;
     }
     100% {
-      transform: translateY(220px);
+      transform: translateY(-100vh) translateZ(0);
       opacity: 0;
     }
   }
 
-  /* Block Chain Animation */
-  .blockchain-visual {
-    @apply flex items-center space-x-2;
-    animation: chain-pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes chain-pulse {
+  /* Animations */
+  @keyframes mining-pulse {
     0%, 100% {
       transform: scale(1);
+      box-shadow: 0 0 20px hsl(30, 100%, 50%, 0.5);
     }
     50% {
-      transform: scale(1.02);
+      transform: scale(1.05);
+      box-shadow: 0 0 40px hsl(30, 100%, 50%, 0.8);
     }
   }
 
-  .block-cube {
-    @apply w-12 h-12 bg-gradient-to-br from-primary to-chart-4;
-    transform-style: preserve-3d;
-    animation: cube-rotate 6s linear infinite;
-  }
-
-  @keyframes cube-rotate {
+  @keyframes mining-spin {
     from {
-      transform: rotateX(0deg) rotateY(0deg);
+      transform: rotate(0deg);
     }
     to {
-      transform: rotateX(360deg) rotateY(360deg);
+      transform: rotate(360deg);
     }
   }
 
-  /* Mining Rig Animation */
-  .mining-rig {
-    @apply relative;
-    animation: rig-vibrate 0.5s ease-in-out infinite;
-  }
-
-  @keyframes rig-vibrate {
+  @keyframes mining-float {
     0%, 100% {
-      transform: translateX(0);
-    }
-    25% {
-      transform: translateX(-1px);
-    }
-    75% {
-      transform: translateX(1px);
-    }
-  }
-
-  /* Hashrate Meter */
-  .hashrate-meter {
-    @apply relative h-4 bg-secondary rounded-full overflow-hidden;
-  }
-
-  .hashrate-fill {
-    @apply absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-chart-4 to-accent;
-    animation: hashrate-pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes hashrate-pulse {
-    0%, 100% {
-      opacity: 0.8;
+      transform: translateY(0);
     }
     50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes block-produce {
+    0% {
+      transform: scale(0) rotate(180deg);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.1) rotate(90deg);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
       opacity: 1;
     }
   }
 
-  /* FOMO Ticker */
-  .fomo-ticker {
-    @apply rounded-xl p-4;
-    @apply text-center border;
-    background: linear-gradient(to right, hsl(var(--primary) / 0.2), hsl(var(--chart-4) / 0.2));
-    border-color: hsl(var(--primary) / 0.3);
+  /* 3D Effects */
+  .block-3d {
+    transform-style: preserve-3d;
+    transform: perspective(1000px) rotateX(2deg);
+    transition: transform 0.3s ease;
   }
 
-  .fomo-progress {
-    @apply h-3 rounded-full bg-secondary;
-    @apply overflow-hidden;
+  .block-3d:hover {
+    transform: perspective(1000px) rotateX(0deg) scale(1.02);
   }
 
-  .fomo-progress-bar {
-    @apply h-full bg-gradient-to-r from-primary to-chart-4;
-    @apply transition-all duration-500;
-    @apply glow-green;
-  }
-
-  /* Claim Button */
-  .claim-button {
-    @apply relative;
-    @apply bg-gradient-to-r from-primary to-chart-4;
-    @apply text-primary-foreground;
-    @apply py-6 px-8 rounded-2xl;
-    @apply font-display font-black text-lg;
-    @apply glow-green mining-pulse;
-  }
-
-  .claim-warning {
-    @apply absolute -top-2 -right-2;
-    @apply bg-yellow-500 text-black;
-    @apply px-2 py-1 rounded-full;
-    @apply text-xs font-bold;
-    @apply animate-pulse;
-  }
-
-  /* Mining Difficulty Indicator */
+  /* Mining Difficulty Badge */
   .difficulty-badge {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-mono;
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--chart-4) / 0.2));
-    border: 1px solid hsl(var(--primary) / 0.3);
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs;
+    background: linear-gradient(135deg, 
+      hsl(30, 100%, 50%, 0.2), 
+      hsl(45, 93%, 47%, 0.2));
+    border: 1px solid hsl(30, 100%, 50%, 0.3);
+    font-family: var(--font-mono);
     animation: difficulty-glow 3s ease-in-out infinite;
   }
 
   @keyframes difficulty-glow {
     0%, 100% {
-      box-shadow: 0 0 10px hsl(var(--primary) / 0.3);
+      box-shadow: 0 0 10px hsl(30, 100%, 50%, 0.3);
     }
     50% {
-      box-shadow: 0 0 20px hsl(var(--primary) / 0.6);
+      box-shadow: 0 0 20px hsl(30, 100%, 50%, 0.6);
     }
   }
 }
@@ -392,135 +540,41 @@
   .font-mono {
     font-family: var(--font-mono);
   }
+
+  .font-heading {
+    font-family: var(--font-heading);
+  }
+  
+  .glow-orange {
+    box-shadow: 
+      0 0 20px hsl(30, 100%, 50%, 0.5),
+      0 0 40px hsl(30, 100%, 50%, 0.3);
+  }
   
   .glow-green {
-    box-shadow: 0 0 30px hsl(var(--mining-glow) / 0.6), 0 0 60px hsl(var(--mining-glow) / 0.4);
+    box-shadow: 
+      0 0 20px hsl(142, 71%, 45%, 0.5),
+      0 0 40px hsl(142, 71%, 45%, 0.3);
   }
-  
-  .glow-bitcoin {
-    box-shadow: 0 0 25px hsl(var(--bitcoin-gold) / 0.5), 0 0 50px hsl(var(--bitcoin-gold) / 0.3);
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, 
+      hsl(30, 100%, 50%),
+      hsl(45, 93%, 47%));
   }
-  
-  .mining-pulse {
-    animation: mining-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  .text-gradient-green {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, 
+      hsl(142, 71%, 45%),
+      hsl(142, 76%, 50%));
   }
-  
-  .mining-spin {
-    animation: mining-spin 3s linear infinite;
-  }
-  
-  .mining-float {
-    animation: mining-float 6s ease-in-out infinite;
-  }
-  
-  .matrix-bg {
-    background: linear-gradient(135deg, 
-      hsl(240, 10%, 3.9%) 0%, 
-      hsl(240, 10%, 6%) 25%, 
-      hsl(142, 76%, 36%, 0.05) 50%, 
-      hsl(240, 10%, 6%) 75%, 
-      hsl(240, 10%, 3.9%) 100%);
-  }
-  
-  .hologram-card {
-    background: linear-gradient(135deg, 
-      hsl(240, 10%, 6% / 0.9) 0%, 
-      hsl(142, 76%, 36% / 0.1) 50%, 
-      hsl(240, 10%, 6% / 0.9) 100%);
-    border: 1px solid hsl(142, 76%, 36% / 0.3);
-    backdrop-filter: blur(10px);
-  }
-  
-  .cyber-border {
-    position: relative;
-    border: 2px solid transparent;
-    background: linear-gradient(hsl(240, 10%, 6%), hsl(240, 10%, 6%)) padding-box,
-                linear-gradient(45deg, hsl(142, 76%, 36%), hsl(43, 74%, 66%), hsl(142, 76%, 36%)) border-box;
-  }
-  
-  .mining-grid {
+
+  .bitcoin-grid {
     background-image: 
-      linear-gradient(hsl(142, 76%, 36% / 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(142, 76%, 36% / 0.1) 1px, transparent 1px);
-    background-size: 20px 20px;
-  }
-  
-  .block-3d {
-    transform-style: preserve-3d;
-    transition: transform 0.3s ease;
-  }
-  
-  .block-3d:hover {
-    transform: rotateY(10deg) rotateX(5deg) scale(1.05);
-  }
-  
-  @keyframes mining-pulse {
-    0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.8;
-      transform: scale(1.05);
-    }
-  }
-  
-  @keyframes mining-spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  
-  @keyframes mining-float {
-    0%, 100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-  
-  @keyframes block-mine {
-    0% {
-      opacity: 0;
-      transform: scale(0.8) rotateY(-90deg);
-    }
-    50% {
-      opacity: 0.8;
-      transform: scale(1.1) rotateY(0deg);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1) rotateY(0deg);
-    }
-  }
-  
-  .network-badge {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .network-badge::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, hsl(142, 76%, 36% / 0.2), transparent);
-    transition: left 0.5s;
-  }
-  
-  .network-badge:hover::before {
-    left: 100%;
-  }
-  
-  .network-badge:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 10px 20px hsl(0, 0%, 0% / 0.2);
+      linear-gradient(hsl(30, 100%, 50%, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(30, 100%, 50%, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
   }
 }
