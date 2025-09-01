@@ -257,135 +257,216 @@ export default function MiningFactory() {
               </span>
             </div>
 
-            {/* Golden Hammer Mining Animation */}
+            {/* Pickaxe Mining Animation */}
             <div className="flex justify-center my-6 relative">
-              <div className="relative w-48 h-48">
-                {/* Mining Block Base */}
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-32 h-24 flex items-center justify-center">
-                  <motion.div
-                    className="w-24 h-20 bg-gradient-to-br from-gray-700 via-gray-600 to-gray-800 rounded-lg shadow-2xl relative overflow-hidden"
-                    animate={isMining ? {
-                      scale: [1, 0.98, 1],
-                    } : {}}
-                    transition={{
-                      duration: 0.8,
-                      repeat: Infinity,
-                    }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Blocks className="w-10 h-10 text-gray-400" />
-                    </div>
-                    {/* Crack effect when mining */}
-                    {isMining && (
-                      <motion.div
-                        className="absolute inset-0"
-                        animate={{
-                          opacity: [0, 0.3, 0],
-                        }}
-                        transition={{
-                          duration: 0.8,
-                          repeat: Infinity,
-                        }}
-                      >
-                        <div className="absolute top-1/3 left-1/4 w-0.5 h-6 bg-orange-400 rotate-12"></div>
-                        <div className="absolute top-1/2 right-1/3 w-0.5 h-4 bg-orange-400 -rotate-45"></div>
-                        <div className="absolute bottom-1/3 left-1/2 w-0.5 h-5 bg-orange-400 rotate-45"></div>
-                      </motion.div>
-                    )}
-                  </motion.div>
-                </div>
-
-                {/* Golden Hammer */}
-                <motion.div
-                  className={`absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 ${isMining ? 'hammer-glow' : ''}`}
-                  animate={isMining ? {
-                    rotate: [0, -45, 0],
-                    y: [0, 40, 0],
-                  } : {
-                    rotate: 0,
-                    y: 0,
-                  }}
-                  transition={{
-                    duration: 0.8,
-                    repeat: isMining ? Infinity : 0,
-                    ease: "easeInOut",
-                  }}
-                  style={{
-                    transformOrigin: "center bottom",
-                  }}
-                >
-                  {/* Hammer Handle */}
-                  <div className="absolute left-1/2 -translate-x-1/2 bottom-0 w-3 h-20 bg-gradient-to-b from-amber-700 to-amber-900 rounded-full shadow-lg"></div>
-                  
-                  {/* Hammer Head */}
-                  <div className="absolute left-1/2 -translate-x-1/2 top-0 w-16 h-12">
-                    <div className="w-full h-full bg-gradient-to-br from-yellow-400 via-orange-500 to-orange-600 rounded shadow-2xl relative">
-                      {/* Golden shine effect */}
-                      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-yellow-300/40 to-transparent rounded"></div>
-                      {/* Hammer details */}
-                      <div className="absolute inset-x-0 top-1/3 h-0.5 bg-orange-700/50"></div>
-                      <div className="absolute inset-x-0 bottom-1/3 h-0.5 bg-orange-700/50"></div>
-                      {/* Bitcoin symbol on hammer */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-white text-xl font-bold">₿</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Impact sparks */}
-                  {isMining && (
-                    <motion.div
-                      className="absolute bottom-0 left-1/2 -translate-x-1/2"
-                      animate={{
-                        opacity: [0, 1, 0],
-                        scale: [0.5, 1.5, 0.5],
-                      }}
-                      transition={{
-                        duration: 0.8,
-                        repeat: Infinity,
-                      }}
-                    >
-                      {[...Array(6)].map((_, i) => (
-                        <motion.div
-                          key={i}
-                          className="absolute w-1 h-1 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full"
-                          animate={{
-                            x: [0, (Math.random() - 0.5) * 60],
-                            y: [0, Math.random() * -40],
-                            opacity: [1, 0],
-                          }}
-                          transition={{
-                            duration: 0.8,
-                            repeat: Infinity,
-                            delay: i * 0.1,
-                          }}
-                        />
-                      ))}
-                    </motion.div>
-                  )}
-                </motion.div>
-
-                {/* Gold dust particles floating up */}
+              <div className="relative w-48 h-48 flex items-center justify-center">
+                
+                {/* Star burst effects at top */}
                 {isMining && (
                   <>
-                    {[...Array(8)].map((_, index) => (
+                    <motion.div
+                      className="absolute top-8 left-1/2 -translate-x-8"
+                      animate={{
+                        opacity: [0.5, 1, 0.5],
+                        scale: [0.8, 1.2, 0.8],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    >
+                      <div className="relative">
+                        {[...Array(8)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="absolute w-16 h-0.5 bg-gradient-to-r from-transparent via-white to-transparent"
+                            style={{
+                              transform: `rotate(${i * 45}deg)`,
+                              transformOrigin: 'center',
+                            }}
+                          />
+                        ))}
+                        <div className="absolute -inset-2 bg-white rounded-full blur-xl opacity-60"></div>
+                      </div>
+                    </motion.div>
+                    
+                    <motion.div
+                      className="absolute top-8 left-1/2 translate-x-8"
+                      animate={{
+                        opacity: [0.5, 1, 0.5],
+                        scale: [0.8, 1.2, 0.8],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: 0.5,
+                      }}
+                    >
+                      <div className="relative">
+                        {[...Array(8)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="absolute w-16 h-0.5 bg-gradient-to-r from-transparent via-white to-transparent"
+                            style={{
+                              transform: `rotate(${i * 45}deg)`,
+                              transformOrigin: 'center',
+                            }}
+                          />
+                        ))}
+                        <div className="absolute -inset-2 bg-white rounded-full blur-xl opacity-60"></div>
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+
+                {/* Circular gear border with pickaxe */}
+                <motion.div
+                  className="relative w-32 h-32"
+                  animate={isMining ? {
+                    rotate: [0, 360],
+                  } : {}}
+                  transition={{
+                    duration: 8,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                >
+                  {/* Outer gear teeth */}
+                  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 128 128">
+                    <g transform="translate(64, 64)">
+                      {[...Array(8)].map((_, i) => (
+                        <rect
+                          key={i}
+                          x="-6"
+                          y="-60"
+                          width="12"
+                          height="20"
+                          rx="2"
+                          fill="url(#orangeGradient)"
+                          transform={`rotate(${i * 45})`}
+                          opacity={isMining ? 1 : 0.5}
+                        />
+                      ))}
+                      <circle
+                        cx="0"
+                        cy="0"
+                        r="50"
+                        fill="none"
+                        stroke="url(#orangeGradient)"
+                        strokeWidth="3"
+                        opacity={isMining ? 1 : 0.5}
+                      />
+                    </g>
+                    <defs>
+                      <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#fbbf24" />
+                        <stop offset="50%" stopColor="#f97316" />
+                        <stop offset="100%" stopColor="#ea580c" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+
+                  {/* Central pickaxe icon */}
+                  <motion.div
+                    className="absolute inset-0 flex items-center justify-center"
+                    animate={isMining ? {
+                      scale: [1, 1.1, 1],
+                      rotate: [0, -10, 10, 0],
+                    } : {}}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  >
+                    <div className="relative">
+                      {/* Pickaxe shape */}
+                      <svg width="60" height="60" viewBox="0 0 60 60" className="drop-shadow-2xl">
+                        <g transform="translate(30, 30)">
+                          {/* Handle */}
+                          <rect
+                            x="-3"
+                            y="-20"
+                            width="6"
+                            height="40"
+                            fill="#8b4513"
+                            rx="2"
+                          />
+                          {/* Pickaxe head - left */}
+                          <path
+                            d="M -20 -15 L -5 -10 L -5 -5 L -20 0 Z"
+                            fill="url(#pickGradient)"
+                          />
+                          {/* Pickaxe head - right */}
+                          <path
+                            d="M 20 -15 L 5 -10 L 5 -5 L 20 0 Z"
+                            fill="url(#pickGradient)"
+                          />
+                          {/* Center connector */}
+                          <rect
+                            x="-8"
+                            y="-12"
+                            width="16"
+                            height="8"
+                            fill="url(#pickGradient)"
+                            rx="1"
+                          />
+                        </g>
+                        <defs>
+                          <linearGradient id="pickGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#fbbf24" />
+                            <stop offset="50%" stopColor="#f97316" />
+                            <stop offset="100%" stopColor="#dc2626" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                      
+                      {/* Glow effect */}
+                      {isMining && (
+                        <motion.div
+                          className="absolute inset-0 flex items-center justify-center"
+                          animate={{
+                            opacity: [0.5, 1, 0.5],
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                          }}
+                        >
+                          <div className="w-20 h-20 bg-orange-500 rounded-full blur-2xl opacity-50"></div>
+                        </motion.div>
+                      )}
+                    </div>
+                  </motion.div>
+                </motion.div>
+
+                {/* Mining particles */}
+                {isMining && (
+                  <>
+                    {[...Array(12)].map((_, index) => (
                       <motion.div
-                        key={`dust-${index}`}
-                        className="absolute bottom-8 left-1/2"
+                        key={`particle-${index}`}
+                        className="absolute"
+                        initial={{
+                          x: 0,
+                          y: 0,
+                          opacity: 0,
+                        }}
                         animate={{
-                          x: [(Math.random() - 0.5) * 20, (Math.random() - 0.5) * 40],
-                          y: [0, -80],
+                          x: [0, (Math.random() - 0.5) * 100],
+                          y: [0, (Math.random() - 0.5) * 100],
                           opacity: [0, 1, 0],
                         }}
                         transition={{
                           duration: 2,
                           repeat: Infinity,
-                          delay: index * 0.25,
+                          delay: index * 0.2,
                           ease: "easeOut",
                         }}
                       >
-                        <div className="w-2 h-2 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-full shadow-lg"></div>
+                        <div className="w-3 h-3 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full shadow-lg"></div>
                       </motion.div>
                     ))}
                   </>
