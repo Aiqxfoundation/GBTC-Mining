@@ -263,9 +263,19 @@ export default function HomePage() {
               
               {/* Live Mining Data */}
               <div className="font-mono text-[10px] space-y-1 text-left text-green-400">
-                <div className="text-yellow-400 animate-pulse">
-                  [SHA-256] Secured By Hash Principle #871,{(234567 + Math.floor(nonce / 1000000)).toString().padStart(3, '0')}
-                </div>
+                <motion.div 
+                  className="text-yellow-400"
+                  animate={{ opacity: [0.7, 1, 0.7] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                >
+                  [SHA-256] Secured By Hash Principle
+                  <motion.span
+                    animate={{ opacity: [0, 1, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    {' . . . .'}
+                  </motion.span>
+                </motion.div>
                 
                 {/* Animated binary/hex lines */}
                 {binaryLines.map((line, i) => (
