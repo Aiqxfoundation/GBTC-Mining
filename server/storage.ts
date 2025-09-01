@@ -33,6 +33,7 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUserBalance(userId: string, usdtBalance: string, hashPower: string, gbtcBalance: string, unclaimedBalance: string): Promise<void>;
+  updateUser(userId: string, updates: Partial<User>): Promise<void>;
   freezeUser(userId: string): Promise<void>;
   unfreezeUser(userId: string): Promise<void>;
   
@@ -120,6 +121,13 @@ export class DatabaseStorage implements IStorage {
         gbtcBalance, 
         unclaimedBalance 
       })
+      .where(eq(users.id, userId));
+  }
+
+  async updateUser(userId: string, updates: Partial<User>): Promise<void> {
+    await db
+      .update(users)
+      .set(updates)
       .where(eq(users.id, userId));
   }
 

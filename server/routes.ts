@@ -5,6 +5,8 @@ import { setupMining } from "./mining";
 import { storage } from "./storage";
 import { insertDepositSchema, insertWithdrawalSchema } from "@shared/schema";
 import { z } from "zod";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
 
 export function registerRoutes(app: Express): Server {
   // Setup authentication routes
@@ -396,6 +398,71 @@ export function registerRoutes(app: Express): Server {
         count: result.count,
         totalReward: result.totalReward 
       });
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Change PIN endpoint
+  app.post("/api/change-pin", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { currentPin, newPin } = req.body;
+      const userId = req.user!.id;
+
+      // Get current user to verify PIN
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Verify current PIN
+      const scryptAsync = promisify(scrypt);
+      const [hashed, salt] = user.password.split(".");
+      const hashedBuf = Buffer.from(hashed, "hex");
+      const suppliedBuf = (await scryptAsync(currentPin, salt, 64)) as Buffer;
+      
+      if (!timingSafeEqual(hashedBuf, suppliedBuf)) {
+        return res.status(400).json({ message: "Current PIN is incorrect" });
+      }
+
+      // Hash new PIN
+      const newSalt = randomBytes(16).toString("hex");
+      const buf = (await scryptAsync(newPin, newSalt, 64)) as Buffer;
+      const newHashedPassword = `${buf.toString("hex")}.${newSalt}`;
+
+      // Update password in storage
+      await storage.updateUser(userId, { password: newHashedPassword });
+
+      res.json({ message: "PIN changed successfully" });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Get referral data
+  app.get("/api/referrals", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const userId = req.user!.id;
+      const username = req.user!.username;
+
+      // Mock referral data for now
+      const referralData = {
+        referralCode: username.toUpperCase() + "REF",
+        totalReferrals: 0,
+        activeReferrals: 0,
+        totalEarnings: "0.00",
+        referrals: []
+      };
+
+      res.json(referralData);
     } catch (error) {
       next(error);
     }

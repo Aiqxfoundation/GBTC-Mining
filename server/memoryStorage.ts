@@ -123,6 +123,13 @@ export class MemoryStorage implements IStorage {
     }
   }
 
+  async updateUser(userId: string, updates: Partial<User>): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      Object.assign(user, updates);
+    }
+  }
+
   async freezeUser(userId: string): Promise<void> {
     const user = this.users.get(userId);
     if (user) {

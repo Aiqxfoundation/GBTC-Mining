@@ -10,6 +10,7 @@ import DepositPage from "@/pages/deposit-page.tsx";
 import WithdrawPage from "@/pages/withdraw-page.tsx";
 import TransferPage from "@/pages/transfer-page.tsx";
 import MyMiners from "@/pages/my-miners.tsx";
+import AccountPage from "@/pages/account-page";
 import AdminPage from "@/pages/admin-page";
 import TransactionsPage from "@/pages/transactions-page";
 import Whitepaper from "@/pages/whitepaper";
@@ -63,9 +64,9 @@ export default function MobileApp() {
       color: "text-chart-4"
     },
     { 
-      path: "/miners", 
-      icon: "fas fa-users", 
-      label: "My Miners",
+      path: "/account", 
+      icon: "fas fa-user-circle", 
+      label: "Account",
       color: "text-chart-5"
     },
     {
@@ -96,6 +97,7 @@ export default function MobileApp() {
           <ProtectedRoute path="/wallet" component={WalletPage} />
           <ProtectedRoute path="/power" component={PurchasePowerPage} />
           <ProtectedRoute path="/miners" component={MyMiners} />
+          <ProtectedRoute path="/account" component={AccountPage} />
           <ProtectedRoute path="/deposit" component={DepositPage} />
           <ProtectedRoute path="/withdraw" component={WithdrawPage} />
           <ProtectedRoute path="/transfer" component={TransferPage} />
