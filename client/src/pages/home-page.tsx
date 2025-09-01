@@ -295,100 +295,47 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Blockchain Connected Blocks - Terminal Style */}
-              <div className="mt-3 relative h-10 overflow-hidden bg-black rounded font-mono">
-                {/* Terminal border effect */}
-                <div className="absolute inset-0 border border-green-500/50"
-                  style={{
-                    boxShadow: '0 0 15px rgba(0, 255, 0, 0.3), inset 0 0 15px rgba(0, 255, 0, 0.1)'
-                  }}
-                />
-                
-                {/* Fast sliding blockchain blocks */}
+              {/* Blockchain Terminal Display */}
+              <div className="mt-3 relative h-10 bg-black border border-green-500/30 overflow-hidden font-mono">
+                {/* Sliding blockchain */}
                 <motion.div 
                   className="absolute flex items-center h-full"
                   animate={{
-                    x: [0, -400]
+                    x: [0, -350]
                   }}
                   transition={{
-                    duration: 0.5,
+                    duration: 4,
                     repeat: Infinity,
                     ease: "linear"
                   }}
                 >
-                  {[...Array(30)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center h-full"
-                    >
-                      {/* Terminal Block */}
-                      <motion.div 
-                        className="h-8 bg-black border-y-2 border-l-2 border-green-500 flex items-center px-1"
-                        style={{
-                          borderColor: '#00ff00',
-                          boxShadow: `0 0 20px rgba(0, 255, 0, ${0.6 + Math.random() * 0.4}), inset 0 0 10px rgba(0, 255, 0, 0.3)`,
-                          width: '35px'
-                        }}
-                        animate={{
-                          opacity: [0.7, 1, 0.7]
-                        }}
-                        transition={{
-                          duration: 0.3,
-                          repeat: Infinity,
-                          delay: i * 0.05
-                        }}
-                      >
-                        <div className="text-center w-full">
-                          <div className="text-[8px] text-green-500 font-bold leading-tight">
-                            {i.toString(16).toUpperCase().padStart(2, '0')}
-                          </div>
-                          <div className="text-[6px] text-green-400 opacity-70">
-                            {Math.floor(Math.random() * 999)}
-                          </div>
+                  {[...Array(20)].map((_, i) => (
+                    <div key={i} className="flex items-center h-full py-2">
+                      {/* Block */}
+                      <div className="h-full px-3 bg-gray-950 border border-green-500/40 flex flex-col justify-center relative">
+                        <div className="text-[6px] text-green-500/60 uppercase">Block</div>
+                        <div className="text-[9px] text-green-400 font-bold">
+                          {(876500 + i).toString()}
                         </div>
-                      </motion.div>
-                      
-                      {/* Chain connector with arrow */}
-                      <div className="h-[2px] bg-green-500 relative" 
-                        style={{
-                          width: '15px',
-                          boxShadow: '0 0 8px #00ff00'
-                        }}
-                      >
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0"
-                          style={{
-                            borderLeft: '4px solid #00ff00',
-                            borderTop: '3px solid transparent',
-                            borderBottom: '3px solid transparent',
-                            filter: 'drop-shadow(0 0 3px #00ff00)'
-                          }}
-                        />
+                        <div className="text-[6px] text-green-500/40">
+                          0x{Math.random().toString(16).substr(2, 4)}
+                        </div>
                       </div>
+                      
+                      {/* Chain connector */}
+                      <svg width="20" height="20" className="flex-shrink-0">
+                        <line x1="0" y1="10" x2="15" y2="10" stroke="rgb(34, 197, 94)" strokeOpacity="0.4" strokeWidth="1"/>
+                        <line x1="15" y1="10" x2="20" y2="10" stroke="rgb(34, 197, 94)" strokeOpacity="0.4" strokeWidth="1" strokeDasharray="2,2"/>
+                        <circle cx="10" cy="10" r="2" fill="rgb(34, 197, 94)" fillOpacity="0.3"/>
+                      </svg>
                     </div>
                   ))}
                 </motion.div>
-
-                {/* Terminal CRT effect */}
-                <motion.div
-                  className="absolute inset-0 pointer-events-none"
-                  style={{
-                    background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 0, 0.03) 2px, rgba(0, 255, 0, 0.03) 4px)'
-                  }}
-                />
                 
-                {/* Scan line */}
-                <motion.div
-                  className="absolute inset-x-0 h-[1px] bg-green-500/50"
-                  animate={{
-                    y: ['-10px', '50px']
-                  }}
-                  transition={{
-                    duration: 0.8,
-                    repeat: Infinity,
-                    ease: 'linear'
-                  }}
+                {/* Terminal overlay effect */}
+                <div className="absolute inset-0 pointer-events-none"
                   style={{
-                    boxShadow: '0 0 10px #00ff00'
+                    background: 'linear-gradient(90deg, rgba(0,0,0,0.8) 0%, transparent 10%, transparent 90%, rgba(0,0,0,0.8) 100%)'
                   }}
                 />
               </div>
