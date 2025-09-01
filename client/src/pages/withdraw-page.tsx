@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Clock } from "lucide-react";
 
 export default function WithdrawPage() {
   const { user } = useAuth();
@@ -14,10 +14,47 @@ export default function WithdrawPage() {
   const [amount, setAmount] = useState('');
   const [address, setAddress] = useState('');
   const [network, setNetwork] = useState('BSC');
+  const [timeRemaining, setTimeRemaining] = useState<string>('');
   
   const usdtBalance = parseFloat(user?.usdtBalance || '0');
   const withdrawFee = 1; // 1 USDT flat fee
   const maxWithdraw = Math.max(0, usdtBalance - withdrawFee);
+
+  // Check cooldown status
+  const { data: cooldownData, refetch: refetchCooldown } = useQuery({
+    queryKey: ['/api/withdrawals/cooldown'],
+    queryFn: async () => {
+      const res = await apiRequest('GET', '/api/withdrawals/cooldown');
+      return res.json();
+    },
+    refetchInterval: 60000 // Refresh every minute
+  });
+
+  // Update countdown timer
+  useEffect(() => {
+    if (cooldownData && !cooldownData.canWithdraw && cooldownData.hoursRemaining > 0) {
+      const updateTimer = () => {
+        const hours = Math.floor(cooldownData.hoursRemaining);
+        const minutes = Math.floor((cooldownData.hoursRemaining % 1) * 60);
+        
+        if (hours > 0) {
+          setTimeRemaining(`${hours}h ${minutes}m`);
+        } else if (minutes > 0) {
+          setTimeRemaining(`${minutes}m`);
+        } else {
+          setTimeRemaining('Almost ready...');
+          refetchCooldown();
+        }
+      };
+      
+      updateTimer();
+      const interval = setInterval(updateTimer, 60000); // Update every minute
+      
+      return () => clearInterval(interval);
+    } else {
+      setTimeRemaining('');
+    }
+  }, [cooldownData, refetchCooldown]);
 
   const createWithdrawalMutation = useMutation({
     mutationFn: async (data: { amount: number; address: string; network: string }) => {
@@ -32,6 +69,7 @@ export default function WithdrawPage() {
       setAmount('');
       setAddress('');
       queryClient.invalidateQueries({ queryKey: ["/api/withdrawals"] });
+      refetchCooldown(); // Refresh cooldown status after successful withdrawal
     },
     onError: (error: Error) => {
       toast({ 
@@ -93,6 +131,23 @@ export default function WithdrawPage() {
 
       {/* Main Content */}
       <div className="mobile-content">
+        {/* Cooldown Warning */}
+        {cooldownData && !cooldownData.canWithdraw && (
+          <Card className="mobile-card bg-warning/10 border-warning/30 mb-4">
+            <div className="flex items-center space-x-3">
+              <Clock className="w-5 h-5 text-warning" />
+              <div className="flex-1">
+                <p className="text-sm font-bold text-warning mb-1">Cooldown Active</p>
+                <p className="text-xs text-warning/80">
+                  You can make another withdrawal request in {timeRemaining}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Please wait for the cooldown period to end before submitting a new withdrawal.
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
         {/* Balance Overview */}
         <Card className="mobile-card bg-gradient-to-br from-accent/10 to-chart-3/10">
           <div className="grid grid-cols-2 gap-4">
@@ -210,7 +265,7 @@ export default function WithdrawPage() {
         {/* Submit Button */}
         <Button
           onClick={handleWithdraw}
-          disabled={createWithdrawalMutation.isPending || !amount || !address || parseFloat(amount) > maxWithdraw}
+          disabled={createWithdrawalMutation.isPending || !amount || !address || parseFloat(amount) > maxWithdraw || (cooldownData && !cooldownData.canWithdraw)}
           className="mobile-btn-primary text-lg"
           data-testid="button-submit-withdrawal"
         >

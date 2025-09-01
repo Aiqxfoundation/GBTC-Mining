@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { User, Users, Lock, Copy, TrendingUp, Award, Calendar, ChevronRight } from "lucide-react";
+import { User, Users, Lock, Copy, TrendingUp, Award, Calendar, ChevronRight, LogOut } from "lucide-react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 
 export default function AccountPage() {
-  const { user } = useAuth();
+  const { user, logoutMutation } = useAuth();
   const { toast } = useToast();
   const [showPinDialog, setShowPinDialog] = useState(false);
   const [currentPin, setCurrentPin] = useState("");
@@ -140,6 +140,16 @@ export default function AccountPage() {
               ADMIN
             </Badge>
           )}
+          <Button
+            onClick={() => logoutMutation.mutate()}
+            variant="destructive"
+            className="mt-4 bg-red-600 hover:bg-red-700"
+            disabled={logoutMutation.isPending}
+            data-testid="button-logout"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Logout
+          </Button>
         </motion.div>
 
         {/* Account Info Card */}

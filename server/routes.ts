@@ -75,6 +75,20 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Check deposit cooldown
+  app.get("/api/deposits/cooldown", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const cooldown = await storage.getDepositCooldown(req.user!.id);
+      res.json(cooldown);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   // Hash power purchase
   app.post("/api/purchase-power", async (req, res, next) => {
     try {
@@ -216,6 +230,20 @@ export function registerRoutes(app: Express): Server {
 
       await storage.rejectWithdrawal(req.params.id);
       res.json({ message: "Withdrawal rejected" });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Check withdrawal cooldown  
+  app.get("/api/withdrawals/cooldown", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const cooldown = await storage.getWithdrawalCooldown(req.user!.id);
+      res.json(cooldown);
     } catch (error) {
       next(error);
     }

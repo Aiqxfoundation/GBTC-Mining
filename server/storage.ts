@@ -84,6 +84,10 @@ export interface IStorage {
   getSentTransfers(userId: string): Promise<Transfer[]>;
   getReceivedTransfers(userId: string): Promise<Transfer[]>;
   
+  // Cooldown methods
+  getDepositCooldown(userId: string): Promise<{ canDeposit: boolean; hoursRemaining: number }>;
+  getWithdrawalCooldown(userId: string): Promise<{ canWithdraw: boolean; hoursRemaining: number }>;
+  
   sessionStore: session.Store;
 }
 
@@ -593,6 +597,15 @@ export class DatabaseStorage implements IStorage {
       ...r.transfer,
       fromUsername: r.fromUser?.username || 'Unknown'
     }));
+  }
+  
+  // For database storage, we'll return no cooldown for now (could be extended later)
+  async getDepositCooldown(userId: string): Promise<{ canDeposit: boolean; hoursRemaining: number }> {
+    return { canDeposit: true, hoursRemaining: 0 };
+  }
+  
+  async getWithdrawalCooldown(userId: string): Promise<{ canWithdraw: boolean; hoursRemaining: number }> {
+    return { canWithdraw: true, hoursRemaining: 0 };
   }
 }
 

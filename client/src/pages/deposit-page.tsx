@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Clock } from "lucide-react";
 
 const networkAddresses = {
   BSC: '0xc1de03ab9892b9eb1deed8a2dd453b7fcefea9e9',
@@ -24,6 +24,43 @@ export default function DepositPage() {
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
   const [copied, setCopied] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState<string>('');
+
+  // Check cooldown status
+  const { data: cooldownData, refetch: refetchCooldown } = useQuery({
+    queryKey: ['/api/deposits/cooldown'],
+    queryFn: async () => {
+      const res = await apiRequest('GET', '/api/deposits/cooldown');
+      return res.json();
+    },
+    refetchInterval: 60000 // Refresh every minute
+  });
+
+  // Update countdown timer
+  useEffect(() => {
+    if (cooldownData && !cooldownData.canDeposit && cooldownData.hoursRemaining > 0) {
+      const updateTimer = () => {
+        const hours = Math.floor(cooldownData.hoursRemaining);
+        const minutes = Math.floor((cooldownData.hoursRemaining % 1) * 60);
+        
+        if (hours > 0) {
+          setTimeRemaining(`${hours}h ${minutes}m`);
+        } else if (minutes > 0) {
+          setTimeRemaining(`${minutes}m`);
+        } else {
+          setTimeRemaining('Almost ready...');
+          refetchCooldown();
+        }
+      };
+      
+      updateTimer();
+      const interval = setInterval(updateTimer, 60000); // Update every minute
+      
+      return () => clearInterval(interval);
+    } else {
+      setTimeRemaining('');
+    }
+  }, [cooldownData, refetchCooldown]);
 
   const submitDepositMutation = useMutation({
     mutationFn: async (data: { txHash: string; amount: string; network: string; note?: string }) => {
@@ -39,6 +76,7 @@ export default function DepositPage() {
       setAmount('');
       setNote('');
       queryClient.invalidateQueries({ queryKey: ["/api/deposits"] });
+      refetchCooldown(); // Refresh cooldown status after successful deposit
     },
     onError: (error: Error) => {
       toast({ 
@@ -95,6 +133,23 @@ export default function DepositPage() {
 
       {/* Main Content */}
       <div className="mobile-content">
+        {/* Cooldown Warning */}
+        {cooldownData && !cooldownData.canDeposit && (
+          <Card className="mobile-card bg-warning/10 border-warning/30 mb-4">
+            <div className="flex items-center space-x-3">
+              <Clock className="w-5 h-5 text-warning" />
+              <div className="flex-1">
+                <p className="text-sm font-bold text-warning mb-1">Cooldown Active</p>
+                <p className="text-xs text-warning/80">
+                  You can make another deposit request in {timeRemaining}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Please wait for the cooldown period to end before submitting a new deposit.
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
         {/* Network Selection */}
         <Card className="mobile-card">
           <p className="text-sm font-mono text-muted-foreground mb-3">SELECT NETWORK</p>
@@ -209,7 +264,7 @@ export default function DepositPage() {
         {/* Submit Button */}
         <Button
           onClick={handleSubmit}
-          disabled={submitDepositMutation.isPending || !txid || !amount}
+          disabled={submitDepositMutation.isPending || !txid || !amount || (cooldownData && !cooldownData.canDeposit)}
           className="mobile-btn-primary text-lg"
           data-testid="button-submit-deposit"
         >

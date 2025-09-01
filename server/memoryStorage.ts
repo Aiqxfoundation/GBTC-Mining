@@ -30,6 +30,8 @@ export class MemoryStorage implements IStorage {
   private unclaimedBlocks: Map<string, UnclaimedBlock> = new Map();
   private transfers: Map<string, Transfer> = new Map();
   private minerActivity: Map<string, MinerActivity> = new Map();
+  private lastDepositTime: Map<string, Date> = new Map(); // userId -> last deposit timestamp
+  private lastWithdrawalTime: Map<string, Date> = new Map(); // userId -> last withdrawal timestamp
   
   sessionStore: session.Store;
 
@@ -145,6 +147,17 @@ export class MemoryStorage implements IStorage {
   }
 
   async createDeposit(deposit: InsertDeposit & { userId: string }): Promise<Deposit> {
+    // Check cooldown (72 hours = 259200000 ms)
+    const lastRequest = this.lastDepositTime.get(deposit.userId);
+    if (lastRequest) {
+      const timePassed = Date.now() - lastRequest.getTime();
+      const cooldownRemaining = 259200000 - timePassed; // 72 hours in ms
+      if (cooldownRemaining > 0) {
+        const hoursRemaining = Math.ceil(cooldownRemaining / (1000 * 60 * 60));
+        throw new Error(`Please wait ${hoursRemaining} hours before making another deposit request`);
+      }
+    }
+    
     const depositId = 'dep-' + randomBytes(8).toString('hex');
     const newDeposit: Deposit = {
       id: depositId,
@@ -159,6 +172,8 @@ export class MemoryStorage implements IStorage {
     };
     
     this.deposits.set(depositId, newDeposit);
+    // Track the time of this deposit request
+    this.lastDepositTime.set(deposit.userId, new Date());
     return newDeposit;
   }
 
@@ -204,6 +219,17 @@ export class MemoryStorage implements IStorage {
   }
 
   async createWithdrawal(withdrawal: InsertWithdrawal & { userId: string }): Promise<Withdrawal> {
+    // Check cooldown (72 hours = 259200000 ms)
+    const lastRequest = this.lastWithdrawalTime.get(withdrawal.userId);
+    if (lastRequest) {
+      const timePassed = Date.now() - lastRequest.getTime();
+      const cooldownRemaining = 259200000 - timePassed; // 72 hours in ms
+      if (cooldownRemaining > 0) {
+        const hoursRemaining = Math.ceil(cooldownRemaining / (1000 * 60 * 60));
+        throw new Error(`Please wait ${hoursRemaining} hours before making another withdrawal request`);
+      }
+    }
+    
     const withdrawalId = 'with-' + randomBytes(8).toString('hex');
     const newWithdrawal: Withdrawal = {
       id: withdrawalId,
@@ -217,6 +243,8 @@ export class MemoryStorage implements IStorage {
     };
     
     this.withdrawals.set(withdrawalId, newWithdrawal);
+    // Track the time of this withdrawal request
+    this.lastWithdrawalTime.set(withdrawal.userId, new Date());
     return newWithdrawal;
   }
 
@@ -620,5 +648,39 @@ export class MemoryStorage implements IStorage {
     return receivedTransfers.sort((a, b) => 
       (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0)
     );
+  }
+
+  async getDepositCooldown(userId: string): Promise<{ canDeposit: boolean; hoursRemaining: number }> {
+    const lastRequest = this.lastDepositTime.get(userId);
+    if (!lastRequest) {
+      return { canDeposit: true, hoursRemaining: 0 };
+    }
+    
+    const timePassed = Date.now() - lastRequest.getTime();
+    const cooldownRemaining = 259200000 - timePassed; // 72 hours in ms
+    
+    if (cooldownRemaining > 0) {
+      const hoursRemaining = Math.ceil(cooldownRemaining / (1000 * 60 * 60));
+      return { canDeposit: false, hoursRemaining };
+    }
+    
+    return { canDeposit: true, hoursRemaining: 0 };
+  }
+
+  async getWithdrawalCooldown(userId: string): Promise<{ canWithdraw: boolean; hoursRemaining: number }> {
+    const lastRequest = this.lastWithdrawalTime.get(userId);
+    if (!lastRequest) {
+      return { canWithdraw: true, hoursRemaining: 0 };
+    }
+    
+    const timePassed = Date.now() - lastRequest.getTime();
+    const cooldownRemaining = 259200000 - timePassed; // 72 hours in ms
+    
+    if (cooldownRemaining > 0) {
+      const hoursRemaining = Math.ceil(cooldownRemaining / (1000 * 60 * 60));
+      return { canWithdraw: false, hoursRemaining };
+    }
+    
+    return { canWithdraw: true, hoursRemaining: 0 };
   }
 }
