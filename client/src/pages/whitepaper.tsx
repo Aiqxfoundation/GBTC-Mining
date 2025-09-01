@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { ArrowLeft, Download, Bitcoin, Users, Coins, TrendingUp, Shield, Zap, Award, Activity, Globe, Target, Sparkles } from "lucide-react";
+import { ArrowLeft, Download, Bitcoin, Users, Coins, TrendingUp, Shield, Zap, Award, Activity, Globe, Target, Sparkles, AlertTriangle, Key } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Whitepaper() {
@@ -42,11 +42,37 @@ export default function Whitepaper() {
                 GREEN BITCOIN (GBTC)
               </h1>
               <p className="text-sm text-muted-foreground">
-                The Future of Sustainable Bitcoin Mining
+                Fair Mining Through Real Hash Power Investment
               </p>
               <p className="text-xs text-muted-foreground mt-2">
-                Version 1.0 | September 2025
+                Version 2.0 | September 2025
               </p>
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* Critical Warning */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <Card className="mobile-card bg-destructive/10 border-destructive/30">
+            <div className="flex items-start space-x-3">
+              <AlertTriangle className="w-6 h-6 text-destructive mt-1 flex-shrink-0" />
+              <div>
+                <h2 className="text-lg font-bold text-destructive mb-2">CRITICAL SECURITY NOTICE</h2>
+                <p className="text-sm text-muted-foreground font-semibold mb-2">
+                  NOT YOUR KEYS, NOT YOUR COINS!
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Green Bitcoin operates on a principle of absolute security. Your account is protected by 
+                  a username and 6-digit PIN combination. If you forget either credential, there is 
+                  <strong className="text-destructive"> NO RECOVERY OPTION</strong>. Your account and all 
+                  assets will be permanently inaccessible. This is by design to ensure maximum security 
+                  and prevent unauthorized access. Write down your credentials and store them safely.
+                </p>
+              </div>
             </div>
           </Card>
         </motion.div>
@@ -55,7 +81,7 @@ export default function Whitepaper() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
         >
           <Card className="mobile-card bg-black/50 border-primary/20">
             <div className="flex items-center mb-3">
@@ -63,45 +89,16 @@ export default function Whitepaper() {
               <h2 className="text-lg font-bold text-primary">Executive Summary</h2>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Green Bitcoin (GBTC) revolutionizes cryptocurrency mining through an innovative simulation platform 
-              that democratizes access to Bitcoin mining rewards. By eliminating the need for expensive hardware 
-              and excessive energy consumption, GBTC creates a sustainable ecosystem where users can participate 
-              in mining through hash power purchases, earning rewards proportional to their network contribution.
+              Green Bitcoin (GBTC) is a revolutionary mining platform that ensures fair distribution through 
+              real hash power investment. Unlike traditional mining or cloud mining services, GBTC rewards 
+              are distributed purely based on purchased hash power, making it impossible for bots or multiple 
+              accounts to gain unfair advantages. Every user must actively claim their rewards within 24 hours 
+              to maintain mining activity, ensuring only engaged participants receive rewards.
             </p>
           </Card>
         </motion.div>
 
-        {/* Vision & Mission */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <Card className="mobile-card bg-black/50 border-primary/20">
-            <div className="flex items-center mb-3">
-              <Sparkles className="w-5 h-5 text-primary mr-2" />
-              <h2 className="text-lg font-bold text-primary">Vision & Mission</h2>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Our Vision</h3>
-                <p className="text-sm text-muted-foreground">
-                  To become the leading sustainable Bitcoin mining platform, making cryptocurrency mining 
-                  accessible to everyone while maintaining environmental responsibility.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Our Mission</h3>
-                <p className="text-sm text-muted-foreground">
-                  Democratize Bitcoin mining by providing a user-friendly platform that simulates real 
-                  mining operations, distributes rewards fairly, and promotes sustainable practices.
-                </p>
-              </div>
-            </div>
-          </Card>
-        </motion.div>
-
-        {/* Core Technology */}
+        {/* Fair Mining Philosophy */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -109,32 +106,64 @@ export default function Whitepaper() {
         >
           <Card className="mobile-card bg-black/50 border-primary/20">
             <div className="flex items-center mb-3">
-              <Zap className="w-5 h-5 text-primary mr-2" />
-              <h2 className="text-lg font-bold text-primary">Core Technology</h2>
+              <Shield className="w-5 h-5 text-primary mr-2" />
+              <h2 className="text-lg font-bold text-primary">Fair Mining Philosophy</h2>
+            </div>
+            <div className="space-y-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <h3 className="text-sm font-semibold text-orange-500 mb-1">No Free Mining</h3>
+                <p className="text-sm text-muted-foreground">
+                  Mining rewards are distributed ONLY based on purchased hash power. No registration bonuses, 
+                  no free mining, no advantages for early adopters. Your investment determines your rewards.
+                </p>
+              </div>
+              <div className="p-3 bg-warning/10 rounded-lg">
+                <h3 className="text-sm font-semibold text-orange-500 mb-1">Anti-Bot Protection</h3>
+                <p className="text-sm text-muted-foreground">
+                  Creating multiple accounts provides zero advantage. Each account must purchase hash power 
+                  separately to earn rewards. Bots cannot exploit the system as there's no way to earn without 
+                  real USDT investment.
+                </p>
+              </div>
+              <div className="p-3 bg-accent/10 rounded-lg">
+                <h3 className="text-sm font-semibold text-orange-500 mb-1">Self-Effort Based</h3>
+                <p className="text-sm text-muted-foreground">
+                  Success depends entirely on personal investment and activity. No one can mine for free, 
+                  ensuring fair competition among all participants.
+                </p>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* Authentication System */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <Card className="mobile-card bg-black/50 border-primary/20">
+            <div className="flex items-center mb-3">
+              <Key className="w-5 h-5 text-primary mr-2" />
+              <h2 className="text-lg font-bold text-primary">Authentication System</h2>
             </div>
             <div className="space-y-3">
               <div>
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Mining Simulation Engine</h3>
-                <p className="text-sm text-muted-foreground">
-                  Our advanced simulation engine generates new blocks every 10 minutes, mirroring Bitcoin's 
-                  actual block time. The system automatically calculates and distributes rewards based on 
-                  each user's hash power contribution to the network.
-                </p>
+                <h3 className="text-sm font-semibold text-orange-500 mb-1">Simple & Secure</h3>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Username: Your unique identifier and referral code</li>
+                  <li>• 6-Digit PIN: Your secure access code</li>
+                  <li>• No email or phone number required</li>
+                  <li>• Complete anonymity and privacy</li>
+                </ul>
               </div>
-              <div>
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Smart Distribution Algorithm</h3>
+              <div className="p-3 bg-destructive/10 rounded-lg">
+                <h3 className="text-sm font-semibold text-destructive mb-1">⚠️ No Recovery System</h3>
                 <p className="text-sm text-muted-foreground">
-                  Rewards are distributed proportionally using the formula: 
-                  <span className="font-mono text-xs block mt-1 text-accent">
-                    User Reward = (User Hash Power / Total Network Hash Power) × Block Reward
-                  </span>
-                </p>
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Real-time Processing</h3>
-                <p className="text-sm text-muted-foreground">
-                  All mining operations, reward calculations, and distributions happen in real-time, 
-                  ensuring transparency and immediate feedback for all participants.
+                  Following the principle "Not Your Keys, Not Your Coins" - if you forget your username 
+                  or PIN, your account is permanently lost. There is no password reset, no recovery 
+                  questions, no support intervention possible. This ensures maximum security but requires 
+                  responsible credential management.
                 </p>
               </div>
             </div>
@@ -145,7 +174,7 @@ export default function Whitepaper() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
         >
           <Card className="mobile-card bg-black/50 border-primary/20">
             <div className="flex items-center mb-3">
@@ -167,18 +196,17 @@ export default function Whitepaper() {
                   <p className="font-bold text-accent">10 Minutes</p>
                 </div>
                 <div className="bg-black/30 p-2 rounded">
-                  <p className="text-muted-foreground text-xs">Halving Cycle</p>
-                  <p className="font-bold text-accent">210,000 Blocks</p>
+                  <p className="text-muted-foreground text-xs">Daily Blocks</p>
+                  <p className="font-bold text-accent">144 Blocks</p>
                 </div>
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Token Utility</h3>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Mining rewards distribution</li>
-                  <li>• Platform transaction currency</li>
-                  <li>• Governance participation rights</li>
-                  <li>• Staking for additional benefits</li>
-                </ul>
+                <h3 className="text-sm font-semibold text-orange-500 mb-1">Distribution Formula</h3>
+                <div className="bg-black/30 p-2 rounded">
+                  <p className="font-mono text-xs text-accent">
+                    Your Reward = (Your Hash Power ÷ Total Network Hash Power) × Block Reward
+                  </p>
+                </div>
               </div>
             </div>
           </Card>
@@ -188,7 +216,7 @@ export default function Whitepaper() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
         >
           <Card className="mobile-card bg-black/50 border-primary/20">
             <div className="flex items-center mb-3">
@@ -197,72 +225,42 @@ export default function Whitepaper() {
             </div>
             <div className="space-y-3">
               <div>
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">How It Works</h3>
+                <h3 className="text-sm font-semibold text-orange-500 mb-1">Purchase & Mining</h3>
                 <p className="text-sm text-muted-foreground">
-                  Users purchase hash power using USDT, which represents their mining capability in the network. 
-                  Higher hash power means a larger share of block rewards. Hash power is measured in GH/s 
-                  (Gigahashes per second) and directly correlates to mining efficiency.
+                  Hash power represents your mining capability in the network. Higher hash power means 
+                  larger share of block rewards. You must purchase hash power with USDT to start mining.
                 </p>
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Pricing Tiers</h3>
+                <h3 className="text-sm font-semibold text-orange-500 mb-1">Pricing Structure</h3>
                 <div className="space-y-2">
                   <div className="bg-black/30 p-2 rounded flex justify-between text-sm">
-                    <span className="text-muted-foreground">10 GH/s</span>
-                    <span className="text-accent font-bold">$10 USDT</span>
+                    <span className="text-muted-foreground">Starter</span>
+                    <span className="text-accent font-bold">$10 - $99 USDT</span>
                   </div>
                   <div className="bg-black/30 p-2 rounded flex justify-between text-sm">
-                    <span className="text-muted-foreground">100 GH/s</span>
-                    <span className="text-accent font-bold">$95 USDT</span>
+                    <span className="text-muted-foreground">Professional</span>
+                    <span className="text-accent font-bold">$100 - $999 USDT</span>
                   </div>
                   <div className="bg-black/30 p-2 rounded flex justify-between text-sm">
-                    <span className="text-muted-foreground">1000 GH/s</span>
-                    <span className="text-accent font-bold">$900 USDT</span>
+                    <span className="text-muted-foreground">Enterprise</span>
+                    <span className="text-accent font-bold">$1000+ USDT</span>
                   </div>
                 </div>
               </div>
-            </div>
-          </Card>
-        </motion.div>
-
-        {/* Mining Rewards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
-          <Card className="mobile-card bg-black/50 border-primary/20">
-            <div className="flex items-center mb-3">
-              <Award className="w-5 h-5 text-primary mr-2" />
-              <h2 className="text-lg font-bold text-primary">Mining Rewards System</h2>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Reward Distribution</h3>
+              <div className="p-3 bg-warning/10 rounded-lg">
+                <h3 className="text-sm font-semibold text-warning mb-1">⚠️ 24-Hour Claim Rule</h3>
                 <p className="text-sm text-muted-foreground">
-                  Every 10 minutes, when a new block is mined, the 6.25 GBTC reward is distributed among 
-                  all active miners based on their hash power contribution. Rewards are automatically 
-                  credited to user wallets.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Claiming Process</h3>
-                <p className="text-sm text-muted-foreground">
-                  Users can claim their mining rewards at any time. Unclaimed rewards remain available 
-                  for 48 hours, after which they are returned to the mining pool for redistribution.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Estimated Earnings</h3>
-                <p className="text-sm text-muted-foreground">
-                  Daily earnings = (Your Hash Power / Total Network Hash Power) × 144 blocks × 6.25 GBTC
+                  You must claim your mined blocks within 24 hours or your mining will STOP. 
+                  This ensures only active users receive rewards and prevents abandoned accounts 
+                  from diluting the reward pool.
                 </p>
               </div>
             </div>
           </Card>
         </motion.div>
 
-        {/* Referral Program */}
+        {/* Direct Miners Referral System */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -271,40 +269,52 @@ export default function Whitepaper() {
           <Card className="mobile-card bg-black/50 border-primary/20">
             <div className="flex items-center mb-3">
               <Users className="w-5 h-5 text-primary mr-2" />
-              <h2 className="text-lg font-bold text-primary">Referral Program</h2>
+              <h2 className="text-lg font-bold text-primary">Direct Miners System</h2>
             </div>
             <div className="space-y-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <h3 className="text-sm font-semibold text-orange-500 mb-1">Single-Level Referral Only</h3>
+                <p className="text-sm text-muted-foreground mb-2">
+                  You earn rewards ONLY from users you directly invite. No multi-level marketing, 
+                  no pyramid structure. Simple and transparent.
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Your username is your referral code</li>
+                  <li>• Direct invites become your "miners"</li>
+                  <li>• No indirect or second-level rewards</li>
+                </ul>
+              </div>
               <div>
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Three-Tier Structure</h3>
+                <h3 className="text-sm font-semibold text-orange-500 mb-1">Commission Structure</h3>
                 <div className="space-y-2">
-                  <div className="bg-black/30 p-2 rounded">
-                    <p className="text-xs text-muted-foreground">Level 1 (Direct Referrals)</p>
-                    <p className="text-sm font-bold text-accent">10% Commission</p>
+                  <div className="bg-black/30 p-3 rounded">
+                    <p className="text-xs text-primary font-semibold mb-1">USDT Commission: 15%</p>
+                    <p className="text-sm text-muted-foreground">
+                      When your direct miner purchases hash power, you instantly receive 15% of their 
+                      purchase amount in USDT. Example: They buy $100 worth, you get $15 USDT.
+                    </p>
                   </div>
-                  <div className="bg-black/30 p-2 rounded">
-                    <p className="text-xs text-muted-foreground">Level 2 (Indirect Referrals)</p>
-                    <p className="text-sm font-bold text-accent">5% Commission</p>
-                  </div>
-                  <div className="bg-black/30 p-2 rounded">
-                    <p className="text-xs text-muted-foreground">Level 3 (Third-tier Referrals)</p>
-                    <p className="text-sm font-bold text-accent">2% Commission</p>
+                  <div className="bg-black/30 p-3 rounded">
+                    <p className="text-xs text-primary font-semibold mb-1">Hash Power Contribution: 5%</p>
+                    <p className="text-sm text-muted-foreground">
+                      When your miners are actively mining, 5% of their hash power contributes to 
+                      your total hash power, increasing your mining rewards.
+                    </p>
                   </div>
                 </div>
               </div>
-              <div>
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Benefits</h3>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Earn USDT commissions from referral deposits</li>
-                  <li>• Build passive income through network growth</li>
-                  <li>• Track referral performance in real-time</li>
-                  <li>• Instant commission credits to wallet</li>
-                </ul>
+              <div className="p-3 bg-accent/10 rounded-lg">
+                <h3 className="text-sm font-semibold text-accent mb-1">Commission Withdrawals</h3>
+                <p className="text-sm text-muted-foreground">
+                  USDT commissions can be withdrawn anytime or used to purchase your own hash power. 
+                  This is the only way to earn without personal investment.
+                </p>
               </div>
             </div>
           </Card>
         </motion.div>
 
-        {/* USDT Integration */}
+        {/* Mining Operations */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -312,36 +322,43 @@ export default function Whitepaper() {
         >
           <Card className="mobile-card bg-black/50 border-primary/20">
             <div className="flex items-center mb-3">
-              <Coins className="w-5 h-5 text-primary mr-2" />
-              <h2 className="text-lg font-bold text-primary">USDT Integration</h2>
+              <Zap className="w-5 h-5 text-primary mr-2" />
+              <h2 className="text-lg font-bold text-primary">Mining Operations</h2>
             </div>
             <div className="space-y-3">
               <div>
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Deposit & Withdrawal</h3>
-                <p className="text-sm text-muted-foreground">
-                  USDT serves as the primary fiat gateway for the platform. Users can deposit USDT to 
-                  purchase hash power and withdraw their earnings or trading profits at any time, 
-                  subject to minimum withdrawal limits.
-                </p>
+                <h3 className="text-sm font-semibold text-orange-500 mb-1">Automatic Mining Process</h3>
+                <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
+                  <li>Purchase hash power with USDT</li>
+                  <li>Mining starts automatically</li>
+                  <li>New block generated every 10 minutes</li>
+                  <li>Rewards distributed proportionally</li>
+                  <li>Claim rewards within 24 hours to continue</li>
+                </ol>
+              </div>
+              <div className="p-3 bg-destructive/10 rounded-lg">
+                <h3 className="text-sm font-semibold text-destructive mb-1">Mining Stop Conditions</h3>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Not claiming rewards within 24 hours</li>
+                  <li>• Zero hash power (no investment)</li>
+                  <li>• Account suspension for rule violations</li>
+                </ul>
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Transaction Limits</h3>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="bg-black/30 p-2 rounded">
-                    <p className="text-xs text-muted-foreground">Min Deposit</p>
-                    <p className="font-bold text-accent">$10 USDT</p>
-                  </div>
-                  <div className="bg-black/30 p-2 rounded">
-                    <p className="text-xs text-muted-foreground">Min Withdrawal</p>
-                    <p className="font-bold text-accent">$50 USDT</p>
-                  </div>
+                <h3 className="text-sm font-semibold text-orange-500 mb-1">Reward Calculation Example</h3>
+                <div className="bg-black/30 p-3 rounded text-sm text-muted-foreground">
+                  <p className="mb-2">Network Total: 10,000 GH/s</p>
+                  <p className="mb-2">Your Hash Power: 100 GH/s (1%)</p>
+                  <p className="mb-2">Block Reward: 6.25 GBTC</p>
+                  <p className="font-semibold text-accent">Your Reward: 0.0625 GBTC per block</p>
+                  <p className="text-xs mt-2">Daily: 0.0625 × 144 blocks = 9 GBTC</p>
                 </div>
               </div>
             </div>
           </Card>
         </motion.div>
 
-        {/* Security & Trust */}
+        {/* USDT Operations */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -349,27 +366,76 @@ export default function Whitepaper() {
         >
           <Card className="mobile-card bg-black/50 border-primary/20">
             <div className="flex items-center mb-3">
-              <Shield className="w-5 h-5 text-primary mr-2" />
-              <h2 className="text-lg font-bold text-primary">Security & Trust</h2>
+              <Coins className="w-5 h-5 text-primary mr-2" />
+              <h2 className="text-lg font-bold text-primary">USDT Operations</h2>
             </div>
             <div className="space-y-3">
               <div>
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Platform Security</h3>
+                <h3 className="text-sm font-semibold text-orange-500 mb-1">Deposits</h3>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Secure authentication with encrypted passwords</li>
-                  <li>• Two-factor authentication support</li>
-                  <li>• SSL encryption for all data transmission</li>
-                  <li>• Regular security audits and updates</li>
+                  <li>• Minimum deposit: $10 USDT</li>
+                  <li>• Used to purchase hash power</li>
+                  <li>• Instant processing after admin approval</li>
+                  <li>• Multiple deposit methods supported</li>
                 </ul>
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Fund Safety</h3>
+                <h3 className="text-sm font-semibold text-orange-500 mb-1">Withdrawals</h3>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Cold wallet storage for majority of funds</li>
-                  <li>• Multi-signature wallet implementation</li>
-                  <li>• Daily backup and disaster recovery protocols</li>
-                  <li>• Insurance coverage for digital assets</li>
+                  <li>• Only referral commissions can be withdrawn</li>
+                  <li>• Minimum withdrawal: $50 USDT</li>
+                  <li>• Processing time: 24-48 hours</li>
+                  <li>• GBTC tokens cannot be withdrawn until exchange listing</li>
                 </ul>
+              </div>
+              <div className="p-3 bg-warning/10 rounded-lg">
+                <h3 className="text-sm font-semibold text-warning mb-1">Important Note</h3>
+                <p className="text-sm text-muted-foreground">
+                  Deposited USDT used for hash power purchases cannot be withdrawn. Only referral 
+                  commissions earned in USDT are withdrawable. This ensures mining commitment.
+                </p>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* Security Measures */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1.0 }}
+        >
+          <Card className="mobile-card bg-black/50 border-primary/20">
+            <div className="flex items-center mb-3">
+              <Shield className="w-5 h-5 text-primary mr-2" />
+              <h2 className="text-lg font-bold text-primary">Security & Anti-Fraud</h2>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <h3 className="text-sm font-semibold text-orange-500 mb-1">Account Security</h3>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Unique username + 6-digit PIN authentication</li>
+                  <li>• No recovery options for maximum security</li>
+                  <li>• Session-based authentication</li>
+                  <li>• Automatic logout on inactivity</li>
+                </ul>
+              </div>
+              <div className="p-3 bg-destructive/10 rounded-lg">
+                <h3 className="text-sm font-semibold text-destructive mb-1">Fraud Prevention</h3>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Fake deposit = permanent account ban</li>
+                  <li>• All transactions verified on blockchain</li>
+                  <li>• Admin approval for deposits/withdrawals</li>
+                  <li>• Multiple account creation provides no benefit</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-orange-500 mb-1">Fair Play Enforcement</h3>
+                <p className="text-sm text-muted-foreground">
+                  The system is designed to be unexploitable. Since mining rewards depend entirely 
+                  on purchased hash power, creating multiple accounts or using bots provides zero 
+                  advantage. Each account must invest separately to earn.
+                </p>
               </div>
             </div>
           </Card>
@@ -379,45 +445,49 @@ export default function Whitepaper() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1.0 }}
+          transition={{ duration: 0.5, delay: 1.1 }}
         >
           <Card className="mobile-card bg-black/50 border-primary/20">
             <div className="flex items-center mb-3">
               <TrendingUp className="w-5 h-5 text-primary mr-2" />
-              <h2 className="text-lg font-bold text-primary">Development Roadmap</h2>
+              <h2 className="text-lg font-bold text-primary">Development Phases</h2>
             </div>
             <div className="space-y-3">
               <div className="border-l-2 border-primary/30 pl-4 space-y-4">
                 <div>
-                  <p className="text-xs text-primary font-semibold">Q3 2025 - Platform Launch</p>
+                  <p className="text-xs text-primary font-semibold">Phase 1: Mining Launch</p>
                   <p className="text-sm text-muted-foreground">
-                    • Core mining simulation engine<br/>
-                    • User registration and wallet system<br/>
-                    • Basic hash power marketplace
+                    • Platform launch with core mining features<br/>
+                    • Hash power marketplace active<br/>
+                    • Direct referral system operational<br/>
+                    • 24-hour claiming requirement enforced
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-primary font-semibold">Q4 2025 - Feature Expansion</p>
+                  <p className="text-xs text-primary font-semibold">Phase 2: Growth (Current)</p>
                   <p className="text-sm text-muted-foreground">
-                    • Advanced referral system<br/>
-                    • Mobile app development<br/>
-                    • Enhanced security features
+                    • Expanding user base through referrals<br/>
+                    • Mining optimization and improvements<br/>
+                    • Community building and education<br/>
+                    • Reaching 25% of total supply mined
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-primary font-semibold">Q1 2026 - Ecosystem Growth</p>
+                  <p className="text-xs text-primary font-semibold">Phase 3: Exchange Listing (At 25% Mined)</p>
                   <p className="text-sm text-muted-foreground">
-                    • GBTC exchange listings<br/>
-                    • Staking mechanism implementation<br/>
-                    • Partnership integrations
+                    • GBTC token becomes tradeable<br/>
+                    • Exchange partnerships established<br/>
+                    • External withdrawals enabled<br/>
+                    • Market price discovery begins
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-primary font-semibold">Q2 2026 - Global Expansion</p>
+                  <p className="text-xs text-primary font-semibold">Phase 4: Ecosystem Expansion</p>
                   <p className="text-sm text-muted-foreground">
-                    • Multi-language support<br/>
-                    • Regional payment gateways<br/>
-                    • Community governance launch
+                    • Additional use cases for GBTC<br/>
+                    • Partnership integrations<br/>
+                    • Advanced trading features<br/>
+                    • Continued mining until max supply
                   </p>
                 </div>
               </div>
@@ -425,32 +495,41 @@ export default function Whitepaper() {
           </Card>
         </motion.div>
 
-        {/* Team & Advisory */}
+        {/* Important Rules Summary */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1.1 }}
+          transition={{ duration: 0.5, delay: 1.2 }}
         >
           <Card className="mobile-card bg-black/50 border-primary/20">
             <div className="flex items-center mb-3">
-              <Globe className="w-5 h-5 text-primary mr-2" />
-              <h2 className="text-lg font-bold text-primary">Global Vision</h2>
+              <AlertTriangle className="w-5 h-5 text-primary mr-2" />
+              <h2 className="text-lg font-bold text-primary">Critical Rules Summary</h2>
             </div>
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                Green Bitcoin aims to create a global community of miners who can participate in the 
-                Bitcoin revolution without the traditional barriers of entry. Our platform bridges the 
-                gap between cryptocurrency enthusiasts and mining opportunities.
-              </p>
-              <div>
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Key Objectives</h3>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Democratize access to Bitcoin mining</li>
-                  <li>• Promote sustainable mining practices</li>
-                  <li>• Build a transparent, fair ecosystem</li>
-                  <li>• Foster financial inclusion globally</li>
-                  <li>• Support blockchain education and adoption</li>
-                </ul>
+            <div className="space-y-2">
+              <div className="p-2 bg-destructive/10 rounded text-sm">
+                <strong className="text-destructive">1. No Recovery:</strong>
+                <span className="text-muted-foreground ml-2">Lost credentials = lost account forever</span>
+              </div>
+              <div className="p-2 bg-warning/10 rounded text-sm">
+                <strong className="text-warning">2. 24-Hour Rule:</strong>
+                <span className="text-muted-foreground ml-2">Claim daily or mining stops</span>
+              </div>
+              <div className="p-2 bg-primary/10 rounded text-sm">
+                <strong className="text-primary">3. Fair Mining:</strong>
+                <span className="text-muted-foreground ml-2">Only purchased hash power earns rewards</span>
+              </div>
+              <div className="p-2 bg-accent/10 rounded text-sm">
+                <strong className="text-accent">4. Direct Referrals:</strong>
+                <span className="text-muted-foreground ml-2">15% USDT + 5% hash power from direct invites only</span>
+              </div>
+              <div className="p-2 bg-destructive/10 rounded text-sm">
+                <strong className="text-destructive">5. No Fake Deposits:</strong>
+                <span className="text-muted-foreground ml-2">Instant permanent ban for fraud</span>
+              </div>
+              <div className="p-2 bg-primary/10 rounded text-sm">
+                <strong className="text-primary">6. No Multi-Accounts:</strong>
+                <span className="text-muted-foreground ml-2">Multiple accounts provide zero advantage</span>
               </div>
             </div>
           </Card>
@@ -460,7 +539,7 @@ export default function Whitepaper() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1.2 }}
+          transition={{ duration: 0.5, delay: 1.3 }}
         >
           <Card className="mobile-card bg-black/50 border-primary/20">
             <div className="flex items-center mb-3">
@@ -468,26 +547,30 @@ export default function Whitepaper() {
               <h2 className="text-lg font-bold text-primary">Legal Disclaimer</h2>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              This whitepaper is for informational purposes only and does not constitute financial advice. 
-              Cryptocurrency investments carry inherent risks, and past performance does not guarantee 
-              future results. Users should conduct their own research and consult with financial advisors 
-              before making investment decisions. Green Bitcoin operates in compliance with applicable 
-              regulations and reserves the right to modify platform features and tokenomics as needed.
+              This whitepaper is for informational purposes only. Cryptocurrency investments carry 
+              inherent risks. Green Bitcoin operates on principles of fair mining through real investment. 
+              The platform does not guarantee profits and past performance does not indicate future results. 
+              Users are responsible for their investment decisions and credential management. The no-recovery 
+              policy is absolute and non-negotiable. By participating, users accept all terms and conditions 
+              including the risk of permanent loss if credentials are forgotten.
             </p>
           </Card>
         </motion.div>
 
-        {/* Contact Information */}
+        {/* Final Call to Action */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1.3 }}
+          transition={{ duration: 0.5, delay: 1.4 }}
         >
           <Card className="mobile-card bg-gradient-to-br from-orange-500/10 to-yellow-600/10 border-orange-400/30">
             <div className="text-center">
-              <h2 className="text-lg font-bold text-primary mb-3">Join the Revolution</h2>
-              <p className="text-sm text-muted-foreground mb-4">
-                Start your sustainable Bitcoin mining journey today
+              <h2 className="text-lg font-bold text-primary mb-3">Join Fair Mining Revolution</h2>
+              <p className="text-sm text-muted-foreground mb-2">
+                Success through personal investment and effort
+              </p>
+              <p className="text-xs text-warning font-semibold mb-4">
+                Remember: Write down your credentials safely!
               </p>
               <Link to="/mining">
                 <Button className="bg-gradient-to-r from-orange-500 to-yellow-600 hover:from-orange-600 hover:to-yellow-700 text-white font-bold">
@@ -496,7 +579,7 @@ export default function Whitepaper() {
               </Link>
               <div className="mt-4 text-xs text-muted-foreground">
                 <p>© 2025 Green Bitcoin (GBTC)</p>
-                <p>All Rights Reserved</p>
+                <p>Fair Mining Through Real Investment</p>
               </div>
             </div>
           </Card>

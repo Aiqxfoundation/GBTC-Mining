@@ -16,8 +16,8 @@ import {
 
 export default function AuthPage() {
   const { user, loginMutation, registerMutation } = useAuth();
-  const [loginForm, setLoginForm] = useState({ username: "", password: "" });
-  const [registerForm, setRegisterForm] = useState({ username: "", password: "", confirmPassword: "" });
+  const [loginForm, setLoginForm] = useState({ username: "", pin: "" });
+  const [registerForm, setRegisterForm] = useState({ username: "", pin: "", confirmPin: "", referrerUsername: "" });
 
   // Redirect if already logged in
   if (user) {
@@ -26,17 +26,19 @@ export default function AuthPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginForm.username && loginForm.password) {
-      loginMutation.mutate(loginForm);
+    if (loginForm.username && loginForm.pin && loginForm.pin.length === 6) {
+      loginMutation.mutate({ username: loginForm.username, password: loginForm.pin });
     }
   };
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    if (registerForm.username && registerForm.password && registerForm.password === registerForm.confirmPassword) {
+    if (registerForm.username && registerForm.pin && registerForm.pin === registerForm.confirmPin && registerForm.pin.length === 6) {
+      // @ts-ignore - referrerCode is handled on backend but not in type
       registerMutation.mutate({
         username: registerForm.username,
-        password: registerForm.password
+        password: registerForm.pin,
+        referrerCode: registerForm.referrerUsername
       });
     }
   };
@@ -105,16 +107,20 @@ export default function AuthPage() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="login-password">Password</Label>
+                      <Label htmlFor="login-pin">6-Digit PIN</Label>
                       <Input
-                        id="login-password"
+                        id="login-pin"
                         type="password"
-                        placeholder="Enter your password"
-                        value={loginForm.password}
-                        onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
+                        placeholder="Enter your 6-digit PIN"
+                        value={loginForm.pin}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                          setLoginForm(prev => ({ ...prev, pin: value }));
+                        }}
+                        maxLength={6}
                         required
-                        className="bg-background border-primary/20"
-                        data-testid="input-login-password"
+                        className="bg-background border-primary/20 text-center font-mono text-lg"
+                        data-testid="input-login-pin"
                       />
                     </div>
                     <Button 
@@ -139,52 +145,96 @@ export default function AuthPage() {
               <Card className="border-primary/20">
                 <CardHeader>
                   <CardTitle className="text-center text-gradient">Create Account</CardTitle>
+                  <p className="text-xs text-center text-muted-foreground mt-2">
+                    Fair mining based on purchased hash power only
+                  </p>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleRegister} className="space-y-4">
+                    <div className="p-3 bg-destructive/10 rounded-lg border border-destructive/20 mb-4">
+                      <div className="flex items-start space-x-2">
+                        <i className="fas fa-exclamation-triangle text-destructive mt-1"></i>
+                        <div className="text-xs">
+                          <strong className="text-destructive">⚠️ IMPORTANT SECURITY WARNING</strong>
+                          <p className="text-muted-foreground mt-1">
+                            <strong>NOT YOUR KEYS, NOT YOUR COINS!</strong><br/>
+                            If you forget your username or PIN, you will <strong>permanently lose access</strong> to your account.
+                            There is <strong>NO recovery option</strong>. Write down your credentials and keep them safe!
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                     <div>
-                      <Label htmlFor="register-username">Username</Label>
+                      <Label htmlFor="register-username">Username (This will be your referral code)</Label>
                       <Input
                         id="register-username"
                         type="text"
-                        placeholder="Choose a username"
+                        placeholder="Choose a unique username"
                         value={registerForm.username}
-                        onChange={(e) => setRegisterForm(prev => ({ ...prev, username: e.target.value }))}
+                        onChange={(e) => {
+                          const value = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20);
+                          setRegisterForm(prev => ({ ...prev, username: value }));
+                        }}
                         required
                         className="bg-background border-primary/20"
                         data-testid="input-register-username"
                       />
+                      <p className="text-xs text-muted-foreground mt-1">Only letters, numbers, and underscores allowed</p>
                     </div>
                     <div>
-                      <Label htmlFor="register-password">Password</Label>
+                      <Label htmlFor="register-pin">Create 6-Digit PIN</Label>
                       <Input
-                        id="register-password"
+                        id="register-pin"
                         type="password"
-                        placeholder="Create a password"
-                        value={registerForm.password}
-                        onChange={(e) => setRegisterForm(prev => ({ ...prev, password: e.target.value }))}
+                        placeholder="Create a 6-digit PIN"
+                        value={registerForm.pin}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                          setRegisterForm(prev => ({ ...prev, pin: value }));
+                        }}
+                        maxLength={6}
                         required
-                        className="bg-background border-primary/20"
-                        data-testid="input-register-password"
+                        className="bg-background border-primary/20 text-center font-mono text-lg"
+                        data-testid="input-register-pin"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Must be exactly 6 digits</p>
+                    </div>
+                    <div>
+                      <Label htmlFor="register-confirm-pin">Confirm 6-Digit PIN</Label>
+                      <Input
+                        id="register-confirm-pin"
+                        type="password"
+                        placeholder="Confirm your 6-digit PIN"
+                        value={registerForm.confirmPin}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                          setRegisterForm(prev => ({ ...prev, confirmPin: value }));
+                        }}
+                        maxLength={6}
+                        required
+                        className="bg-background border-primary/20 text-center font-mono text-lg"
+                        data-testid="input-register-confirm-pin"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="register-confirm">Confirm Password</Label>
+                      <Label htmlFor="register-referrer">Inviter's Username (Optional)</Label>
                       <Input
-                        id="register-confirm"
-                        type="password"
-                        placeholder="Confirm your password"
-                        value={registerForm.confirmPassword}
-                        onChange={(e) => setRegisterForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                        required
+                        id="register-referrer"
+                        type="text"
+                        placeholder="Enter your inviter's username"
+                        value={registerForm.referrerUsername}
+                        onChange={(e) => {
+                          const value = e.target.value.toLowerCase();
+                          setRegisterForm(prev => ({ ...prev, referrerUsername: value }));
+                        }}
                         className="bg-background border-primary/20"
-                        data-testid="input-register-confirm"
+                        data-testid="input-register-referrer"
                       />
                     </div>
                     <Button 
                       type="submit" 
                       className="w-full btn-primary"
-                      disabled={registerMutation.isPending || registerForm.password !== registerForm.confirmPassword}
+                      disabled={registerMutation.isPending || registerForm.pin !== registerForm.confirmPin || registerForm.pin.length !== 6}
                       data-testid="button-register"
                     >
                       {registerMutation.isPending ? (
@@ -283,25 +333,25 @@ export default function AuthPage() {
                   <AccordionContent className="text-muted-foreground">
                     <div className="space-y-3">
                       <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
-                        <strong className="text-primary">Two-Level Commission System:</strong>
-                        <p className="text-sm mt-2">When your referral purchases hash power:</p>
+                        <strong className="text-primary">Direct Miners Commission System:</strong>
+                        <p className="text-sm mt-2">When your direct miner purchases hash power:</p>
                         <ul className="list-disc list-inside text-sm space-y-1 mt-1">
-                          <li><strong>Level 1 (direct):</strong> You earn 10% USDT commission</li>
-                          <li><strong>Level 2 (indirect):</strong> You earn 5% USDT commission</li>
+                          <li><strong>USDT Commission:</strong> You earn 15% of their purchase amount</li>
+                          <li><strong>Hash Power Bonus:</strong> You receive 5% of their hash power when they're active</li>
                         </ul>
                       </div>
                       <div>
                         <strong className="text-foreground">How it works:</strong>
                         <ol className="list-decimal list-inside text-sm space-y-1 mt-1">
-                          <li>Share your unique referral link</li>
-                          <li>Friends register using your link</li>
-                          <li>When they purchase hashrate, you get commission</li>
-                          <li>Use commission to buy hashrate without depositing!</li>
+                          <li>Your username is your referral code</li>
+                          <li>Friends register using your username as inviter</li>
+                          <li>When they buy $100 hashrate, you get $15 USDT instantly</li>
+                          <li>Plus 5% of their hash power contributes to yours when active</li>
                         </ol>
                       </div>
                       <div className="p-3 bg-accent/10 rounded-lg">
                         <strong className="text-accent">Important:</strong>
-                        <p className="text-sm mt-1">You can withdraw USDT earned through referral commissions anytime!</p>
+                        <p className="text-sm mt-1">Only direct referrals count. No multi-level rewards. You can withdraw USDT commissions anytime!</p>
                       </div>
                     </div>
                   </AccordionContent>
@@ -349,9 +399,13 @@ export default function AuthPage() {
                         <strong className="text-destructive">⚠️ Fake Deposits:</strong>
                         <p className="text-sm mt-1">If you fake a deposit transaction, your account can be frozen or blocked permanently. Only real blockchain transactions are accepted.</p>
                       </div>
-                      <div>
-                        <strong className="text-foreground">Daily Claiming:</strong>
-                        <p className="text-sm mt-1">If you don't claim your mined tokens daily, your hash power becomes temporarily inactive, and you skip that block's reward. You start earning again from the next block after reactivation.</p>
+                      <div className="p-3 bg-warning/10 rounded-lg border border-warning/20">
+                        <strong className="text-warning">⚠️ 24-Hour Claiming Rule:</strong>
+                        <p className="text-sm mt-1">If you don't claim your mined blocks within 24 hours, your mining will STOP. You must claim daily to keep mining active!</p>
+                      </div>
+                      <div className="p-3 bg-primary/10 rounded-lg">
+                        <strong className="text-primary">Fair Mining Policy:</strong>
+                        <p className="text-sm mt-1">Mining depends ONLY on your purchased hash power. Multiple accounts and bots gain NO advantage. Don't waste time creating fake accounts - only real hash power investment earns rewards!</p>
                       </div>
                       <div>
                         <strong className="text-foreground">Admin Controls:</strong>
