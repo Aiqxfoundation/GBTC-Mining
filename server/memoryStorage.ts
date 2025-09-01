@@ -660,7 +660,8 @@ export class MemoryStorage implements IStorage {
     const cooldownRemaining = 259200000 - timePassed; // 72 hours in ms
     
     if (cooldownRemaining > 0) {
-      const hoursRemaining = Math.ceil(cooldownRemaining / (1000 * 60 * 60));
+      // Return precise hours remaining (with decimal) for accurate countdown
+      const hoursRemaining = cooldownRemaining / (1000 * 60 * 60);
       return { canDeposit: false, hoursRemaining };
     }
     
@@ -677,7 +678,8 @@ export class MemoryStorage implements IStorage {
     const cooldownRemaining = 259200000 - timePassed; // 72 hours in ms
     
     if (cooldownRemaining > 0) {
-      const hoursRemaining = Math.ceil(cooldownRemaining / (1000 * 60 * 60));
+      // Return precise hours remaining (with decimal) for accurate countdown
+      const hoursRemaining = cooldownRemaining / (1000 * 60 * 60);
       return { canWithdraw: false, hoursRemaining };
     }
     

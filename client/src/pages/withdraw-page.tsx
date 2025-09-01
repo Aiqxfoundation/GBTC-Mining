@@ -15,6 +15,7 @@ export default function WithdrawPage() {
   const [address, setAddress] = useState('');
   const [network, setNetwork] = useState('BSC');
   const [timeRemaining, setTimeRemaining] = useState<string>('');
+  const [cooldownEndTime, setCooldownEndTime] = useState<number | null>(null);
   
   const usdtBalance = parseFloat(user?.usdtBalance || '0');
   const withdrawFee = 1; // 1 USDT flat fee
@@ -25,36 +26,53 @@ export default function WithdrawPage() {
     queryKey: ['/api/withdrawals/cooldown'],
     queryFn: async () => {
       const res = await apiRequest('GET', '/api/withdrawals/cooldown');
-      return res.json();
+      const data = await res.json();
+      // Calculate end time for countdown
+      if (!data.canWithdraw && data.hoursRemaining > 0) {
+        const endTime = Date.now() + (data.hoursRemaining * 60 * 60 * 1000);
+        setCooldownEndTime(endTime);
+      } else {
+        setCooldownEndTime(null);
+      }
+      return data;
     },
     refetchInterval: 60000 // Refresh every minute
   });
 
-  // Update countdown timer
+  // Update countdown timer with seconds precision
   useEffect(() => {
-    if (cooldownData && !cooldownData.canWithdraw && cooldownData.hoursRemaining > 0) {
+    if (cooldownEndTime && cooldownEndTime > Date.now()) {
       const updateTimer = () => {
-        const hours = Math.floor(cooldownData.hoursRemaining);
-        const minutes = Math.floor((cooldownData.hoursRemaining % 1) * 60);
+        const remaining = cooldownEndTime - Date.now();
+        
+        if (remaining <= 0) {
+          setTimeRemaining('');
+          setCooldownEndTime(null);
+          refetchCooldown();
+          return;
+        }
+        
+        const hours = Math.floor(remaining / (1000 * 60 * 60));
+        const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
         
         if (hours > 0) {
-          setTimeRemaining(`${hours}h ${minutes}m`);
+          setTimeRemaining(`${hours}h ${minutes}m ${seconds}s`);
         } else if (minutes > 0) {
-          setTimeRemaining(`${minutes}m`);
+          setTimeRemaining(`${minutes}m ${seconds}s`);
         } else {
-          setTimeRemaining('Almost ready...');
-          refetchCooldown();
+          setTimeRemaining(`${seconds}s`);
         }
       };
       
       updateTimer();
-      const interval = setInterval(updateTimer, 60000); // Update every minute
+      const interval = setInterval(updateTimer, 1000); // Update every second
       
       return () => clearInterval(interval);
     } else {
       setTimeRemaining('');
     }
-  }, [cooldownData, refetchCooldown]);
+  }, [cooldownEndTime, refetchCooldown]);
 
   const createWithdrawalMutation = useMutation({
     mutationFn: async (data: { amount: number; address: string; network: string }) => {
@@ -131,23 +149,6 @@ export default function WithdrawPage() {
 
       {/* Main Content */}
       <div className="mobile-content">
-        {/* Cooldown Warning */}
-        {cooldownData && !cooldownData.canWithdraw && (
-          <Card className="mobile-card bg-warning/10 border-warning/30 mb-4">
-            <div className="flex items-center space-x-3">
-              <Clock className="w-5 h-5 text-warning" />
-              <div className="flex-1">
-                <p className="text-sm font-bold text-warning mb-1">Cooldown Active</p>
-                <p className="text-xs text-warning/80">
-                  You can make another withdrawal request in {timeRemaining}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Please wait for the cooldown period to end before submitting a new withdrawal.
-                </p>
-              </div>
-            </div>
-          </Card>
-        )}
         {/* Balance Overview */}
         <Card className="mobile-card bg-gradient-to-br from-accent/10 to-chart-3/10">
           <div className="grid grid-cols-2 gap-4">
@@ -262,17 +263,22 @@ export default function WithdrawPage() {
           </div>
         </Card>
 
-        {/* Submit Button */}
+        {/* Submit Button with Timer */}
         <Button
           onClick={handleWithdraw}
           disabled={createWithdrawalMutation.isPending || !amount || !address || parseFloat(amount) > maxWithdraw || (cooldownData && !cooldownData.canWithdraw)}
-          className="mobile-btn-primary text-lg"
+          className={`mobile-btn-primary text-lg ${cooldownData && !cooldownData.canWithdraw ? 'bg-muted hover:bg-muted cursor-not-allowed' : ''}`}
           data-testid="button-submit-withdrawal"
         >
           {createWithdrawalMutation.isPending ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin mr-2" />
               Processing...
+            </>
+          ) : cooldownData && !cooldownData.canWithdraw && timeRemaining ? (
+            <>
+              <Clock className="w-5 h-5 mr-2" />
+              Cooldown: {timeRemaining}
             </>
           ) : (
             <>
