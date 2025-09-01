@@ -459,23 +459,25 @@ export default function MiningFactory() {
               </div>
             </div>
 
-            {/* Mining Stats */}
+            {/* Global Hashrate Display */}
             {isMining && (
-              <div className="bg-black/50 rounded-lg p-3 space-y-2">
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-primary">NONCE:</span>
-                  <span className="text-accent">{nonce.toLocaleString()}</span>
-                </div>
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-primary">DIFFICULTY:</span>
-                  <span className="text-accent">0x{Math.floor(Math.random() * 1000000).toString(16)}</span>
-                </div>
-                <div className="w-full bg-black/50 rounded-full h-2 overflow-hidden">
-                  <motion.div 
-                    className="h-full bg-gradient-to-r from-primary to-accent"
-                    style={{ width: `${miningProgress}%` }}
-                    transition={{ duration: 0.1 }}
-                  />
+              <div className="bg-black/50 rounded-lg p-4">
+                <div className="text-center">
+                  <div className="flex items-center justify-center space-x-2 mb-2">
+                    <Activity className="w-5 h-5 text-primary animate-pulse" />
+                    <span className="text-sm font-mono text-primary uppercase">Total Global Hashrate</span>
+                    <Activity className="w-5 h-5 text-primary animate-pulse" />
+                  </div>
+                  <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
+                    {formatHashrate(globalHashrate)}
+                  </div>
+                  <div className="mt-3 w-full bg-black/50 rounded-full h-2 overflow-hidden">
+                    <motion.div 
+                      className="h-full bg-gradient-to-r from-primary to-accent"
+                      style={{ width: `${miningProgress}%` }}
+                      transition={{ duration: 0.1 }}
+                    />
+                  </div>
                 </div>
               </div>
             )}
