@@ -7,74 +7,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
-import { Loader2, Zap, TrendingUp, Calculator, Coins, Activity, Info } from "lucide-react";
+import { Loader2, Zap, TrendingUp, Calculator, Coins, Activity, Info, Users, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function PurchasePowerPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [customAmount, setCustomAmount] = useState("");
-  const [selectedTier, setSelectedTier] = useState<string | null>(null);
   
   const usdtBalance = parseFloat(user?.usdtBalance || '0');
   const currentHashrate = parseFloat(user?.hashPower || '0');
 
   // Fetch global stats for fair calculation
-  const { data: globalStats } = useQuery<{ totalHashrate: number; blockHeight: number }>({
+  const { data: globalStats } = useQuery<{ totalHashrate: number; blockHeight: number; activeMiners: number }>({
     queryKey: ["/api/global-stats"]
   });
   
   const totalNetworkHashrate = globalStats?.totalHashrate || 10000;
+  const activeMiners = globalStats?.activeMiners || 1;
   
-  // Fair pricing tiers for different investor levels
-  const pricingTiers = [
-    { 
-      name: "Starter", 
-      amount: 10, 
-      hashrate: 10,
-      color: "from-gray-500 to-gray-600",
-      icon: "⚡",
-      description: "Perfect for beginners"
-    },
-    { 
-      name: "Basic", 
-      amount: 100, 
-      hashrate: 100,
-      color: "from-orange-400 to-orange-500",
-      icon: "🔥",
-      description: "Most popular choice"
-    },
-    { 
-      name: "Pro", 
-      amount: 500, 
-      hashrate: 500,
-      color: "from-orange-500 to-orange-600",
-      icon: "💎",
-      description: "Professional miner"
-    },
-    { 
-      name: "Enterprise", 
-      amount: 1000, 
-      hashrate: 1000,
-      color: "from-orange-600 to-orange-700",
-      icon: "🚀",
-      description: "Maximum efficiency"
-    }
-  ];
-
-  // Get amount based on selection
-  const getSelectedAmount = () => {
-    if (selectedTier) {
-      const tier = pricingTiers.find(t => t.name === selectedTier);
-      return tier?.amount || 0;
-    }
-    return parseFloat(customAmount) || 0;
-  };
-
-  const selectedAmount = getSelectedAmount();
+  const selectedAmount = parseFloat(customAmount) || 0;
   
   // Hashrate display helper with proper units
   const getHashrateDisplay = (hashrate: number) => {
@@ -83,23 +37,38 @@ export default function PurchasePowerPage() {
     return `${hashrate.toFixed(2)} GH/s`;
   };
 
-  // Calculate fair mining metrics
-  const calculateMiningMetrics = (hashrate: number) => {
-    const newTotalHashrate = totalNetworkHashrate + hashrate;
-    const userShare = ((hashrate / newTotalHashrate) * 100).toFixed(4);
-    const blocksPerDay = 144; // Bitcoin standard: 144 blocks per day
-    const blockReward = 6.25; // Current GBTC block reward
-    const dailyReward = (parseFloat(userShare) / 100) * blocksPerDay * blockReward;
+  // Calculate dynamic mining metrics based on network participation
+  const calculateDynamicRewards = (userHashrate: number, totalHashrate: number) => {
+    // User's share of the network
+    const userShare = (userHashrate / totalHashrate) * 100;
+    
+    // Bitcoin-style block generation
+    const blocksPerDay = 144; // Standard: 144 blocks per day (every 10 minutes)
+    const baseBlockReward = 6.25; // Current GBTC block reward
+    
+    // Early stage bonus to encourage growth (gradually decreases as network grows)
+    const earlyAdopterMultiplier = Math.max(1, 2 - (activeMiners / 100));
+    const adjustedBlockReward = baseBlockReward * earlyAdopterMultiplier;
+    
+    // User's daily reward based on their share
+    const dailyReward = (userShare / 100) * blocksPerDay * adjustedBlockReward;
     
     return {
-      share: userShare,
+      userShare: userShare.toFixed(6),
       dailyReward: dailyReward.toFixed(8),
       hourlyReward: (dailyReward / 24).toFixed(8),
-      roi: ((dailyReward * 365 / selectedAmount) * 100).toFixed(2)
+      blockReward: adjustedBlockReward.toFixed(2),
+      earlyBonus: ((earlyAdopterMultiplier - 1) * 100).toFixed(0)
     };
   };
 
-  const metrics = calculateMiningMetrics(currentHashrate + selectedAmount);
+  // Calculate rewards for current hashrate
+  const currentRewards = calculateDynamicRewards(currentHashrate, totalNetworkHashrate);
+  
+  // Calculate rewards after purchase
+  const afterPurchaseHashrate = currentHashrate + selectedAmount;
+  const afterPurchaseTotalHashrate = totalNetworkHashrate + selectedAmount;
+  const afterPurchaseRewards = calculateDynamicRewards(afterPurchaseHashrate, afterPurchaseTotalHashrate);
 
   const purchasePowerMutation = useMutation({
     mutationFn: async (amount: number) => {
@@ -146,7 +115,7 @@ export default function PurchasePowerPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-4">
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6">
         {/* Header with Bitcoin branding */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
@@ -161,10 +130,10 @@ export default function PurchasePowerPage() {
               Hashrate Market
             </h1>
           </div>
-          <p className="text-gray-400">Fair mathematics-based hash power distribution</p>
+          <p className="text-gray-400">Pure Bitcoin-style proportional reward distribution</p>
         </motion.div>
 
-        {/* Current Stats */}
+        {/* Network Stats */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -172,14 +141,17 @@ export default function PurchasePowerPage() {
         >
           <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-orange-500/20">
             <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Activity className="w-5 h-5 text-orange-500" />
                     <p className="text-sm text-gray-400">Your Hashrate</p>
                   </div>
-                  <p className="text-3xl font-bold text-orange-500">
+                  <p className="text-2xl font-bold text-orange-500">
                     {getHashrateDisplay(currentHashrate)}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {currentRewards.userShare}% of network
                   </p>
                 </div>
                 <div className="text-center">
@@ -187,17 +159,26 @@ export default function PurchasePowerPage() {
                     <Coins className="w-5 h-5 text-green-500" />
                     <p className="text-sm text-gray-400">USDT Balance</p>
                   </div>
-                  <p className="text-3xl font-bold text-green-500">
+                  <p className="text-2xl font-bold text-green-500">
                     ${usdtBalance.toFixed(2)}
                   </p>
                 </div>
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <TrendingUp className="w-5 h-5 text-blue-500" />
-                    <p className="text-sm text-gray-400">Network Hashrate</p>
+                    <p className="text-sm text-gray-400">Network Hash</p>
                   </div>
-                  <p className="text-3xl font-bold text-blue-500">
+                  <p className="text-2xl font-bold text-blue-500">
                     {getHashrateDisplay(totalNetworkHashrate)}
+                  </p>
+                </div>
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Users className="w-5 h-5 text-purple-500" />
+                    <p className="text-sm text-gray-400">Active Miners</p>
+                  </div>
+                  <p className="text-2xl font-bold text-purple-500">
+                    {activeMiners}
                   </p>
                 </div>
               </div>
@@ -205,7 +186,7 @@ export default function PurchasePowerPage() {
           </Card>
         </motion.div>
 
-        {/* Pricing Options */}
+        {/* Purchase Input */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -213,183 +194,156 @@ export default function PurchasePowerPage() {
         >
           <Card className="bg-gray-900 border-gray-800">
             <CardHeader>
-              <CardTitle className="text-2xl text-orange-500">Select Investment Plan</CardTitle>
+              <CardTitle className="text-2xl text-orange-500">Purchase Hashrate</CardTitle>
               <CardDescription className="text-gray-400">
-                1 USDT = 1 GH/s - Fair pricing for all investors
+                1 USDT = 1 GH/s - Fair pricing for everyone
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="tiers" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 bg-gray-800">
-                  <TabsTrigger value="tiers" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
-                    Investment Tiers
-                  </TabsTrigger>
-                  <TabsTrigger value="custom" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
-                    Custom Amount
-                  </TabsTrigger>
-                </TabsList>
+              <div className="space-y-6">
+                {/* Input Section */}
+                <div>
+                  <label className="text-sm text-gray-400 mb-2 block">Enter Investment Amount (USDT)</label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      value={customAmount}
+                      onChange={(e) => setCustomAmount(e.target.value)}
+                      placeholder="Enter amount..."
+                      className="bg-gray-800 border-gray-700 text-white text-lg"
+                      min={1}
+                      max={Math.floor(usdtBalance)}
+                      data-testid="input-custom-amount"
+                    />
+                    <Button 
+                      variant="outline" 
+                      className="border-orange-500 text-orange-500 hover:bg-orange-500/10"
+                      onClick={() => setCustomAmount(Math.floor(usdtBalance).toString())}
+                    >
+                      Max
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Available: ${usdtBalance.toFixed(2)} USDT • Min: 1 USDT • Max: Unlimited
+                  </p>
+                </div>
 
-                <TabsContent value="tiers" className="mt-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {pricingTiers.map((tier) => (
-                      <motion.div
-                        key={tier.name}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Card 
-                          className={`cursor-pointer transition-all ${
-                            selectedTier === tier.name 
-                              ? 'ring-2 ring-orange-500 bg-gradient-to-br from-orange-900/20 to-orange-800/20' 
-                              : 'bg-gray-800 hover:bg-gray-700'
-                          }`}
-                          onClick={() => {
-                            setSelectedTier(tier.name);
-                            setCustomAmount("");
-                          }}
-                        >
-                          <CardContent className="p-4">
-                            <div className="text-center space-y-3">
-                              <div className="text-4xl">{tier.icon}</div>
-                              <h3 className="font-bold text-lg text-white">{tier.name}</h3>
-                              <p className="text-xs text-gray-400">{tier.description}</p>
-                              <div className="space-y-1">
-                                <p className="text-2xl font-bold text-orange-500">${tier.amount}</p>
-                                <p className="text-sm text-gray-400">{tier.hashrate} GH/s</p>
+                {/* Dynamic Reward Calculation */}
+                {selectedAmount > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                  >
+                    <Card className="bg-gradient-to-br from-orange-900/20 to-orange-800/20 border-orange-500/30">
+                      <CardHeader>
+                        <CardTitle className="text-lg text-orange-500 flex items-center gap-2">
+                          <Calculator className="w-5 h-5" />
+                          Mining Calculation (Dynamic)
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          {/* Purchase Summary */}
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-sm text-gray-400">You Pay</p>
+                              <p className="text-xl font-bold text-white">${selectedAmount} USDT</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-400">You Get</p>
+                              <p className="text-xl font-bold text-orange-500">{getHashrateDisplay(selectedAmount)}</p>
+                            </div>
+                          </div>
+
+                          <div className="h-px bg-gray-700"></div>
+
+                          {/* After Purchase Stats */}
+                          <div>
+                            <p className="text-sm font-semibold text-gray-300 mb-2">After Purchase:</p>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <p className="text-xs text-gray-400">Your Total Hashrate</p>
+                                <p className="text-lg font-semibold text-white">
+                                  {getHashrateDisplay(afterPurchaseHashrate)}
+                                </p>
                               </div>
-                              {selectedTier === tier.name && (
-                                <Badge className="bg-orange-500 text-white">Selected</Badge>
+                              <div>
+                                <p className="text-xs text-gray-400">Your Network Share</p>
+                                <p className="text-lg font-semibold text-green-500">
+                                  {afterPurchaseRewards.userShare}%
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="h-px bg-gray-700"></div>
+
+                          {/* Dynamic Rewards */}
+                          <div>
+                            <p className="text-sm font-semibold text-gray-300 mb-2">Estimated Rewards (Dynamic):</p>
+                            <div className="space-y-2">
+                              <div className="flex justify-between">
+                                <span className="text-sm text-gray-400">Daily GBTC</span>
+                                <span className="text-sm font-semibold text-green-500">
+                                  ~{afterPurchaseRewards.dailyReward} GBTC
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-sm text-gray-400">Hourly GBTC</span>
+                                <span className="text-sm font-semibold text-green-500">
+                                  ~{afterPurchaseRewards.hourlyReward} GBTC
+                                </span>
+                              </div>
+                              {parseFloat(afterPurchaseRewards.earlyBonus) > 0 && (
+                                <div className="flex justify-between">
+                                  <span className="text-sm text-gray-400">Early Adopter Bonus</span>
+                                  <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/30">
+                                    +{afterPurchaseRewards.earlyBonus}%
+                                  </Badge>
+                                </div>
                               )}
                             </div>
-                          </CardContent>
-                        </Card>
-                      </motion.div>
-                    ))}
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="custom" className="mt-6">
-                  <Card className="bg-gray-800">
-                    <CardContent className="p-6">
-                      <div className="space-y-4">
-                        <div>
-                          <label className="text-sm text-gray-400 mb-2 block">Enter USDT Amount</label>
-                          <div className="flex gap-2">
-                            <Input
-                              type="number"
-                              value={customAmount}
-                              onChange={(e) => {
-                                setCustomAmount(e.target.value);
-                                setSelectedTier(null);
-                              }}
-                              placeholder="Enter amount..."
-                              className="bg-gray-700 border-gray-600 text-white text-lg"
-                              min={1}
-                              max={Math.floor(usdtBalance)}
-                              data-testid="input-custom-amount"
-                            />
-                            <Button 
-                              variant="outline" 
-                              className="border-orange-500 text-orange-500"
-                              onClick={() => {
-                                setCustomAmount(Math.floor(usdtBalance).toString());
-                                setSelectedTier(null);
-                              }}
-                            >
-                              Max
-                            </Button>
                           </div>
-                          <p className="text-xs text-gray-500 mt-2">
-                            Available: ${usdtBalance.toFixed(2)} USDT
-                          </p>
                         </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                )}
+
+                {/* Dynamic Distribution Warning */}
+                <Card className="bg-yellow-900/10 border-yellow-500/30">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-yellow-500 mt-0.5" />
+                      <div className="text-sm text-gray-300 space-y-1">
+                        <p className="font-semibold text-yellow-500">Dynamic Reward System</p>
+                        <p>• Rewards decrease as more miners join (like real Bitcoin)</p>
+                        <p>• Your share = Your Hashrate ÷ Total Network Hashrate</p>
+                        <p>• Early miners get bonus rewards while network grows</p>
+                        <p>• All miners share 900 GBTC daily (144 blocks × 6.25 GBTC)</p>
                       </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </Tabs>
-
-              {/* Mathematical Calculations Display */}
-              {selectedAmount > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  className="mt-6"
-                >
-                  <Card className="bg-gradient-to-br from-orange-900/20 to-orange-800/20 border-orange-500/30">
-                    <CardHeader>
-                      <CardTitle className="text-lg text-orange-500 flex items-center gap-2">
-                        <Calculator className="w-5 h-5" />
-                        Investment Analysis
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-sm text-gray-400">Investment</p>
-                            <p className="text-xl font-bold text-white">${selectedAmount} USDT</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-400">Hashrate</p>
-                            <p className="text-xl font-bold text-orange-500">{getHashrateDisplay(selectedAmount)}</p>
-                          </div>
-                        </div>
-
-                        <div className="h-px bg-gray-700"></div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-sm text-gray-400">New Total Hashrate</p>
-                            <p className="text-lg font-semibold text-white">
-                              {getHashrateDisplay(currentHashrate + selectedAmount)}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-400">Mining Pool Share</p>
-                            <p className="text-lg font-semibold text-green-500">{metrics.share}%</p>
-                          </div>
-                        </div>
-
-                        <div className="h-px bg-gray-700"></div>
-
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-sm text-gray-400">Estimated Daily Rewards</span>
-                            <span className="text-sm font-semibold text-green-500">~{metrics.dailyReward} GBTC</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm text-gray-400">Estimated Hourly Rewards</span>
-                            <span className="text-sm font-semibold text-green-500">~{metrics.hourlyReward} GBTC</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm text-gray-400">Annual ROI</span>
-                            <span className="text-sm font-semibold text-orange-500">~{metrics.roi}%</span>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              )}
-
-              {/* Fair Distribution Info */}
-              <Card className="mt-6 bg-gray-800 border-gray-700">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <Info className="w-5 h-5 text-orange-500 mt-0.5" />
-                    <div className="text-sm text-gray-400 space-y-1">
-                      <p>• Fair distribution: Rewards proportional to hashrate contribution</p>
-                      <p>• No hidden fees: 1 USDT = 1 GH/s for all investors</p>
-                      <p>• Instant activation: Mining starts immediately after purchase</p>
-                      <p>• Transparent system: All miners share rewards based on mathematics</p>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
-              {/* Purchase Button */}
-              <div className="mt-6">
+                {/* How It Works */}
+                <Card className="bg-gray-800 border-gray-700">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <Info className="w-5 h-5 text-orange-500 mt-0.5" />
+                      <div className="text-sm text-gray-400 space-y-1">
+                        <p className="font-semibold text-orange-500 mb-2">Pure Mining System:</p>
+                        <p>• Every 10 minutes a new block is mined (144 blocks/day)</p>
+                        <p>• Block rewards distributed proportionally to all active miners</p>
+                        <p>• More miners = same rewards shared among more people</p>
+                        <p>• Your earnings = Your percentage of total network hash</p>
+                        <p>• No fixed returns - purely based on network participation</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Purchase Button */}
                 <Button
                   onClick={handlePurchase}
                   disabled={purchasePowerMutation.isPending || selectedAmount > usdtBalance || selectedAmount < 1}
@@ -404,13 +358,15 @@ export default function PurchasePowerPage() {
                   ) : (
                     <>
                       <Zap className="w-5 h-5 mr-2" />
-                      Purchase {selectedAmount > 0 ? getHashrateDisplay(selectedAmount) : 'Hashrate'}
+                      {selectedAmount > 0 
+                        ? `Purchase ${getHashrateDisplay(selectedAmount)}` 
+                        : 'Enter Amount to Purchase'}
                     </>
                   )}
                 </Button>
 
                 {selectedAmount > usdtBalance && (
-                  <p className="text-sm text-red-500 text-center mt-2">
+                  <p className="text-sm text-red-500 text-center">
                     Insufficient balance. You need ${(selectedAmount - usdtBalance).toFixed(2)} more USDT.
                   </p>
                 )}
@@ -418,6 +374,33 @@ export default function PurchasePowerPage() {
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Current Earnings Display */}
+        {currentHashrate > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <Card className="bg-gray-900 border-gray-800">
+              <CardHeader>
+                <CardTitle className="text-lg text-gray-300">Your Current Mining Status</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-gray-400">Network Share</p>
+                    <p className="text-lg font-semibold text-orange-500">{currentRewards.userShare}%</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Daily Earnings</p>
+                    <p className="text-lg font-semibold text-green-500">~{currentRewards.dailyReward} GBTC</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
       </div>
     </div>
   );
