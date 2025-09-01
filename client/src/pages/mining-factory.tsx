@@ -19,6 +19,7 @@ export default function MiningFactory() {
   const [blockAnimations, setBlockAnimations] = useState<number[]>([]);
   const [showNewBlock, setShowNewBlock] = useState(false);
   const [nonce, setNonce] = useState(0);
+  const [isBlockForm, setIsBlockForm] = useState(false);
 
   const hashPower = parseFloat(user?.hashPower || '0');
   const gbtcBalance = parseFloat(user?.gbtcBalance || '0');
@@ -58,6 +59,20 @@ export default function MiningFactory() {
       setIsMining(false);
     }
   }, [hashPower]);
+
+  // Transform to block form every 3-4 seconds
+  useEffect(() => {
+    if (!isMining) return;
+    
+    const interval = setInterval(() => {
+      setIsBlockForm(true);
+      setTimeout(() => {
+        setIsBlockForm(false);
+      }, 1000); // Show block form for 1 second
+    }, 4000); // Transform every 4 seconds
+    
+    return () => clearInterval(interval);
+  }, [isMining]);
 
   // Mining progress animation
   useEffect(() => {
@@ -293,36 +308,69 @@ export default function MiningFactory() {
                     </svg>
                   </motion.div>
 
-                  {/* Energy core center */}
+                  {/* Energy core center - transforms to block */}
                   <motion.div
                     className="absolute w-20 h-20"
-                    animate={isMining ? {
+                    animate={isBlockForm ? {
+                      rotate: [0, 90, 180, 270, 360],
+                      scale: [1, 0.8, 1],
+                      borderRadius: ["50%", "20%", "10%", "20%", "50%"],
+                    } : isMining ? {
                       scale: [1, 1.2, 1],
                     } : {}}
-                    transition={{
+                    transition={isBlockForm ? {
+                      duration: 1,
+                      ease: "easeInOut",
+                    } : {
                       duration: 2,
                       repeat: Infinity,
                       ease: "easeInOut",
                     }}
                   >
-                    <div className={`w-full h-full rounded-full relative ${isMining ? 'bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-600' : 'bg-gray-800'}`}>
+                    <motion.div 
+                      className={`w-full h-full relative ${isMining ? 'bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-600' : 'bg-gray-800'}`}
+                      animate={{
+                        borderRadius: isBlockForm ? "10%" : "50%",
+                      }}
+                      transition={{
+                        duration: 0.5,
+                      }}
+                    >
                       {/* Inner core */}
-                      <motion.div
-                        className="absolute inset-2 rounded-full bg-gradient-to-br from-white via-yellow-200 to-orange-300"
-                        animate={isMining ? {
-                          opacity: [0.6, 1, 0.6],
-                        } : {}}
-                        transition={{
-                          duration: 1,
-                          repeat: Infinity,
-                        }}
-                      />
+                      {!isBlockForm && (
+                        <motion.div
+                          className="absolute inset-2 rounded-full bg-gradient-to-br from-white via-yellow-200 to-orange-300"
+                          animate={isMining ? {
+                            opacity: [0.6, 1, 0.6],
+                          } : {}}
+                          transition={{
+                            duration: 1,
+                            repeat: Infinity,
+                          }}
+                        />
+                      )}
+                      
+                      {/* Digital block pattern when transformed */}
+                      {isBlockForm && (
+                        <div className="absolute inset-0 overflow-hidden rounded-sm">
+                          <div className="absolute inset-0 bg-gradient-to-br from-orange-600 to-yellow-600">
+                            <div className="absolute inset-0 opacity-30">
+                              {[...Array(4)].map((_, i) => (
+                                <div key={i} className={`absolute w-full h-0.5 bg-orange-800`} style={{ top: `${25 * (i + 1)}%` }} />
+                              ))}
+                              {[...Array(4)].map((_, i) => (
+                                <div key={i} className={`absolute h-full w-0.5 bg-orange-800`} style={{ left: `${25 * (i + 1)}%` }} />
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                       
                       {/* Bitcoin symbol */}
                       <div className="absolute inset-0 flex items-center justify-center">
                         <span className="text-2xl font-bold text-orange-900">₿</span>
                       </div>
-                    </div>
+                    </motion.div>
 
                     {/* Pulsing glow */}
                     {isMining && (
@@ -344,7 +392,7 @@ export default function MiningFactory() {
                   </motion.div>
 
                   {/* Energy rings */}
-                  {isMining && (
+                  {isMining && !isBlockForm && (
                     <>
                       {[0, 1, 2].map((ring) => (
                         <motion.div
@@ -371,7 +419,7 @@ export default function MiningFactory() {
                   )}
 
                   {/* Digital block particles */}
-                  {isMining && (
+                  {isMining && !isBlockForm && (
                     <>
                       {[...Array(8)].map((_, index) => {
                         const angle = (index * 45) * Math.PI / 180;
@@ -405,7 +453,7 @@ export default function MiningFactory() {
                   )}
 
                   {/* Lightning bolts */}
-                  {isMining && (
+                  {isMining && !isBlockForm && (
                     <>
                       {[0, 1, 2, 3].map((bolt) => (
                         <motion.div
@@ -462,8 +510,8 @@ export default function MiningFactory() {
                             transform: `translateX(${60}px) translateY(-8px) rotate(${index * 90}deg)`,
                           }}
                           animate={{
-                            scale: [1, 1.2, 1],
-                            opacity: [0.5, 1, 0.5],
+                            scale: isBlockForm ? [0, 0, 0] : [1, 1.2, 1],
+                            opacity: isBlockForm ? 0 : [0.5, 1, 0.5],
                           }}
                           transition={{
                             duration: 2,
@@ -471,9 +519,7 @@ export default function MiningFactory() {
                             delay: index * 0.5,
                           }}
                         >
-                          <div className="w-5 h-5 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-sm shadow-xl flex items-center justify-center">
-                            <span className="text-xs font-bold text-white">₿</span>
-                          </div>
+                          <div className="w-5 h-5 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-sm shadow-xl" />
                         </motion.div>
                       ))}
                     </motion.div>
