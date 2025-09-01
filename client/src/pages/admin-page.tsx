@@ -1,16 +1,35 @@
+import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Copy, Check } from "lucide-react";
 import { Link } from "wouter";
 import bitcoinLogo from "@assets/file_00000000221c61fab63936953b889556_1756633909848.png";
 
 export default function AdminPage() {
   const { user, logoutMutation } = useAuth();
   const { toast } = useToast();
+  const [copiedHash, setCopiedHash] = useState<string | null>(null);
+  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'deposits' | 'withdrawals'>('deposits');
+  
+  const handleCopyHash = (hash: string, depositId: string) => {
+    navigator.clipboard.writeText(hash);
+    setCopiedHash(depositId);
+    setTimeout(() => setCopiedHash(null), 2000);
+    toast({ title: "Copied!", description: "Transaction hash copied to clipboard" });
+  };
+  
+  const handleCopyAddress = (address: string, withdrawalId: string) => {
+    navigator.clipboard.writeText(address);
+    setCopiedAddress(withdrawalId);
+    setTimeout(() => setCopiedAddress(null), 2000);
+    toast({ title: "Copied!", description: "Withdrawal address copied to clipboard" });
+  };
 
   const { data: pendingDeposits, isLoading: depositsLoading } = useQuery({
     queryKey: ["/api/deposits/pending"],
@@ -41,6 +60,7 @@ export default function AdminPage() {
       toast({ title: "Deposit approved", description: "The deposit has been approved successfully." });
       queryClient.invalidateQueries({ queryKey: ["/api/deposits/pending"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] }); // Refresh user data
     },
     onError: (error: Error) => {
       toast({ title: "Approval failed", description: error.message, variant: "destructive" });
@@ -106,6 +126,7 @@ export default function AdminPage() {
       toast({ title: "Withdrawal approved", description: "The withdrawal has been processed successfully." });
       queryClient.invalidateQueries({ queryKey: ["/api/withdrawals/pending"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] }); // Refresh user data
     },
     onError: (error: Error) => {
       toast({ title: "Approval failed", description: error.message, variant: "destructive" });
@@ -275,17 +296,60 @@ export default function AdminPage() {
           </Card>
         </div>
         
+        {/* Tab Navigation */}
+        <div className="flex space-x-2 mb-6">
+          <Button
+            onClick={() => setActiveTab('deposits')}
+            variant={activeTab === 'deposits' ? 'default' : 'outline'}
+            className="flex-1 lg:flex-none"
+            data-testid="tab-deposits"
+          >
+            <i className="fas fa-arrow-down mr-2"></i>
+            Deposits
+            {pendingDeposits && pendingDeposits.length > 0 && (
+              <span className="ml-2 px-2 py-0.5 bg-accent/20 text-accent rounded-full text-xs">
+                {pendingDeposits.length}
+              </span>
+            )}
+          </Button>
+          <Button
+            onClick={() => setActiveTab('withdrawals')}
+            variant={activeTab === 'withdrawals' ? 'default' : 'outline'}
+            className="flex-1 lg:flex-none"
+            data-testid="tab-withdrawals"
+          >
+            <i className="fas fa-arrow-up mr-2"></i>
+            Withdrawals
+            {pendingWithdrawals && pendingWithdrawals.length > 0 && (
+              <span className="ml-2 px-2 py-0.5 bg-destructive/20 text-destructive rounded-full text-xs">
+                {pendingWithdrawals.length}
+              </span>
+            )}
+          </Button>
+        </div>
+        
         <div className="grid lg:grid-cols-2 gap-8 mb-8">
-          {/* Pending Deposits */}
-          <Card>
+          {/* Deposits/Withdrawals Section */}
+          <Card className="lg:col-span-1">
             <CardHeader>
               <CardTitle className="flex items-center">
-                <i className="fas fa-clock text-accent mr-3"></i>
-                Pending Deposits
+                {activeTab === 'deposits' ? (
+                  <>
+                    <i className="fas fa-arrow-down text-accent mr-3"></i>
+                    Pending Deposits
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-arrow-up text-destructive mr-3"></i>
+                    Pending Withdrawals
+                  </>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {depositsLoading ? (
+              {activeTab === 'deposits' ? (
+                // Deposits Section
+                depositsLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-8 w-8 animate-spin" />
                 </div>
@@ -298,9 +362,6 @@ export default function AdminPage() {
                           <p className="font-semibold" data-testid={`text-deposit-user-${deposit.id}`}>
                             {deposit.user.username}
                           </p>
-                          <p className="text-sm text-muted-foreground code-font break-all" data-testid={`text-deposit-hash-${deposit.id}`}>
-                            {deposit.txHash}
-                          </p>
                           <p className="text-xs text-muted-foreground mt-1">
                             Network: {deposit.network}
                           </p>
@@ -309,11 +370,37 @@ export default function AdminPage() {
                           Pending
                         </span>
                       </div>
-                      <div className="flex justify-between items-center mb-4">
+                      <div className="flex justify-between items-center mb-3">
                         <span className="text-muted-foreground">Amount:</span>
                         <span className="font-semibold" data-testid={`text-deposit-amount-${deposit.id}`}>
                           ${parseFloat(deposit.amount).toFixed(2)}
                         </span>
+                      </div>
+                      
+                      {/* Copyable Transaction Hash */}
+                      <div className="mb-4">
+                        <p className="text-xs text-muted-foreground mb-1">Transaction Hash:</p>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={deposit.txHash}
+                            readOnly
+                            className="flex-1 text-xs font-mono"
+                            data-testid={`input-deposit-hash-${deposit.id}`}
+                          />
+                          <Button
+                            onClick={() => handleCopyHash(deposit.txHash, deposit.id)}
+                            size="sm"
+                            variant="outline"
+                            className="px-3"
+                            data-testid={`button-copy-hash-${deposit.id}`}
+                          >
+                            {copiedHash === deposit.id ? (
+                              <Check className="w-4 h-4 text-green-500" />
+                            ) : (
+                              <Copy className="w-4 h-4" />
+                            )}
+                          </Button>
+                        </div>
                       </div>
                       <div className="space-y-2">
                         <div className="flex gap-2">
@@ -368,6 +455,128 @@ export default function AdminPage() {
                   <i className="fas fa-inbox text-4xl mb-4"></i>
                   <p>No pending deposits</p>
                 </div>
+              )
+              ) : (
+                // Withdrawals Section
+                withdrawalsLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                  </div>
+                ) : pendingWithdrawals && pendingWithdrawals.length > 0 ? (
+                  <div className="space-y-4">
+                    {pendingWithdrawals.map((withdrawal: any) => (
+                      <div key={withdrawal.id} className="bg-background p-4 rounded-lg border border-border">
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="font-semibold" data-testid={`text-withdrawal-user-${withdrawal.id}`}>
+                                {withdrawal.user?.username}
+                              </p>
+                              <span className="bg-destructive/20 text-destructive px-2 py-0.5 rounded text-xs font-medium">
+                                {withdrawal.network === 'GBTC' ? 'GBTC' : 'USDT'}
+                              </span>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              Network: {withdrawal.network}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center mb-4">
+                          <span className="text-muted-foreground">Amount:</span>
+                          <span className="font-semibold text-lg" data-testid={`text-withdrawal-amount-${withdrawal.id}`}>
+                            {parseFloat(withdrawal.amount).toFixed(
+                              withdrawal.network === 'GBTC' ? 8 : 2
+                            )} {withdrawal.network === 'GBTC' ? 'GBTC' : 'USDT'}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 mb-3 text-xs">
+                          <span className="text-muted-foreground">Available Balance:</span>
+                          <span className="font-mono">
+                            {withdrawal.network === 'GBTC' 
+                              ? `${parseFloat(withdrawal.user?.gbtcBalance || '0').toFixed(8)} GBTC`
+                              : `${parseFloat(withdrawal.user?.usdtBalance || '0').toFixed(2)} USDT`}
+                          </span>
+                        </div>
+                        
+                        {/* Copyable Withdrawal Address */}
+                        <div className="mb-4">
+                          <p className="text-xs text-muted-foreground mb-1">Withdrawal Address:</p>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              value={withdrawal.address}
+                              readOnly
+                              className="flex-1 text-xs font-mono"
+                              data-testid={`input-withdrawal-address-${withdrawal.id}`}
+                            />
+                            <Button
+                              onClick={() => handleCopyAddress(withdrawal.address, withdrawal.id)}
+                              size="sm"
+                              variant="outline"
+                              className="px-3"
+                              data-testid={`button-copy-address-${withdrawal.id}`}
+                            >
+                              {copiedAddress === withdrawal.id ? (
+                                <Check className="w-4 h-4 text-green-500" />
+                              ) : (
+                                <Copy className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex gap-2">
+                            <Button 
+                              onClick={() => approveWithdrawalMutation.mutate({ id: withdrawal.id })}
+                              className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                              disabled={approveWithdrawalMutation.isPending}
+                              data-testid={`button-approve-withdrawal-${withdrawal.id}`}
+                            >
+                              {approveWithdrawalMutation.isPending ? (
+                                <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                              ) : (
+                                <i className="fas fa-check mr-1"></i>
+                              )}
+                              Approve
+                            </Button>
+                            <Button 
+                              onClick={() => rejectWithdrawalMutation.mutate(withdrawal.id)}
+                              variant="destructive"
+                              className="flex-1"
+                              disabled={rejectWithdrawalMutation.isPending}
+                              data-testid={`button-reject-withdrawal-${withdrawal.id}`}
+                            >
+                              {rejectWithdrawalMutation.isPending ? (
+                                <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                              ) : (
+                                <i className="fas fa-times mr-1"></i>
+                              )}
+                              Reject
+                            </Button>
+                          </div>
+                          <Button 
+                            onClick={() => freezeUserMutation.mutate(withdrawal.userId)}
+                            variant="outline"
+                            className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                            disabled={freezeUserMutation.isPending}
+                            data-testid={`button-freeze-withdrawal-${withdrawal.id}`}
+                          >
+                            {freezeUserMutation.isPending ? (
+                              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                            ) : (
+                              <i className="fas fa-ban mr-2"></i>
+                            )}
+                            Freeze User (Suspicious Activity)
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <i className="fas fa-inbox text-4xl mb-4"></i>
+                    <p>No pending withdrawals</p>
+                  </div>
+                )
               )}
             </CardContent>
           </Card>
@@ -445,113 +654,6 @@ export default function AdminPage() {
           </Card>
         </div>
 
-        {/* Pending Withdrawals Section */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <i className="fas fa-money-bill-transfer text-destructive mr-3"></i>
-              Pending Withdrawals
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {withdrawalsLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin" />
-              </div>
-            ) : pendingWithdrawals && pendingWithdrawals.length > 0 ? (
-              <div className="grid lg:grid-cols-2 gap-4">
-                {pendingWithdrawals.map((withdrawal: any) => (
-                  <div key={withdrawal.id} className="bg-background p-4 rounded-lg border border-border">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="font-semibold" data-testid={`text-withdrawal-user-${withdrawal.id}`}>
-                            {withdrawal.user?.username}
-                          </p>
-                          <span className="bg-destructive/20 text-destructive px-2 py-0.5 rounded text-xs font-medium">
-                            {withdrawal.network === 'GBTC' ? 'GBTC' : 'USDT'}
-                          </span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Network: {withdrawal.network}
-                        </p>
-                        <p className="text-xs text-muted-foreground code-font break-all mt-1">
-                          Address: {withdrawal.address}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="text-muted-foreground">Amount:</span>
-                      <span className="font-semibold text-lg" data-testid={`text-withdrawal-amount-${withdrawal.id}`}>
-                        {parseFloat(withdrawal.amount).toFixed(
-                          withdrawal.network === 'GBTC' ? 8 : 2
-                        )} {withdrawal.network === 'GBTC' ? 'GBTC' : 'USDT'}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 mb-2 text-xs">
-                      <span className="text-muted-foreground">Available Balance:</span>
-                      <span className="font-mono">
-                        {withdrawal.network === 'GBTC' 
-                          ? `${parseFloat(withdrawal.user?.gbtcBalance || '0').toFixed(8)} GBTC`
-                          : `${parseFloat(withdrawal.user?.usdtBalance || '0').toFixed(2)} USDT`}
-                      </span>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex gap-2">
-                        <Button 
-                          onClick={() => approveWithdrawalMutation.mutate({ id: withdrawal.id })}
-                          className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
-                          disabled={approveWithdrawalMutation.isPending}
-                          data-testid={`button-approve-withdrawal-${withdrawal.id}`}
-                        >
-                          {approveWithdrawalMutation.isPending ? (
-                            <Loader2 className="w-4 h-4 animate-spin mr-1" />
-                          ) : (
-                            <i className="fas fa-check mr-1"></i>
-                          )}
-                          Approve
-                        </Button>
-                        <Button 
-                          onClick={() => rejectWithdrawalMutation.mutate(withdrawal.id)}
-                          variant="destructive"
-                          className="flex-1"
-                          disabled={rejectWithdrawalMutation.isPending}
-                          data-testid={`button-reject-withdrawal-${withdrawal.id}`}
-                        >
-                          {rejectWithdrawalMutation.isPending ? (
-                            <Loader2 className="w-4 h-4 animate-spin mr-1" />
-                          ) : (
-                            <i className="fas fa-times mr-1"></i>
-                          )}
-                          Reject
-                        </Button>
-                      </div>
-                      <Button 
-                        onClick={() => freezeUserMutation.mutate(withdrawal.userId)}
-                        variant="outline"
-                        className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                        disabled={freezeUserMutation.isPending}
-                        data-testid={`button-freeze-withdrawal-${withdrawal.id}`}
-                      >
-                        {freezeUserMutation.isPending ? (
-                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                        ) : (
-                          <i className="fas fa-ban mr-2"></i>
-                        )}
-                        Freeze User
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <i className="fas fa-inbox text-4xl mb-4"></i>
-                <p>No pending withdrawals</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
