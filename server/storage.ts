@@ -501,4 +501,50 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+import { MemoryStorage } from "./memoryStorage";
+
+// Try to create database storage, fall back to memory if database is unavailable
+let storage: IStorage;
+let isUsingMemoryStorage = false;
+
+async function testDatabaseConnection(): Promise<boolean> {
+  try {
+    const testStorage = new DatabaseStorage();
+    // Try a simple query to test if database is accessible
+    await testStorage.getSystemSetting("test");
+    return true;
+  } catch (error: any) {
+    if (error?.message?.includes('endpoint has been disabled') || error?.code === 'XX000') {
+      return false;
+    }
+    // For other errors, we might still want to try database
+    return true;
+  }
+}
+
+// Initialize storage with fallback
+async function initializeStorage() {
+  const dbAvailable = await testDatabaseConnection();
+  
+  if (dbAvailable) {
+    console.log('Using PostgreSQL database storage');
+    storage = new DatabaseStorage();
+    isUsingMemoryStorage = false;
+  } else {
+    console.log('Database unavailable - using in-memory storage (data will be lost on restart)');
+    console.log('Note: Default admin account created - username: admin, PIN: 123456');
+    storage = new MemoryStorage();
+    isUsingMemoryStorage = true;
+  }
+}
+
+// Initialize immediately with memory storage, then try to switch to database
+storage = new MemoryStorage();
+isUsingMemoryStorage = true;
+
+// Try to switch to database storage in the background
+initializeStorage().catch(err => {
+  console.log('Storage initialization warning:', err.message);
+});
+
+export { storage, isUsingMemoryStorage };
