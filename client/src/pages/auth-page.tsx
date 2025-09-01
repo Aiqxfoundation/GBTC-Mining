@@ -34,11 +34,9 @@ export default function AuthPage() {
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     if (registerForm.username && registerForm.pin && registerForm.pin === registerForm.confirmPin && registerForm.pin.length === 6) {
-      // @ts-ignore - referrerCode is handled on backend but not in type
       registerMutation.mutate({
         username: registerForm.username,
-        password: registerForm.pin,
-        referrerCode: registerForm.referrerUsername
+        password: registerForm.pin
       });
     }
   };
