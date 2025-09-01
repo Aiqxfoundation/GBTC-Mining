@@ -151,19 +151,11 @@ export default function WithdrawPage() {
       <div className="mobile-content">
         {/* Balance Overview */}
         <Card className="mobile-card bg-gradient-to-br from-accent/10 to-chart-3/10">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-xs text-muted-foreground font-mono mb-1">USDT BALANCE</p>
-              <p className="text-2xl font-display font-black text-accent">
-                ${usdtBalance.toFixed(2)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground font-mono mb-1">MAX WITHDRAW</p>
-              <p className="text-2xl font-display font-black text-chart-3">
-                ${maxWithdraw.toFixed(2)}
-              </p>
-            </div>
+          <div>
+            <p className="text-xs text-muted-foreground font-mono mb-1">USDT BALANCE</p>
+            <p className="text-3xl font-display font-black text-accent">
+              ${usdtBalance.toFixed(2)}
+            </p>
           </div>
         </Card>
 
@@ -267,7 +259,7 @@ export default function WithdrawPage() {
         <Button
           onClick={handleWithdraw}
           disabled={createWithdrawalMutation.isPending || !amount || !address || parseFloat(amount) > maxWithdraw || (cooldownData && !cooldownData.canWithdraw)}
-          className={`mobile-btn-primary text-lg ${cooldownData && !cooldownData.canWithdraw ? 'bg-muted hover:bg-muted cursor-not-allowed' : ''}`}
+          className={`mobile-btn-primary text-lg ${cooldownData && !cooldownData.canWithdraw ? 'bg-orange-900/50 hover:bg-orange-900/50 border-orange-500/30 cursor-not-allowed' : ''}`}
           data-testid="button-submit-withdrawal"
         >
           {createWithdrawalMutation.isPending ? (
@@ -277,8 +269,8 @@ export default function WithdrawPage() {
             </>
           ) : cooldownData && !cooldownData.canWithdraw && timeRemaining ? (
             <>
-              <Clock className="w-5 h-5 mr-2" />
-              Cooldown: {timeRemaining}
+              <Clock className="w-5 h-5 mr-2 text-orange-500" />
+              <span className="text-orange-500 font-semibold">Cooldown: {timeRemaining}</span>
             </>
           ) : (
             <>
