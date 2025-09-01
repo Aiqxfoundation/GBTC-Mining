@@ -33,6 +33,8 @@ export const withdrawals = pgTable("withdrawals", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: uuid("user_id").references(() => users.id).notNull(),
   amount: decimal("amount", { precision: 18, scale: 8 }).notNull(),
+  address: text("address").notNull(),
+  network: text("network").notNull(), // "ERC20", "BSC", "TRC20" for USDT, "GBTC" for GBTC
   status: text("status").notNull().default("pending"), // "pending", "completed", "rejected"
   txHash: text("tx_hash"),
   createdAt: timestamp("created_at").defaultNow(),
