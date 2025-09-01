@@ -611,9 +611,7 @@ export class DatabaseStorage implements IStorage {
 
 import { MemoryStorage } from "./memoryStorage";
 
-// Try to create database storage, fall back to memory if database is unavailable
-let storage: IStorage;
-let isUsingMemoryStorage = false;
+// Storage variables will be initialized during server startup
 
 async function testDatabaseConnection(): Promise<boolean> {
   try {
@@ -646,13 +644,26 @@ async function initializeStorage() {
   }
 }
 
-// Initialize immediately with memory storage, then try to switch to database
-storage = new MemoryStorage();
-isUsingMemoryStorage = true;
+// Initialize storage (will be set during server startup)
+let storage: IStorage;
+let isUsingMemoryStorage = false;
 
-// Try to switch to database storage in the background
-initializeStorage().catch(err => {
-  console.log('Storage initialization warning:', err.message);
-});
+// Export the initialization function to be called during server startup
+export async function initStorage() {
+  const dbAvailable = await testDatabaseConnection();
+  
+  if (dbAvailable) {
+    console.log('Using PostgreSQL database storage');
+    storage = new DatabaseStorage();
+    isUsingMemoryStorage = false;
+  } else {
+    console.log('Database unavailable - using in-memory storage (data will be lost on restart)');
+    console.log('Note: Default admin account created - username: admin, PIN: 123456');
+    storage = new MemoryStorage();
+    isUsingMemoryStorage = true;
+  }
+  
+  return storage;
+}
 
 export { storage, isUsingMemoryStorage };
