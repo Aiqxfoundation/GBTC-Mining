@@ -295,47 +295,77 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Blockchain Terminal Display */}
-              <div className="mt-3 relative h-10 bg-black border border-green-500/30 overflow-hidden font-mono">
+              {/* Isometric Blockchain - Terminal Style */}
+              <div className="mt-3 relative h-10 bg-black border border-green-500/20 overflow-hidden font-mono">
                 {/* Sliding blockchain */}
                 <motion.div 
                   className="absolute flex items-center h-full"
+                  style={{ paddingLeft: '20px' }}
                   animate={{
-                    x: [0, -350]
+                    x: [0, -300]
                   }}
                   transition={{
-                    duration: 4,
+                    duration: 3,
                     repeat: Infinity,
                     ease: "linear"
                   }}
                 >
-                  {[...Array(20)].map((_, i) => (
-                    <div key={i} className="flex items-center h-full py-2">
-                      {/* Block */}
-                      <div className="h-full px-3 bg-gray-950 border border-green-500/40 flex flex-col justify-center relative">
-                        <div className="text-[6px] text-green-500/60 uppercase">Block</div>
-                        <div className="text-[9px] text-green-400 font-bold">
-                          {(876500 + i).toString()}
+                  {[...Array(15)].map((_, i) => (
+                    <div key={i} className="flex items-center">
+                      {/* Isometric Block */}
+                      <div className="relative" style={{ width: '35px', height: '30px', marginRight: '-5px' }}>
+                        {/* Main cube using CSS transforms for isometric view */}
+                        <div 
+                          className="absolute"
+                          style={{
+                            width: '30px',
+                            height: '30px',
+                            transform: 'rotate(45deg) skew(-15deg, -15deg) scale(1, 0.86)',
+                            transformOrigin: 'center',
+                            background: '#0a0a0a',
+                            border: '1px solid rgba(34, 197, 94, 0.5)',
+                            boxShadow: 'inset 0 0 10px rgba(34, 197, 94, 0.1)'
+                          }}
+                        >
+                          <div 
+                            className="absolute inset-0 flex items-center justify-center"
+                            style={{ transform: 'rotate(-45deg) scale(1.4, 1.6)' }}
+                          >
+                            <span className="text-[8px] text-green-400/80 font-bold">
+                              {i.toString(16).toUpperCase()}
+                            </span>
+                          </div>
                         </div>
-                        <div className="text-[6px] text-green-500/40">
-                          0x{Math.random().toString(16).substr(2, 4)}
-                        </div>
+                        
+                        {/* Side shadow for depth */}
+                        <div 
+                          className="absolute"
+                          style={{
+                            width: '30px',
+                            height: '30px',
+                            transform: 'rotate(45deg) skew(-15deg, -15deg) scale(1, 0.86) translateX(3px) translateY(3px)',
+                            background: 'rgba(34, 197, 94, 0.05)',
+                            zIndex: -1
+                          }}
+                        />
                       </div>
                       
                       {/* Chain connector */}
-                      <svg width="20" height="20" className="flex-shrink-0">
-                        <line x1="0" y1="10" x2="15" y2="10" stroke="rgb(34, 197, 94)" strokeOpacity="0.4" strokeWidth="1"/>
-                        <line x1="15" y1="10" x2="20" y2="10" stroke="rgb(34, 197, 94)" strokeOpacity="0.4" strokeWidth="1" strokeDasharray="2,2"/>
-                        <circle cx="10" cy="10" r="2" fill="rgb(34, 197, 94)" fillOpacity="0.3"/>
-                      </svg>
+                      <div className="h-[1px] bg-green-500/30" style={{ width: '20px', marginLeft: '2px', marginRight: '2px' }}>
+                        <div className="relative w-full h-full">
+                          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 border border-green-500/40 bg-black rotate-45" 
+                            style={{ marginRight: '-4px' }}
+                          />
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </motion.div>
                 
-                {/* Terminal overlay effect */}
+                {/* Terminal effect overlay */}
                 <div className="absolute inset-0 pointer-events-none"
                   style={{
-                    background: 'linear-gradient(90deg, rgba(0,0,0,0.8) 0%, transparent 10%, transparent 90%, rgba(0,0,0,0.8) 100%)'
+                    background: 'linear-gradient(90deg, rgba(0,0,0,0.5) 0%, transparent 5%, transparent 95%, rgba(0,0,0,0.5) 100%)'
                   }}
                 />
               </div>
