@@ -106,29 +106,32 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen pb-24 relative overflow-hidden bg-black">
-      {/* Fast Falling Hash Streams - Top to Bottom Only */}
+      {/* Smooth Rising Hash Streams - Bottom to Top */}
       <div className="fixed inset-0 overflow-hidden">
         {[...Array(15)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute text-green-500/15 font-mono whitespace-nowrap"
+            className="absolute text-green-500 font-mono whitespace-nowrap"
             style={{ 
-              fontSize: '10px',
+              fontSize: '11px',
               left: `${i * 6.5}%`,
-              letterSpacing: '1px',
+              letterSpacing: '0.5px',
               writingMode: 'vertical-rl',
               textOrientation: 'upright'
             }}
-            initial={{ y: '-100%' }}
-            animate={{ y: '100%' }}
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ 
+              y: '-100%',
+              opacity: [0, 0.03, 0.08, 0.03, 0]
+            }}
             transition={{
-              duration: 2 + (i % 2) * 0.5,
+              duration: 12 + (i % 3) * 3,
               repeat: Infinity,
               ease: 'linear',
-              delay: i * 0.1,
+              delay: i * 0.8,
             }}
           >
-            {generateHashStream()}
+            {generateHashStream().slice(0, 14)}
           </motion.div>
         ))}
       </div>
@@ -289,15 +292,9 @@ export default function HomePage() {
                 ))}
                 
                 {/* Live Stats */}
-                <div className="flex items-center gap-2 text-white mt-1">
-                  <span className="text-green-500">Nonce:</span>
-                  <span className="text-orange-400">{nonce.toString(16).toUpperCase()}</span>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <span className="text-green-500">Hash/s:</span>
-                  <span className="text-cyan-400">{hashRate} MH/s</span>
-                  <span className="ml-auto text-gray-500">Diff: {difficulty}</span>
+                <div className="flex items-center justify-end mt-2">
+                  <span className="text-green-500 text-[9px]">Hash/s:</span>
+                  <span className="text-cyan-400 text-[9px] ml-1">{hashRate} MH/s</span>
                 </div>
               </div>
 
