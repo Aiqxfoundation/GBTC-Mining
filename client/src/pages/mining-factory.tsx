@@ -418,39 +418,6 @@ export default function MiningFactory() {
                     </>
                   )}
 
-                  {/* Digital block particles */}
-                  {isMining && !isBlockForm && (
-                    <>
-                      {[...Array(8)].map((_, index) => {
-                        const angle = (index * 45) * Math.PI / 180;
-                        const radius = 70;
-                        const x = Math.cos(angle) * radius;
-                        const y = Math.sin(angle) * radius;
-                        
-                        return (
-                          <motion.div
-                            key={`block-${index}`}
-                            className="absolute"
-                            style={{
-                              left: `${x + 72}px`,
-                              top: `${y + 72}px`,
-                            }}
-                            animate={{
-                              opacity: [0.3, 1, 0.3],
-                              scale: [0.8, 1.2, 0.8],
-                            }}
-                            transition={{
-                              duration: 3,
-                              repeat: Infinity,
-                              delay: index * 0.3,
-                            }}
-                          >
-                            <div className="w-3 h-3 bg-gradient-to-br from-orange-400 to-orange-600 rounded-sm shadow-lg" />
-                          </motion.div>
-                        );
-                      })}
-                    </>
-                  )}
 
                   {/* Lightning bolts */}
                   {isMining && !isBlockForm && (
@@ -487,73 +454,7 @@ export default function MiningFactory() {
                     </>
                   )}
 
-                  {/* Digital blocks orbiting */}
-                  {isMining && (
-                    <motion.div
-                      className="absolute w-full h-full"
-                      animate={{
-                        rotate: [0, -360],
-                      }}
-                      transition={{
-                        duration: 5,
-                        repeat: Infinity,
-                        ease: "linear",
-                      }}
-                    >
-                      {[0, 1, 2, 3].map((index) => (
-                        <motion.div
-                          key={`dblock-${index}`}
-                          className="absolute"
-                          style={{
-                            left: '50%',
-                            top: '50%',
-                            transform: `translateX(${60}px) translateY(-8px) rotate(${index * 90}deg)`,
-                          }}
-                          animate={{
-                            scale: isBlockForm ? [0, 0, 0] : [1, 1.2, 1],
-                            opacity: isBlockForm ? 0 : [0.5, 1, 0.5],
-                          }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            delay: index * 0.5,
-                          }}
-                        >
-                          <div className="w-5 h-5 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-sm shadow-xl" />
-                        </motion.div>
-                      ))}
-                    </motion.div>
-                  )}
 
-                  {/* Rising block particles */}
-                  {isMining && (
-                    <>
-                      {[...Array(6)].map((_, index) => (
-                        <motion.div
-                          key={`rise-${index}`}
-                          className="absolute"
-                          initial={{
-                            x: (Math.random() - 0.5) * 100,
-                            y: 50,
-                            opacity: 0,
-                          }}
-                          animate={{
-                            y: [50, -50],
-                            opacity: [0, 1, 0],
-                            rotate: [0, 360],
-                          }}
-                          transition={{
-                            duration: 3,
-                            repeat: Infinity,
-                            delay: index * 0.5,
-                            ease: "easeOut",
-                          }}
-                        >
-                          <div className="w-2 h-2 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-sm shadow-lg" />
-                        </motion.div>
-                      ))}
-                    </>
-                  )}
                 </div>
               </div>
             </div>
