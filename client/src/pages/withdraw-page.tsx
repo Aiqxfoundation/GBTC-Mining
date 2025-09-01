@@ -27,7 +27,7 @@ export default function WithdrawPage() {
     onSuccess: () => {
       toast({ 
         title: "Withdrawal Requested!", 
-        description: "Your withdrawal is pending admin approval" 
+        description: "Your withdrawal is pending system verification" 
       });
       setAmount('');
       setAddress('');
@@ -199,7 +199,7 @@ export default function WithdrawPage() {
           <div className="flex items-start space-x-3">
             <i className="fas fa-info-circle text-yellow-500 mt-1"></i>
             <div className="text-xs text-muted-foreground">
-              <p className="mb-2">• Withdrawals require admin approval</p>
+              <p className="mb-2">• Withdrawals require system verification</p>
               <p className="mb-2">• Processing time: 24-48 hours</p>
               <p className="mb-2">• Minimum withdrawal: 10 USDT</p>
               <p>• Network fee: {withdrawFee} USDT (flat)</p>

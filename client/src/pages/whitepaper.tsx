@@ -18,6 +18,7 @@ export default function Whitepaper() {
         h1 { color: #f97316; border-bottom: 3px solid #f97316; padding-bottom: 10px; }
         h2 { color: #ea580c; margin-top: 30px; }
         h3 { color: #dc2626; }
+        .vision { font-size: 48px; font-weight: bold; color: #f97316; text-align: center; margin: 40px 0; letter-spacing: 3px; }
         .warning { background: #fee2e2; border: 2px solid #dc2626; padding: 15px; margin: 20px 0; border-radius: 5px; }
         .info { background: #fef3c7; border: 1px solid #f59e0b; padding: 10px; margin: 10px 0; border-radius: 5px; }
         .section { margin: 20px 0; }
@@ -28,45 +29,23 @@ export default function Whitepaper() {
 <body>
     <h1>GREEN BITCOIN (GBTC) WHITEPAPER</h1>
     <p><strong>Version 2.0 | September 2025</strong></p>
-    <p><em>Fair Mining Through Real Hash Power Investment</em></p>
+    
+    <div class="vision">OUR VISION</div>
+    
+    <div class="section">
+        <p>GBTC will be used as a native gas fee token for decentralized mining infrastructure. We are NOT competing with Bitcoin or its values. We are here to empower miners and create digital infrastructure for those who can't afford expensive rigs or handle machine operations and maintenance fees.</p>
+        
+        <p>Bitcoin mining is no longer profitable for small miners due to reduced rewards and heavy competition from corporations and large-scale industrial operations. We chose to remain anonymous to ensure this system remains fair for everyone.</p>
+        
+        <p>We make GBTC transferable for users to send, receive, and trade personally. This project is for visionary people - not financial advice for everybody. Let's put our efforts, invest, and build something together to achieve our goals.</p>
+        
+        <p><strong>Grow your network hash. Grow with decentralized mining.</strong></p>
+    </div>
     
     <div class="warning">
         <h2>⚠️ CRITICAL SECURITY NOTICE</h2>
         <p><strong>NOT YOUR KEYS, NOT YOUR COINS!</strong></p>
         <p>Green Bitcoin operates on a principle of absolute security. Your account is protected by a username and 6-digit PIN combination. If you forget either credential, there is <strong>NO RECOVERY OPTION</strong>. Your account and all assets will be permanently inaccessible. This is by design to ensure maximum security and prevent unauthorized access. Write down your credentials and store them safely.</p>
-    </div>
-    
-    <div class="section">
-        <h2>Executive Summary</h2>
-        <p>Green Bitcoin (GBTC) is a revolutionary mining platform that ensures fair distribution through real hash power investment. Unlike traditional mining or cloud mining services, GBTC rewards are distributed purely based on purchased hash power, making it impossible for bots or multiple accounts to gain unfair advantages. Every user must actively claim their rewards within 24 hours to maintain mining activity, ensuring only engaged participants receive rewards.</p>
-    </div>
-    
-    <div class="section">
-        <h2>Fair Mining Philosophy</h2>
-        <h3>No Free Mining</h3>
-        <p>Mining rewards are distributed ONLY based on purchased hash power. No registration bonuses, no free mining, no advantages for early adopters. Your investment determines your rewards.</p>
-        
-        <h3>Anti-Bot Protection</h3>
-        <p>Creating multiple accounts provides zero advantage. Each account must purchase hash power separately to earn rewards. Bots cannot exploit the system as there's no way to earn without real USDT investment.</p>
-        
-        <h3>Self-Effort Based</h3>
-        <p>Success depends entirely on personal investment and activity. No one can mine for free, ensuring fair competition among all participants.</p>
-    </div>
-    
-    <div class="section">
-        <h2>Authentication System</h2>
-        <h3>Simple & Secure</h3>
-        <ul>
-            <li>Username: Your unique identifier and referral code</li>
-            <li>6-Digit PIN: Your secure access code</li>
-            <li>No email or phone number required</li>
-            <li>Complete anonymity and privacy</li>
-        </ul>
-        
-        <div class="warning">
-            <h3>No Recovery System</h3>
-            <p>Following the principle "Not Your Keys, Not Your Coins" - if you forget your username or PIN, your account is permanently lost. There is no password reset, no recovery questions, no support intervention possible.</p>
-        </div>
     </div>
     
     <div class="section">
@@ -89,13 +68,6 @@ export default function Whitepaper() {
         <h3>Purchase & Mining</h3>
         <p>Hash power represents your mining capability in the network. Higher hash power means larger share of block rewards. You must purchase hash power with USDT to start mining.</p>
         
-        <h3>Pricing Structure</h3>
-        <ul>
-            <li><strong>Starter:</strong> $10 - $99 USDT</li>
-            <li><strong>Professional:</strong> $100 - $999 USDT</li>
-            <li><strong>Enterprise:</strong> $1000+ USDT</li>
-        </ul>
-        
         <div class="warning">
             <h3>24-Hour Claim Rule</h3>
             <p>You must claim your mined blocks within 24 hours or your mining will STOP. This ensures only active users receive rewards and prevents abandoned accounts from diluting the reward pool.</p>
@@ -103,8 +75,8 @@ export default function Whitepaper() {
     </div>
     
     <div class="section">
-        <h2>Direct Miners System (Single-Level Referral)</h2>
-        <h3>Single-Level Only</h3>
+        <h2>Direct Miners System</h2>
+        <h3>Single-Level Referral Only</h3>
         <p>You earn rewards ONLY from users you directly invite. No multi-level marketing, no pyramid structure. Simple and transparent.</p>
         <ul>
             <li>Your username is your referral code</li>
@@ -121,9 +93,6 @@ export default function Whitepaper() {
             <p><strong>Hash Power Contribution: 5%</strong><br>
             When your miners are actively mining, 5% of their hash power contributes to your total hash power.</p>
         </div>
-        
-        <h3>Commission Withdrawals</h3>
-        <p>USDT commissions can be withdrawn anytime or used to purchase your own hash power. This is the only way to earn without personal investment.</p>
     </div>
     
     <div class="section">
@@ -136,13 +105,6 @@ export default function Whitepaper() {
             <li>Rewards distributed proportionally</li>
             <li>Claim rewards within 24 hours to continue</li>
         </ol>
-        
-        <h3>Mining Stop Conditions</h3>
-        <ul>
-            <li>Not claiming rewards within 24 hours</li>
-            <li>Zero hash power (no investment)</li>
-            <li>Account suspension for rule violations</li>
-        </ul>
     </div>
     
     <div class="section">
@@ -151,7 +113,7 @@ export default function Whitepaper() {
         <ul>
             <li>Minimum deposit: $10 USDT</li>
             <li>Used to purchase hash power</li>
-            <li>Instant processing after admin approval</li>
+            <li>Instant processing after system verification</li>
         </ul>
         
         <h3>Withdrawals</h3>
@@ -159,16 +121,12 @@ export default function Whitepaper() {
             <li>Only referral commissions can be withdrawn</li>
             <li>Minimum withdrawal: $50 USDT</li>
             <li>Processing time: 24-48 hours</li>
-            <li>GBTC tokens cannot be withdrawn until exchange listing</li>
+            <li>GBTC tokens transferable between users</li>
         </ul>
-        
-        <div class="warning">
-            <p>Deposited USDT used for hash power purchases cannot be withdrawn. Only referral commissions earned in USDT are withdrawable.</p>
-        </div>
     </div>
     
     <div class="section">
-        <h2>Security & Anti-Fraud</h2>
+        <h2>Security & Fair Play</h2>
         <h3>Account Security</h3>
         <ul>
             <li>Unique username + 6-digit PIN authentication</li>
@@ -181,46 +139,19 @@ export default function Whitepaper() {
         <ul>
             <li>Fake deposit = permanent account ban</li>
             <li>All transactions verified on blockchain</li>
-            <li>Admin approval for deposits/withdrawals</li>
+            <li>System verification for all deposits/withdrawals</li>
             <li>Multiple account creation provides no benefit</li>
         </ul>
     </div>
     
     <div class="section">
-        <h2>Development Roadmap</h2>
-        <h3>Phase 1: Mining Launch</h3>
-        <ul>
-            <li>Platform launch with core mining features</li>
-            <li>Hash power marketplace active</li>
-            <li>Direct referral system operational</li>
-            <li>24-hour claiming requirement enforced</li>
-        </ul>
-        
-        <h3>Phase 2: Growth (Current)</h3>
-        <ul>
-            <li>Expanding user base through referrals</li>
-            <li>Mining optimization and improvements</li>
-            <li>Community building and education</li>
-            <li>Reaching 25% of total supply mined</li>
-        </ul>
-        
-        <h3>Phase 3: Exchange Listing</h3>
-        <ul>
-            <li>Major exchange partnerships</li>
-            <li>GBTC trading pairs established</li>
-            <li>Full token transferability</li>
-            <li>Market-driven price discovery</li>
-        </ul>
-    </div>
-    
-    <div class="section">
         <h2>Disclaimer</h2>
-        <p>Green Bitcoin is a mining simulation platform. Participation involves financial risk. Never invest more than you can afford to lose. The value of GBTC tokens is not guaranteed. Past performance does not indicate future results. Always conduct your own research before participating.</p>
+        <p>This project is for visionary people who understand the potential of decentralized mining. This is not financial advice. Participation involves risk. Never invest more than you can afford to lose. The value of GBTC tokens is determined by the community and market. Always conduct your own research before participating.</p>
     </div>
     
     <div class="section">
         <p><strong>© 2025 Green Bitcoin. All Rights Reserved.</strong></p>
-        <p>Contact: support@greenbitcoin.io</p>
+        <p>Decentralized Mining for Everyone</p>
     </div>
 </body>
 </html>`;
@@ -279,10 +210,37 @@ export default function Whitepaper() {
                 GREEN BITCOIN (GBTC)
               </h1>
               <p className="text-sm text-muted-foreground">
-                Fair Mining Through Real Hash Power Investment
+                Decentralized Mining for Everyone
               </p>
               <p className="text-xs text-muted-foreground mt-2">
                 Version 2.0 | September 2025
+              </p>
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* OUR VISION Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.05 }}
+        >
+          <Card className="mobile-card bg-gradient-to-br from-primary/20 to-accent/20 border-primary/30">
+            <h1 className="text-4xl font-display font-black text-center text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-yellow-600 mb-4">
+              OUR VISION
+            </h1>
+            <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+              <p>
+                GBTC will be used as a native gas fee token for decentralized mining infrastructure. We are NOT competing with Bitcoin or its values. We are here to empower miners and create digital infrastructure for those who can't afford expensive rigs or handle machine operations and maintenance fees.
+              </p>
+              <p>
+                Bitcoin mining is no longer profitable for small miners due to reduced rewards and heavy competition from corporations and large-scale industrial operations. We chose to remain anonymous to ensure this system remains fair for everyone.
+              </p>
+              <p>
+                We make GBTC transferable for users to send, receive, and trade personally. This project is for visionary people - not financial advice for everybody. Let's put our efforts, invest, and build something together to achieve our goals.
+              </p>
+              <p className="font-bold text-primary text-center text-base">
+                Grow your network hash. Grow with decentralized mining.
               </p>
             </div>
           </Card>
@@ -308,65 +266,6 @@ export default function Whitepaper() {
                   <strong className="text-destructive"> NO RECOVERY OPTION</strong>. Your account and all 
                   assets will be permanently inaccessible. This is by design to ensure maximum security 
                   and prevent unauthorized access. Write down your credentials and store them safely.
-                </p>
-              </div>
-            </div>
-          </Card>
-        </motion.div>
-
-        {/* Executive Summary */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <Card className="mobile-card bg-black/50 border-primary/20">
-            <div className="flex items-center mb-3">
-              <Target className="w-5 h-5 text-primary mr-2" />
-              <h2 className="text-lg font-bold text-primary">Executive Summary</h2>
-            </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Green Bitcoin (GBTC) is a revolutionary mining platform that ensures fair distribution through 
-              real hash power investment. Unlike traditional mining or cloud mining services, GBTC rewards 
-              are distributed purely based on purchased hash power, making it impossible for bots or multiple 
-              accounts to gain unfair advantages. Every user must actively claim their rewards within 24 hours 
-              to maintain mining activity, ensuring only engaged participants receive rewards.
-            </p>
-          </Card>
-        </motion.div>
-
-        {/* Fair Mining Philosophy */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <Card className="mobile-card bg-black/50 border-primary/20">
-            <div className="flex items-center mb-3">
-              <Shield className="w-5 h-5 text-primary mr-2" />
-              <h2 className="text-lg font-bold text-primary">Fair Mining Philosophy</h2>
-            </div>
-            <div className="space-y-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">No Free Mining</h3>
-                <p className="text-sm text-muted-foreground">
-                  Mining rewards are distributed ONLY based on purchased hash power. No registration bonuses, 
-                  no free mining, no advantages for early adopters. Your investment determines your rewards.
-                </p>
-              </div>
-              <div className="p-3 bg-warning/10 rounded-lg">
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Anti-Bot Protection</h3>
-                <p className="text-sm text-muted-foreground">
-                  Creating multiple accounts provides zero advantage. Each account must purchase hash power 
-                  separately to earn rewards. Bots cannot exploit the system as there's no way to earn without 
-                  real USDT investment.
-                </p>
-              </div>
-              <div className="p-3 bg-accent/10 rounded-lg">
-                <h3 className="text-sm font-semibold text-orange-500 mb-1">Self-Effort Based</h3>
-                <p className="text-sm text-muted-foreground">
-                  Success depends entirely on personal investment and activity. No one can mine for free, 
-                  ensuring fair competition among all participants.
                 </p>
               </div>
             </div>
@@ -612,7 +511,7 @@ export default function Whitepaper() {
                 <ul className="text-sm text-muted-foreground space-y-1">
                   <li>• Minimum deposit: $10 USDT</li>
                   <li>• Used to purchase hash power</li>
-                  <li>• Instant processing after admin approval</li>
+                  <li>• Instant processing after system verification</li>
                   <li>• Multiple deposit methods supported</li>
                 </ul>
               </div>
@@ -662,7 +561,7 @@ export default function Whitepaper() {
                 <ul className="text-sm text-muted-foreground space-y-1">
                   <li>• Fake deposit = permanent account ban</li>
                   <li>• All transactions verified on blockchain</li>
-                  <li>• Admin approval for deposits/withdrawals</li>
+                  <li>• System verification for deposits/withdrawals</li>
                   <li>• Multiple account creation provides no benefit</li>
                 </ul>
               </div>

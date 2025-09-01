@@ -33,7 +33,7 @@ export default function DepositPage() {
     onSuccess: () => {
       toast({ 
         title: "Deposit Submitted!", 
-        description: "Your deposit is pending admin approval" 
+        description: "Your deposit is pending system verification" 
       });
       setTxid('');
       setAmount('');
@@ -248,7 +248,7 @@ export default function DepositPage() {
             </div>
             <div className="flex items-start">
               <span className="mr-2">5.</span>
-              <p>Admin will verify and approve</p>
+              <p>System will verify and approve</p>
             </div>
           </div>
         </Card>

@@ -408,7 +408,7 @@ export default function AuthPage() {
                         <p className="text-sm mt-1">Mining depends ONLY on your purchased hash power. Multiple accounts and bots gain NO advantage. Don't waste time creating fake accounts - only real hash power investment earns rewards!</p>
                       </div>
                       <div>
-                        <strong className="text-foreground">Admin Controls:</strong>
+                        <strong className="text-foreground">System Controls:</strong>
                         <ul className="list-disc list-inside text-sm space-y-1 mt-1">
                           <li>Approve/Reject deposits</li>
                           <li>Approve/Reject withdrawals</li>
@@ -421,7 +421,7 @@ export default function AuthPage() {
                           <li>Rewards depend on real investment (hash power)</li>
                           <li>Inactive users don't get free tokens</li>
                           <li>Global supply calculator ensures transparent tokenomics</li>
-                          <li>Admin cannot manipulate balances—only approve deposits/withdrawals</li>
+                          <li>System cannot manipulate balances—only verify deposits/withdrawals</li>
                         </ul>
                       </div>
                     </div>
