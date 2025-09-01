@@ -26,7 +26,7 @@ export default function DepositPage() {
   const [copied, setCopied] = useState(false);
 
   const submitDepositMutation = useMutation({
-    mutationFn: async (data: { txid: string; amount: number; network: string; note?: string }) => {
+    mutationFn: async (data: { txHash: string; amount: string; network: string; note?: string }) => {
       const res = await apiRequest("POST", "/api/deposits", data);
       return res.json();
     },
@@ -70,8 +70,8 @@ export default function DepositPage() {
     }
     
     submitDepositMutation.mutate({
-      txid,
-      amount: parseFloat(amount),
+      txHash: txid,
+      amount: amount,
       network: selectedNetwork,
       note
     });

@@ -136,7 +136,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Withdrawal
+  // Withdrawal request - now requires admin approval
   app.post("/api/withdrawals", async (req, res, next) => {
     try {
       if (!req.isAuthenticated()) {
@@ -150,46 +150,72 @@ export function registerRoutes(app: Express): Server {
       const isUSDT = withdrawalData.network === 'ERC20' || withdrawalData.network === 'BSC' || withdrawalData.network === 'TRC20';
       const amount = parseFloat(withdrawalData.amount);
       
+      // Only check if user has sufficient balance, don't deduct yet
       if (isUSDT) {
-        // USDT withdrawal
         const usdtBalance = parseFloat(user.usdtBalance || "0");
         if (usdtBalance < amount) {
           return res.status(400).json({ message: "Insufficient USDT balance" });
         }
-        
-        const newUsdtBalance = (usdtBalance - amount).toFixed(2);
-        
-        await storage.updateUserBalance(
-          user.id,
-          newUsdtBalance,
-          user.hashPower || "0",
-          user.gbtcBalance || "0",
-          user.unclaimedBalance || "0"
-        );
       } else {
-        // GBTC withdrawal  
         const gbtcBalance = parseFloat(user.gbtcBalance || "0");
         if (gbtcBalance < amount) {
           return res.status(400).json({ message: "Insufficient GBTC balance" });
         }
-        
-        const newGbtcBalance = (gbtcBalance - amount).toFixed(8);
-        
-        await storage.updateUserBalance(
-          user.id,
-          user.usdtBalance || "0",
-          user.hashPower || "0",
-          newGbtcBalance,
-          user.unclaimedBalance || "0"
-        );
       }
 
+      // Create withdrawal request with pending status
       const withdrawal = await storage.createWithdrawal({
         ...withdrawalData,
         userId: user.id
       });
 
-      res.status(201).json(withdrawal);
+      res.status(201).json({
+        ...withdrawal,
+        message: "Withdrawal request submitted. Awaiting admin approval."
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Get pending withdrawals for admin
+  app.get("/api/withdrawals/pending", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated() || !req.user!.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const pendingWithdrawals = await storage.getPendingWithdrawals();
+      res.json(pendingWithdrawals);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Approve withdrawal
+  app.patch("/api/withdrawals/:id/approve", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated() || !req.user!.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { txHash } = req.body;
+      await storage.approveWithdrawal(req.params.id, txHash);
+      res.json({ message: "Withdrawal approved and processed" });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Reject withdrawal  
+  app.patch("/api/withdrawals/:id/reject", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated() || !req.user!.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      await storage.rejectWithdrawal(req.params.id);
+      res.json({ message: "Withdrawal rejected" });
     } catch (error) {
       next(error);
     }

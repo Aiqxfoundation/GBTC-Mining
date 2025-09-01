@@ -17,6 +17,11 @@ export default function AdminPage() {
     enabled: !!user?.isAdmin
   });
 
+  const { data: pendingWithdrawals, isLoading: withdrawalsLoading } = useQuery({
+    queryKey: ["/api/withdrawals/pending"],
+    enabled: !!user?.isAdmin
+  });
+
   const { data: adminStats } = useQuery({
     queryKey: ["/api/admin/stats"],
     enabled: !!user?.isAdmin
@@ -50,6 +55,71 @@ export default function AdminPage() {
     onSuccess: () => {
       toast({ title: "Deposit rejected", description: "The deposit has been rejected." });
       queryClient.invalidateQueries({ queryKey: ["/api/deposits/pending"] });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Rejection failed", description: error.message, variant: "destructive" });
+    }
+  });
+
+  const freezeUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const res = await apiRequest("PATCH", `/api/users/${userId}/freeze`);
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ 
+        title: "User Frozen", 
+        description: "The user account has been frozen due to suspicious activity.",
+        variant: "destructive" 
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/deposits/pending"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Failed to freeze user", description: error.message, variant: "destructive" });
+    }
+  });
+
+  const unfreezeUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const res = await apiRequest("PATCH", `/api/users/${userId}/unfreeze`);
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ 
+        title: "User Unfrozen", 
+        description: "The user account has been unfrozen and can now operate normally." 
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Failed to unfreeze user", description: error.message, variant: "destructive" });
+    }
+  });
+
+  const approveWithdrawalMutation = useMutation({
+    mutationFn: async ({ id, txHash }: { id: string; txHash?: string }) => {
+      const res = await apiRequest("PATCH", `/api/withdrawals/${id}/approve`, { txHash });
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Withdrawal approved", description: "The withdrawal has been processed successfully." });
+      queryClient.invalidateQueries({ queryKey: ["/api/withdrawals/pending"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Approval failed", description: error.message, variant: "destructive" });
+    }
+  });
+
+  const rejectWithdrawalMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiRequest("PATCH", `/api/withdrawals/${id}/reject`);
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Withdrawal rejected", description: "The withdrawal request has been rejected." });
+      queryClient.invalidateQueries({ queryKey: ["/api/withdrawals/pending"] });
     },
     onError: (error: Error) => {
       toast({ title: "Rejection failed", description: error.message, variant: "destructive" });
@@ -205,7 +275,7 @@ export default function AdminPage() {
           </Card>
         </div>
         
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-2 gap-8 mb-8">
           {/* Pending Deposits */}
           <Card>
             <CardHeader>
@@ -245,33 +315,49 @@ export default function AdminPage() {
                           ${parseFloat(deposit.amount).toFixed(2)}
                         </span>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <Button 
+                            onClick={() => approveDepositMutation.mutate({ id: deposit.id })}
+                            className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                            disabled={approveDepositMutation.isPending}
+                            data-testid={`button-approve-${deposit.id}`}
+                          >
+                            {approveDepositMutation.isPending ? (
+                              <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                            ) : (
+                              <i className="fas fa-check mr-1"></i>
+                            )}
+                            Approve
+                          </Button>
+                          <Button 
+                            onClick={() => rejectDepositMutation.mutate({ id: deposit.id })}
+                            variant="destructive"
+                            className="flex-1"
+                            disabled={rejectDepositMutation.isPending}
+                            data-testid={`button-reject-${deposit.id}`}
+                          >
+                            {rejectDepositMutation.isPending ? (
+                              <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                            ) : (
+                              <i className="fas fa-times mr-1"></i>
+                            )}
+                            Reject
+                          </Button>
+                        </div>
                         <Button 
-                          onClick={() => approveDepositMutation.mutate({ id: deposit.id })}
-                          className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
-                          disabled={approveDepositMutation.isPending}
-                          data-testid={`button-approve-${deposit.id}`}
+                          onClick={() => freezeUserMutation.mutate(deposit.userId)}
+                          variant="outline"
+                          className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          disabled={freezeUserMutation.isPending}
+                          data-testid={`button-freeze-${deposit.id}`}
                         >
-                          {approveDepositMutation.isPending ? (
-                            <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                          {freezeUserMutation.isPending ? (
+                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
                           ) : (
-                            <i className="fas fa-check mr-1"></i>
+                            <i className="fas fa-ban mr-2"></i>
                           )}
-                          Approve
-                        </Button>
-                        <Button 
-                          onClick={() => rejectDepositMutation.mutate({ id: deposit.id })}
-                          variant="destructive"
-                          className="flex-1"
-                          disabled={rejectDepositMutation.isPending}
-                          data-testid={`button-reject-${deposit.id}`}
-                        >
-                          {rejectDepositMutation.isPending ? (
-                            <Loader2 className="w-4 h-4 animate-spin mr-1" />
-                          ) : (
-                            <i className="fas fa-times mr-1"></i>
-                          )}
-                          Reject
+                          Freeze User (Suspicious Activity)
                         </Button>
                       </div>
                     </div>
@@ -358,6 +444,114 @@ export default function AdminPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Pending Withdrawals Section */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <i className="fas fa-money-bill-transfer text-destructive mr-3"></i>
+              Pending Withdrawals
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {withdrawalsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            ) : pendingWithdrawals && pendingWithdrawals.length > 0 ? (
+              <div className="grid lg:grid-cols-2 gap-4">
+                {pendingWithdrawals.map((withdrawal: any) => (
+                  <div key={withdrawal.id} className="bg-background p-4 rounded-lg border border-border">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-semibold" data-testid={`text-withdrawal-user-${withdrawal.id}`}>
+                            {withdrawal.user?.username}
+                          </p>
+                          <span className="bg-destructive/20 text-destructive px-2 py-0.5 rounded text-xs font-medium">
+                            {withdrawal.network === 'GBTC' ? 'GBTC' : 'USDT'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Network: {withdrawal.network}
+                        </p>
+                        <p className="text-xs text-muted-foreground code-font break-all mt-1">
+                          Address: {withdrawal.address}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-muted-foreground">Amount:</span>
+                      <span className="font-semibold text-lg" data-testid={`text-withdrawal-amount-${withdrawal.id}`}>
+                        {parseFloat(withdrawal.amount).toFixed(
+                          withdrawal.network === 'GBTC' ? 8 : 2
+                        )} {withdrawal.network === 'GBTC' ? 'GBTC' : 'USDT'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2 text-xs">
+                      <span className="text-muted-foreground">Available Balance:</span>
+                      <span className="font-mono">
+                        {withdrawal.network === 'GBTC' 
+                          ? `${parseFloat(withdrawal.user?.gbtcBalance || '0').toFixed(8)} GBTC`
+                          : `${parseFloat(withdrawal.user?.usdtBalance || '0').toFixed(2)} USDT`}
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={() => approveWithdrawalMutation.mutate({ id: withdrawal.id })}
+                          className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                          disabled={approveWithdrawalMutation.isPending}
+                          data-testid={`button-approve-withdrawal-${withdrawal.id}`}
+                        >
+                          {approveWithdrawalMutation.isPending ? (
+                            <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                          ) : (
+                            <i className="fas fa-check mr-1"></i>
+                          )}
+                          Approve
+                        </Button>
+                        <Button 
+                          onClick={() => rejectWithdrawalMutation.mutate(withdrawal.id)}
+                          variant="destructive"
+                          className="flex-1"
+                          disabled={rejectWithdrawalMutation.isPending}
+                          data-testid={`button-reject-withdrawal-${withdrawal.id}`}
+                        >
+                          {rejectWithdrawalMutation.isPending ? (
+                            <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                          ) : (
+                            <i className="fas fa-times mr-1"></i>
+                          )}
+                          Reject
+                        </Button>
+                      </div>
+                      <Button 
+                        onClick={() => freezeUserMutation.mutate(withdrawal.userId)}
+                        variant="outline"
+                        className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                        disabled={freezeUserMutation.isPending}
+                        data-testid={`button-freeze-withdrawal-${withdrawal.id}`}
+                      >
+                        {freezeUserMutation.isPending ? (
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        ) : (
+                          <i className="fas fa-ban mr-2"></i>
+                        )}
+                        Freeze User
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <i className="fas fa-inbox text-4xl mb-4"></i>
+                <p>No pending withdrawals</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

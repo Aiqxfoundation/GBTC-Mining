@@ -45,6 +45,9 @@ export interface IStorage {
   
   // Withdrawal methods
   createWithdrawal(withdrawal: InsertWithdrawal & { userId: string }): Promise<Withdrawal>;
+  getPendingWithdrawals(): Promise<any[]>;
+  approveWithdrawal(withdrawalId: string, txHash?: string): Promise<void>;
+  rejectWithdrawal(withdrawalId: string): Promise<void>;
   
   // Mining methods
   createMiningBlock(blockNumber: number, reward: string, totalHashPower: string): Promise<MiningBlock>;
@@ -207,9 +210,93 @@ export class DatabaseStorage implements IStorage {
   async createWithdrawal(withdrawal: InsertWithdrawal & { userId: string }): Promise<Withdrawal> {
     const [newWithdrawal] = await db
       .insert(withdrawals)
-      .values(withdrawal)
+      .values({
+        ...withdrawal,
+        status: 'pending' // All withdrawals start as pending
+      })
       .returning();
     return newWithdrawal;
+  }
+
+  async getPendingWithdrawals(): Promise<any[]> {
+    const result = await db
+      .select({
+        id: withdrawals.id,
+        userId: withdrawals.userId,
+        amount: withdrawals.amount,
+        address: withdrawals.address,
+        network: withdrawals.network,
+        status: withdrawals.status,
+        txHash: withdrawals.txHash,
+        createdAt: withdrawals.createdAt,
+        user: users
+      })
+      .from(withdrawals)
+      .innerJoin(users, eq(withdrawals.userId, users.id))
+      .where(eq(withdrawals.status, "pending"))
+      .orderBy(desc(withdrawals.createdAt));
+    
+    return result;
+  }
+
+  async approveWithdrawal(withdrawalId: string, txHash?: string): Promise<void> {
+    // Get the withdrawal details first
+    const [withdrawal] = await db
+      .select()
+      .from(withdrawals)
+      .where(eq(withdrawals.id, withdrawalId));
+    
+    if (!withdrawal) {
+      throw new Error("Withdrawal not found");
+    }
+
+    // Get the user
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, withdrawal.userId));
+    
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const amount = parseFloat(withdrawal.amount);
+    const isUSDT = withdrawal.network === 'ERC20' || withdrawal.network === 'BSC' || withdrawal.network === 'TRC20';
+
+    // Check balance and deduct
+    if (isUSDT) {
+      const usdtBalance = parseFloat(user.usdtBalance || "0");
+      if (usdtBalance < amount) {
+        throw new Error("Insufficient USDT balance");
+      }
+      const newBalance = (usdtBalance - amount).toFixed(2);
+      await db.update(users)
+        .set({ usdtBalance: newBalance })
+        .where(eq(users.id, user.id));
+    } else {
+      const gbtcBalance = parseFloat(user.gbtcBalance || "0");
+      if (gbtcBalance < amount) {
+        throw new Error("Insufficient GBTC balance");
+      }
+      const newBalance = (gbtcBalance - amount).toFixed(8);
+      await db.update(users)
+        .set({ gbtcBalance: newBalance })
+        .where(eq(users.id, user.id));
+    }
+
+    // Update withdrawal status
+    await db.update(withdrawals)
+      .set({ 
+        status: "completed",
+        txHash: txHash || null
+      })
+      .where(eq(withdrawals.id, withdrawalId));
+  }
+
+  async rejectWithdrawal(withdrawalId: string): Promise<void> {
+    await db.update(withdrawals)
+      .set({ status: "rejected" })
+      .where(eq(withdrawals.id, withdrawalId));
   }
 
   async createMiningBlock(blockNumber: number, reward: string, totalHashPower: string): Promise<MiningBlock> {

@@ -220,6 +220,70 @@ export class MemoryStorage implements IStorage {
     return newWithdrawal;
   }
 
+  async getPendingWithdrawals(): Promise<any[]> {
+    const pendingWithdrawals = Array.from(this.withdrawals.values())
+      .filter(w => w.status === 'pending')
+      .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
+    
+    // Add user information
+    return pendingWithdrawals.map(withdrawal => {
+      const user = this.users.get(withdrawal.userId);
+      return {
+        ...withdrawal,
+        user: user ? {
+          id: user.id,
+          username: user.username,
+          usdtBalance: user.usdtBalance,
+          gbtcBalance: user.gbtcBalance
+        } : null
+      };
+    });
+  }
+
+  async approveWithdrawal(withdrawalId: string, txHash?: string): Promise<void> {
+    const withdrawal = this.withdrawals.get(withdrawalId);
+    if (!withdrawal) {
+      throw new Error('Withdrawal not found');
+    }
+
+    const user = this.users.get(withdrawal.userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const amount = parseFloat(withdrawal.amount);
+    const isUSDT = withdrawal.network === 'ERC20' || withdrawal.network === 'BSC' || withdrawal.network === 'TRC20';
+
+    // Check balance and deduct
+    if (isUSDT) {
+      const usdtBalance = parseFloat(user.usdtBalance || "0");
+      if (usdtBalance < amount) {
+        throw new Error('Insufficient USDT balance');
+      }
+      user.usdtBalance = (usdtBalance - amount).toFixed(2);
+    } else {
+      const gbtcBalance = parseFloat(user.gbtcBalance || "0");
+      if (gbtcBalance < amount) {
+        throw new Error('Insufficient GBTC balance');
+      }
+      user.gbtcBalance = (gbtcBalance - amount).toFixed(8);
+    }
+
+    // Update withdrawal status
+    withdrawal.status = 'completed';
+    if (txHash) {
+      withdrawal.txHash = txHash;
+    }
+  }
+
+  async rejectWithdrawal(withdrawalId: string): Promise<void> {
+    const withdrawal = this.withdrawals.get(withdrawalId);
+    if (!withdrawal) {
+      throw new Error('Withdrawal not found');
+    }
+    withdrawal.status = 'rejected';
+  }
+
   async createMiningBlock(blockNumber: number, reward: string, totalHashPower: string): Promise<MiningBlock> {
     const blockId = 'block-' + randomBytes(8).toString('hex');
     const block: MiningBlock = {
