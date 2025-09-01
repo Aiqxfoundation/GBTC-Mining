@@ -1,15 +1,27 @@
 import { useAuth } from "@/hooks/use-auth";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Zap, Shield, TrendingUp, Users, Coins, ArrowRight, ChevronRight } from "lucide-react";
+import { ChevronRight, Zap, Wallet, Activity, Globe } from "lucide-react";
 
 export default function HomePage() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const [currentHash, setCurrentHash] = useState("");
+
+  // Generate random hash for visual effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const hash = Array.from({length: 64}, () => 
+        Math.floor(Math.random() * 16).toString(16)
+      ).join('');
+      setCurrentHash(hash);
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleStartMining = () => {
     if (!user) {
@@ -20,7 +32,7 @@ export default function HomePage() {
       if (hashPower === 0) {
         toast({
           title: "Hash Power Required",
-          description: "You need to purchase hash power to start mining. Redirecting to purchase page...",
+          description: "You need to purchase hash power to start mining. Get started with as little as 10 USDT!",
           variant: "default"
         });
         setTimeout(() => setLocation('/power'), 2000);
@@ -31,243 +43,222 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-black overflow-hidden relative">
-      {/* Animated Bitcoin Background Pattern */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-0 left-0 w-full h-full" 
-            style={{ 
-              backgroundImage: `repeating-linear-gradient(45deg, #f7931a 0, #f7931a 1px, transparent 1px, transparent 15px),
-                               repeating-linear-gradient(-45deg, #f7931a 0, #f7931a 1px, transparent 1px, transparent 15px)`,
-              backgroundSize: '30px 30px'
-            }}>
-          </div>
-        </div>
-      </div>
-
-      {/* Floating Bitcoin Icons */}
-      {[...Array(6)].map((_, i) => (
-        <motion.div
+    <div className="min-h-screen pb-24 relative overflow-hidden bg-black">
+      {/* Background Effects */}
+      <div className="fixed inset-0 bitcoin-grid opacity-10"></div>
+      
+      {/* Hash Streams - More subtle */}
+      {[...Array(3)].map((_, i) => (
+        <div
           key={i}
-          className="absolute text-[#f7931a] opacity-10"
-          initial={{ y: "100vh", x: `${Math.random() * 100}vw` }}
-          animate={{ y: "-100px" }}
-          transition={{
-            duration: 10 + Math.random() * 10,
-            repeat: Infinity,
-            delay: i * 2,
-            ease: "linear"
+          className="hash-stream"
+          style={{
+            left: `${30 * i + 20}%`,
+            animationDelay: `${i * 2}s`,
+            fontSize: '0.5rem',
+            opacity: 0.05
           }}
         >
-          <span className="text-4xl">₿</span>
-        </motion.div>
+          {currentHash}
+        </div>
       ))}
 
       {/* Main Content */}
-      <div className="relative z-10 px-4 py-8 max-w-6xl mx-auto">
+      <div className="relative z-10 p-4 space-y-6">
         {/* Hero Section */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="inline-block mb-6"
-          >
-            <div className="w-24 h-24 mx-auto bg-gradient-to-br from-[#f7931a] to-[#ff9416] rounded-full flex items-center justify-center shadow-2xl shadow-[#f7931a]/50">
-              <span className="text-5xl text-black font-bold">₿</span>
+        <div className="text-center py-8">
+          <div className="mb-6">
+            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-[#f7931a] to-[#ff9416] rounded-full flex items-center justify-center shadow-xl shadow-[#f7931a]/30">
+              <span className="text-4xl text-black font-bold">₿</span>
             </div>
-          </motion.div>
+          </div>
           
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
+          <h1 className="text-4xl font-bold text-white mb-2">
             Green Bitcoin
-            <span className="text-[#f7931a] block text-3xl md:text-4xl mt-2">Mining Network</span>
           </h1>
+          <p className="text-[#f7931a] text-xl mb-4">Mining Network</p>
           
-          <p className="text-gray-400 text-lg mb-8 max-w-2xl mx-auto">
-            Join the revolutionary Bitcoin-style mining ecosystem. Mine GBTC tokens with sustainable energy and earn rewards proportional to your contribution.
+          <p className="text-gray-400 mb-8 max-w-md mx-auto">
+            Join the sustainable Bitcoin-style mining ecosystem. Mine GBTC tokens and earn rewards.
           </p>
 
           {/* Start Mining Button */}
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <Button
+            onClick={handleStartMining}
+            className="bg-gradient-to-r from-[#f7931a] to-[#ff9416] hover:from-[#ff9416] hover:to-[#f7931a] text-black font-bold text-lg px-8 py-6 rounded-lg shadow-lg"
+            data-testid="button-start-mining"
           >
-            <Button
-              onClick={handleStartMining}
-              className="bg-gradient-to-r from-[#f7931a] to-[#ff9416] hover:from-[#ff9416] hover:to-[#f7931a] text-black font-bold text-xl px-12 py-6 rounded-full shadow-2xl shadow-[#f7931a]/30"
-              data-testid="button-start-mining"
-            >
-              <Zap className="w-6 h-6 mr-3" />
-              START MINING
-              <ChevronRight className="w-6 h-6 ml-2" />
-            </Button>
-          </motion.div>
+            <Zap className="w-5 h-5 mr-2" />
+            START MINING
+            <ChevronRight className="w-5 h-5 ml-2" />
+          </Button>
 
           {user && (
             <p className="text-sm text-gray-500 mt-4">
               Welcome back, <span className="text-[#f7931a]">@{user.username}</span>
             </p>
           )}
-        </motion.div>
+        </div>
 
-        {/* Features Grid */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
-        >
-          <Card className="bg-gray-950 border-gray-800 p-6 hover:border-[#f7931a]/50 transition-all">
-            <div className="w-12 h-12 bg-[#f7931a]/20 rounded-lg flex items-center justify-center mb-4">
-              <Shield className="w-6 h-6 text-[#f7931a]" />
-            </div>
-            <h3 className="text-white font-semibold text-lg mb-2">Secure Mining</h3>
-            <p className="text-gray-500 text-sm">
-              Industry-leading security with blockchain verification and encrypted transactions
-            </p>
+        {/* Key Features */}
+        <div className="grid grid-cols-2 gap-3">
+          <Card className="bg-gray-950 border-gray-800 p-4">
+            <div className="text-2xl mb-2">⚡</div>
+            <h3 className="text-white font-semibold mb-1">Instant Mining</h3>
+            <p className="text-gray-500 text-xs">Start earning GBTC immediately</p>
           </Card>
-
-          <Card className="bg-gray-950 border-gray-800 p-6 hover:border-[#f7931a]/50 transition-all">
-            <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mb-4">
-              <TrendingUp className="w-6 h-6 text-green-500" />
-            </div>
-            <h3 className="text-white font-semibold text-lg mb-2">Fair Distribution</h3>
-            <p className="text-gray-500 text-sm">
-              Rewards distributed every 10 minutes based on your hash power contribution
-            </p>
+          
+          <Card className="bg-gray-950 border-gray-800 p-4">
+            <div className="text-2xl mb-2">🔒</div>
+            <h3 className="text-white font-semibold mb-1">Secure Platform</h3>
+            <p className="text-gray-500 text-xs">Bank-grade security for your assets</p>
           </Card>
-
-          <Card className="bg-gray-950 border-gray-800 p-6 hover:border-[#f7931a]/50 transition-all">
-            <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-4">
-              <Users className="w-6 h-6 text-purple-500" />
-            </div>
-            <h3 className="text-white font-semibold text-lg mb-2">Growing Network</h3>
-            <p className="text-gray-500 text-sm">
-              Join thousands of miners worldwide in the GBTC mining revolution
-            </p>
+          
+          <Card className="bg-gray-950 border-gray-800 p-4">
+            <div className="text-2xl mb-2">💰</div>
+            <h3 className="text-white font-semibold mb-1">Fair Rewards</h3>
+            <p className="text-gray-500 text-xs">Proportional distribution system</p>
           </Card>
-        </motion.div>
+          
+          <Card className="bg-gray-950 border-gray-800 p-4">
+            <div className="text-2xl mb-2">🌍</div>
+            <h3 className="text-white font-semibold mb-1">Global Network</h3>
+            <p className="text-gray-500 text-xs">Join thousands of miners worldwide</p>
+          </Card>
+        </div>
 
         {/* How It Works */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mb-12"
-        >
-          <h2 className="text-2xl font-bold text-white text-center mb-8">How It Works</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {[
-              { step: "1", title: "Register", desc: "Create your account", icon: "👤" },
-              { step: "2", title: "Deposit USDT", desc: "Fund your wallet", icon: "💰" },
-              { step: "3", title: "Buy Hash Power", desc: "1 USDT = 1 GH/s", icon: "⚡" },
-              { step: "4", title: "Earn GBTC", desc: "Mine & collect rewards", icon: "₿" }
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6 + i * 0.1 }}
-                className="relative"
-              >
-                <Card className="bg-gray-950 border-gray-800 p-4 text-center">
-                  <div className="text-3xl mb-2">{item.icon}</div>
-                  <div className="text-[#f7931a] font-bold text-sm mb-1">Step {item.step}</div>
-                  <h4 className="text-white font-semibold mb-1">{item.title}</h4>
-                  <p className="text-gray-500 text-xs">{item.desc}</p>
-                </Card>
-                {i < 3 && (
-                  <ArrowRight className="hidden md:block absolute -right-2 top-1/2 -translate-y-1/2 text-gray-700 w-4 h-4" />
-                )}
-              </motion.div>
-            ))}
+        <Card className="bg-gray-950 border-gray-800 p-4">
+          <h2 className="text-white font-semibold mb-4">How It Works</h2>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-[#f7931a]/20 rounded-full flex items-center justify-center text-[#f7931a] font-bold">1</div>
+              <div>
+                <div className="text-white text-sm">Create Account</div>
+                <div className="text-gray-500 text-xs">Register with just username and PIN</div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center text-green-500 font-bold">2</div>
+              <div>
+                <div className="text-white text-sm">Deposit USDT</div>
+                <div className="text-gray-500 text-xs">Fund your wallet securely</div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-500 font-bold">3</div>
+              <div>
+                <div className="text-white text-sm">Buy Hash Power</div>
+                <div className="text-gray-500 text-xs">1 USDT = 1 GH/s mining power</div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-500 font-bold">4</div>
+              <div>
+                <div className="text-white text-sm">Earn GBTC</div>
+                <div className="text-gray-500 text-xs">Receive rewards every 10 minutes</div>
+              </div>
+            </div>
           </div>
-        </motion.div>
+        </Card>
 
-        {/* Key Metrics */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12"
-        >
-          <Card className="bg-gradient-to-br from-[#f7931a]/10 to-transparent border-[#f7931a]/20 p-4">
-            <div className="text-3xl font-bold text-[#f7931a]">21M</div>
-            <div className="text-xs text-gray-500">Total Supply</div>
-          </Card>
-          
-          <Card className="bg-gradient-to-br from-green-500/10 to-transparent border-green-500/20 p-4">
-            <div className="text-3xl font-bold text-green-500">6.25</div>
-            <div className="text-xs text-gray-500">GBTC Per Block</div>
-          </Card>
-          
-          <Card className="bg-gradient-to-br from-purple-500/10 to-transparent border-purple-500/20 p-4">
-            <div className="text-3xl font-bold text-purple-500">10min</div>
-            <div className="text-xs text-gray-500">Block Time</div>
-          </Card>
-          
-          <Card className="bg-gradient-to-br from-blue-500/10 to-transparent border-blue-500/20 p-4">
-            <div className="text-3xl font-bold text-blue-500">144</div>
-            <div className="text-xs text-gray-500">Blocks/Day</div>
-          </Card>
-        </motion.div>
+        {/* GBTC Stats */}
+        <Card className="bg-gradient-to-br from-[#f7931a]/10 to-transparent border-[#f7931a]/20 p-4">
+          <h3 className="text-white font-semibold mb-3">GBTC Token</h3>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <div className="text-xs text-gray-500">Total Supply</div>
+              <div className="text-xl font-bold text-[#f7931a]">21M</div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">Block Reward</div>
+              <div className="text-xl font-bold text-green-500">6.25 GBTC</div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">Block Time</div>
+              <div className="text-xl font-bold text-purple-500">10 min</div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">Halving</div>
+              <div className="text-xl font-bold text-blue-500">4 years</div>
+            </div>
+          </div>
+        </Card>
 
-        {/* Quick Links */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-3"
-        >
-          {user && (
+        {/* Quick Actions */}
+        <div className="space-y-3">
+          {user ? (
             <>
               <Button
                 onClick={() => setLocation('/mining')}
                 variant="outline"
-                className="border-gray-800 hover:border-[#f7931a]/50 hover:bg-[#f7931a]/10"
+                className="w-full justify-between border-gray-800 hover:border-[#f7931a]/50"
               >
-                <Coins className="w-4 h-4 mr-2" />
-                My Mining
+                <span className="flex items-center gap-2">
+                  <Activity className="w-4 h-4" />
+                  My Mining Dashboard
+                </span>
+                <ChevronRight className="w-4 h-4" />
               </Button>
               
               <Button
                 onClick={() => setLocation('/wallet')}
                 variant="outline"
-                className="border-gray-800 hover:border-green-500/50 hover:bg-green-500/10"
+                className="w-full justify-between border-gray-800 hover:border-green-500/50"
               >
-                <span className="mr-2">💰</span>
-                Wallet
+                <span className="flex items-center gap-2">
+                  <Wallet className="w-4 h-4" />
+                  My Wallet
+                </span>
+                <ChevronRight className="w-4 h-4" />
               </Button>
               
               <Button
                 onClick={() => setLocation('/power')}
                 variant="outline"
-                className="border-gray-800 hover:border-purple-500/50 hover:bg-purple-500/10"
+                className="w-full justify-between border-gray-800 hover:border-purple-500/50"
               >
-                <Zap className="w-4 h-4 mr-2" />
-                Buy Power
+                <span className="flex items-center gap-2">
+                  <Zap className="w-4 h-4" />
+                  Purchase Hash Power
+                </span>
+                <ChevronRight className="w-4 h-4" />
               </Button>
             </>
+          ) : (
+            <Button
+              onClick={() => setLocation('/auth')}
+              variant="outline"
+              className="w-full justify-between border-gray-800 hover:border-[#f7931a]/50"
+            >
+              <span className="flex items-center gap-2">
+                <Activity className="w-4 h-4" />
+                Login to Start Mining
+              </span>
+              <ChevronRight className="w-4 h-4" />
+            </Button>
           )}
           
           <Button
             onClick={() => setLocation('/global')}
             variant="outline"
-            className="border-gray-800 hover:border-blue-500/50 hover:bg-blue-500/10"
+            className="w-full justify-between border-gray-800 hover:border-blue-500/50"
           >
-            <span className="mr-2">🌍</span>
-            Global Stats
+            <span className="flex items-center gap-2">
+              <Globe className="w-4 h-4" />
+              Global Network Statistics
+            </span>
+            <ChevronRight className="w-4 h-4" />
           </Button>
-        </motion.div>
+        </div>
 
         {/* Footer */}
-        <div className="text-center mt-12 pb-4">
+        <div className="text-center pt-8 pb-4">
           <p className="text-gray-600 text-xs">
-            © 2024 Green Bitcoin Mining Network • Sustainable Mining for the Future
+            © 2024 Green Bitcoin Mining • Sustainable Mining
           </p>
         </div>
       </div>

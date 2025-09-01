@@ -280,7 +280,7 @@ export default function GlobalPage() {
         </motion.div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes slideLeft {
           from { transform: translateX(0); }
           to { transform: translateX(-50%); }

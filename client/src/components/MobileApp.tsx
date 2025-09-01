@@ -14,6 +14,7 @@ import AccountPage from "@/pages/account-page";
 import AdminPage from "@/pages/admin-page";
 import TransactionsPage from "@/pages/transactions-page";
 import Whitepaper from "@/pages/whitepaper";
+import GlobalPage from "@/pages/global-page";
 import { ProtectedRoute } from "@/lib/protected-route";
 import LoadingScreen from "./LoadingScreen";
 
@@ -103,6 +104,7 @@ export default function MobileApp() {
           <ProtectedRoute path="/transfer" component={TransferPage} />
           <ProtectedRoute path="/transactions" component={TransactionsPage} />
           <Route path="/whitepaper" component={Whitepaper} />
+          <Route path="/global" component={GlobalPage} />
           <ProtectedRoute path="/admin" component={AdminPage} />
         </Switch>
       </div>
