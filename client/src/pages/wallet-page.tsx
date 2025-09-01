@@ -8,9 +8,8 @@ import { Label } from "@/components/ui/label";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Bitcoin, DollarSign, TrendingUp, ArrowDownCircle, ArrowUpCircle, Send, Activity, Coins, Zap, Shield, Banknote, Wallet, Sparkles, CircleDollarSign } from "lucide-react";
+import { Loader2, ArrowDownCircle, ArrowUpCircle, Send, Zap, Coins, CircleDollarSign, Copy, CheckCircle } from "lucide-react";
 import { useLocation } from "wouter";
-import { motion } from "framer-motion";
 
 export default function WalletPage() {
   const { user } = useAuth();
@@ -18,14 +17,14 @@ export default function WalletPage() {
   const [, setLocation] = useLocation();
   const [showSendDialog, setShowSendDialog] = useState(false);
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
-  const [withdrawType, setWithdrawType] = useState<'GBTC' | 'USDT'>('GBTC');
+  const [withdrawType, setWithdrawType] = useState<'GBTC' | 'USDT'>('USDT');
   const [recipientUsername, setRecipientUsername] = useState("");
   const [sendAmount, setSendAmount] = useState("");
-  // Separate state for GBTC and USDT withdrawals
   const [gbtcWithdrawAmount, setGbtcWithdrawAmount] = useState("");
   const [gbtcWithdrawAddress, setGbtcWithdrawAddress] = useState("");
   const [usdtWithdrawAmount, setUsdtWithdrawAmount] = useState("");
   const [usdtWithdrawAddress, setUsdtWithdrawAddress] = useState("");
+  const [copiedAddress, setCopiedAddress] = useState(false);
 
   const usdtBalance = parseFloat(user?.usdtBalance || '0');
   const gbtcBalance = parseFloat(user?.gbtcBalance || '0');
@@ -34,6 +33,9 @@ export default function WalletPage() {
   
   // Calculate total portfolio value (1 GBTC = $10 USD)
   const totalPortfolioValue = usdtBalance + (gbtcBalance * 10);
+  
+  // Generate wallet address for user
+  const walletAddress = user?.id ? `0x${user.id.replace(/-/g, '').substring(0, 40)}` : '';
 
   const sendGbtcMutation = useMutation({
     mutationFn: async (data: { toUsername: string; amount: string }) => {
@@ -64,7 +66,7 @@ export default function WalletPage() {
       const res = await apiRequest("POST", "/api/withdrawals", {
         amount: data.amount,
         address: data.address,
-        network: data.type === 'USDT' ? 'ERC20' : 'GBTC'
+        network: data.type === 'USDT' ? 'BSC' : 'GBTC'
       });
       return res.json();
     },
@@ -75,7 +77,6 @@ export default function WalletPage() {
       });
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       setShowWithdrawDialog(false);
-      // Clear all withdrawal fields
       setGbtcWithdrawAmount("");
       setGbtcWithdrawAddress("");
       setUsdtWithdrawAmount("");
@@ -148,289 +149,218 @@ export default function WalletPage() {
     return `${hashrate.toFixed(2)} GH/s`;
   };
 
-  return (
-    <div className="mobile-page bg-gradient-to-b from-black via-gray-900 to-black overflow-hidden">
-      {/* Bitcoin Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-0 left-0 w-full h-full" 
-          style={{ 
-            backgroundImage: `repeating-linear-gradient(45deg, #f7931a 0, #f7931a 1px, transparent 1px, transparent 15px),
-                             repeating-linear-gradient(-45deg, #f7931a 0, #f7931a 1px, transparent 1px, transparent 15px)`,
-            backgroundSize: '20px 20px'
-          }}>
-        </div>
-      </div>
+  const copyAddress = () => {
+    navigator.clipboard.writeText(walletAddress);
+    setCopiedAddress(true);
+    setTimeout(() => setCopiedAddress(false), 2000);
+  };
 
-      {/* Header with Bitcoin Orange */}
-      <div className="mobile-header bg-gradient-to-r from-black via-gray-900 to-black backdrop-blur-lg border-b border-[#f7931a]/30 relative z-10">
+  return (
+    <div className="mobile-page bg-black">
+      {/* Professional Header */}
+      <div className="mobile-header bg-black/90 backdrop-blur-sm border-b border-[#f7931a]/20">
         <div>
-          <h1 className="text-2xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-[#f7931a] to-[#ff9416]">
-            MY WALLET
-          </h1>
-          <p className="text-xs text-[#f7931a]/60 font-mono">All Digital Assets</p>
+          <h1 className="text-base font-medium text-white">Digital Wallet</h1>
+          <p className="text-xs text-gray-500">@{user?.username || 'loading'}</p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-[#f7931a]/60 font-mono">USERNAME</p>
-          <p className="text-sm font-mono text-[#f7931a] font-bold flex items-center justify-end">
-            <Sparkles className="w-3 h-3 mr-1" />
-            @{user?.username || 'loading...'}
+          <p className="text-xs text-gray-500">Total Value</p>
+          <p className="text-sm font-medium text-white">
+            ${totalPortfolioValue.toFixed(2)}
           </p>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="mobile-content relative z-10">
-        {/* Total Portfolio Value Card with Bitcoin Theme */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="mobile-card bg-gradient-to-br from-[#f7931a]/20 via-[#ff9416]/10 to-[#f7931a]/20 border-[#f7931a]/40 overflow-hidden relative shadow-[0_0_30px_rgba(247,147,26,0.2)]">
-            {/* Animated Bitcoin Pattern Background */}
-            <div className="absolute inset-0">
-              <motion.div
-                animate={{ 
-                  backgroundPosition: ['0% 0%', '100% 100%'],
-                }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 opacity-10"
-                style={{
-                  backgroundImage: `radial-gradient(circle at 20% 80%, #f7931a 0%, transparent 50%),
-                                   radial-gradient(circle at 80% 20%, #ff9416 0%, transparent 50%),
-                                   radial-gradient(circle at 40% 40%, #f7931a 0%, transparent 50%)`,
-                  backgroundSize: '200% 200%',
-                }}
-              />
+      <div className="mobile-content">
+        {/* Wallet Address Card */}
+        <Card className="p-3 mb-4 bg-gray-950 border-gray-800">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-xs text-gray-500 mb-1">Wallet Address</p>
+              <p className="text-xs font-mono text-gray-300 truncate pr-2">{walletAddress}</p>
             </div>
-            
-            <div className="relative z-10 text-center py-8">
-              <div className="flex items-center justify-center space-x-2 mb-4">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                >
-                  <Bitcoin className="w-6 h-6 text-[#f7931a]" />
-                </motion.div>
-                <p className="text-sm text-[#f7931a]/80 font-mono uppercase tracking-wider">Total Portfolio Value</p>
-              </div>
-              
-              <motion.div
-                animate={{ scale: [1, 1.02, 1] }}
-                transition={{ duration: 3, repeat: Infinity }}
-                className="mb-3"
-              >
-                <p className="text-5xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-[#f7931a] via-[#ffb347] to-[#f7931a] drop-shadow-[0_2px_10px_rgba(247,147,26,0.5)]">
-                  ${totalPortfolioValue.toFixed(2)}
-                </p>
-              </motion.div>
-              
-              <div className="flex items-center justify-center space-x-4 text-xs font-mono">
-                <span className="flex items-center space-x-1 px-2 py-1 bg-[#f7931a]/10 rounded-full">
-                  <Bitcoin className="w-3 h-3 text-[#f7931a]" />
-                  <span className="text-[#f7931a]/80">1 GBTC = $10</span>
-                </span>
-              </div>
-            </div>
-          </Card>
-        </motion.div>
+            <Button
+              onClick={copyAddress}
+              variant="ghost"
+              size="sm"
+              className="p-2 hover:bg-gray-800"
+              data-testid="button-copy-address"
+            >
+              {copiedAddress ? (
+                <CheckCircle className="w-4 h-4 text-green-500" />
+              ) : (
+                <Copy className="w-4 h-4 text-gray-400" />
+              )}
+            </Button>
+          </div>
+        </Card>
 
-        {/* Assets Grid with Bitcoin Orange Theme */}
-        <div className="grid grid-cols-2 gap-3 mb-3">
+        {/* Balance Cards - Compact Grid */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
           {/* GBTC Balance */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            <Card className="bg-gradient-to-br from-[#f7931a]/15 to-black border-[#f7931a]/30 overflow-hidden relative group">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#f7931a]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              
-              <div className="relative z-10 p-3">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-[#f7931a] to-[#ff9416] rounded-lg flex items-center justify-center shadow-[0_0_20px_rgba(247,147,26,0.5)]">
-                    <Bitcoin className="w-5 h-5 text-black" />
-                  </div>
-                  <span className="text-[10px] font-mono text-[#f7931a] px-1.5 py-0.5 bg-[#f7931a]/10 rounded">MINED</span>
-                </div>
-                
-                <p className="text-[10px] text-[#f7931a]/60 font-mono mb-0.5">GBTC BALANCE</p>
-                <p className="text-lg font-display font-black text-[#f7931a]">
-                  {gbtcBalance.toFixed(8)}
-                </p>
-                <p className="text-[10px] text-[#f7931a]/50 flex items-center mt-1">
-                  ≈ ${(gbtcBalance * 10).toFixed(2)}
-                </p>
+          <Card className="p-3 bg-gray-950 border-gray-800">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-8 h-8 bg-[#f7931a] rounded-full flex items-center justify-center">
+                <span className="text-black font-bold text-sm">₿</span>
               </div>
-            </Card>
-          </motion.div>
+              <span className="text-[10px] text-[#f7931a] font-medium">GBTC</span>
+            </div>
+            <p className="text-lg font-semibold text-white mb-0.5">
+              {gbtcBalance.toFixed(8)}
+            </p>
+            <p className="text-[10px] text-gray-500">
+              ≈ ${(gbtcBalance * 10).toFixed(2)} USD
+            </p>
+          </Card>
 
           {/* USDT Balance */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <Card className="bg-gradient-to-br from-emerald-500/15 to-black border-emerald-500/30 overflow-hidden relative group">
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              
-              <div className="relative z-10 p-3">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.5)]">
-                    <CircleDollarSign className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="text-[10px] font-mono text-emerald-500 px-1.5 py-0.5 bg-emerald-500/10 rounded">AVAILABLE</span>
-                </div>
-                
-                <p className="text-[10px] text-emerald-500/60 font-mono mb-0.5">USDT BALANCE</p>
-                <p className="text-lg font-display font-black text-emerald-500">
-                  ${usdtBalance.toFixed(2)}
-                </p>
-                <p className="text-[10px] text-emerald-500/50 mt-1">
-                  Tether USD
-                </p>
+          <Card className="p-3 bg-gray-950 border-gray-800">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                <CircleDollarSign className="w-5 h-5 text-white" />
               </div>
-            </Card>
-          </motion.div>
+              <span className="text-[10px] text-green-600 font-medium">USDT</span>
+            </div>
+            <p className="text-lg font-semibold text-white mb-0.5">
+              ${usdtBalance.toFixed(2)}
+            </p>
+            <p className="text-[10px] text-gray-500">
+              Tether USD
+            </p>
+          </Card>
 
-          {/* Hashrate Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <Card className="bg-gradient-to-br from-purple-500/15 to-black border-purple-500/30 overflow-hidden relative group">
-              <div className="relative z-10 p-3">
-                <div className="flex items-center space-x-1.5 mb-1">
-                  <Zap className="w-3.5 h-3.5 text-purple-500" />
-                  <p className="text-[10px] text-purple-500/60 font-mono">HASHRATE</p>
-                </div>
-                <p className="text-base font-display font-bold text-purple-500">
-                  {getHashrateDisplay(hashPower)}
-                </p>
-              </div>
-            </Card>
-          </motion.div>
+          {/* Mining Stats */}
+          <Card className="p-3 bg-gray-950 border-gray-800">
+            <div className="flex items-center space-x-2 mb-1.5">
+              <Zap className="w-4 h-4 text-yellow-500" />
+              <span className="text-[10px] text-gray-500">Hash Power</span>
+            </div>
+            <p className="text-sm font-medium text-white">
+              {getHashrateDisplay(hashPower)}
+            </p>
+          </Card>
 
-          {/* Unclaimed Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <Card className="bg-gradient-to-br from-amber-500/15 to-black border-amber-500/30 overflow-hidden relative group">
-              <div className="relative z-10 p-3">
-                <div className="flex items-center space-x-1.5 mb-1">
-                  <Coins className="w-3.5 h-3.5 text-amber-500" />
-                  <p className="text-[10px] text-amber-500/60 font-mono">UNCLAIMED</p>
-                </div>
-                <p className="text-base font-display font-bold text-amber-500">
-                  {unclaimedBalance.toFixed(8)}
-                </p>
-                <p className="text-[9px] text-amber-500/50">GBTC</p>
-              </div>
-            </Card>
-          </motion.div>
+          {/* Unclaimed */}
+          <Card className="p-3 bg-gray-950 border-gray-800">
+            <div className="flex items-center space-x-2 mb-1.5">
+              <Coins className="w-4 h-4 text-orange-500" />
+              <span className="text-[10px] text-gray-500">Unclaimed</span>
+            </div>
+            <p className="text-sm font-medium text-white">
+              {unclaimedBalance.toFixed(8)}
+            </p>
+          </Card>
         </div>
 
-        {/* Action Buttons with Bitcoin Theme */}
-        <div className="space-y-2 mb-3">
-          {/* Deposit Button */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <Button
+            onClick={() => setLocation("/deposit")}
+            className="h-10 bg-green-600 hover:bg-green-700 text-white font-medium text-sm"
+            data-testid="button-deposit"
           >
-            <Button
-              onClick={() => setLocation("/deposit")}
-              className="w-full h-12 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.3)] border border-emerald-500/20"
-              data-testid="button-deposit"
-            >
-              <ArrowDownCircle className="w-4 h-4 mr-2" />
-              <span className="font-bold">DEPOSIT USDT</span>
-            </Button>
-          </motion.div>
-
-          {/* Withdraw Button */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
+            <ArrowDownCircle className="w-4 h-4 mr-1.5" />
+            Deposit
+          </Button>
+          
+          <Button
+            onClick={() => setLocation("/withdraw")}
+            className="h-10 bg-[#f7931a] hover:bg-[#e88309] text-black font-medium text-sm"
+            data-testid="button-withdraw-page"
           >
-            <Button
-              onClick={() => setShowWithdrawDialog(true)}
-              className="w-full h-12 bg-gradient-to-r from-[#f7931a] to-[#ff9416] hover:from-[#ff9416] hover:to-[#f7931a] shadow-[0_0_20px_rgba(247,147,26,0.3)] text-black font-bold border border-[#f7931a]/20"
-              data-testid="button-withdraw"
-            >
-              <ArrowUpCircle className="w-4 h-4 mr-2" />
-              WITHDRAW
-            </Button>
-          </motion.div>
-
-          {/* Send GBTC Button */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.7 }}
-          >
-            <Button
-              onClick={() => setShowSendDialog(true)}
-              className="w-full h-12 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-[0_0_20px_rgba(147,51,234,0.3)] border border-purple-500/20"
-              data-testid="button-send"
-            >
-              <Send className="w-4 h-4 mr-2" />
-              <span className="font-bold">SEND GBTC</span>
-            </Button>
-          </motion.div>
+            <ArrowUpCircle className="w-4 h-4 mr-1.5" />
+            Withdraw
+          </Button>
         </div>
 
+        {/* Additional Actions */}
+        <div className="space-y-3">
+          <Button
+            onClick={() => setShowSendDialog(true)}
+            variant="outline"
+            className="w-full h-10 border-gray-800 bg-gray-950 hover:bg-gray-900 text-white font-medium text-sm"
+            data-testid="button-send"
+          >
+            <Send className="w-4 h-4 mr-2" />
+            Send GBTC
+          </Button>
+
+          {unclaimedBalance > 0 && (
+            <Button
+              onClick={() => setLocation("/mining")}
+              variant="outline"
+              className="w-full h-10 border-orange-900 bg-orange-950/20 hover:bg-orange-950/30 text-orange-500 font-medium text-sm"
+              data-testid="button-claim"
+            >
+              <Coins className="w-4 h-4 mr-2" />
+              Claim {unclaimedBalance.toFixed(8)} GBTC
+            </Button>
+          )}
+        </div>
+
+        {/* Recent Activity Card */}
+        <Card className="p-3 mt-4 bg-gray-950 border-gray-800">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xs font-medium text-gray-400">Recent Activity</h3>
+            <Button
+              onClick={() => setLocation("/transactions")}
+              variant="ghost"
+              size="sm"
+              className="text-xs text-[#f7931a] hover:text-[#e88309] p-0 h-auto"
+              data-testid="button-view-all"
+            >
+              View All
+            </Button>
+          </div>
+          <div className="space-y-2">
+            <p className="text-xs text-gray-600 text-center py-2">No recent transactions</p>
+          </div>
+        </Card>
       </div>
 
       {/* Send GBTC Dialog */}
       <Dialog open={showSendDialog} onOpenChange={setShowSendDialog}>
-        <DialogContent className="sm:max-w-md bg-gradient-to-br from-black to-gray-900 border-[#f7931a]/20">
+        <DialogContent className="sm:max-w-md bg-gray-950 border-gray-800">
           <DialogHeader>
-            <DialogTitle className="font-display flex items-center space-x-2 text-[#f7931a]">
-              <Bitcoin className="w-5 h-5" />
-              <span>Send GBTC</span>
+            <DialogTitle className="text-white font-medium flex items-center">
+              <span className="text-[#f7931a] mr-2">₿</span>
+              Send GBTC
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="recipient" className="text-[#f7931a]/80">Recipient Username</Label>
+              <Label htmlFor="recipient" className="text-gray-400 text-sm">Recipient Username</Label>
               <Input
                 id="recipient"
                 value={recipientUsername}
                 onChange={(e) => setRecipientUsername(e.target.value)}
-                placeholder="Enter @username"
-                className="bg-black/50 border-[#f7931a]/20 focus:border-[#f7931a]/50"
+                placeholder="Enter username"
+                className="bg-black border-gray-800 text-white placeholder:text-gray-600"
                 data-testid="input-recipient"
               />
             </div>
             <div>
-              <Label htmlFor="amount" className="text-[#f7931a]/80">Amount (GBTC)</Label>
-              <div className="relative">
-                <Bitcoin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#f7931a]/50" />
-                <Input
-                  id="amount"
-                  type="number"
-                  value={sendAmount}
-                  onChange={(e) => setSendAmount(e.target.value)}
-                  placeholder="0.00000000"
-                  step="0.00000001"
-                  max={gbtcBalance}
-                  className="pl-10 bg-black/50 border-[#f7931a]/20 focus:border-[#f7931a]/50"
-                  data-testid="input-send-amount"
-                />
-              </div>
-              <p className="text-xs text-[#f7931a]/60 mt-1">
+              <Label htmlFor="amount" className="text-gray-400 text-sm">Amount (GBTC)</Label>
+              <Input
+                id="amount"
+                type="number"
+                value={sendAmount}
+                onChange={(e) => setSendAmount(e.target.value)}
+                placeholder="0.00000000"
+                step="0.00000001"
+                max={gbtcBalance}
+                className="bg-black border-gray-800 text-white placeholder:text-gray-600"
+                data-testid="input-send-amount"
+              />
+              <p className="text-xs text-gray-500 mt-1">
                 Available: {gbtcBalance.toFixed(8)} GBTC
               </p>
             </div>
             <Button
               onClick={handleSend}
               disabled={sendGbtcMutation.isPending}
-              className="w-full bg-gradient-to-r from-[#f7931a] to-[#ff9416] hover:from-[#ff9416] hover:to-[#f7931a] text-black font-bold"
+              className="w-full bg-[#f7931a] hover:bg-[#e88309] text-black font-medium"
               data-testid="button-confirm-send"
             >
               {sendGbtcMutation.isPending ? (
@@ -451,27 +381,27 @@ export default function WalletPage() {
 
       {/* Withdraw Dialog */}
       <Dialog open={showWithdrawDialog} onOpenChange={setShowWithdrawDialog}>
-        <DialogContent className="sm:max-w-md bg-gradient-to-br from-black to-gray-900 border-[#f7931a]/20">
+        <DialogContent className="sm:max-w-md bg-gray-950 border-gray-800">
           <DialogHeader>
-            <DialogTitle className="font-display text-[#f7931a]">Withdraw Funds</DialogTitle>
+            <DialogTitle className="text-white font-medium">Withdraw Funds</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             {/* Currency Selection */}
             <div>
-              <Label className="text-[#f7931a]/80">Select Currency</Label>
+              <Label className="text-gray-400 text-sm">Select Currency</Label>
               <div className="grid grid-cols-2 gap-2 mt-2">
                 <Button
                   variant={withdrawType === 'GBTC' ? 'default' : 'outline'}
                   onClick={() => setWithdrawType('GBTC')}
-                  className={withdrawType === 'GBTC' ? 'bg-gradient-to-r from-[#f7931a] to-[#ff9416] text-black' : 'border-[#f7931a]/20'}
+                  className={withdrawType === 'GBTC' ? 'bg-[#f7931a] hover:bg-[#e88309] text-black' : 'border-gray-800 text-gray-400'}
                 >
-                  <Bitcoin className="w-4 h-4 mr-2" />
+                  <span className="mr-2">₿</span>
                   GBTC
                 </Button>
                 <Button
                   variant={withdrawType === 'USDT' ? 'default' : 'outline'}
                   onClick={() => setWithdrawType('USDT')}
-                  className={withdrawType === 'USDT' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' : 'border-emerald-500/20'}
+                  className={withdrawType === 'USDT' ? 'bg-green-600 hover:bg-green-700' : 'border-gray-800 text-gray-400'}
                 >
                   <CircleDollarSign className="w-4 h-4 mr-2" />
                   USDT
@@ -480,32 +410,25 @@ export default function WalletPage() {
             </div>
             
             <div>
-              <Label htmlFor="withdraw-amount" className="text-[#f7931a]/80">Amount</Label>
-              <div className="relative">
-                {withdrawType === 'GBTC' ? (
-                  <Bitcoin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#f7931a]/50" />
-                ) : (
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500/50" />
-                )}
-                <Input
-                  id="withdraw-amount"
-                  type="number"
-                  value={withdrawType === 'GBTC' ? gbtcWithdrawAmount : usdtWithdrawAmount}
-                  onChange={(e) => {
-                    if (withdrawType === 'GBTC') {
-                      setGbtcWithdrawAmount(e.target.value);
-                    } else {
-                      setUsdtWithdrawAmount(e.target.value);
-                    }
-                  }}
-                  placeholder={withdrawType === 'GBTC' ? "0.00000000" : "0.00"}
-                  step={withdrawType === 'GBTC' ? "0.00000001" : "0.01"}
-                  max={withdrawType === 'GBTC' ? gbtcBalance : usdtBalance}
-                  className="pl-10 bg-black/50 border-[#f7931a]/20 focus:border-[#f7931a]/50"
-                  data-testid="input-withdraw-amount"
-                />
-              </div>
-              <p className="text-xs text-[#f7931a]/60 mt-1">
+              <Label htmlFor="withdraw-amount" className="text-gray-400 text-sm">Amount</Label>
+              <Input
+                id="withdraw-amount"
+                type="number"
+                value={withdrawType === 'GBTC' ? gbtcWithdrawAmount : usdtWithdrawAmount}
+                onChange={(e) => {
+                  if (withdrawType === 'GBTC') {
+                    setGbtcWithdrawAmount(e.target.value);
+                  } else {
+                    setUsdtWithdrawAmount(e.target.value);
+                  }
+                }}
+                placeholder={withdrawType === 'GBTC' ? "0.00000000" : "0.00"}
+                step={withdrawType === 'GBTC' ? "0.00000001" : "0.01"}
+                max={withdrawType === 'GBTC' ? gbtcBalance : usdtBalance}
+                className="bg-black border-gray-800 text-white placeholder:text-gray-600"
+                data-testid="input-withdraw-amount"
+              />
+              <p className="text-xs text-gray-500 mt-1">
                 Available: {withdrawType === 'GBTC' 
                   ? `${gbtcBalance.toFixed(8)} GBTC` 
                   : `$${usdtBalance.toFixed(2)} USDT`}
@@ -513,7 +436,7 @@ export default function WalletPage() {
             </div>
             
             <div>
-              <Label htmlFor="withdraw-address" className="text-[#f7931a]/80">Wallet Address</Label>
+              <Label htmlFor="withdraw-address" className="text-gray-400 text-sm">Wallet Address</Label>
               <Input
                 id="withdraw-address"
                 value={withdrawType === 'GBTC' ? gbtcWithdrawAddress : usdtWithdrawAddress}
@@ -524,8 +447,8 @@ export default function WalletPage() {
                     setUsdtWithdrawAddress(e.target.value);
                   }
                 }}
-                placeholder={withdrawType === 'GBTC' ? "Enter GBTC address" : "Enter USDT (ERC-20) address"}
-                className="bg-black/50 border-[#f7931a]/20 focus:border-[#f7931a]/50 font-mono text-xs"
+                placeholder={withdrawType === 'GBTC' ? "Enter GBTC address" : "Enter USDT address"}
+                className="bg-black border-gray-800 text-white placeholder:text-gray-600 font-mono text-xs"
                 data-testid="input-withdraw-address"
               />
             </div>
@@ -533,19 +456,16 @@ export default function WalletPage() {
             {withdrawType === 'GBTC' ? (
               <Button
                 disabled
-                className="w-full bg-gradient-to-r from-gray-600 to-gray-700 cursor-not-allowed opacity-75"
+                className="w-full bg-gray-700 cursor-not-allowed opacity-50"
                 data-testid="button-confirm-withdraw"
               >
-                <span className="flex items-center justify-center">
-                  <ArrowUpCircle className="w-4 h-4 mr-2 opacity-50" />
-                  Withdraw GBTC - Coming Soon
-                </span>
+                GBTC Withdrawals Coming Soon
               </Button>
             ) : (
               <Button
                 onClick={handleWithdraw}
                 disabled={withdrawMutation.isPending}
-                className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 font-bold"
+                className="w-full bg-green-600 hover:bg-green-700 font-medium"
                 data-testid="button-confirm-withdraw"
               >
                 {withdrawMutation.isPending ? (
