@@ -257,287 +257,254 @@ export default function MiningFactory() {
               </span>
             </div>
 
-            {/* Pickaxe Mining Animation */}
+            {/* Energy Core Mining Animation */}
             <div className="flex justify-center my-6 relative">
               <div className="relative w-48 h-48 flex items-center justify-center">
                 
-                {/* Star burst effects at top */}
-                {isMining && (
-                  <>
-                    <motion.div
-                      className="absolute top-8 left-1/2 -translate-x-8"
-                      animate={{
-                        opacity: [0.5, 1, 0.5],
-                        scale: [0.8, 1.2, 0.8],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    >
-                      <div className="relative">
-                        {[...Array(8)].map((_, i) => (
-                          <div
-                            key={i}
-                            className="absolute w-16 h-0.5 bg-gradient-to-r from-transparent via-white to-transparent"
-                            style={{
-                              transform: `rotate(${i * 45}deg)`,
-                              transformOrigin: 'center',
-                            }}
-                          />
-                        ))}
-                        <div className="absolute -inset-2 bg-white rounded-full blur-xl opacity-60"></div>
-                      </div>
-                    </motion.div>
-                    
-                    <motion.div
-                      className="absolute top-8 left-1/2 translate-x-8"
-                      animate={{
-                        opacity: [0.5, 1, 0.5],
-                        scale: [0.8, 1.2, 0.8],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: 0.5,
-                      }}
-                    >
-                      <div className="relative">
-                        {[...Array(8)].map((_, i) => (
-                          <div
-                            key={i}
-                            className="absolute w-16 h-0.5 bg-gradient-to-r from-transparent via-white to-transparent"
-                            style={{
-                              transform: `rotate(${i * 45}deg)`,
-                              transformOrigin: 'center',
-                            }}
-                          />
-                        ))}
-                        <div className="absolute -inset-2 bg-white rounded-full blur-xl opacity-60"></div>
-                      </div>
-                    </motion.div>
-                  </>
-                )}
-
-                {/* Circular gear border with pickaxe */}
-                <motion.div
-                  className="relative w-32 h-32"
-                  animate={isMining ? {
-                    rotate: [0, 360],
-                  } : {}}
-                  transition={{
-                    duration: 8,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                >
-                  {/* Outer gear teeth */}
-                  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 128 128">
-                    <g transform="translate(64, 64)">
-                      {[...Array(8)].map((_, i) => (
-                        <rect
-                          key={i}
-                          x="-6"
-                          y="-60"
-                          width="12"
-                          height="20"
-                          rx="2"
-                          fill="url(#orangeGradient)"
-                          transform={`rotate(${i * 45})`}
-                          opacity={isMining ? 1 : 0.5}
-                        />
-                      ))}
-                      <circle
-                        cx="0"
-                        cy="0"
-                        r="50"
-                        fill="none"
-                        stroke="url(#orangeGradient)"
-                        strokeWidth="3"
-                        opacity={isMining ? 1 : 0.5}
-                      />
-                    </g>
-                    <defs>
-                      <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#fbbf24" />
-                        <stop offset="50%" stopColor="#f97316" />
-                        <stop offset="100%" stopColor="#ea580c" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-
-                  {/* Central pickaxe icon */}
+                {/* Central Energy Core */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {/* Outer hexagon frame */}
                   <motion.div
-                    className="absolute inset-0 flex items-center justify-center"
+                    className="absolute w-36 h-36"
                     animate={isMining ? {
-                      scale: [1, 1.1, 1],
-                      rotate: [0, -10, 10, 0],
+                      rotate: [0, 360],
                     } : {}}
                     transition={{
-                      duration: 1,
+                      duration: 10,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                  >
+                    <svg className="w-full h-full" viewBox="0 0 144 144">
+                      <polygon
+                        points="72,12 122,42 122,102 72,132 22,102 22,42"
+                        fill="none"
+                        stroke={isMining ? "#f97316" : "#374151"}
+                        strokeWidth="2"
+                        opacity={isMining ? 1 : 0.3}
+                      />
+                      <polygon
+                        points="72,24 110,48 110,96 72,120 34,96 34,48"
+                        fill="none"
+                        stroke={isMining ? "#fbbf24" : "#374151"}
+                        strokeWidth="1"
+                        opacity={isMining ? 0.8 : 0.2}
+                      />
+                    </svg>
+                  </motion.div>
+
+                  {/* Energy core center */}
+                  <motion.div
+                    className="absolute w-20 h-20"
+                    animate={isMining ? {
+                      scale: [1, 1.2, 1],
+                    } : {}}
+                    transition={{
+                      duration: 2,
                       repeat: Infinity,
                       ease: "easeInOut",
                     }}
                   >
-                    <div className="relative">
-                      {/* Pickaxe shape */}
-                      <svg width="60" height="60" viewBox="0 0 60 60" className="drop-shadow-2xl">
-                        <g transform="translate(30, 30)">
-                          {/* Handle */}
-                          <rect
-                            x="-3"
-                            y="-20"
-                            width="6"
-                            height="40"
-                            fill="#8b4513"
-                            rx="2"
-                          />
-                          {/* Pickaxe head - left */}
-                          <path
-                            d="M -20 -15 L -5 -10 L -5 -5 L -20 0 Z"
-                            fill="url(#pickGradient)"
-                          />
-                          {/* Pickaxe head - right */}
-                          <path
-                            d="M 20 -15 L 5 -10 L 5 -5 L 20 0 Z"
-                            fill="url(#pickGradient)"
-                          />
-                          {/* Center connector */}
-                          <rect
-                            x="-8"
-                            y="-12"
-                            width="16"
-                            height="8"
-                            fill="url(#pickGradient)"
-                            rx="1"
-                          />
-                        </g>
-                        <defs>
-                          <linearGradient id="pickGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#fbbf24" />
-                            <stop offset="50%" stopColor="#f97316" />
-                            <stop offset="100%" stopColor="#dc2626" />
-                          </linearGradient>
-                        </defs>
-                      </svg>
-                      
-                      {/* Glow effect */}
-                      {isMining && (
-                        <motion.div
-                          className="absolute inset-0 flex items-center justify-center"
-                          animate={{
-                            opacity: [0.5, 1, 0.5],
-                          }}
-                          transition={{
-                            duration: 1.5,
-                            repeat: Infinity,
-                          }}
-                        >
-                          <div className="w-20 h-20 bg-orange-500 rounded-full blur-2xl opacity-50"></div>
-                        </motion.div>
-                      )}
-                    </div>
-                  </motion.div>
-                </motion.div>
-
-                {/* Mining particles */}
-                {isMining && (
-                  <>
-                    {[...Array(12)].map((_, index) => (
+                    <div className={`w-full h-full rounded-full relative ${isMining ? 'bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-600' : 'bg-gray-800'}`}>
+                      {/* Inner core */}
                       <motion.div
-                        key={`particle-${index}`}
-                        className="absolute"
-                        initial={{
-                          x: 0,
-                          y: 0,
-                          opacity: 0,
+                        className="absolute inset-2 rounded-full bg-gradient-to-br from-white via-yellow-200 to-orange-300"
+                        animate={isMining ? {
+                          opacity: [0.6, 1, 0.6],
+                        } : {}}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
                         }}
+                      />
+                      
+                      {/* Bitcoin symbol */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-2xl font-bold text-orange-900">₿</span>
+                      </div>
+                    </div>
+
+                    {/* Pulsing glow */}
+                    {isMining && (
+                      <motion.div
+                        className="absolute inset-0 rounded-full"
                         animate={{
-                          x: [0, (Math.random() - 0.5) * 100],
-                          y: [0, (Math.random() - 0.5) * 100],
-                          opacity: [0, 1, 0],
+                          boxShadow: [
+                            '0 0 20px rgba(251, 146, 60, 0.5)',
+                            '0 0 40px rgba(251, 146, 60, 0.8)',
+                            '0 0 20px rgba(251, 146, 60, 0.5)',
+                          ],
                         }}
                         transition={{
                           duration: 2,
                           repeat: Infinity,
-                          delay: index * 0.2,
-                          ease: "easeOut",
                         }}
-                      >
-                        <div className="w-3 h-3 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full shadow-lg"></div>
-                      </motion.div>
-                    ))}
-                  </>
-                )}
+                      />
+                    )}
+                  </motion.div>
 
-                {/* Block found animation */}
-                <AnimatePresence>
-                  {showNewBlock && (
+                  {/* Energy rings */}
+                  {isMining && (
+                    <>
+                      {[0, 1, 2].map((ring) => (
+                        <motion.div
+                          key={`ring-${ring}`}
+                          className="absolute rounded-full border-2 border-orange-400"
+                          initial={{
+                            width: 80,
+                            height: 80,
+                            opacity: 1,
+                          }}
+                          animate={{
+                            width: [80, 160, 200],
+                            height: [80, 160, 200],
+                            opacity: [1, 0.5, 0],
+                          }}
+                          transition={{
+                            duration: 3,
+                            repeat: Infinity,
+                            delay: ring * 1,
+                          }}
+                        />
+                      ))}
+                    </>
+                  )}
+
+                  {/* Digital matrix rain effect */}
+                  {isMining && (
+                    <>
+                      {[...Array(8)].map((_, index) => {
+                        const angle = (index * 45) * Math.PI / 180;
+                        const radius = 70;
+                        const x = Math.cos(angle) * radius;
+                        const y = Math.sin(angle) * radius;
+                        
+                        return (
+                          <motion.div
+                            key={`matrix-${index}`}
+                            className="absolute text-xs font-mono text-green-400"
+                            style={{
+                              left: `${x + 72}px`,
+                              top: `${y + 72}px`,
+                            }}
+                            animate={{
+                              opacity: [0, 1, 0],
+                              y: [0, 20],
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              delay: index * 0.2,
+                            }}
+                          >
+                            {Math.random() > 0.5 ? '01' : '10'}
+                          </motion.div>
+                        );
+                      })}
+                    </>
+                  )}
+
+                  {/* Lightning bolts */}
+                  {isMining && (
+                    <>
+                      {[0, 1, 2, 3].map((bolt) => (
+                        <motion.div
+                          key={`bolt-${bolt}`}
+                          className="absolute"
+                          style={{
+                            left: '50%',
+                            top: '50%',
+                            transform: `rotate(${bolt * 90}deg)`,
+                          }}
+                          animate={{
+                            opacity: [0, 1, 0],
+                          }}
+                          transition={{
+                            duration: 0.5,
+                            repeat: Infinity,
+                            delay: bolt * 0.5,
+                            repeatDelay: 2,
+                          }}
+                        >
+                          <svg width="80" height="20" viewBox="0 0 80 20" className="-ml-10 -mt-2">
+                            <path
+                              d="M 20 10 L 30 5 L 35 10 L 45 5 L 50 10 L 60 5 L 65 10 L 75 5"
+                              stroke="#fbbf24"
+                              strokeWidth="2"
+                              fill="none"
+                            />
+                          </svg>
+                        </motion.div>
+                      ))}
+                    </>
+                  )}
+
+                  {/* Hash particles orbiting */}
+                  {isMining && (
                     <motion.div
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1.5, opacity: 1 }}
-                      exit={{ scale: 2, opacity: 0 }}
-                      transition={{ duration: 0.5 }}
-                      className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                      className="absolute w-full h-full"
+                      animate={{
+                        rotate: [0, -360],
+                      }}
+                      transition={{
+                        duration: 5,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
                     >
-                      <div className="bg-success/20 rounded-lg p-4 border-2 border-success">
-                        <Sparkles className="w-8 h-8 text-success" />
-                      </div>
+                      {[0, 1, 2, 3].map((index) => (
+                        <motion.div
+                          key={`hash-${index}`}
+                          className="absolute w-4 h-4 bg-gradient-to-br from-green-400 to-emerald-600 rounded"
+                          style={{
+                            left: '50%',
+                            top: '50%',
+                            transform: `translateX(${60}px) translateY(-8px) rotate(${index * 90}deg)`,
+                          }}
+                          animate={{
+                            scale: [1, 1.5, 1],
+                            opacity: [0.5, 1, 0.5],
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            delay: index * 0.5,
+                          }}
+                        >
+                          <Hash className="w-3 h-3 text-white p-0.5" />
+                        </motion.div>
+                      ))}
                     </motion.div>
                   )}
-                </AnimatePresence>
 
-                {/* Mining progress ring */}
-                {isMining && (
-                  <svg className="absolute inset-0 w-32 h-32 -rotate-90">
-                    <circle
-                      cx="64"
-                      cy="64"
-                      r="60"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      fill="none"
-                      className="text-primary/20"
-                    />
-                    <motion.circle
-                      cx="64"
-                      cy="64"
-                      r="60"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      fill="none"
-                      className="text-accent"
-                      strokeDasharray={`${(miningProgress / 100) * 377} 377`}
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                )}
+                  {/* Data stream effect */}
+                  {isMining && (
+                    <>
+                      {[...Array(6)].map((_, index) => (
+                        <motion.div
+                          key={`stream-${index}`}
+                          className="absolute w-1 h-8 bg-gradient-to-b from-transparent via-cyan-400 to-transparent"
+                          initial={{
+                            x: (Math.random() - 0.5) * 100,
+                            y: -50,
+                            opacity: 0,
+                          }}
+                          animate={{
+                            y: [- 50, 100],
+                            opacity: [0, 1, 0],
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            delay: index * 0.3,
+                            ease: "linear",
+                          }}
+                        />
+                      ))}
+                    </>
+                  )}
+                </div>
               </div>
-
-              {/* Mined blocks floating animation */}
-              <AnimatePresence>
-                {blockAnimations.map((timestamp) => (
-                  <motion.div
-                    key={timestamp}
-                    initial={{ x: 0, y: 0, opacity: 1, scale: 0.5 }}
-                    animate={{ 
-                      x: Math.random() * 200 - 100, 
-                      y: -150, 
-                      opacity: 0,
-                      scale: 1
-                    }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 3 }}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-                  >
-                    <div className="w-8 h-8 bg-gradient-to-br from-success to-accent rounded shadow-lg flex items-center justify-center">
-                      <Shield className="w-4 h-4 text-white" />
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
             </div>
 
             {/* Mining Stats */}
