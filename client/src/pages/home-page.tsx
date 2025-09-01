@@ -63,13 +63,17 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Animated progress bars
+  // Fast animated mining blocks
   useEffect(() => {
     const interval = setInterval(() => {
       setProgressBars(prev => 
-        prev.map((_, i) => Math.random() > 0.3 ? Math.random() * 100 : 0)
+        prev.map((_, i) => {
+          // Create wave effect across blocks
+          const wave = Math.sin(Date.now() / 100 + i) * 50 + 50;
+          return Math.random() > 0.2 ? wave + Math.random() * 30 : Math.random() * 20;
+        })
       );
-    }, 300);
+    }, 50); // Very fast updates for smooth animation
     
     return () => clearInterval(interval);
   }, []);
@@ -291,19 +295,45 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Dynamic Progress Bars */}
-              <div className="mt-3 flex gap-[2px]">
-                {progressBars.map((height, i) => (
-                  <div 
+              {/* Dynamic Mining Blocks - Fast Animation */}
+              <div className="mt-3 flex gap-[1px]">
+                {[...Array(12)].map((_, i) => (
+                  <motion.div 
                     key={i}
-                    className="flex-1 h-5 rounded-sm overflow-hidden bg-gray-900"
+                    className="flex-1 h-7 overflow-hidden bg-black border border-green-500/20 relative"
+                    style={{
+                      boxShadow: '0 0 5px rgba(16, 185, 129, 0.3)'
+                    }}
                   >
                     <motion.div
-                      className="bg-gradient-to-b from-green-400 to-yellow-500"
-                      animate={{ height: `${height}%` }}
-                      transition={{ duration: 0.2 }}
+                      className="absolute inset-0 bg-gradient-to-t from-green-500 to-green-400"
+                      animate={{ 
+                        height: [`${20 + Math.random() * 30}%`, `${60 + Math.random() * 40}%`, `${10 + Math.random() * 30}%`],
+                      }}
+                      transition={{ 
+                        duration: 0.1 + Math.random() * 0.05,
+                        repeat: Infinity,
+                        ease: "linear",
+                        delay: i * 0.02
+                      }}
+                      style={{
+                        filter: 'brightness(1.2)',
+                        boxShadow: 'inset 0 0 10px rgba(16, 185, 129, 0.5)'
+                      }}
                     />
-                  </div>
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-b from-transparent via-green-400/40 to-transparent"
+                      animate={{
+                        y: ['-100%', '200%']
+                      }}
+                      transition={{
+                        duration: 0.3,
+                        repeat: Infinity,
+                        ease: 'linear',
+                        delay: i * 0.03
+                      }}
+                    />
+                  </motion.div>
                 ))}
               </div>
 
