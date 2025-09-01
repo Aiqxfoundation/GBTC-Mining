@@ -157,7 +157,6 @@ export default function AuthPage() {
                         <div className="text-xs">
                           <strong className="text-destructive">⚠️ IMPORTANT SECURITY WARNING</strong>
                           <p className="text-muted-foreground mt-1">
-                            <strong>NOT YOUR KEYS, NOT YOUR COINS!</strong><br/>
                             If you forget your username or PIN, you will <strong>permanently lose access</strong> to your account.
                             There is <strong>NO recovery option</strong>. Write down your credentials and keep them safe!
                           </p>
@@ -165,7 +164,7 @@ export default function AuthPage() {
                       </div>
                     </div>
                     <div>
-                      <Label htmlFor="register-username">Username (This will be your referral code)</Label>
+                      <Label htmlFor="register-username">Username</Label>
                       <Input
                         id="register-username"
                         type="text"

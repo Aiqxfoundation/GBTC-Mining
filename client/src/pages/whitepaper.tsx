@@ -44,7 +44,6 @@ export default function Whitepaper() {
     
     <div class="warning">
         <h2>⚠️ CRITICAL SECURITY NOTICE</h2>
-        <p><strong>NOT YOUR KEYS, NOT YOUR COINS!</strong></p>
         <p>Green Bitcoin operates on a principle of absolute security. Your account is protected by a username and 6-digit PIN combination. If you forget either credential, there is <strong>NO RECOVERY OPTION</strong>. Your account and all assets will be permanently inaccessible. This is by design to ensure maximum security and prevent unauthorized access. Write down your credentials and store them safely.</p>
     </div>
     
@@ -257,9 +256,6 @@ export default function Whitepaper() {
               <AlertTriangle className="w-6 h-6 text-destructive mt-1 flex-shrink-0" />
               <div>
                 <h2 className="text-lg font-bold text-destructive mb-2">CRITICAL SECURITY NOTICE</h2>
-                <p className="text-sm text-muted-foreground font-semibold mb-2">
-                  NOT YOUR KEYS, NOT YOUR COINS!
-                </p>
                 <p className="text-sm text-muted-foreground">
                   Green Bitcoin operates on a principle of absolute security. Your account is protected by 
                   a username and 6-digit PIN combination. If you forget either credential, there is 
@@ -296,7 +292,7 @@ export default function Whitepaper() {
               <div className="p-3 bg-destructive/10 rounded-lg">
                 <h3 className="text-sm font-semibold text-destructive mb-1">⚠️ No Recovery System</h3>
                 <p className="text-sm text-muted-foreground">
-                  Following the principle "Not Your Keys, Not Your Coins" - if you forget your username 
+                  If you forget your username 
                   or PIN, your account is permanently lost. There is no password reset, no recovery 
                   questions, no support intervention possible. This ensures maximum security but requires 
                   responsible credential management.
