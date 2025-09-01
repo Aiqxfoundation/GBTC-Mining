@@ -74,6 +74,12 @@ export interface IStorage {
   getMinersStatus(): Promise<any[]>;
   updateMinerActivity(userId: string, claimed: boolean): Promise<void>;
   
+  // Transaction fetching methods
+  getUserDeposits(userId: string): Promise<Deposit[]>;
+  getUserWithdrawals(userId: string): Promise<Withdrawal[]>;
+  getSentTransfers(userId: string): Promise<Transfer[]>;
+  getReceivedTransfers(userId: string): Promise<Transfer[]>;
+  
   sessionStore: session.Store;
 }
 
@@ -442,6 +448,56 @@ export class DatabaseStorage implements IStorage {
       .from(minerActivity)
       .where(eq(minerActivity.isActive, true));
     return result?.count || 0;
+  }
+  
+  async getUserDeposits(userId: string): Promise<Deposit[]> {
+    return await db
+      .select()
+      .from(deposits)
+      .where(eq(deposits.userId, userId))
+      .orderBy(desc(deposits.createdAt));
+  }
+  
+  async getUserWithdrawals(userId: string): Promise<Withdrawal[]> {
+    return await db
+      .select()
+      .from(withdrawals)
+      .where(eq(withdrawals.userId, userId))
+      .orderBy(desc(withdrawals.createdAt));
+  }
+  
+  async getSentTransfers(userId: string): Promise<Transfer[]> {
+    const result = await db
+      .select({
+        transfer: transfers,
+        toUser: users
+      })
+      .from(transfers)
+      .leftJoin(users, eq(transfers.toUserId, users.id))
+      .where(eq(transfers.fromUserId, userId))
+      .orderBy(desc(transfers.createdAt));
+    
+    return result.map(r => ({
+      ...r.transfer,
+      toUsername: r.toUser?.username || 'Unknown'
+    }));
+  }
+  
+  async getReceivedTransfers(userId: string): Promise<Transfer[]> {
+    const result = await db
+      .select({
+        transfer: transfers,
+        fromUser: users
+      })
+      .from(transfers)
+      .leftJoin(users, eq(transfers.fromUserId, users.id))
+      .where(eq(transfers.toUserId, userId))
+      .orderBy(desc(transfers.createdAt));
+    
+    return result.map(r => ({
+      ...r.transfer,
+      fromUsername: r.fromUser?.username || 'Unknown'
+    }));
   }
 }
 

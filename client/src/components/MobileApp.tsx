@@ -11,6 +11,7 @@ import WithdrawPage from "@/pages/withdraw-page.tsx";
 import TransferPage from "@/pages/transfer-page.tsx";
 import MyMiners from "@/pages/my-miners.tsx";
 import AdminPage from "@/pages/admin-page";
+import TransactionsPage from "@/pages/transactions-page";
 import { ProtectedRoute } from "@/lib/protected-route";
 import LoadingScreen from "./LoadingScreen";
 
@@ -65,6 +66,12 @@ export default function MobileApp() {
       icon: "fas fa-users", 
       label: "My Miners",
       color: "text-chart-5"
+    },
+    {
+      path: "/transactions",
+      icon: "fas fa-history",
+      label: "History",
+      color: "text-blue-500"
     }
   ];
 
@@ -91,6 +98,7 @@ export default function MobileApp() {
           <ProtectedRoute path="/deposit" component={DepositPage} />
           <ProtectedRoute path="/withdraw" component={WithdrawPage} />
           <ProtectedRoute path="/transfer" component={TransferPage} />
+          <ProtectedRoute path="/transactions" component={TransactionsPage} />
           <ProtectedRoute path="/admin" component={AdminPage} />
         </Switch>
       </div>

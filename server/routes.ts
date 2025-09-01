@@ -193,6 +193,36 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Get user's transactions (deposits, withdrawals, transfers)
+  app.get("/api/transactions", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const userId = req.user!.id;
+      
+      // Get all deposits
+      const deposits = await storage.getUserDeposits(userId);
+      
+      // Get all withdrawals  
+      const withdrawals = await storage.getUserWithdrawals(userId);
+      
+      // Get all transfers (sent and received)
+      const sentTransfers = await storage.getSentTransfers(userId);
+      const receivedTransfers = await storage.getReceivedTransfers(userId);
+      
+      res.json({
+        deposits,
+        withdrawals,
+        sentTransfers,
+        receivedTransfers
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
   // Admin stats
   app.get("/api/admin/stats", async (req, res, next) => {
     try {
