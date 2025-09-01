@@ -370,7 +370,7 @@ export default function MiningFactory() {
                     </>
                   )}
 
-                  {/* Digital matrix rain effect */}
+                  {/* Digital block particles */}
                   {isMining && (
                     <>
                       {[...Array(8)].map((_, index) => {
@@ -381,23 +381,23 @@ export default function MiningFactory() {
                         
                         return (
                           <motion.div
-                            key={`matrix-${index}`}
-                            className="absolute text-xs font-mono text-green-400"
+                            key={`block-${index}`}
+                            className="absolute"
                             style={{
                               left: `${x + 72}px`,
                               top: `${y + 72}px`,
                             }}
                             animate={{
-                              opacity: [0, 1, 0],
-                              y: [0, 20],
+                              opacity: [0.3, 1, 0.3],
+                              scale: [0.8, 1.2, 0.8],
                             }}
                             transition={{
-                              duration: 2,
+                              duration: 3,
                               repeat: Infinity,
-                              delay: index * 0.2,
+                              delay: index * 0.3,
                             }}
                           >
-                            {Math.random() > 0.5 ? '01' : '10'}
+                            <div className="w-3 h-3 bg-gradient-to-br from-orange-400 to-orange-600 rounded-sm shadow-lg" />
                           </motion.div>
                         );
                       })}
@@ -439,7 +439,7 @@ export default function MiningFactory() {
                     </>
                   )}
 
-                  {/* Hash particles orbiting */}
+                  {/* Digital blocks orbiting */}
                   {isMining && (
                     <motion.div
                       className="absolute w-full h-full"
@@ -454,15 +454,15 @@ export default function MiningFactory() {
                     >
                       {[0, 1, 2, 3].map((index) => (
                         <motion.div
-                          key={`hash-${index}`}
-                          className="absolute w-4 h-4 bg-gradient-to-br from-green-400 to-emerald-600 rounded"
+                          key={`dblock-${index}`}
+                          className="absolute"
                           style={{
                             left: '50%',
                             top: '50%',
                             transform: `translateX(${60}px) translateY(-8px) rotate(${index * 90}deg)`,
                           }}
                           animate={{
-                            scale: [1, 1.5, 1],
+                            scale: [1, 1.2, 1],
                             opacity: [0.5, 1, 0.5],
                           }}
                           transition={{
@@ -471,35 +471,40 @@ export default function MiningFactory() {
                             delay: index * 0.5,
                           }}
                         >
-                          <Hash className="w-3 h-3 text-white p-0.5" />
+                          <div className="w-5 h-5 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-sm shadow-xl flex items-center justify-center">
+                            <span className="text-xs font-bold text-white">₿</span>
+                          </div>
                         </motion.div>
                       ))}
                     </motion.div>
                   )}
 
-                  {/* Data stream effect */}
+                  {/* Rising block particles */}
                   {isMining && (
                     <>
                       {[...Array(6)].map((_, index) => (
                         <motion.div
-                          key={`stream-${index}`}
-                          className="absolute w-1 h-8 bg-gradient-to-b from-transparent via-cyan-400 to-transparent"
+                          key={`rise-${index}`}
+                          className="absolute"
                           initial={{
                             x: (Math.random() - 0.5) * 100,
-                            y: -50,
+                            y: 50,
                             opacity: 0,
                           }}
                           animate={{
-                            y: [- 50, 100],
+                            y: [50, -50],
                             opacity: [0, 1, 0],
+                            rotate: [0, 360],
                           }}
                           transition={{
-                            duration: 2,
+                            duration: 3,
                             repeat: Infinity,
-                            delay: index * 0.3,
-                            ease: "linear",
+                            delay: index * 0.5,
+                            ease: "easeOut",
                           }}
-                        />
+                        >
+                          <div className="w-2 h-2 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-sm shadow-lg" />
+                        </motion.div>
                       ))}
                     </>
                   )}
