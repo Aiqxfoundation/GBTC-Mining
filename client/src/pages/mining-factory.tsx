@@ -5,8 +5,9 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Cpu, TrendingUp, Clock, Zap, Award, Hash, Activity, Blocks, Binary, Shield, Sparkles } from "lucide-react";
+import { Loader2, Cpu, TrendingUp, Clock, Zap, Award, Hash, Activity, Blocks, Binary, Shield, Sparkles, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "wouter";
 
 export default function MiningFactory() {
   const { user } = useAuth();
@@ -246,11 +247,15 @@ export default function MiningFactory() {
             GBTC BLOCKCHAIN NETWORK
           </p>
         </div>
-        <div className="text-right">
-          <p className="text-xs text-muted-foreground font-mono">BALANCE</p>
-          <p className="text-lg font-display font-bold text-accent">
-            {gbtcBalance.toFixed(8)} GBTC
-          </p>
+        <div>
+          <Link to="/whitepaper">
+            <Button
+              className="bg-gradient-to-r from-orange-500 to-yellow-600 hover:from-orange-600 hover:to-yellow-700 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 border border-orange-400/50 px-3 py-1.5 text-xs"
+            >
+              <FileText className="w-3 h-3 mr-1" />
+              WHITEPAPER
+            </Button>
+          </Link>
         </div>
       </div>
 

@@ -12,6 +12,7 @@ import TransferPage from "@/pages/transfer-page.tsx";
 import MyMiners from "@/pages/my-miners.tsx";
 import AdminPage from "@/pages/admin-page";
 import TransactionsPage from "@/pages/transactions-page";
+import Whitepaper from "@/pages/whitepaper";
 import { ProtectedRoute } from "@/lib/protected-route";
 import LoadingScreen from "./LoadingScreen";
 
@@ -99,6 +100,7 @@ export default function MobileApp() {
           <ProtectedRoute path="/withdraw" component={WithdrawPage} />
           <ProtectedRoute path="/transfer" component={TransferPage} />
           <ProtectedRoute path="/transactions" component={TransactionsPage} />
+          <Route path="/whitepaper" component={Whitepaper} />
           <ProtectedRoute path="/admin" component={AdminPage} />
         </Switch>
       </div>
