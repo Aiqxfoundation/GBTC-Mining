@@ -384,47 +384,6 @@ export default function WalletPage() {
           </motion.div>
         </div>
 
-        {/* Recent Activity with Bitcoin Theme */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
-        >
-          <Card className="mobile-card bg-black/80 border-[#f7931a]/20">
-            <div className="flex items-center space-x-2 mb-3">
-              <Activity className="w-4 h-4 text-[#f7931a]" />
-              <p className="text-xs font-mono text-[#f7931a] uppercase tracking-wider">Recent Activity</p>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center py-2 px-2 bg-gradient-to-r from-[#f7931a]/10 to-transparent rounded-lg">
-                <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 bg-gradient-to-br from-[#f7931a] to-[#ff9416] rounded flex items-center justify-center">
-                    <Bitcoin className="w-3 h-3 text-black" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold">Mining Reward</p>
-                    <p className="text-[10px] text-muted-foreground">2 hours ago</p>
-                  </div>
-                </div>
-                <p className="text-xs font-mono text-[#f7931a]">+0.625 GBTC</p>
-              </div>
-              
-              <div className="flex justify-between items-center py-2 px-2 bg-gradient-to-r from-purple-500/10 to-transparent rounded-lg">
-                <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-indigo-500 rounded flex items-center justify-center">
-                    <Zap className="w-3 h-3 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold">Hashrate Purchase</p>
-                    <p className="text-[10px] text-muted-foreground">5 hours ago</p>
-                  </div>
-                </div>
-                <p className="text-xs font-mono text-red-500">-1000 USDT</p>
-              </div>
-            </div>
-          </Card>
-        </motion.div>
       </div>
 
       {/* Send GBTC Dialog */}

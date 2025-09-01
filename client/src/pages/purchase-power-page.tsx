@@ -310,21 +310,6 @@ export default function PurchasePowerPage() {
                   </motion.div>
                 )}
 
-                {/* Reward System Info */}
-                <Card className="bg-yellow-900/10 border-yellow-500/30">
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      <AlertCircle className="w-5 h-5 text-yellow-500 mt-0.5" />
-                      <div className="text-sm text-gray-300 space-y-1">
-                        <p className="font-semibold text-yellow-500">Reward System</p>
-                        <p>• Rewards decrease as more miners join (like real Bitcoin)</p>
-                        <p>• Your share = Your Hashrate ÷ Total Network Hashrate</p>
-                        <p>• Early miners get bonus rewards while network grows</p>
-                        <p>• All miners share 900 GBTC daily (144 blocks × 6.25 GBTC)</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
 
                 {/* Purchase Button */}
                 <Button
