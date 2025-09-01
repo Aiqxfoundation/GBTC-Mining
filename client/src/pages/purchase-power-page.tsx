@@ -37,6 +37,17 @@ export default function PurchasePowerPage() {
 
   // Calculate dynamic mining metrics based on network participation
   const calculateDynamicRewards = (userHashrate: number, totalHashrate: number) => {
+    // Prevent division by zero
+    if (totalHashrate <= 0) {
+      return {
+        userShare: "0.000000",
+        dailyReward: "0.00000000",
+        hourlyReward: "0.00000000",
+        blockReward: "6.25",
+        earlyBonus: "0"
+      };
+    }
+    
     // User's share of the network
     const userShare = (userHashrate / totalHashrate) * 100;
     
@@ -44,19 +55,16 @@ export default function PurchasePowerPage() {
     const blocksPerDay = 144; // Standard: 144 blocks per day (every 10 minutes)
     const baseBlockReward = 6.25; // Current GBTC block reward
     
-    // Early stage bonus to encourage growth (gradually decreases as network grows)
-    const earlyAdopterMultiplier = Math.max(1, 2 - (activeMiners / 100));
-    const adjustedBlockReward = baseBlockReward * earlyAdopterMultiplier;
-    
-    // User's daily reward based on their share
-    const dailyReward = (userShare / 100) * blocksPerDay * adjustedBlockReward;
+    // User's daily reward based on their share of the network
+    // This will decrease as more miners join the network
+    const dailyReward = (userShare / 100) * blocksPerDay * baseBlockReward;
     
     return {
       userShare: userShare.toFixed(6),
-      dailyReward: dailyReward.toFixed(8),
-      hourlyReward: (dailyReward / 24).toFixed(8),
-      blockReward: adjustedBlockReward.toFixed(2),
-      earlyBonus: ((earlyAdopterMultiplier - 1) * 100).toFixed(0)
+      dailyReward: dailyReward > 0 ? dailyReward.toFixed(8) : "0.00000000",
+      hourlyReward: dailyReward > 0 ? (dailyReward / 24).toFixed(8) : "0.00000000",
+      blockReward: baseBlockReward.toFixed(2),
+      earlyBonus: "0" // Remove early bonus for clarity
     };
   };
 
@@ -218,7 +226,7 @@ export default function PurchasePowerPage() {
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-xs text-gray-600">Est. Daily GBTC</span>
+                            <span className="text-xs text-gray-600">Est. Daily GBTC*</span>
                             <span className="text-xs font-medium text-green-500">
                               ~{afterPurchaseRewards.dailyReward}
                             </span>
@@ -271,6 +279,14 @@ export default function PurchasePowerPage() {
               <p>• No maintenance fees</p>
               <p>• Permanent ownership</p>
             </div>
+          </div>
+        </Card>
+        
+        {/* Important Note */}
+        <Card className="mt-3 p-3 bg-amber-950/20 border-amber-900/30">
+          <div className="text-xs text-amber-200/80 space-y-1">
+            <p className="font-medium text-amber-400">* Important Note:</p>
+            <p>Your estimated GBTC rewards are based on the current global hashrate. As more miners join and total network hashrate increases, the difficulty increases and rewards are fairly distributed based on each user's hash contribution to the network.</p>
           </div>
         </Card>
       </div>
