@@ -295,46 +295,102 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Dynamic Mining Blocks - Fast Animation */}
-              <div className="mt-3 flex gap-[1px]">
-                {[...Array(12)].map((_, i) => (
-                  <motion.div 
-                    key={i}
-                    className="flex-1 h-7 overflow-hidden bg-black border border-green-500/20 relative"
-                    style={{
-                      boxShadow: '0 0 5px rgba(16, 185, 129, 0.3)'
-                    }}
-                  >
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-t from-green-500 to-green-400"
-                      animate={{ 
-                        height: [`${20 + Math.random() * 30}%`, `${60 + Math.random() * 40}%`, `${10 + Math.random() * 30}%`],
-                      }}
-                      transition={{ 
-                        duration: 0.1 + Math.random() * 0.05,
-                        repeat: Infinity,
-                        ease: "linear",
-                        delay: i * 0.02
-                      }}
-                      style={{
-                        filter: 'brightness(1.2)',
-                        boxShadow: 'inset 0 0 10px rgba(16, 185, 129, 0.5)'
-                      }}
-                    />
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-b from-transparent via-green-400/40 to-transparent"
-                      animate={{
-                        y: ['-100%', '200%']
-                      }}
-                      transition={{
-                        duration: 0.3,
-                        repeat: Infinity,
-                        ease: 'linear',
-                        delay: i * 0.03
-                      }}
-                    />
-                  </motion.div>
-                ))}
+              {/* Blockchain Connected Blocks - Terminal Style */}
+              <div className="mt-3 relative h-10 overflow-hidden bg-black rounded font-mono">
+                {/* Terminal border effect */}
+                <div className="absolute inset-0 border border-green-500/50"
+                  style={{
+                    boxShadow: '0 0 15px rgba(0, 255, 0, 0.3), inset 0 0 15px rgba(0, 255, 0, 0.1)'
+                  }}
+                />
+                
+                {/* Fast sliding blockchain blocks */}
+                <motion.div 
+                  className="absolute flex items-center h-full"
+                  animate={{
+                    x: [0, -400]
+                  }}
+                  transition={{
+                    duration: 0.5,
+                    repeat: Infinity,
+                    ease: "linear"
+                  }}
+                >
+                  {[...Array(30)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center h-full"
+                    >
+                      {/* Terminal Block */}
+                      <motion.div 
+                        className="h-8 bg-black border-y-2 border-l-2 border-green-500 flex items-center px-1"
+                        style={{
+                          borderColor: '#00ff00',
+                          boxShadow: `0 0 20px rgba(0, 255, 0, ${0.6 + Math.random() * 0.4}), inset 0 0 10px rgba(0, 255, 0, 0.3)`,
+                          width: '35px'
+                        }}
+                        animate={{
+                          opacity: [0.7, 1, 0.7]
+                        }}
+                        transition={{
+                          duration: 0.3,
+                          repeat: Infinity,
+                          delay: i * 0.05
+                        }}
+                      >
+                        <div className="text-center w-full">
+                          <div className="text-[8px] text-green-500 font-bold leading-tight">
+                            {i.toString(16).toUpperCase().padStart(2, '0')}
+                          </div>
+                          <div className="text-[6px] text-green-400 opacity-70">
+                            {Math.floor(Math.random() * 999)}
+                          </div>
+                        </div>
+                      </motion.div>
+                      
+                      {/* Chain connector with arrow */}
+                      <div className="h-[2px] bg-green-500 relative" 
+                        style={{
+                          width: '15px',
+                          boxShadow: '0 0 8px #00ff00'
+                        }}
+                      >
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0"
+                          style={{
+                            borderLeft: '4px solid #00ff00',
+                            borderTop: '3px solid transparent',
+                            borderBottom: '3px solid transparent',
+                            filter: 'drop-shadow(0 0 3px #00ff00)'
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+
+                {/* Terminal CRT effect */}
+                <motion.div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 0, 0.03) 2px, rgba(0, 255, 0, 0.03) 4px)'
+                  }}
+                />
+                
+                {/* Scan line */}
+                <motion.div
+                  className="absolute inset-x-0 h-[1px] bg-green-500/50"
+                  animate={{
+                    y: ['-10px', '50px']
+                  }}
+                  transition={{
+                    duration: 0.8,
+                    repeat: Infinity,
+                    ease: 'linear'
+                  }}
+                  style={{
+                    boxShadow: '0 0 10px #00ff00'
+                  }}
+                />
               </div>
 
               {/* Current Hash */}
