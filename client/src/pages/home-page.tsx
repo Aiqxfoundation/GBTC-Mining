@@ -41,24 +41,13 @@ export default function HomePage() {
   useEffect(() => {
     const interval = setInterval(() => {
       const newLines = Array.from({length: 4}, () => {
-        const random = Math.random();
-        if (random > 0.7) {
-          // Binary
-          return Array.from({length: 32}, () => Math.random() > 0.5 ? '1' : '0').join('');
-        } else if (random > 0.4) {
-          // Hex
-          return Array.from({length: 16}, () => 
-            Math.floor(Math.random() * 16).toString(16).toUpperCase()
-          ).join('');
-        } else {
-          // Mixed
-          return `0x${Array.from({length: 8}, () => 
-            Math.floor(Math.random() * 256).toString(16).padStart(2, '0')
-          ).join('')}`;
-        }
+        // All lines are now uniform hex format
+        return `0x${Array.from({length: 12}, () => 
+          Math.floor(Math.random() * 16).toString(16).toUpperCase()
+        ).join('')}`;
       });
       setBinaryLines(newLines);
-    }, 200);
+    }, 150);
     
     return () => clearInterval(interval);
   }, []);
@@ -357,8 +346,8 @@ export default function HomePage() {
                     repeat: Infinity
                   }}
                 >
-                  <span className="text-gray-500">Target: </span>
-                  <span className="text-green-400">{currentHash.slice(0, 16)}...{currentHash.slice(-16)}</span>
+                  <span className="text-gray-500">Block Hash: </span>
+                  <span className="text-green-400">{currentHash}</span>
                 </motion.div>
               </div>
             </Card>
