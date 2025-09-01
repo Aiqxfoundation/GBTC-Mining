@@ -130,7 +130,7 @@ export default function PurchasePowerPage() {
               Hashrate Market
             </h1>
           </div>
-          <p className="text-gray-400">Pure Bitcoin-style proportional reward distribution</p>
+          <p className="text-gray-400">Bitcoin-style proportional reward distribution</p>
         </motion.div>
 
         {/* Network Stats */}
@@ -238,7 +238,7 @@ export default function PurchasePowerPage() {
                       <CardHeader>
                         <CardTitle className="text-lg text-orange-500 flex items-center gap-2">
                           <Calculator className="w-5 h-5" />
-                          Mining Calculation (Dynamic)
+                          Mining Calculation
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
@@ -278,9 +278,9 @@ export default function PurchasePowerPage() {
 
                           <div className="h-px bg-gray-700"></div>
 
-                          {/* Dynamic Rewards */}
+                          {/* Estimated Rewards */}
                           <div>
-                            <p className="text-sm font-semibold text-gray-300 mb-2">Estimated Rewards (Dynamic):</p>
+                            <p className="text-sm font-semibold text-gray-300 mb-2">Estimated Rewards:</p>
                             <div className="space-y-2">
                               <div className="flex justify-between">
                                 <span className="text-sm text-gray-400">Daily GBTC</span>
@@ -310,34 +310,17 @@ export default function PurchasePowerPage() {
                   </motion.div>
                 )}
 
-                {/* Dynamic Distribution Warning */}
+                {/* Reward System Info */}
                 <Card className="bg-yellow-900/10 border-yellow-500/30">
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
                       <AlertCircle className="w-5 h-5 text-yellow-500 mt-0.5" />
                       <div className="text-sm text-gray-300 space-y-1">
-                        <p className="font-semibold text-yellow-500">Dynamic Reward System</p>
+                        <p className="font-semibold text-yellow-500">Reward System</p>
                         <p>• Rewards decrease as more miners join (like real Bitcoin)</p>
                         <p>• Your share = Your Hashrate ÷ Total Network Hashrate</p>
                         <p>• Early miners get bonus rewards while network grows</p>
                         <p>• All miners share 900 GBTC daily (144 blocks × 6.25 GBTC)</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* How It Works */}
-                <Card className="bg-gray-800 border-gray-700">
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      <Info className="w-5 h-5 text-orange-500 mt-0.5" />
-                      <div className="text-sm text-gray-400 space-y-1">
-                        <p className="font-semibold text-orange-500 mb-2">Pure Mining System:</p>
-                        <p>• Every 10 minutes a new block is mined (144 blocks/day)</p>
-                        <p>• Block rewards distributed proportionally to all active miners</p>
-                        <p>• More miners = same rewards shared among more people</p>
-                        <p>• Your earnings = Your percentage of total network hash</p>
-                        <p>• No fixed returns - purely based on network participation</p>
                       </div>
                     </div>
                   </CardContent>
@@ -375,32 +358,6 @@ export default function PurchasePowerPage() {
           </Card>
         </motion.div>
 
-        {/* Current Earnings Display */}
-        {currentHashrate > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-lg text-gray-300">Your Current Mining Status</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-gray-400">Network Share</p>
-                    <p className="text-lg font-semibold text-orange-500">{currentRewards.userShare}%</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400">Daily Earnings</p>
-                    <p className="text-lg font-semibold text-green-500">~{currentRewards.dailyReward} GBTC</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
       </div>
     </div>
   );
