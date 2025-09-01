@@ -579,6 +579,71 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Global statistics endpoint
+  app.get("/api/global-stats", async (req, res, next) => {
+    try {
+      const [
+        userCount,
+        totalDeposits,
+        activeMinerCount,
+        totalHashPower,
+        latestBlock,
+        blockReward,
+        totalSupply
+      ] = await Promise.all([
+        storage.getUserCount(),
+        storage.getTotalDeposits(),
+        storage.getActiveMinerCount(),
+        storage.getTotalHashPower(),
+        storage.getLatestBlock(),
+        storage.getSystemSetting('blockReward'),
+        storage.getSystemSetting('totalSupply')
+      ]);
+
+      // Calculate circulating supply based on block number and reward
+      const currentBlockNumber = latestBlock?.blockNumber || 1;
+      const rewardPerBlock = parseFloat(blockReward?.value || '6.25');
+      const circulatingSupply = currentBlockNumber * rewardPerBlock;
+      const maxSupply = parseFloat(totalSupply?.value || '21000000');
+      
+      // Calculate network statistics
+      const totalHashPowerNum = parseFloat(totalHashPower || '0');
+      let hashRateDisplay = '0 MH/s';
+      if (totalHashPowerNum >= 1000000) {
+        hashRateDisplay = `${(totalHashPowerNum / 1000000).toFixed(2)} PH/s`;
+      } else if (totalHashPowerNum >= 1000) {
+        hashRateDisplay = `${(totalHashPowerNum / 1000).toFixed(2)} TH/s`;
+      } else if (totalHashPowerNum > 0) {
+        hashRateDisplay = `${totalHashPowerNum.toFixed(2)} GH/s`;
+      }
+      
+      // Calculate blocks today (blocks in last 24 hours)
+      const blocksPerDay = 144; // Bitcoin-style: 1 block per 10 minutes
+      const currentHour = new Date().getHours();
+      const blocksToday = Math.floor((currentHour / 24) * blocksPerDay);
+      
+      res.json({
+        userCount,
+        totalDeposits,
+        activeMinerCount,
+        totalHashPower: totalHashPowerNum,
+        hashRateDisplay,
+        blockHeight: currentBlockNumber,
+        blockReward: rewardPerBlock,
+        circulatingSupply,
+        maxSupply,
+        supplyProgress: (circulatingSupply / maxSupply) * 100,
+        blocksToday,
+        networkDifficulty: totalHashPowerNum > 0 ? `${(totalHashPowerNum / 1000).toFixed(2)}T` : '0T',
+        blockTime: '10 min',
+        nextHalving: currentBlockNumber > 210000 ? 420000 : 210000,
+        halvingProgress: (currentBlockNumber % 210000) / 210000 * 100
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

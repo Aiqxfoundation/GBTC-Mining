@@ -1,19 +1,34 @@
 import { Card } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import { Activity, TrendingUp, Users, Zap, Globe, Clock, Coins, Database } from "lucide-react";
+import { Activity, TrendingUp, Users, Zap, Globe, Clock, Coins, Database, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+
+interface GlobalStats {
+  userCount: number;
+  totalDeposits: string;
+  activeMinerCount: number;
+  totalHashPower: number;
+  hashRateDisplay: string;
+  blockHeight: number;
+  blockReward: number;
+  circulatingSupply: number;
+  maxSupply: number;
+  supplyProgress: number;
+  blocksToday: number;
+  networkDifficulty: string;
+  blockTime: string;
+  nextHalving: number;
+  halvingProgress: number;
+}
 
 export default function GlobalPage() {
   const [currentHash, setCurrentHash] = useState("");
-  const [activeMiners, setActiveMiners] = useState(1847);
-  const [totalDeposits, setTotalDeposits] = useState(584732.50);
-  const [blocksToday, setBlocksToday] = useState(87);
-  const [networkStats, setNetworkStats] = useState({
-    difficulty: "53.91T",
-    hashrate: "584.73 PH/s",
-    blockHeight: 871234,
-    totalSupply: 21000000,
-    circulating: 1312500,
+
+  // Fetch real global statistics
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ["/api/global-stats"],
+    refetchInterval: 5000, // Refresh every 5 seconds for live updates
   });
 
   // Generate random hash for visual effect
@@ -27,18 +42,26 @@ export default function GlobalPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Simulate real-time updates
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveMiners(prev => prev + Math.floor(Math.random() * 3) - 1);
-      setBlocksToday(prev => prev + (Math.random() > 0.9 ? 1 : 0));
-      setNetworkStats(prev => ({
-        ...prev,
-        blockHeight: prev.blockHeight + (Math.random() > 0.9 ? 1 : 0),
-      }));
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-[#f7931a] animate-spin" />
+      </div>
+    );
+  }
+
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) return `${(num / 1000000).toFixed(2)}M`;
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    return num.toString();
+  };
+
+  const formatUSDT = (amount: string) => {
+    const num = parseFloat(amount || '0');
+    if (num >= 1000000) return `$${(num / 1000000).toFixed(2)}M`;
+    if (num >= 1000) return `$${(num / 1000).toFixed(1)}K`;
+    return `$${num.toFixed(2)}`;
+  };
 
   return (
     <div className="min-h-screen bg-black pb-24">
@@ -112,10 +135,11 @@ export default function GlobalPage() {
             </div>
             <div className="p-4 font-mono text-xs space-y-1">
               <div className="text-[#f7931a]">[{new Date().toLocaleTimeString()}] GLOBAL NETWORK STATUS</div>
-              <div className="text-green-400">[NETWORK] Active Miners: {activeMiners.toLocaleString()}</div>
-              <div className="text-blue-400">[BLOCKS] Generated Today: {blocksToday}</div>
-              <div className="text-yellow-400">[HASH] Network Hash: 0x{currentHash.substring(0, 16)}...</div>
-              <div className="text-purple-400">[SUPPLY] Mined: {((networkStats.circulating / networkStats.totalSupply) * 100).toFixed(2)}% of 21M</div>
+              <div className="text-green-400">[NETWORK] Active Miners: {stats?.activeMinerCount || 0}</div>
+              <div className="text-blue-400">[BLOCKS] Generated Today: {stats?.blocksToday || 0}</div>
+              <div className="text-yellow-400">[HASH] Current Block: #{stats?.blockHeight || 1}</div>
+              <div className="text-purple-400">[SUPPLY] Mined: {stats?.supplyProgress?.toFixed(4) || 0}% of 21M</div>
+              <div className="text-cyan-400">[POWER] Total Hash: {stats?.hashRateDisplay || '0 GH/s'}</div>
             </div>
           </Card>
         </motion.div>
@@ -130,19 +154,19 @@ export default function GlobalPage() {
           <Card className="bg-gradient-to-br from-[#f7931a]/10 to-transparent border-[#f7931a]/20 p-4">
             <div className="flex items-center justify-between mb-2">
               <Zap className="w-5 h-5 text-[#f7931a]" />
-              <span className="text-xs text-green-400">+2.3%</span>
+              <Activity className="w-4 h-4 text-[#f7931a] animate-pulse" />
             </div>
             <div className="text-sm text-gray-500">Total Hashrate</div>
-            <div className="text-xl font-bold text-[#f7931a]">{networkStats.hashrate}</div>
+            <div className="text-xl font-bold text-[#f7931a]">{stats?.hashRateDisplay || '0 GH/s'}</div>
           </Card>
 
           <Card className="bg-gradient-to-br from-green-500/10 to-transparent border-green-500/20 p-4">
             <div className="flex items-center justify-between mb-2">
               <Users className="w-5 h-5 text-green-500" />
-              <span className="text-xs text-green-400">+47</span>
+              <span className="text-xs text-green-400">LIVE</span>
             </div>
             <div className="text-sm text-gray-500">Active Miners</div>
-            <div className="text-xl font-bold text-green-500">{activeMiners.toLocaleString()}</div>
+            <div className="text-xl font-bold text-green-500">{stats?.activeMinerCount || 0}</div>
           </Card>
 
           <Card className="bg-gradient-to-br from-purple-500/10 to-transparent border-purple-500/20 p-4">
@@ -151,16 +175,16 @@ export default function GlobalPage() {
               <Activity className="w-4 h-4 text-purple-400 animate-pulse" />
             </div>
             <div className="text-sm text-gray-500">Block Height</div>
-            <div className="text-xl font-bold text-purple-500">#{networkStats.blockHeight.toLocaleString()}</div>
+            <div className="text-xl font-bold text-purple-500">#{stats?.blockHeight || 1}</div>
           </Card>
 
           <Card className="bg-gradient-to-br from-blue-500/10 to-transparent border-blue-500/20 p-4">
             <div className="flex items-center justify-between mb-2">
               <TrendingUp className="w-5 h-5 text-blue-500" />
-              <span className="text-xs text-gray-400">53.91T</span>
+              <span className="text-xs text-gray-400">{stats?.networkDifficulty || '0T'}</span>
             </div>
             <div className="text-sm text-gray-500">Network Difficulty</div>
-            <div className="text-xl font-bold text-blue-500">{networkStats.difficulty}</div>
+            <div className="text-xl font-bold text-blue-500">{stats?.networkDifficulty || '0T'}</div>
           </Card>
         </motion.div>
 
@@ -181,14 +205,14 @@ export default function GlobalPage() {
               <div className="flex justify-between mb-2">
                 <span className="text-xs text-gray-500">Circulating Supply</span>
                 <span className="text-xs font-mono text-[#f7931a]">
-                  {(networkStats.circulating / 1000000).toFixed(2)}M / 21M GBTC
+                  {formatNumber(stats?.circulatingSupply || 0)} / 21M GBTC
                 </span>
               </div>
               <div className="h-3 bg-gray-900 rounded-full overflow-hidden">
                 <motion.div 
                   className="h-full bg-gradient-to-r from-[#f7931a] to-[#ff9416]"
                   initial={{ width: 0 }}
-                  animate={{ width: `${(networkStats.circulating / networkStats.totalSupply) * 100}%` }}
+                  animate={{ width: `${Math.min(stats?.supplyProgress || 0, 100)}%` }}
                   transition={{ duration: 1, ease: "easeOut" }}
                 >
                   <div className="h-full bg-white/20 animate-pulse"></div>
@@ -201,11 +225,11 @@ export default function GlobalPage() {
             
             <div className="grid grid-cols-3 gap-2">
               <div className="text-center p-2 rounded bg-gray-900">
-                <div className="text-lg font-bold text-[#f7931a]">{((networkStats.circulating / networkStats.totalSupply) * 100).toFixed(2)}%</div>
+                <div className="text-lg font-bold text-[#f7931a]">{stats?.supplyProgress?.toFixed(4) || 0}%</div>
                 <div className="text-xs text-gray-500">Mined</div>
               </div>
               <div className="text-center p-2 rounded bg-gray-900">
-                <div className="text-lg font-bold text-green-500">6.25</div>
+                <div className="text-lg font-bold text-green-500">{stats?.blockReward || 6.25}</div>
                 <div className="text-xs text-gray-500">Per Block</div>
               </div>
               <div className="text-center p-2 rounded bg-gray-900">
@@ -224,16 +248,16 @@ export default function GlobalPage() {
           className="grid grid-cols-2 gap-3 mb-6"
         >
           <Card className="bg-gray-950 border-gray-800 p-3">
+            <div className="text-xs text-gray-500 mb-1">Total Users</div>
+            <div className="text-lg font-bold text-[#f7931a]">{stats?.userCount || 0}</div>
+          </Card>
+          <Card className="bg-gray-950 border-gray-800 p-3">
             <div className="text-xs text-gray-500 mb-1">Total Deposits</div>
-            <div className="text-lg font-bold text-accent">${(totalDeposits / 1000).toFixed(1)}K</div>
+            <div className="text-lg font-bold text-accent">{formatUSDT(stats?.totalDeposits || '0')}</div>
           </Card>
           <Card className="bg-gray-950 border-gray-800 p-3">
             <div className="text-xs text-gray-500 mb-1">Blocks Today</div>
-            <div className="text-lg font-bold text-primary">{blocksToday}</div>
-          </Card>
-          <Card className="bg-gray-950 border-gray-800 p-3">
-            <div className="text-xs text-gray-500 mb-1">24h Volume</div>
-            <div className="text-lg font-bold text-green-500">$2.4M</div>
+            <div className="text-lg font-bold text-primary">{stats?.blocksToday || 0}</div>
           </Card>
           <Card className="bg-gray-950 border-gray-800 p-3">
             <div className="text-xs text-gray-500 mb-1">Hash/USD Rate</div>
@@ -241,7 +265,7 @@ export default function GlobalPage() {
           </Card>
         </motion.div>
 
-        {/* Live Activity Feed */}
+        {/* Network Info */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -250,31 +274,33 @@ export default function GlobalPage() {
           <Card className="bg-gray-950 border-gray-800 p-4">
             <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
               <Activity className="w-4 h-4 text-green-500" />
-              Network Activity
+              Network Information
             </h3>
             <div className="space-y-2">
-              {[
-                { type: 'block', text: `Block #${networkStats.blockHeight} mined`, time: 'Just now', color: 'text-[#f7931a]' },
-                { type: 'reward', text: '6.25 GBTC distributed', time: '2 mins ago', color: 'text-green-500' },
-                { type: 'miner', text: 'New miner joined', time: '3 mins ago', color: 'text-purple-500' },
-                { type: 'deposit', text: '$500 USDT deposited', time: '5 mins ago', color: 'text-blue-500' },
-                { type: 'power', text: '1000 GH/s purchased', time: '7 mins ago', color: 'text-[#f7931a]' },
-                { type: 'difficulty', text: 'Difficulty adjusted +2.1%', time: '1 hour ago', color: 'text-red-500' },
-              ].map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.7 + i * 0.05 }}
-                  className="flex items-center justify-between p-2 rounded bg-gray-900"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${item.color.replace('text-', 'bg-')}`}></div>
-                    <span className="text-xs text-gray-400">{item.text}</span>
-                  </div>
-                  <span className="text-xs text-gray-600">{item.time}</span>
-                </motion.div>
-              ))}
+              <div className="flex justify-between p-2 rounded bg-gray-900">
+                <span className="text-xs text-gray-400">Total Hash Power</span>
+                <span className="text-xs text-[#f7931a] font-mono">{stats?.totalHashPower?.toFixed(2) || 0} GH/s</span>
+              </div>
+              <div className="flex justify-between p-2 rounded bg-gray-900">
+                <span className="text-xs text-gray-400">Current Block</span>
+                <span className="text-xs text-green-500 font-mono">#{stats?.blockHeight || 1}</span>
+              </div>
+              <div className="flex justify-between p-2 rounded bg-gray-900">
+                <span className="text-xs text-gray-400">Block Reward</span>
+                <span className="text-xs text-purple-500 font-mono">{stats?.blockReward || 6.25} GBTC</span>
+              </div>
+              <div className="flex justify-between p-2 rounded bg-gray-900">
+                <span className="text-xs text-gray-400">Next Halving</span>
+                <span className="text-xs text-blue-500 font-mono">Block #{stats?.nextHalving || 210000}</span>
+              </div>
+              <div className="flex justify-between p-2 rounded bg-gray-900">
+                <span className="text-xs text-gray-400">Halving Progress</span>
+                <span className="text-xs text-orange-500 font-mono">{stats?.halvingProgress?.toFixed(1) || 0}%</span>
+              </div>
+              <div className="flex justify-between p-2 rounded bg-gray-900">
+                <span className="text-xs text-gray-400">Registered Users</span>
+                <span className="text-xs text-cyan-500 font-mono">{stats?.userCount || 0}</span>
+              </div>
             </div>
           </Card>
         </motion.div>
