@@ -295,77 +295,58 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Isometric Blockchain - Terminal Style */}
-              <div className="mt-3 relative h-10 bg-black border border-green-500/20 overflow-hidden font-mono">
+              {/* Digital Blockchain Blocks */}
+              <div className="mt-3 relative h-10 bg-black overflow-hidden font-mono">
+                <div className="absolute inset-0 border border-green-500/20" />
+                
                 {/* Sliding blockchain */}
                 <motion.div 
-                  className="absolute flex items-center h-full"
-                  style={{ paddingLeft: '20px' }}
+                  className="absolute flex items-center h-full py-2"
                   animate={{
-                    x: [0, -300]
+                    x: [0, -500]
                   }}
                   transition={{
-                    duration: 3,
+                    duration: 5,
                     repeat: Infinity,
                     ease: "linear"
                   }}
                 >
-                  {[...Array(15)].map((_, i) => (
+                  {[...Array(25)].map((_, i) => (
                     <div key={i} className="flex items-center">
-                      {/* Isometric Block */}
-                      <div className="relative" style={{ width: '35px', height: '30px', marginRight: '-5px' }}>
-                        {/* Main cube using CSS transforms for isometric view */}
-                        <div 
-                          className="absolute"
-                          style={{
-                            width: '30px',
-                            height: '30px',
-                            transform: 'rotate(45deg) skew(-15deg, -15deg) scale(1, 0.86)',
-                            transformOrigin: 'center',
-                            background: '#0a0a0a',
-                            border: '1px solid rgba(34, 197, 94, 0.5)',
-                            boxShadow: 'inset 0 0 10px rgba(34, 197, 94, 0.1)'
-                          }}
-                        >
-                          <div 
-                            className="absolute inset-0 flex items-center justify-center"
-                            style={{ transform: 'rotate(-45deg) scale(1.4, 1.6)' }}
-                          >
-                            <span className="text-[8px] text-green-400/80 font-bold">
-                              {i.toString(16).toUpperCase()}
-                            </span>
-                          </div>
-                        </div>
+                      {/* Digital Block */}
+                      <div 
+                        className="relative bg-black border-2 border-green-500/70 h-7 w-14"
+                        style={{
+                          background: 'linear-gradient(135deg, #000000 0%, #0a1a0a 100%)',
+                          boxShadow: '0 0 10px rgba(34, 197, 94, 0.2)'
+                        }}
+                      >
+                        {/* Block Header */}
+                        <div className="h-2 bg-green-500/20 border-b border-green-500/40" />
                         
-                        {/* Side shadow for depth */}
-                        <div 
-                          className="absolute"
-                          style={{
-                            width: '30px',
-                            height: '30px',
-                            transform: 'rotate(45deg) skew(-15deg, -15deg) scale(1, 0.86) translateX(3px) translateY(3px)',
-                            background: 'rgba(34, 197, 94, 0.05)',
-                            zIndex: -1
-                          }}
-                        />
+                        {/* Block Content */}
+                        <div className="flex items-center justify-center h-5">
+                          <span className="text-[9px] text-green-400 font-bold">
+                            #{(i + 1).toString().padStart(2, '0')}
+                          </span>
+                        </div>
                       </div>
                       
-                      {/* Chain connector */}
-                      <div className="h-[1px] bg-green-500/30" style={{ width: '20px', marginLeft: '2px', marginRight: '2px' }}>
-                        <div className="relative w-full h-full">
-                          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 border border-green-500/40 bg-black rotate-45" 
-                            style={{ marginRight: '-4px' }}
-                          />
-                        </div>
+                      {/* Chain Connection */}
+                      <div className="flex items-center">
+                        <div className="w-3 h-[2px] bg-green-500/40" />
+                        <div className="w-1 h-1 bg-green-500/60 rounded-full" />
+                        <div className="w-3 h-[2px] bg-green-500/40" />
                       </div>
                     </div>
                   ))}
                 </motion.div>
                 
-                {/* Terminal effect overlay */}
-                <div className="absolute inset-0 pointer-events-none"
+                {/* Scanline effect */}
+                <div 
+                  className="absolute inset-0 pointer-events-none"
                   style={{
-                    background: 'linear-gradient(90deg, rgba(0,0,0,0.5) 0%, transparent 5%, transparent 95%, rgba(0,0,0,0.5) 100%)'
+                    backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(34, 197, 94, 0.03) 2px, rgba(34, 197, 94, 0.03) 4px)'
                   }}
                 />
               </div>
