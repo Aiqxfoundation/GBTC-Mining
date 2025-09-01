@@ -5,7 +5,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Hammer, Cpu, TrendingUp, Clock, Zap, Award, Hash } from "lucide-react";
+import { Loader2, Cpu, TrendingUp, Clock, Zap, Award, Hash, Activity, Blocks, Binary, Shield, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function MiningFactory() {
@@ -15,19 +15,36 @@ export default function MiningFactory() {
   const [currentHash, setCurrentHash] = useState("");
   const [hashPool, setHashPool] = useState<string[]>([]);
   const [nextBlockTime, setNextBlockTime] = useState("00:00");
-  const [hammerAnimation, setHammerAnimation] = useState(false);
+  const [miningProgress, setMiningProgress] = useState(0);
+  const [blockAnimations, setBlockAnimations] = useState<number[]>([]);
+  const [showNewBlock, setShowNewBlock] = useState(false);
+  const [nonce, setNonce] = useState(0);
 
   const hashPower = parseFloat(user?.hashPower || '0');
   const gbtcBalance = parseFloat(user?.gbtcBalance || '0');
 
   // Fetch global mining stats
-  const { data: globalStats } = useQuery({
+  const { data: globalStats } = useQuery<{
+    totalHashrate: number;
+    blockHeight: number;
+    totalBlocksMined: number;
+    circulation: number;
+    currentBlockReward: number;
+    activeMiners: number;
+  }>({
     queryKey: ["/api/global-stats"],
     refetchInterval: 5000,
   });
 
   // Fetch unclaimed blocks
-  const { data: unclaimedBlocks, isLoading: blocksLoading } = useQuery({
+  const { data: unclaimedBlocks, isLoading: blocksLoading } = useQuery<Array<{
+    id: string;
+    blockNumber: number;
+    reward: string;
+    txHash: string;
+    expiresAt: string;
+    claimed: boolean;
+  }>>({
     queryKey: ["/api/unclaimed-blocks"],
     refetchInterval: 30000, // Check every 30 seconds instead of 10
     enabled: !!user,
@@ -37,14 +54,50 @@ export default function MiningFactory() {
   useEffect(() => {
     if (hashPower > 0) {
       setIsMining(true);
-      const interval = setInterval(() => {
-        setHammerAnimation(prev => !prev);
-      }, 1000);
-      return () => clearInterval(interval);
     } else {
       setIsMining(false);
     }
   }, [hashPower]);
+
+  // Mining progress animation
+  useEffect(() => {
+    if (!isMining) {
+      setMiningProgress(0);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setMiningProgress(prev => {
+        if (prev >= 100) {
+          // Show block found animation
+          setShowNewBlock(true);
+          setTimeout(() => setShowNewBlock(false), 2000);
+          
+          // Add new block animation
+          setBlockAnimations(prev => [...prev, Date.now()]);
+          setTimeout(() => {
+            setBlockAnimations(prev => prev.slice(1));
+          }, 3000);
+          
+          return 0;
+        }
+        return prev + (hashPower / 1000); // Progress based on hash power
+      });
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [isMining, hashPower]);
+
+  // Nonce counter for mining simulation
+  useEffect(() => {
+    if (!isMining) return;
+    
+    const interval = setInterval(() => {
+      setNonce(prev => prev + Math.floor(Math.random() * 100000));
+    }, 100);
+    
+    return () => clearInterval(interval);
+  }, [isMining]);
 
   // Generate realistic hash strings
   useEffect(() => {
@@ -52,7 +105,7 @@ export default function MiningFactory() {
 
     const generateHash = () => {
       const chars = '0123456789abcdef';
-      let hash = '';
+      let hash = '0x';
       for (let i = 0; i < 64; i++) {
         hash += chars[Math.floor(Math.random() * chars.length)];
       }
@@ -204,32 +257,168 @@ export default function MiningFactory() {
               </span>
             </div>
 
-            {/* Golden Hammer Mining Animation */}
-            <div className="flex justify-center my-6">
-              <div className="relative">
+            {/* Bitcoin Block Mining Animation */}
+            <div className="flex justify-center my-6 relative">
+              <div className="relative w-32 h-32">
+                {/* Central mining block */}
                 <motion.div
-                  animate={hammerAnimation ? { rotate: -30, y: -10 } : { rotate: 0, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="text-6xl"
+                  className="absolute inset-0 flex items-center justify-center"
+                  animate={isMining ? { 
+                    rotate: [0, 360],
+                    scale: [1, 1.05, 1]
+                  } : {}}
+                  transition={{ 
+                    rotate: { duration: 10, repeat: Infinity, ease: "linear" },
+                    scale: { duration: 2, repeat: Infinity }
+                  }}
                 >
-                  🔨
+                  <div className="w-24 h-24 bg-gradient-to-br from-primary via-accent to-primary rounded-lg shadow-2xl relative overflow-hidden">
+                    <div className="absolute inset-0 bg-black/20"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Blocks className="w-12 h-12 text-white/90" />
+                    </div>
+                    {isMining && (
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-transparent"
+                        animate={{ y: [-100, 100] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                    )}
+                  </div>
                 </motion.div>
-                <motion.div
-                  animate={isMining ? { scale: [1, 1.2, 1] } : { scale: 1 }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                  className="absolute -bottom-2 left-1/2 transform -translate-x-1/2"
-                >
-                  <div className="w-16 h-3 bg-gradient-to-r from-yellow-600 to-yellow-400 rounded-sm shadow-lg"></div>
-                </motion.div>
+
+                {/* Orbiting hash particles */}
+                {isMining && (
+                  <>
+                    {[0, 1, 2, 3].map((index) => (
+                      <motion.div
+                        key={index}
+                        className="absolute w-4 h-4"
+                        animate={{
+                          rotate: 360,
+                        }}
+                        transition={{
+                          duration: 3 + index,
+                          repeat: Infinity,
+                          ease: "linear",
+                          delay: index * 0.5
+                        }}
+                        style={{
+                          top: '50%',
+                          left: '50%',
+                          marginTop: '-8px',
+                          marginLeft: '-8px'
+                        }}
+                      >
+                        <div 
+                          className="w-4 h-4 bg-gradient-to-br from-accent to-primary rounded-sm shadow-lg absolute"
+                          style={{
+                            transform: `translateX(${50 + index * 5}px)`
+                          }}
+                        >
+                          <Binary className="w-3 h-3 text-white/80 m-0.5" />
+                        </div>
+                      </motion.div>
+                    ))}
+                  </>
+                )}
+
+                {/* Block found animation */}
+                <AnimatePresence>
+                  {showNewBlock && (
+                    <motion.div
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1.5, opacity: 1 }}
+                      exit={{ scale: 2, opacity: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                    >
+                      <div className="bg-success/20 rounded-lg p-4 border-2 border-success">
+                        <Sparkles className="w-8 h-8 text-success" />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Mining progress ring */}
+                {isMining && (
+                  <svg className="absolute inset-0 w-32 h-32 -rotate-90">
+                    <circle
+                      cx="64"
+                      cy="64"
+                      r="60"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      fill="none"
+                      className="text-primary/20"
+                    />
+                    <motion.circle
+                      cx="64"
+                      cy="64"
+                      r="60"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      fill="none"
+                      className="text-accent"
+                      strokeDasharray={`${(miningProgress / 100) * 377} 377`}
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                )}
               </div>
+
+              {/* Mined blocks floating animation */}
+              <AnimatePresence>
+                {blockAnimations.map((timestamp) => (
+                  <motion.div
+                    key={timestamp}
+                    initial={{ x: 0, y: 0, opacity: 1, scale: 0.5 }}
+                    animate={{ 
+                      x: Math.random() * 200 - 100, 
+                      y: -150, 
+                      opacity: 0,
+                      scale: 1
+                    }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 3 }}
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                  >
+                    <div className="w-8 h-8 bg-gradient-to-br from-success to-accent rounded shadow-lg flex items-center justify-center">
+                      <Shield className="w-4 h-4 text-white" />
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
+
+            {/* Mining Stats */}
+            {isMining && (
+              <div className="bg-black/50 rounded-lg p-3 space-y-2">
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <span className="text-primary">NONCE:</span>
+                  <span className="text-accent">{nonce.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <span className="text-primary">DIFFICULTY:</span>
+                  <span className="text-accent">0x{Math.floor(Math.random() * 1000000).toString(16)}</span>
+                </div>
+                <div className="w-full bg-black/50 rounded-full h-2 overflow-hidden">
+                  <motion.div 
+                    className="h-full bg-gradient-to-r from-primary to-accent"
+                    style={{ width: `${miningProgress}%` }}
+                    transition={{ duration: 0.1 }}
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Hash Display */}
             {isMining && (
               <div className="bg-black/50 rounded-lg p-3 mt-4">
                 <div className="flex items-center space-x-2 mb-2">
-                  <Hash className="w-4 h-4 text-primary" />
+                  <Hash className="w-4 h-4 text-primary animate-pulse" />
                   <span className="text-xs font-mono text-primary">CALCULATING HASHES</span>
+                  <Activity className="w-3 h-3 text-accent animate-pulse" />
                 </div>
                 <div className="font-mono text-[10px] text-green-400 break-all">
                   {currentHash}
@@ -310,7 +499,7 @@ export default function MiningFactory() {
 
           <Card className="mobile-card bg-gradient-to-br from-accent/10 to-transparent border-accent/20">
             <div className="p-2 text-center">
-              <Hammer className="w-5 h-5 text-accent mx-auto mb-1" />
+              <Cpu className="w-5 h-5 text-accent mx-auto mb-1" />
               <p className="text-[10px] text-muted-foreground">Your Hashrate</p>
               <p className="text-sm font-bold text-accent">{formatHashrate(hashPower)}</p>
             </div>
@@ -355,70 +544,99 @@ export default function MiningFactory() {
             </Card>
           ) : unclaimedBlocks && unclaimedBlocks.length > 0 ? (
             <div className="space-y-2 max-h-64 overflow-y-auto">
-              {unclaimedBlocks.map((block: any) => (
-                <Card 
-                  key={block.id} 
-                  className="mobile-card bg-gradient-to-r from-black/50 to-primary/5 border-primary/20"
+              {unclaimedBlocks.map((block: any, index: number) => (
+                <motion.div
+                  key={block.id}
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
                 >
-                  <div className="p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded flex items-center justify-center">
-                          <span className="text-xs font-bold">#{block.blockNumber}</span>
+                  <Card className="mobile-card bg-gradient-to-r from-black/50 to-primary/5 border-primary/20 overflow-hidden">
+                    <div className="p-3 relative">
+                      {/* Block pattern background */}
+                      <div className="absolute inset-0 opacity-5">
+                        <div className="grid grid-cols-8 h-full">
+                          {[...Array(8)].map((_, i) => (
+                            <div key={i} className="border-r border-primary/20"></div>
+                          ))}
                         </div>
-                        <div>
-                          <p className="text-sm font-bold text-primary">BLOCK #{block.blockNumber}</p>
-                          <p className="text-[9px] font-mono text-muted-foreground truncate max-w-[120px]">
-                            {block.txHash}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-base font-bold text-accent">
-                          {parseFloat(block.reward).toFixed(8)}
-                        </p>
-                        <p className="text-[10px] text-primary">GBTC</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className={`text-xs font-mono px-2 py-1 rounded ${
-                        getTimeRemaining(block.expiresAt) === 'EXPIRED' 
-                          ? 'bg-destructive/20 text-destructive' 
-                          : 'bg-warning/20 text-warning'
-                      }`}>
-                        <Clock className="w-3 h-3 inline mr-1" />
-                        {getTimeRemaining(block.expiresAt)}
                       </div>
                       
-                      <Button
-                        onClick={() => claimBlockMutation.mutate(block.id)}
-                        disabled={
-                          claimBlockMutation.isPending || 
-                          getTimeRemaining(block.expiresAt) === 'EXPIRED'
-                        }
-                        className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
-                        size="sm"
-                        data-testid={`button-claim-${block.id}`}
-                      >
-                        {claimBlockMutation.isPending ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <>
-                            <Award className="w-3 h-3 mr-1" />
-                            CLAIM
-                          </>
-                        )}
-                      </Button>
+                      <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <motion.div 
+                              className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center shadow-lg"
+                              animate={{ rotate: [0, 5, -5, 0] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                            >
+                              <Blocks className="w-5 h-5 text-white" />
+                            </motion.div>
+                            <div>
+                              <p className="text-sm font-bold text-primary">BLOCK #{block.blockNumber}</p>
+                              <p className="text-[9px] font-mono text-muted-foreground truncate max-w-[120px]">
+                                {block.txHash}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <motion.p 
+                              className="text-base font-bold text-accent"
+                              animate={{ scale: [1, 1.05, 1] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                            >
+                              {parseFloat(block.reward).toFixed(8)}
+                            </motion.p>
+                            <p className="text-[10px] text-primary">GBTC</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className={`text-xs font-mono px-2 py-1 rounded ${
+                            getTimeRemaining(block.expiresAt) === 'EXPIRED' 
+                              ? 'bg-destructive/20 text-destructive' 
+                              : 'bg-warning/20 text-warning'
+                          }`}>
+                            <Clock className="w-3 h-3 inline mr-1" />
+                            {getTimeRemaining(block.expiresAt)}
+                          </div>
+                          
+                          <Button
+                            onClick={() => claimBlockMutation.mutate(block.id)}
+                            disabled={
+                              claimBlockMutation.isPending || 
+                              getTimeRemaining(block.expiresAt) === 'EXPIRED'
+                            }
+                            className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
+                            size="sm"
+                            data-testid={`button-claim-${block.id}`}
+                          >
+                            {claimBlockMutation.isPending ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <>
+                                <Award className="w-3 h-3 mr-1" />
+                                CLAIM
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                </motion.div>
               ))}
             </div>
           ) : (
             <Card className="mobile-card bg-black/50 border-primary/20">
               <div className="text-center py-8">
-                <Hammer className="w-10 h-10 text-muted-foreground mb-3 mx-auto" />
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="inline-block"
+                >
+                  <Blocks className="w-10 h-10 text-muted-foreground mb-3 mx-auto" />
+                </motion.div>
                 <p className="text-sm text-muted-foreground">No blocks to claim</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   {hashPower > 0 
