@@ -21,8 +21,11 @@ export default function WalletPage() {
   const [withdrawType, setWithdrawType] = useState<'GBTC' | 'USDT'>('GBTC');
   const [recipientUsername, setRecipientUsername] = useState("");
   const [sendAmount, setSendAmount] = useState("");
-  const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [withdrawAddress, setWithdrawAddress] = useState("");
+  // Separate state for GBTC and USDT withdrawals
+  const [gbtcWithdrawAmount, setGbtcWithdrawAmount] = useState("");
+  const [gbtcWithdrawAddress, setGbtcWithdrawAddress] = useState("");
+  const [usdtWithdrawAmount, setUsdtWithdrawAmount] = useState("");
+  const [usdtWithdrawAddress, setUsdtWithdrawAddress] = useState("");
 
   const usdtBalance = parseFloat(user?.usdtBalance || '0');
   const gbtcBalance = parseFloat(user?.gbtcBalance || '0');
@@ -72,8 +75,11 @@ export default function WalletPage() {
       });
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       setShowWithdrawDialog(false);
-      setWithdrawAmount("");
-      setWithdrawAddress("");
+      // Clear all withdrawal fields
+      setGbtcWithdrawAmount("");
+      setGbtcWithdrawAddress("");
+      setUsdtWithdrawAmount("");
+      setUsdtWithdrawAddress("");
     },
     onError: (error: Error) => {
       toast({ 
@@ -105,7 +111,10 @@ export default function WalletPage() {
   };
 
   const handleWithdraw = () => {
-    if (!withdrawAmount || !withdrawAddress) {
+    const currentAmount = withdrawType === 'GBTC' ? gbtcWithdrawAmount : usdtWithdrawAmount;
+    const currentAddress = withdrawType === 'GBTC' ? gbtcWithdrawAddress : usdtWithdrawAddress;
+    
+    if (!currentAmount || !currentAddress) {
       toast({ 
         title: "Invalid Input", 
         description: "Please enter amount and address", 
@@ -114,7 +123,7 @@ export default function WalletPage() {
       return;
     }
     
-    const amount = parseFloat(withdrawAmount);
+    const amount = parseFloat(currentAmount);
     const maxAmount = withdrawType === 'GBTC' ? gbtcBalance : usdtBalance;
     
     if (amount > maxAmount) {
@@ -127,8 +136,8 @@ export default function WalletPage() {
     }
     
     withdrawMutation.mutate({ 
-      amount: withdrawAmount, 
-      address: withdrawAddress, 
+      amount: currentAmount, 
+      address: currentAddress, 
       type: withdrawType 
     });
   };
@@ -522,8 +531,14 @@ export default function WalletPage() {
                 <Input
                   id="withdraw-amount"
                   type="number"
-                  value={withdrawAmount}
-                  onChange={(e) => setWithdrawAmount(e.target.value)}
+                  value={withdrawType === 'GBTC' ? gbtcWithdrawAmount : usdtWithdrawAmount}
+                  onChange={(e) => {
+                    if (withdrawType === 'GBTC') {
+                      setGbtcWithdrawAmount(e.target.value);
+                    } else {
+                      setUsdtWithdrawAmount(e.target.value);
+                    }
+                  }}
                   placeholder={withdrawType === 'GBTC' ? "0.00000000" : "0.00"}
                   step={withdrawType === 'GBTC' ? "0.00000001" : "0.01"}
                   max={withdrawType === 'GBTC' ? gbtcBalance : usdtBalance}
@@ -542,8 +557,14 @@ export default function WalletPage() {
               <Label htmlFor="withdraw-address" className="text-[#f7931a]/80">Wallet Address</Label>
               <Input
                 id="withdraw-address"
-                value={withdrawAddress}
-                onChange={(e) => setWithdrawAddress(e.target.value)}
+                value={withdrawType === 'GBTC' ? gbtcWithdrawAddress : usdtWithdrawAddress}
+                onChange={(e) => {
+                  if (withdrawType === 'GBTC') {
+                    setGbtcWithdrawAddress(e.target.value);
+                  } else {
+                    setUsdtWithdrawAddress(e.target.value);
+                  }
+                }}
                 placeholder={withdrawType === 'GBTC' ? "Enter GBTC address" : "Enter USDT (ERC-20) address"}
                 className="bg-black/50 border-[#f7931a]/20 focus:border-[#f7931a]/50 font-mono text-xs"
                 data-testid="input-withdraw-address"
