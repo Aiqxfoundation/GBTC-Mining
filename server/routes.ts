@@ -144,14 +144,21 @@ export function registerRoutes(app: Express): Server {
       const withdrawalData = insertWithdrawalSchema.parse(req.body);
       const user = req.user!;
       
+      console.log("[Withdrawal Debug] Network:", withdrawalData.network);
+      console.log("[Withdrawal Debug] Amount:", withdrawalData.amount);
+      console.log("[Withdrawal Debug] User USDT Balance:", user.usdtBalance);
+      console.log("[Withdrawal Debug] User GBTC Balance:", user.gbtcBalance);
+      
       // Check which currency is being withdrawn based on network
-      const isUSDT = withdrawalData.network === 'ERC20' || withdrawalData.network === 'BSC';
+      const isUSDT = withdrawalData.network === 'ERC20' || withdrawalData.network === 'BSC' || withdrawalData.network === 'TRC20';
       const amount = parseFloat(withdrawalData.amount);
       
       if (isUSDT) {
         // USDT withdrawal
+        console.log("[Withdrawal Debug] Processing USDT withdrawal");
         const usdtBalance = parseFloat(user.usdtBalance || "0");
         if (usdtBalance < amount) {
+          console.log("[Withdrawal Debug] Insufficient USDT:", usdtBalance, "<", amount);
           return res.status(400).json({ message: "Insufficient USDT balance" });
         }
         
@@ -165,9 +172,11 @@ export function registerRoutes(app: Express): Server {
           user.unclaimedBalance || "0"
         );
       } else {
-        // GBTC withdrawal
+        // GBTC withdrawal  
+        console.log("[Withdrawal Debug] Processing GBTC withdrawal");
         const gbtcBalance = parseFloat(user.gbtcBalance || "0");
         if (gbtcBalance < amount) {
+          console.log("[Withdrawal Debug] Insufficient GBTC:", gbtcBalance, "<", amount);
           return res.status(400).json({ message: "Insufficient GBTC balance" });
         }
         
