@@ -143,20 +143,44 @@ export function registerRoutes(app: Express): Server {
 
       const withdrawalData = insertWithdrawalSchema.parse(req.body);
       const user = req.user!;
-
-      if (parseFloat(user.gbtcBalance || "0") < parseFloat(withdrawalData.amount)) {
-        return res.status(400).json({ message: "Insufficient GBTC balance" });
-      }
-
-      const newGbtcBalance = (parseFloat(user.gbtcBalance || "0") - parseFloat(withdrawalData.amount)).toFixed(8);
       
-      await storage.updateUserBalance(
-        user.id,
-        user.usdtBalance || "0",
-        user.hashPower || "0",
-        newGbtcBalance,
-        user.unclaimedBalance || "0"
-      );
+      // Check which currency is being withdrawn based on network
+      const isUSDT = withdrawalData.network === 'ERC20' || withdrawalData.network === 'BSC';
+      const amount = parseFloat(withdrawalData.amount);
+      
+      if (isUSDT) {
+        // USDT withdrawal
+        const usdtBalance = parseFloat(user.usdtBalance || "0");
+        if (usdtBalance < amount) {
+          return res.status(400).json({ message: "Insufficient USDT balance" });
+        }
+        
+        const newUsdtBalance = (usdtBalance - amount).toFixed(2);
+        
+        await storage.updateUserBalance(
+          user.id,
+          newUsdtBalance,
+          user.hashPower || "0",
+          user.gbtcBalance || "0",
+          user.unclaimedBalance || "0"
+        );
+      } else {
+        // GBTC withdrawal
+        const gbtcBalance = parseFloat(user.gbtcBalance || "0");
+        if (gbtcBalance < amount) {
+          return res.status(400).json({ message: "Insufficient GBTC balance" });
+        }
+        
+        const newGbtcBalance = (gbtcBalance - amount).toFixed(8);
+        
+        await storage.updateUserBalance(
+          user.id,
+          user.usdtBalance || "0",
+          user.hashPower || "0",
+          newGbtcBalance,
+          user.unclaimedBalance || "0"
+        );
+      }
 
       const withdrawal = await storage.createWithdrawal({
         ...withdrawalData,
