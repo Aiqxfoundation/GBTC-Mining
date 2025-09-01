@@ -26,7 +26,7 @@ export default function GlobalPage() {
   const [currentHash, setCurrentHash] = useState("");
 
   // Fetch real global statistics
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading } = useQuery<GlobalStats>({
     queryKey: ["/api/global-stats"],
     refetchInterval: 5000, // Refresh every 5 seconds for live updates
   });

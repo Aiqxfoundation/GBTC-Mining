@@ -17,19 +17,7 @@ export default function HomePage() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [currentHash, setCurrentHash] = useState("");
   const [blockNumber, setBlockNumber] = useState(871234);
-
-  // Generate random hash for visual effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const hash = Array.from({length: 64}, () => 
-        Math.floor(Math.random() * 16).toString(16)
-      ).join('');
-      setCurrentHash(hash);
-    }, 100);
-    return () => clearInterval(interval);
-  }, []);
 
   // Simulate block mining
   useEffect(() => {
@@ -70,25 +58,7 @@ export default function HomePage() {
         />
       </div>
 
-      {/* Animated Hash Background */}
-      <div className="fixed inset-0 overflow-hidden">
-        {[...Array(5)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute text-[#f7931a] opacity-5 font-mono text-xs whitespace-nowrap"
-            initial={{ x: '100%', y: `${20 * i}%` }}
-            animate={{ x: '-100%' }}
-            transition={{
-              duration: 30 + i * 5,
-              repeat: Infinity,
-              ease: 'linear',
-            }}
-          >
-            {currentHash.repeat(20)}
-          </motion.div>
-        ))}
-      </div>
-
+    
       {/* Main Content */}
       <div className="relative z-10 p-4 space-y-6">
         {/* Top Navigation Bar */}
@@ -116,8 +86,9 @@ export default function HomePage() {
 
         {/* Hero Section with Bitcoin Animation */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
           className="text-center py-8"
         >
           {/* Animated Bitcoin Logo */}
@@ -128,9 +99,9 @@ export default function HomePage() {
                 rotateY: [0, 360],
               }}
               transition={{
-                duration: 10,
+                duration: 20,
                 repeat: Infinity,
-                ease: "linear"
+                ease: "easeInOut"
               }}
             >
               <div className="w-full h-full bg-gradient-to-br from-[#f7931a] to-[#ff9416] rounded-full flex items-center justify-center shadow-2xl shadow-[#f7931a]/50">
@@ -151,10 +122,10 @@ export default function HomePage() {
                   rotate: 360,
                 }}
                 transition={{
-                  duration: 3 + i,
+                  duration: 8 + i * 2,
                   repeat: Infinity,
-                  ease: "linear",
-                  delay: i * 0.5,
+                  ease: "easeInOut",
+                  delay: i * 1,
                 }}
               >
                 <div 
@@ -167,9 +138,9 @@ export default function HomePage() {
           
           <motion.h1 
             className="text-5xl font-bold text-white mb-2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4, duration: 1.2, ease: "easeOut" }}
           >
             Green Bitcoin
           </motion.h1>
@@ -178,7 +149,7 @@ export default function HomePage() {
             className="text-2xl text-[#f7931a] mb-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.6, duration: 1.2 }}
           >
             (GBTC)
           </motion.p>
@@ -187,16 +158,16 @@ export default function HomePage() {
             className="text-lg text-gray-400 mb-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.8, duration: 1.5 }}
           >
-            Empowering Miners
+            The Future Is Decentralized
           </motion.p>
           
           <motion.div 
             className="max-w-lg mx-auto space-y-2 mb-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 1, duration: 1.5 }}
           >
             <p className="text-sm text-gray-500">
               GBTC is an L1 blockchain with its own native gas currency.
@@ -211,15 +182,15 @@ export default function HomePage() {
 
           {/* Live Mining Display */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2, duration: 1.2, ease: "easeOut" }}
             className="mb-8"
           >
             <Card className="bg-gray-950/80 border-[#f7931a]/20 p-4 max-w-md mx-auto backdrop-blur">
               <div className="font-mono text-xs space-y-1 text-left">
                 <div className="text-[#f7931a]">MINING BLOCK #{blockNumber}</div>
-                <div className="text-green-400">HASH: 0x{currentHash.substring(0, 20)}...</div>
+                <div className="text-green-400">STATUS: ACTIVE</div>
                 <div className="text-blue-400">DIFFICULTY: 53.91T</div>
                 <div className="text-purple-400">REWARD: 6.25 GBTC</div>
               </div>
@@ -230,9 +201,9 @@ export default function HomePage() {
           <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 1.5, duration: 1, type: "spring", stiffness: 100 }}
           >
             <Button
               onClick={handleStartMining}
@@ -250,7 +221,7 @@ export default function HomePage() {
               className="text-sm text-gray-500 mt-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
+              transition={{ delay: 1.8, duration: 1 }}
             >
               Welcome back, <span className="text-[#f7931a]">@{user.username}</span>
             </motion.p>
@@ -259,9 +230,9 @@ export default function HomePage() {
 
         {/* How It Works */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9 }}
+          transition={{ delay: 2, duration: 1.2, ease: "easeOut" }}
         >
           <Card className="bg-gray-950 border-gray-800 p-4">
             <h2 className="text-white font-semibold mb-4 flex items-center gap-2">
@@ -295,9 +266,9 @@ export default function HomePage() {
 
         {/* Key Stats */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 2.2, duration: 1, ease: "easeOut" }}
           className="grid grid-cols-2 gap-3"
         >
           <Card className="bg-gradient-to-br from-[#f7931a]/10 to-transparent border-[#f7931a]/20 p-3">
@@ -320,9 +291,9 @@ export default function HomePage() {
 
         {/* FAQ Section */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.1 }}
+          transition={{ delay: 2.5, duration: 1.2, ease: "easeOut" }}
         >
           <Card className="bg-gray-950 border-gray-800">
             <div className="p-4">
@@ -393,9 +364,9 @@ export default function HomePage() {
         {/* Quick Actions */}
         {user && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 2.8, duration: 1, ease: "easeOut" }}
             className="space-y-3"
           >
             <Button
