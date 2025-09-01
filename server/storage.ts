@@ -61,7 +61,7 @@ export interface IStorage {
   getActiveMinerCount(): Promise<number>;
   
   // Unclaimed blocks
-  createUnclaimedBlock(userId: string, blockNumber: number, txHash: string, reward: string): Promise<void>;
+  createUnclaimedBlock(userId: string, blockNumber: number, txHash: string, reward: string): Promise<UnclaimedBlock>;
   getUnclaimedBlocks(userId: string): Promise<any[]>;
   claimBlock(blockId: string, userId: string): Promise<{ success: boolean; reward?: string }>;
   claimAllBlocks(userId: string): Promise<{ count: number; totalReward: string }>;
@@ -175,7 +175,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, deposit.userId));
     
     if (user) {
-      const newBalance = (parseFloat(user.usdtBalance) + parseFloat(deposit.amount)).toFixed(2);
+      const newBalance = (parseFloat(user.usdtBalance || "0") + parseFloat(deposit.amount)).toFixed(2);
       await db
         .update(users)
         .set({ usdtBalance: newBalance })
@@ -299,7 +299,7 @@ export class DatabaseStorage implements IStorage {
     
     const user = await this.getUser(userId);
     if (user) {
-      const newBalance = (parseFloat(user.gbtcBalance) + parseFloat(block.reward)).toFixed(8);
+      const newBalance = (parseFloat(user.gbtcBalance || "0") + parseFloat(block.reward)).toFixed(8);
       await db.update(users)
         .set({ gbtcBalance: newBalance })
         .where(eq(users.id, userId));
@@ -333,7 +333,7 @@ export class DatabaseStorage implements IStorage {
     // Update user balance
     const user = await this.getUser(userId);
     if (user) {
-      const newBalance = (parseFloat(user.gbtcBalance) + totalReward).toFixed(8);
+      const newBalance = (parseFloat(user.gbtcBalance || "0") + totalReward).toFixed(8);
       await db.update(users)
         .set({ gbtcBalance: newBalance })
         .where(eq(users.id, userId));
@@ -368,7 +368,7 @@ export class DatabaseStorage implements IStorage {
       throw new Error('Sender not found');
     }
     
-    const senderBalance = parseFloat(fromUser.gbtcBalance);
+    const senderBalance = parseFloat(fromUser.gbtcBalance || "0");
     if (senderBalance < parseFloat(amount)) {
       throw new Error('Insufficient balance');
     }
@@ -378,7 +378,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, fromUserId));
     
     await db.update(users)
-      .set({ gbtcBalance: (parseFloat(toUser.gbtcBalance) + parseFloat(amount)).toFixed(8) })
+      .set({ gbtcBalance: (parseFloat(toUser.gbtcBalance || "0") + parseFloat(amount)).toFixed(8) })
       .where(eq(users.id, toUser.id));
     
     const txHash = '0x' + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('');

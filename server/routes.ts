@@ -83,19 +83,19 @@ export function registerRoutes(app: Express): Server {
       const { amount } = z.object({ amount: z.number().min(1) }).parse(req.body);
       const user = req.user!;
 
-      if (parseFloat(user.usdtBalance) < amount) {
+      if (parseFloat(user.usdtBalance || "0") < amount) {
         return res.status(400).json({ message: "Insufficient USDT balance" });
       }
 
-      const newUsdtBalance = (parseFloat(user.usdtBalance) - amount).toFixed(2);
-      const newHashPower = (parseFloat(user.hashPower) + amount).toFixed(2);
+      const newUsdtBalance = (parseFloat(user.usdtBalance || "0") - amount).toFixed(2);
+      const newHashPower = (parseFloat(user.hashPower || "0") + amount).toFixed(2);
 
       await storage.updateUserBalance(
         user.id, 
         newUsdtBalance, 
         newHashPower, 
-        user.gbtcBalance, 
-        user.unclaimedBalance
+        user.gbtcBalance || "0", 
+        user.unclaimedBalance || "0"
       );
 
       res.json({ message: "Hash power purchased successfully" });
@@ -112,18 +112,18 @@ export function registerRoutes(app: Express): Server {
       }
 
       const user = req.user!;
-      const unclaimedAmount = parseFloat(user.unclaimedBalance);
+      const unclaimedAmount = parseFloat(user.unclaimedBalance || "0");
       
       if (unclaimedAmount <= 0) {
         return res.status(400).json({ message: "No rewards to claim" });
       }
 
-      const newGbtcBalance = (parseFloat(user.gbtcBalance) + unclaimedAmount).toFixed(8);
+      const newGbtcBalance = (parseFloat(user.gbtcBalance || "0") + unclaimedAmount).toFixed(8);
 
       await storage.updateUserBalance(
         user.id,
-        user.usdtBalance,
-        user.hashPower,
+        user.usdtBalance || "0",
+        user.hashPower || "0",
         newGbtcBalance,
         "0.00000000"
       );
@@ -144,18 +144,18 @@ export function registerRoutes(app: Express): Server {
       const withdrawalData = insertWithdrawalSchema.parse(req.body);
       const user = req.user!;
 
-      if (parseFloat(user.gbtcBalance) < parseFloat(withdrawalData.amount)) {
+      if (parseFloat(user.gbtcBalance || "0") < parseFloat(withdrawalData.amount)) {
         return res.status(400).json({ message: "Insufficient GBTC balance" });
       }
 
-      const newGbtcBalance = (parseFloat(user.gbtcBalance) - parseFloat(withdrawalData.amount)).toFixed(8);
+      const newGbtcBalance = (parseFloat(user.gbtcBalance || "0") - parseFloat(withdrawalData.amount)).toFixed(8);
       
       await storage.updateUserBalance(
         user.id,
-        user.usdtBalance,
-        user.hashPower,
+        user.usdtBalance || "0",
+        user.hashPower || "0",
         newGbtcBalance,
-        user.unclaimedBalance
+        user.unclaimedBalance || "0"
       );
 
       const withdrawal = await storage.createWithdrawal({
@@ -386,7 +386,7 @@ export function registerRoutes(app: Express): Server {
       const miners = minersWithUsers.map(m => ({
         id: m.user.id,
         username: m.user.username,
-        hashPower: parseFloat(m.user.hashPower),
+        hashPower: parseFloat(m.user.hashPower || "0"),
         lastClaimTime: m.lastClaimTime,
         isActive: m.isActive,
         totalClaims: m.totalClaims,

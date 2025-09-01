@@ -75,11 +75,11 @@ async function distributeRewards() {
     
     // Get all users with hash power
     const allUsers = await db.select().from(users);
-    const usersWithPower = allUsers.filter(u => parseFloat(u.hashPower) > 0);
+    const usersWithPower = allUsers.filter(u => parseFloat(u.hashPower || "0") > 0);
     
     // Create unclaimed blocks for each user based on their hash power share
     for (const user of usersWithPower) {
-      const userHashPower = parseFloat(user.hashPower);
+      const userHashPower = parseFloat(user.hashPower || "0");
       const userShare = userHashPower / totalHashPowerNum;
       const userReward = (currentBlockReward * userShare).toFixed(8);
       
