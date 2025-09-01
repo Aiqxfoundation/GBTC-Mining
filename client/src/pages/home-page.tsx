@@ -141,7 +141,10 @@ export default function HomePage() {
             onClick={() => setLocation('/global')}
             variant="ghost"
             size="sm"
-            className="text-green-500 hover:text-green-400 hover:bg-green-500/10 border border-green-500/20"
+            className="text-green-400 hover:text-green-300 hover:bg-green-500/20 border-2 border-green-500/60 bg-black/50 font-bold transition-all"
+            style={{
+              boxShadow: '0 0 10px rgba(34, 197, 94, 0.3)'
+            }}
           >
             <Globe className="w-4 h-4 mr-1" />
             Global Stats
@@ -151,7 +154,10 @@ export default function HomePage() {
             onClick={() => setLocation('/whitepaper')}
             variant="ghost"
             size="sm"
-            className="text-green-500 hover:text-green-400 hover:bg-green-500/10 border border-green-500/20"
+            className="text-green-400 hover:text-green-300 hover:bg-green-500/20 border-2 border-green-500/60 bg-black/50 font-bold transition-all"
+            style={{
+              boxShadow: '0 0 10px rgba(34, 197, 94, 0.3)'
+            }}
           >
             <FileText className="w-4 h-4 mr-1" />
             Whitepaper
@@ -266,7 +272,7 @@ export default function HomePage() {
               {/* Live Mining Data */}
               <div className="font-mono text-[10px] space-y-1 text-left text-green-400">
                 <div className="text-yellow-400 animate-pulse">
-                  [ASIC] Mining Block #871,{(234567 + Math.floor(nonce / 1000000)).toString().padStart(3, '0')}
+                  [SHA-256] Secured By Hash Principle #871,{(234567 + Math.floor(nonce / 1000000)).toString().padStart(3, '0')}
                 </div>
                 
                 {/* Animated binary/hex lines */}
@@ -295,67 +301,68 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Digital Blockchain Blocks */}
-              <div className="mt-3 relative h-10 bg-black overflow-hidden font-mono">
-                <div className="absolute inset-0 border border-green-500/20" />
-                
-                {/* Sliding blockchain */}
-                <motion.div 
-                  className="absolute flex items-center h-full py-2"
-                  animate={{
-                    x: [0, -500]
-                  }}
-                  transition={{
-                    duration: 5,
-                    repeat: Infinity,
-                    ease: "linear"
-                  }}
-                >
-                  {[...Array(25)].map((_, i) => (
-                    <div key={i} className="flex items-center">
-                      {/* Digital Block */}
-                      <div 
-                        className="relative bg-black border-2 border-green-500/70 h-7 w-14"
-                        style={{
-                          background: 'linear-gradient(135deg, #000000 0%, #0a1a0a 100%)',
-                          boxShadow: '0 0 10px rgba(34, 197, 94, 0.2)'
-                        }}
-                      >
-                        {/* Block Header */}
-                        <div className="h-2 bg-green-500/20 border-b border-green-500/40" />
-                        
-                        {/* Block Content */}
-                        <div className="flex items-center justify-center h-5">
-                          <span className="text-[9px] text-green-400 font-bold">
-                            #{(i + 1).toString().padStart(2, '0')}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {/* Chain Connection */}
-                      <div className="flex items-center">
-                        <div className="w-3 h-[2px] bg-green-500/40" />
-                        <div className="w-1 h-1 bg-green-500/60 rounded-full" />
-                        <div className="w-3 h-[2px] bg-green-500/40" />
-                      </div>
-                    </div>
-                  ))}
-                </motion.div>
-                
-                {/* Scanline effect */}
-                <div 
-                  className="absolute inset-0 pointer-events-none"
-                  style={{
-                    backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(34, 197, 94, 0.03) 2px, rgba(34, 197, 94, 0.03) 4px)'
-                  }}
-                />
+              {/* Processing Bar */}
+              <div className="mt-3">
+                <div className="h-6 bg-black border border-green-500/30 relative overflow-hidden">
+                  <motion.div 
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-green-500/20 to-transparent"
+                    animate={{
+                      x: ['-100%', '200%']
+                    }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                  />
+                  <motion.div 
+                    className="absolute left-0 top-0 bottom-0 bg-green-500/30"
+                    animate={{
+                      width: ['0%', '100%']
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                  />
+                  <div className="relative z-10 h-full flex items-center justify-center">
+                    <motion.span 
+                      className="text-[10px] font-mono text-green-400"
+                      animate={{
+                        opacity: [0.5, 1, 0.5]
+                      }}
+                      transition={{
+                        duration: 0.5,
+                        repeat: Infinity
+                      }}
+                    >
+                      PROCESSING
+                    </motion.span>
+                  </div>
+                </div>
               </div>
 
               {/* Current Hash */}
               <div className="mt-2 text-center">
-                <div className="text-[10px] text-gray-500 font-mono">
-                  Target: <span className="text-orange-500 animate-pulse">{currentHash}</span>
-                </div>
+                <motion.div 
+                  className="text-[11px] font-mono"
+                  animate={{
+                    opacity: [0.3, 1, 0.3],
+                    textShadow: [
+                      "0 0 5px rgba(34, 197, 94, 0)",
+                      "0 0 15px rgba(34, 197, 94, 0.5)",
+                      "0 0 5px rgba(34, 197, 94, 0)"
+                    ]
+                  }}
+                  transition={{
+                    duration: 0.2,
+                    repeat: Infinity
+                  }}
+                >
+                  <span className="text-gray-500">Target: </span>
+                  <span className="text-green-400">{currentHash.slice(0, 16)}...{currentHash.slice(-16)}</span>
+                </motion.div>
               </div>
             </Card>
           </motion.div>
