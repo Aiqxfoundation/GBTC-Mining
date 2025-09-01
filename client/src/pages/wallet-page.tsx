@@ -137,7 +137,7 @@ export default function WalletPage() {
     }
     
     withdrawMutation.mutate({ 
-      amount: currentAmount, 
+      amount: currentAmount, // already a string from input
       address: currentAddress, 
       type: withdrawType 
     });

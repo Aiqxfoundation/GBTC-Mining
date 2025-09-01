@@ -75,7 +75,7 @@ export default function WithdrawPage() {
   }, [cooldownEndTime, refetchCooldown]);
 
   const createWithdrawalMutation = useMutation({
-    mutationFn: async (data: { amount: number; address: string; network: string }) => {
+    mutationFn: async (data: { amount: string; address: string; network: string }) => {
       const res = await apiRequest("POST", "/api/withdrawals", data);
       return res.json();
     },
@@ -120,7 +120,7 @@ export default function WithdrawPage() {
     }
     
     createWithdrawalMutation.mutate({
-      amount: withdrawAmount,
+      amount: withdrawAmount.toString(), // Send as string
       address,
       network
     });
