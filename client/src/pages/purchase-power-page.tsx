@@ -7,9 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
-import { Loader2, Zap, TrendingUp, Calculator, Coins, Activity, Info, Users, AlertCircle } from "lucide-react";
-import { motion } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
+import { Loader2, Zap, Calculator, Coins } from "lucide-react";
 
 export default function PurchasePowerPage() {
   const { user } = useAuth();
@@ -62,9 +60,6 @@ export default function PurchasePowerPage() {
     };
   };
 
-  // Calculate rewards for current hashrate
-  const currentRewards = calculateDynamicRewards(currentHashrate, totalNetworkHashrate);
-  
   // Calculate rewards after purchase
   const afterPurchaseHashrate = currentHashrate + selectedAmount;
   const afterPurchaseTotalHashrate = totalNetworkHashrate + selectedAmount;
@@ -114,235 +109,170 @@ export default function PurchasePowerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-4">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header with Bitcoin branding */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-2"
-        >
-          <div className="flex justify-center items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center animate-pulse">
-              <span className="text-white text-2xl">₿</span>
-            </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
-              Hashrate Market
-            </h1>
-          </div>
-          <p className="text-gray-400">Bitcoin-style proportional reward distribution</p>
-        </motion.div>
+    <div className="mobile-page bg-black">
+      {/* Header */}
+      <div className="mobile-header bg-black/90 backdrop-blur-sm border-b border-gray-800">
+        <div>
+          <h1 className="text-lg font-medium text-white">Purchase Hash Power</h1>
+          <p className="text-xs text-gray-500">1 USDT = 1 GH/s</p>
+        </div>
+        <div className="text-right">
+          <p className="text-xs text-gray-500">Your Hashrate</p>
+          <p className="text-sm font-medium text-[#f7931a]">
+            {getHashrateDisplay(currentHashrate)}
+          </p>
+        </div>
+      </div>
 
-        {/* Network Stats */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-orange-500/20">
-            <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Activity className="w-5 h-5 text-orange-500" />
-                    <p className="text-sm text-gray-400">Your Hashrate</p>
-                  </div>
-                  <p className="text-2xl font-bold text-orange-500">
-                    {getHashrateDisplay(currentHashrate)}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {currentRewards.userShare}% of network
-                  </p>
-                </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Coins className="w-5 h-5 text-green-500" />
-                    <p className="text-sm text-gray-400">USDT Balance</p>
-                  </div>
-                  <p className="text-2xl font-bold text-green-500">
-                    ${usdtBalance.toFixed(2)}
-                  </p>
-                </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <TrendingUp className="w-5 h-5 text-blue-500" />
-                    <p className="text-sm text-gray-400">Network Hash</p>
-                  </div>
-                  <p className="text-2xl font-bold text-blue-500">
-                    {getHashrateDisplay(totalNetworkHashrate)}
-                  </p>
-                </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Users className="w-5 h-5 text-purple-500" />
-                    <p className="text-sm text-gray-400">Active Miners</p>
-                  </div>
-                  <p className="text-2xl font-bold text-purple-500">
-                    {activeMiners}
-                  </p>
-                </div>
+      {/* Main Content */}
+      <div className="mobile-content">
+        {/* Balance Card */}
+        <Card className="p-4 mb-4 bg-gray-950 border-gray-800">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center space-x-2 mb-1">
+                <Coins className="w-4 h-4 text-green-500" />
+                <p className="text-xs text-gray-500">Available Balance</p>
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+              <p className="text-2xl font-bold text-white">
+                ${usdtBalance.toFixed(2)}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">USDT</p>
+            </div>
+            <div className="text-right">
+              <div className="flex items-center justify-end space-x-2 mb-1">
+                <Zap className="w-4 h-4 text-[#f7931a]" />
+                <p className="text-xs text-gray-500">Current Power</p>
+              </div>
+              <p className="text-xl font-semibold text-[#f7931a]">
+                {getHashrateDisplay(currentHashrate)}
+              </p>
+            </div>
+          </div>
+        </Card>
 
-        {/* Purchase Input */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card className="bg-gray-900 border-gray-800">
-            <CardHeader>
-              <CardTitle className="text-2xl text-orange-500">Purchase Hashrate</CardTitle>
-              <CardDescription className="text-gray-400">
-                1 USDT = 1 GH/s - Fair pricing for everyone
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {/* Input Section */}
-                <div>
-                  <label className="text-sm text-gray-400 mb-2 block">Enter Investment Amount (USDT)</label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="number"
-                      value={customAmount}
-                      onChange={(e) => setCustomAmount(e.target.value)}
-                      placeholder="Enter amount..."
-                      className="bg-gray-800 border-gray-700 text-white text-lg"
-                      min={1}
-                      max={Math.floor(usdtBalance)}
-                      data-testid="input-custom-amount"
-                    />
-                    <Button 
-                      variant="outline" 
-                      className="border-orange-500 text-orange-500 hover:bg-orange-500/10"
-                      onClick={() => setCustomAmount(Math.floor(usdtBalance).toString())}
-                    >
-                      Max
-                    </Button>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Available: ${usdtBalance.toFixed(2)} USDT • Min: 1 USDT • Max: Unlimited
-                  </p>
-                </div>
-
-                {/* Dynamic Reward Calculation */}
-                {selectedAmount > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
+        {/* Purchase Card */}
+        <Card className="bg-gray-950 border-gray-800">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-base text-white">Buy Hash Power</CardTitle>
+            <CardDescription className="text-xs text-gray-500">
+              Invest USDT to increase your mining power
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Input Section */}
+              <div>
+                <label className="text-xs text-gray-500 mb-2 block">Amount (USDT)</label>
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    value={customAmount}
+                    onChange={(e) => setCustomAmount(e.target.value)}
+                    placeholder="Enter amount..."
+                    className="bg-black border-gray-800 text-white"
+                    min={1}
+                    max={Math.floor(usdtBalance)}
+                    data-testid="input-custom-amount"
+                  />
+                  <Button 
+                    variant="outline" 
+                    className="border-gray-700 text-gray-400 hover:bg-gray-900"
+                    onClick={() => setCustomAmount(Math.floor(usdtBalance).toString())}
                   >
-                    <Card className="bg-gradient-to-br from-orange-900/20 to-orange-800/20 border-orange-500/30">
-                      <CardHeader>
-                        <CardTitle className="text-lg text-orange-500 flex items-center gap-2">
-                          <Calculator className="w-5 h-5" />
-                          Mining Calculation
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
-                          {/* Purchase Summary */}
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <p className="text-sm text-gray-400">You Pay</p>
-                              <p className="text-xl font-bold text-white">${selectedAmount} USDT</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-400">You Get</p>
-                              <p className="text-xl font-bold text-orange-500">{getHashrateDisplay(selectedAmount)}</p>
-                            </div>
+                    Max
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-600 mt-2">
+                  Min: 1 USDT • Max: ${Math.floor(usdtBalance)} USDT
+                </p>
+              </div>
+
+              {/* Calculation Display */}
+              {selectedAmount > 0 && (
+                <Card className="bg-black border-gray-800">
+                  <CardContent className="p-3">
+                    <div className="space-y-3">
+                      {/* Purchase Summary */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <p className="text-xs text-gray-500">You Pay</p>
+                          <p className="text-base font-semibold text-white">${selectedAmount} USDT</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">You Get</p>
+                          <p className="text-base font-semibold text-[#f7931a]">{getHashrateDisplay(selectedAmount)}</p>
+                        </div>
+                      </div>
+
+                      <div className="h-px bg-gray-800"></div>
+
+                      {/* After Purchase */}
+                      <div>
+                        <p className="text-xs text-gray-500 mb-2">After Purchase</p>
+                        <div className="space-y-1">
+                          <div className="flex justify-between">
+                            <span className="text-xs text-gray-600">Total Hashrate</span>
+                            <span className="text-xs font-medium text-white">
+                              {getHashrateDisplay(afterPurchaseHashrate)}
+                            </span>
                           </div>
-
-                          <div className="h-px bg-gray-700"></div>
-
-                          {/* After Purchase Stats */}
-                          <div>
-                            <p className="text-sm font-semibold text-gray-300 mb-2">After Purchase:</p>
-                            <div className="grid grid-cols-2 gap-3">
-                              <div>
-                                <p className="text-xs text-gray-400">Your Total Hashrate</p>
-                                <p className="text-lg font-semibold text-white">
-                                  {getHashrateDisplay(afterPurchaseHashrate)}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-gray-400">Your Network Share</p>
-                                <p className="text-lg font-semibold text-green-500">
-                                  {afterPurchaseRewards.userShare}%
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="h-px bg-gray-700"></div>
-
-                          {/* Estimated Rewards */}
-                          <div>
-                            <p className="text-sm font-semibold text-gray-300 mb-2">Estimated Rewards:</p>
-                            <div className="space-y-2">
-                              <div className="flex justify-between">
-                                <span className="text-sm text-gray-400">Daily GBTC</span>
-                                <span className="text-sm font-semibold text-green-500">
-                                  ~{afterPurchaseRewards.dailyReward} GBTC
-                                </span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-sm text-gray-400">Hourly GBTC</span>
-                                <span className="text-sm font-semibold text-green-500">
-                                  ~{afterPurchaseRewards.hourlyReward} GBTC
-                                </span>
-                              </div>
-                              {parseFloat(afterPurchaseRewards.earlyBonus) > 0 && (
-                                <div className="flex justify-between">
-                                  <span className="text-sm text-gray-400">Early Adopter Bonus</span>
-                                  <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/30">
-                                    +{afterPurchaseRewards.earlyBonus}%
-                                  </Badge>
-                                </div>
-                              )}
-                            </div>
+                          <div className="flex justify-between">
+                            <span className="text-xs text-gray-600">Est. Daily GBTC</span>
+                            <span className="text-xs font-medium text-green-500">
+                              ~{afterPurchaseRewards.dailyReward}
+                            </span>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Purchase Button */}
+              <Button
+                onClick={handlePurchase}
+                disabled={purchasePowerMutation.isPending || selectedAmount > usdtBalance || selectedAmount < 1}
+                className="w-full h-12 font-medium bg-[#f7931a] hover:bg-[#e88309] text-black disabled:opacity-50"
+                data-testid="button-confirm-purchase"
+              >
+                {purchasePowerMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 mr-2" />
+                    {selectedAmount > 0 
+                      ? `Purchase ${getHashrateDisplay(selectedAmount)}` 
+                      : 'Enter Amount'}
+                  </>
                 )}
+              </Button>
 
+              {selectedAmount > usdtBalance && (
+                <p className="text-xs text-red-500 text-center">
+                  Insufficient balance. You need ${(selectedAmount - usdtBalance).toFixed(2)} more USDT.
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
-                {/* Purchase Button */}
-                <Button
-                  onClick={handlePurchase}
-                  disabled={purchasePowerMutation.isPending || selectedAmount > usdtBalance || selectedAmount < 1}
-                  className="w-full h-14 text-lg font-bold bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:opacity-50"
-                  data-testid="button-confirm-purchase"
-                >
-                  {purchasePowerMutation.isPending ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                      Processing Transaction...
-                    </>
-                  ) : (
-                    <>
-                      <Zap className="w-5 h-5 mr-2" />
-                      {selectedAmount > 0 
-                        ? `Purchase ${getHashrateDisplay(selectedAmount)}` 
-                        : 'Enter Amount to Purchase'}
-                    </>
-                  )}
-                </Button>
-
-                {selectedAmount > usdtBalance && (
-                  <p className="text-sm text-red-500 text-center">
-                    Insufficient balance. You need ${(selectedAmount - usdtBalance).toFixed(2)} more USDT.
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
+        {/* Info Card */}
+        <Card className="mt-4 p-4 bg-gray-950 border-gray-800">
+          <div className="flex items-start space-x-3">
+            <Calculator className="w-4 h-4 text-gray-500 mt-0.5" />
+            <div className="space-y-2 text-xs text-gray-500">
+              <p>• Hash power starts mining immediately</p>
+              <p>• Rewards distributed every 10 minutes</p>
+              <p>• No maintenance fees</p>
+              <p>• Permanent ownership</p>
+            </div>
+          </div>
+        </Card>
       </div>
     </div>
   );
