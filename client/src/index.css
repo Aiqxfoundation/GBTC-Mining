@@ -773,4 +773,25 @@
       transform: translateY(-5px) rotateY(180deg);
     }
   }
+
+  /* Golden hammer glow effect */
+  @keyframes golden-glow {
+    0% { 
+      filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.5)) 
+              drop-shadow(0 0 10px rgba(251, 146, 60, 0.3));
+    }
+    50% { 
+      filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.8)) 
+              drop-shadow(0 0 30px rgba(251, 146, 60, 0.5))
+              drop-shadow(0 0 40px rgba(249, 115, 22, 0.3));
+    }
+    100% { 
+      filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.5)) 
+              drop-shadow(0 0 10px rgba(251, 146, 60, 0.3));
+    }
+  }
+
+  .hammer-glow {
+    animation: golden-glow 2s ease-in-out infinite;
+  }
 }
