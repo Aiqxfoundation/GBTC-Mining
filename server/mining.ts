@@ -7,8 +7,10 @@ let blockNumber = 1;
 let currentBlockReward = 6.25;
 
 export function setupMining() {
-  // Initialize block reward from database
-  initializeSettings();
+  // Initialize block reward from database (non-blocking)
+  initializeSettings().catch(err => {
+    console.log('Mining initialization will retry automatically');
+  });
   
   // Generate a new block AND distribute rewards every 10 minutes
   cron.schedule("*/10 * * * *", async () => {
@@ -18,22 +20,42 @@ export function setupMining() {
 }
 
 async function initializeSettings() {
-  try {
-    const blockRewardSetting = await storage.getSystemSetting("blockReward");
-    if (blockRewardSetting) {
-      currentBlockReward = parseFloat(blockRewardSetting.value);
-    } else {
-      await storage.setSystemSetting("blockReward", currentBlockReward.toString());
-    }
+  let retries = 3;
+  
+  while (retries > 0) {
+    try {
+      const blockRewardSetting = await storage.getSystemSetting("blockReward");
+      if (blockRewardSetting) {
+        currentBlockReward = parseFloat(blockRewardSetting.value);
+      } else {
+        await storage.setSystemSetting("blockReward", currentBlockReward.toString());
+      }
 
-    const blockNumberSetting = await storage.getSystemSetting("blockNumber");
-    if (blockNumberSetting) {
-      blockNumber = parseInt(blockNumberSetting.value);
-    } else {
-      await storage.setSystemSetting("blockNumber", blockNumber.toString());
+      const blockNumberSetting = await storage.getSystemSetting("blockNumber");
+      if (blockNumberSetting) {
+        blockNumber = parseInt(blockNumberSetting.value);
+      } else {
+        await storage.setSystemSetting("blockNumber", blockNumber.toString());
+      }
+      
+      console.log(`Mining settings initialized: Block ${blockNumber}, Reward ${currentBlockReward} GBTC`);
+      return; // Success, exit retry loop
+      
+    } catch (error: any) {
+      retries--;
+      if (error?.message?.includes('endpoint has been disabled') || error?.code === 'XX000') {
+        console.log(`Database is reactivating... Retrying in 5 seconds (${3 - retries}/3)`);
+        if (retries > 0) {
+          await new Promise(resolve => setTimeout(resolve, 5000));
+          continue;
+        }
+      }
+      
+      console.error("Error initializing mining settings:", error.message || error);
+      if (retries === 0) {
+        console.log("Mining will use default settings until database is available");
+      }
     }
-  } catch (error) {
-    console.error("Error initializing mining settings:", error);
   }
 }
 
@@ -53,8 +75,12 @@ async function generateBlock() {
       
       console.log(`Block ${blockNumber - 1} mined with reward ${currentBlockReward} GBTC`);
     }
-  } catch (error) {
-    console.error("Error generating block:", error);
+  } catch (error: any) {
+    if (error?.message?.includes('endpoint has been disabled') || error?.code === 'XX000') {
+      console.log('Database temporarily unavailable for block generation, will retry next cycle');
+    } else {
+      console.error("Error generating block:", error);
+    }
   }
 }
 
@@ -99,8 +125,12 @@ async function distributeRewards() {
     
     // Expire old blocks
     await storage.expireOldBlocks();
-  } catch (error) {
-    console.error("Error distributing rewards:", error);
+  } catch (error: any) {
+    if (error?.message?.includes('endpoint has been disabled') || error?.code === 'XX000') {
+      console.log('Database temporarily unavailable for reward distribution, will retry next cycle');
+    } else {
+      console.error("Error distributing rewards:", error);
+    }
   }
 }
 

@@ -43,36 +43,74 @@ export function setupAuth(app: Express) {
 
   passport.use(
     new LocalStrategy(async (username, password, done) => {
-      const user = await storage.getUserByUsername(username);
-      if (!user || !(await comparePasswords(password, user.password))) {
-        return done(null, false);
-      } else {
-        return done(null, user);
+      try {
+        const user = await storage.getUserByUsername(username);
+        if (!user || !(await comparePasswords(password, user.password))) {
+          return done(null, false);
+        } else {
+          return done(null, user);
+        }
+      } catch (error: any) {
+        if (error?.message?.includes('endpoint has been disabled') || error?.code === 'XX000') {
+          console.log('Database reactivating for authentication...');
+          // Retry once after a brief delay to allow database to reactivate
+          setTimeout(async () => {
+            try {
+              const user = await storage.getUserByUsername(username);
+              if (!user || !(await comparePasswords(password, user.password))) {
+                return done(null, false);
+              } else {
+                return done(null, user);
+              }
+            } catch (retryError) {
+              return done(retryError);
+            }
+          }, 2000);
+        } else {
+          return done(error);
+        }
       }
     }),
   );
 
   passport.serializeUser((user, done) => done(null, user.id));
   passport.deserializeUser(async (id: string, done) => {
-    const user = await storage.getUser(id);
-    done(null, user);
+    try {
+      const user = await storage.getUser(id);
+      done(null, user);
+    } catch (error: any) {
+      if (error?.message?.includes('endpoint has been disabled') || error?.code === 'XX000') {
+        // For session deserialization, just log and continue without user
+        console.log('Database temporarily unavailable for session deserialization');
+        done(null, null);
+      } else {
+        done(error);
+      }
+    }
   });
 
   app.post("/api/register", async (req, res, next) => {
-    const existingUser = await storage.getUserByUsername(req.body.username);
-    if (existingUser) {
-      return res.status(400).send("Username already exists");
+    try {
+      const existingUser = await storage.getUserByUsername(req.body.username);
+      if (existingUser) {
+        return res.status(400).send("Username already exists");
+      }
+
+      const user = await storage.createUser({
+        ...req.body,
+        password: await hashPassword(req.body.password),
+      });
+
+      req.login(user, (err) => {
+        if (err) return next(err);
+        res.status(201).json(user);
+      });
+    } catch (error: any) {
+      if (error?.message?.includes('endpoint has been disabled') || error?.code === 'XX000') {
+        return res.status(503).json({ message: "Database is reactivating. Please try again in a moment." });
+      }
+      next(error);
     }
-
-    const user = await storage.createUser({
-      ...req.body,
-      password: await hashPassword(req.body.password),
-    });
-
-    req.login(user, (err) => {
-      if (err) return next(err);
-      res.status(201).json(user);
-    });
   });
 
   app.post("/api/login", passport.authenticate("local"), (req, res) => {
@@ -86,8 +124,24 @@ export function setupAuth(app: Express) {
     });
   });
 
-  app.get("/api/user", (req, res) => {
+  app.get("/api/user", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
-    res.json(req.user);
+    
+    try {
+      // Refresh user data from database in case of updates
+      const freshUser = await storage.getUser(req.user!.id);
+      if (freshUser) {
+        res.json(freshUser);
+      } else {
+        res.sendStatus(401);
+      }
+    } catch (error: any) {
+      if (error?.message?.includes('endpoint has been disabled') || error?.code === 'XX000') {
+        // If database is reactivating, return cached user data
+        res.json(req.user);
+      } else {
+        res.status(500).json({ message: "Database error" });
+      }
+    }
   });
 }
