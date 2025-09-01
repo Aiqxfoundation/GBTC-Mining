@@ -18,7 +18,7 @@ export default function WalletPage() {
   const [, setLocation] = useLocation();
   const [showSendDialog, setShowSendDialog] = useState(false);
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
-  const [withdrawType, setWithdrawType] = useState<'GBTC' | 'USDT'>('GBTC');
+  const [withdrawType, setWithdrawType] = useState<'GBTC' | 'USDT'>('USDT');
   const [recipientUsername, setRecipientUsername] = useState("");
   const [sendAmount, setSendAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
@@ -336,8 +336,8 @@ export default function WalletPage() {
                 <div className="flex items-center">
                   <ArrowUpCircle className="w-5 h-5 mr-3" />
                   <div className="text-left">
-                    <p className="text-sm font-display font-bold">WITHDRAW</p>
-                    <p className="text-xs opacity-80">Cash out GBTC or USDT</p>
+                    <p className="text-sm font-display font-bold">WITHDRAW USDT</p>
+                    <p className="text-xs opacity-80">Cash out your USDT balance</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-1">
@@ -491,18 +491,23 @@ export default function WalletPage() {
             <div>
               <Label>Select Currency</Label>
               <div className="grid grid-cols-2 gap-2 mt-2">
+                <div className="relative">
+                  <Button
+                    variant="outline"
+                    disabled
+                    className="w-full opacity-50 cursor-not-allowed"
+                  >
+                    <Bitcoin className="w-4 h-4 mr-2" />
+                    GBTC
+                  </Button>
+                  <span className="absolute -top-2 -right-2 bg-warning text-black text-[10px] px-2 py-0.5 rounded-full font-bold">
+                    COMING SOON
+                  </span>
+                </div>
                 <Button
-                  variant={withdrawType === 'GBTC' ? 'default' : 'outline'}
-                  onClick={() => setWithdrawType('GBTC')}
-                  className={withdrawType === 'GBTC' ? 'bg-gradient-to-r from-primary to-accent' : ''}
-                >
-                  <Bitcoin className="w-4 h-4 mr-2" />
-                  GBTC
-                </Button>
-                <Button
-                  variant={withdrawType === 'USDT' ? 'default' : 'outline'}
+                  variant="default"
                   onClick={() => setWithdrawType('USDT')}
-                  className={withdrawType === 'USDT' ? 'bg-gradient-to-r from-accent to-chart-1' : ''}
+                  className="bg-gradient-to-r from-accent to-chart-1"
                 >
                   <Banknote className="w-4 h-4 mr-2" />
                   USDT
@@ -511,39 +516,36 @@ export default function WalletPage() {
             </div>
             
             <div>
-              <Label htmlFor="withdraw-amount">Amount</Label>
+              <Label htmlFor="withdraw-amount">Amount (USDT)</Label>
               <div className="relative">
-                {withdrawType === 'GBTC' ? (
-                  <Bitcoin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/50" />
-                ) : (
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-accent/50" />
-                )}
+                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-accent/50" />
                 <Input
                   id="withdraw-amount"
                   type="number"
                   value={withdrawAmount}
                   onChange={(e) => setWithdrawAmount(e.target.value)}
-                  placeholder={withdrawType === 'GBTC' ? "0.00000000" : "0.00"}
-                  step={withdrawType === 'GBTC' ? "0.00000001" : "0.01"}
-                  max={withdrawType === 'GBTC' ? gbtcBalance : usdtBalance}
+                  placeholder="0.00"
+                  step="0.01"
+                  max={usdtBalance}
                   className="pl-10 bg-black/20 border-primary/20"
                   data-testid="input-withdraw-amount"
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Available: {withdrawType === 'GBTC' 
-                  ? `${gbtcBalance.toFixed(8)} GBTC` 
-                  : `$${usdtBalance.toFixed(2)} USDT`}
+                Available: ${usdtBalance.toFixed(2)} USDT
+              </p>
+              <p className="text-xs text-warning mt-1">
+                Note: GBTC withdrawals coming soon!
               </p>
             </div>
             
             <div>
-              <Label htmlFor="withdraw-address">Wallet Address</Label>
+              <Label htmlFor="withdraw-address">USDT Wallet Address</Label>
               <Input
                 id="withdraw-address"
                 value={withdrawAddress}
                 onChange={(e) => setWithdrawAddress(e.target.value)}
-                placeholder={withdrawType === 'GBTC' ? "Enter GBTC address" : "Enter USDT address"}
+                placeholder="Enter USDT (ERC-20) address"
                 className="bg-black/20 border-primary/20 font-mono text-xs"
                 data-testid="input-withdraw-address"
               />
@@ -563,7 +565,7 @@ export default function WalletPage() {
               ) : (
                 <>
                   <ArrowUpCircle className="w-4 h-4 mr-2" />
-                  Withdraw {withdrawType}
+                  Withdraw USDT
                 </>
               )}
             </Button>
