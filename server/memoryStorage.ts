@@ -58,9 +58,9 @@ export class MemoryStorage implements IStorage {
       referralCode: 'ADM1N0X7',
       referredBy: undefined,
       usdtBalance: '10000.00',
-      hashPower: '100.00',
+      hashPower: '104.50', // 100 base + 4.5 bonus from referrals
       baseHashPower: '100.00',
-      referralHashBonus: '0.00',
+      referralHashBonus: '4.50', // 5% of 90 TH/s from 3 referrals
       gbtcBalance: '50.00000000',  // Added GBTC balance for testing
       unclaimedBalance: '0.00000000',
       totalReferralEarnings: '0.00',
@@ -102,6 +102,43 @@ export class MemoryStorage implements IStorage {
     
     console.log('Test user created: username: tempuser, PIN: 123456');
     
+    // Create test referral users for admin
+    for (let i = 1; i <= 3; i++) {
+      const refUserId = 'user-ref' + i + randomBytes(6).toString('hex');
+      const refBuf = (await scryptAsync('123456', salt, 64)) as Buffer;
+      const refHashedPassword = `${refBuf.toString("hex")}.${salt}`;
+      
+      // Generate unique referral code for this user
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
+      let refCode = '';
+      for (let j = 0; j < 8; j++) {
+        refCode += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      
+      const refUser: User = {
+        id: refUserId,
+        username: 'refuser' + i,
+        password: refHashedPassword,
+        referralCode: refCode,
+        referredBy: 'ADM1N0X7', // Referred by admin
+        usdtBalance: '500.00',
+        hashPower: (20 + i * 5).toFixed(2), // 25, 30, 35 TH/s
+        baseHashPower: (20 + i * 5).toFixed(2),
+        referralHashBonus: '0.00',
+        gbtcBalance: '0.00000000',
+        unclaimedBalance: '0.00000000',
+        totalReferralEarnings: '0.00',
+        lastActiveBlock: 0,
+        isAdmin: false,
+        isFrozen: false,
+        createdAt: new Date()
+      };
+      
+      this.users.set(refUserId, refUser);
+      this.usersByUsername.set('refuser' + i, refUserId);
+      console.log(`Test referral user ${i} created: username: refuser${i}, PIN: 123456, referred by admin`);
+    }
+    
     // Initialize system settings
     this.systemSettings.set('blockReward-1', {
       id: 'blockReward-1',
@@ -120,6 +157,7 @@ export class MemoryStorage implements IStorage {
     console.log('Memory storage initialized with default users:');
     console.log('- Admin: username: admin, PIN: 123456, GBTC: 50, USDT: 10000');
     console.log('- Test User: username: tempuser, PIN: 123456, GBTC: 5, USDT: 1000');
+    console.log('- Referral Users (3): refuser1, refuser2, refuser3 - PIN: 123456, referred by admin');
   }
 
   async getUser(id: string): Promise<User | undefined> {

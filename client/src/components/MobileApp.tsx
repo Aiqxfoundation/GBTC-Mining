@@ -69,12 +69,6 @@ export default function MobileApp() {
       icon: "fas fa-user-circle", 
       label: "Account",
       color: "text-chart-5"
-    },
-    {
-      path: "/transactions",
-      icon: "fas fa-history",
-      label: "History",
-      color: "text-blue-500"
     }
   ];
 
