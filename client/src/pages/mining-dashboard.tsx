@@ -525,7 +525,7 @@ export default function MiningDashboard() {
               
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <Button 
-                  className="btn-primary h-auto py-3"
+                  className="btn-secondary h-auto py-3"
                   onClick={() => setLocation('/deposit')}
                   data-testid="button-deposit"
                 >
@@ -560,7 +560,7 @@ export default function MiningDashboard() {
                 
                 <div className="data-card">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-muted-foreground uppercase">Available USDT</span>
+                    <span className="text-xs text-muted-foreground uppercase">USDT Balance</span>
                     <i className="fas fa-dollar-sign text-accent"></i>
                   </div>
                   <div className="text-2xl font-mono font-bold text-accent">
