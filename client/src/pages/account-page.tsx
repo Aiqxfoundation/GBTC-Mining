@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Copy, LogOut, User, Gift, Lock } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Shield, Copy, LogOut } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -44,8 +43,8 @@ export default function AccountPage() {
     },
     onSuccess: () => {
       toast({ 
-        title: "PIN Changed Successfully", 
-        description: "Your PIN has been updated" 
+        title: "PIN Updated", 
+        description: "Your security PIN has been changed" 
       });
       setShowPinDialog(false);
       setCurrentPin("");
@@ -54,7 +53,7 @@ export default function AccountPage() {
     },
     onError: (error: Error) => {
       toast({ 
-        title: "Failed to Change PIN", 
+        title: "Update Failed", 
         description: error.message, 
         variant: "destructive" 
       });
@@ -96,146 +95,99 @@ export default function AccountPage() {
     if (referralData?.referralCode) {
       navigator.clipboard.writeText(referralData.referralCode);
       toast({ 
-        title: "Copied!", 
-        description: "Referral code copied to clipboard" 
+        title: "Copied", 
+        description: "Referral code copied" 
       });
     }
   };
 
-  const copyReferralLink = () => {
-    const link = `${window.location.origin}/register?ref=${referralData?.referralCode}`;
-    navigator.clipboard.writeText(link);
-    toast({ 
-      title: "Copied!", 
-      description: "Referral link copied to clipboard" 
-    });
-  };
-
   return (
-    <div className="mobile-page bg-gradient-to-b from-background via-background to-primary/5">
+    <div className="mobile-page">
       {/* Header */}
-      <div className="mobile-header border-b border-primary/20">
+      <div className="mobile-header">
         <h1 className="text-lg font-display font-bold text-primary">ACCOUNT</h1>
       </div>
 
       {/* Content */}
       <div className="mobile-content">
-        {/* Compact User Card */}
-        <div className="bg-gradient-to-r from-primary/10 via-chart-4/10 to-primary/10 rounded-lg p-4 mb-4 border border-primary/20">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-chart-4 flex items-center justify-center">
-              <User className="w-6 h-6 text-background" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <p className="text-lg font-display font-bold">@{user?.username}</p>
-                {user?.isAdmin && (
-                  <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/30 text-xs px-2 py-0">
-                    ADMIN
-                  </Badge>
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground font-mono">
-                ID: {user?.id?.slice(0, 8)}...
-              </p>
-            </div>
+        {/* User Info */}
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-3">
+            <span className="text-2xl font-display font-bold text-primary">
+              {user?.username?.[0]?.toUpperCase()}
+            </span>
           </div>
+          <p className="text-xl font-display font-bold">@{user?.username}</p>
+          {user?.isAdmin && (
+            <p className="text-xs text-yellow-500 mt-1">ADMIN</p>
+          )}
         </div>
 
-        {/* Compact Options Grid */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          {/* Referral Code */}
-          <Card className="p-3 bg-gradient-to-br from-background to-primary/5 border-primary/20">
-            <div className="flex items-center gap-2 mb-2">
-              <Gift className="w-4 h-4 text-primary" />
-              <p className="text-xs font-semibold text-muted-foreground">REFERRAL</p>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-display font-bold text-primary">
-                  {referralData?.referralCode || '------'}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {referralData?.totalReferrals || 0} refs
-                </p>
-              </div>
-              <Button
+        {/* Referral Card */}
+        <Card className="mobile-card bg-gradient-to-br from-primary/5 to-transparent">
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground mb-2">INVITE & EARN</p>
+            
+            {/* Referral Code */}
+            <div className="inline-flex items-center gap-2 bg-background rounded-lg px-4 py-2 border border-primary/20 mb-4">
+              <span className="font-mono text-lg font-bold text-primary">
+                {referralData?.referralCode || '------'}
+              </span>
+              <button
                 onClick={copyReferralCode}
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
+                className="text-primary hover:text-primary/80 transition-colors"
                 data-testid="button-copy-code"
               >
-                <Copy className="w-3 h-3" />
-              </Button>
+                <Copy className="w-4 h-4" />
+              </button>
             </div>
-          </Card>
 
-          {/* Security PIN */}
-          <Card className="p-3 bg-gradient-to-br from-background to-chart-4/5 border-chart-4/20">
-            <div className="flex items-center gap-2 mb-2">
-              <Lock className="w-4 h-4 text-chart-4" />
-              <p className="text-xs font-semibold text-muted-foreground">SECURITY</p>
-            </div>
-            <div className="flex items-center justify-between">
+            {/* Stats Row */}
+            <div className="flex justify-center gap-6 text-sm">
               <div>
-                <p className="text-sm font-semibold">PIN</p>
-                <p className="text-xs text-muted-foreground">6-digit</p>
+                <span className="text-muted-foreground">Invites: </span>
+                <span className="font-bold">{referralData?.totalReferrals || 0}</span>
               </div>
-              <Button
-                onClick={() => setShowPinDialog(true)}
-                variant="ghost"
-                size="sm"
-                className="h-8 px-3 text-xs"
-                data-testid="button-change-pin"
-              >
-                Change
-              </Button>
+              <div>
+                <span className="text-muted-foreground">Earned: </span>
+                <span className="font-bold text-accent">${referralData?.totalEarnings || '0'}</span>
+              </div>
             </div>
-          </Card>
-        </div>
-
-        {/* Referral Stats */}
-        <Card className="mobile-card bg-gradient-to-r from-primary/5 to-accent/5 border-primary/10">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">REFERRAL EARNINGS</p>
-              <p className="text-xl font-display font-bold text-accent">
-                ${referralData?.totalEarnings || '0.00'}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-muted-foreground mb-1">ACTIVE</p>
-              <p className="text-xl font-display font-bold text-primary">
-                {referralData?.activeReferrals || 0}
-              </p>
-            </div>
-            <Button
-              onClick={copyReferralLink}
-              variant="outline"
-              size="sm"
-              className="border-primary/30 text-primary"
-            >
-              <Copy className="w-3 h-3 mr-1" />
-              Link
-            </Button>
           </div>
         </Card>
 
-        {/* Spacer */}
-        <div className="flex-1"></div>
+        {/* Options */}
+        <div className="space-y-3 mt-6">
+          {/* Security PIN */}
+          <Card 
+            className="mobile-card cursor-pointer hover:border-primary/50 transition-colors"
+            onClick={() => setShowPinDialog(true)}
+            data-testid="button-change-pin"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Shield className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="font-semibold">Security PIN</p>
+                  <p className="text-xs text-muted-foreground">Change your 6-digit PIN</p>
+                </div>
+              </div>
+              <span className="text-xs text-muted-foreground">›</span>
+            </div>
+          </Card>
 
-        {/* Logout Button */}
-        <Button
-          onClick={() => logoutMutation.mutate()}
-          variant="destructive"
-          className="w-full"
-          disabled={logoutMutation.isPending}
-          data-testid="button-logout"
-        >
-          <LogOut className="w-4 h-4 mr-2" />
-          LOGOUT
-        </Button>
+          {/* Logout */}
+          <Card 
+            className="mobile-card cursor-pointer hover:border-destructive/50 transition-colors"
+            onClick={() => logoutMutation.mutate()}
+            data-testid="button-logout"
+          >
+            <div className="flex items-center gap-3">
+              <LogOut className="w-5 h-5 text-destructive" />
+              <p className="font-semibold text-destructive">Sign Out</p>
+            </div>
+          </Card>
+        </div>
       </div>
 
       {/* Change PIN Dialog */}
@@ -244,7 +196,7 @@ export default function AccountPage() {
           <DialogHeader>
             <DialogTitle>Change Security PIN</DialogTitle>
             <DialogDescription>
-              Enter your current PIN and choose a new 6-digit PIN
+              Update your 6-digit security PIN
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -290,7 +242,7 @@ export default function AccountPage() {
               className="w-full"
               data-testid="button-confirm-pin-change"
             >
-              {changePinMutation.isPending ? 'Changing...' : 'Change PIN'}
+              {changePinMutation.isPending ? 'Updating...' : 'Update PIN'}
             </Button>
           </div>
         </DialogContent>
