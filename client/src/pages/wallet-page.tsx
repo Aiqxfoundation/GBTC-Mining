@@ -45,6 +45,21 @@ export default function WalletPage() {
   const [depositAmount, setDepositAmount] = useState("");
   const [depositTxHash, setDepositTxHash] = useState("");
   const [copiedAddress, setCopiedAddress] = useState(false);
+  const [selectedTransfer, setSelectedTransfer] = useState<any>(null);
+  const [currentUTCTime, setCurrentUTCTime] = useState("");
+
+  // Update UTC time every second
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const utcTime = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+      setCurrentUTCTime(utcTime);
+    };
+    
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const usdtBalance = parseFloat(user?.usdtBalance || '0');
   const gbtcBalance = parseFloat(user?.gbtcBalance || '0');
@@ -269,12 +284,14 @@ export default function WalletPage() {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleString('en-US', { 
-      month: 'numeric',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    // Convert to UTC and format as YYYY-MM-DD HH:MM:SS
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   };
 
   const getStatusColor = (status: string) => {
@@ -455,6 +472,12 @@ export default function WalletPage() {
           </Button>
         </div>
 
+        {/* Live UTC Time */}
+        <div className="text-center mb-4">
+          <p className="text-gray-500 text-xs">Current UTC Time</p>
+          <p className="text-white font-mono text-sm">{currentUTCTime}</p>
+        </div>
+
         {/* Financial Records */}
         <div>
           <h3 className="text-gray-400 text-sm font-medium mb-3">Financial Records</h3>
@@ -465,6 +488,12 @@ export default function WalletPage() {
                   key={tx.id} 
                   className="p-3 bg-[#242424] border-gray-800 cursor-pointer hover:bg-[#2a2a2a]"
                   data-testid={`transaction-${tx.id}`}
+                  onClick={() => {
+                    // Only show details for GBTC transfers
+                    if (selectedAsset === 'GBTC' && (tx.displayType === 'Transfer Out' || tx.displayType === 'Transfer In')) {
+                      setSelectedTransfer(tx);
+                    }
+                  }}
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -472,7 +501,11 @@ export default function WalletPage() {
                       <div className="flex items-center space-x-3 mt-1">
                         <div>
                           <p className="text-gray-500 text-xs">Amount</p>
-                          <p className="text-white text-sm">
+                          <p className={`text-sm ${
+                            selectedAsset === 'GBTC' && (tx.displayType === 'Transfer Out' || tx.displayType === 'Transfer In')
+                              ? 'text-[#f7931a] underline' 
+                              : 'text-white'
+                          }`}>
                             {tx.displayAmount}
                           </p>
                         </div>
@@ -702,6 +735,50 @@ export default function WalletPage() {
               )}
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Transfer Details Dialog */}
+      <Dialog open={!!selectedTransfer} onOpenChange={() => setSelectedTransfer(null)}>
+        <DialogContent className="sm:max-w-md bg-[#1a1a1a] border-gray-800">
+          <DialogHeader>
+            <DialogTitle className="text-white font-medium text-center">
+              Transfer In Details
+            </DialogTitle>
+          </DialogHeader>
+          {selectedTransfer && (
+            <div className="space-y-6 py-4">
+              <div className="space-y-1">
+                <p className="text-gray-500 text-sm">Amount</p>
+                <p className="text-white font-mono text-lg">
+                  BTC {parseFloat(selectedTransfer.amount).toFixed(8)}
+                </p>
+              </div>
+              
+              <div className="space-y-1">
+                <p className="text-gray-500 text-sm">Status</p>
+                <p className="text-white">
+                  {selectedTransfer.status === 'approved' ? 'Completed' : selectedTransfer.status}
+                </p>
+              </div>
+              
+              <div className="space-y-1">
+                <p className="text-gray-500 text-sm">Transfer Account</p>
+                <p className="text-white">
+                  {selectedTransfer.displayType === 'Transfer In' 
+                    ? selectedTransfer.fromUsername 
+                    : selectedTransfer.toUsername}
+                </p>
+              </div>
+              
+              <div className="space-y-1">
+                <p className="text-gray-500 text-sm">Time</p>
+                <p className="text-white">
+                  {formatDate(selectedTransfer.createdAt)}
+                </p>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
