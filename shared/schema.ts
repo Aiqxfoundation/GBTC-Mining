@@ -8,6 +8,7 @@ export const users = pgTable("users", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  referralCode: text("referral_code").unique(),
   usdtBalance: decimal("usdt_balance", { precision: 10, scale: 2 }).default("0.00"),
   hashPower: decimal("hash_power", { precision: 10, scale: 2 }).default("0.00"),
   gbtcBalance: decimal("gbtc_balance", { precision: 18, scale: 8 }).default("0.00000000"),

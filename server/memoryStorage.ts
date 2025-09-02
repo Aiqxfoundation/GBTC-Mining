@@ -55,6 +55,7 @@ export class MemoryStorage implements IStorage {
       id: adminId,
       username: 'admin',
       password: hashedPassword,
+      referralCode: 'ADMIN01',
       usdtBalance: '10000.00',
       hashPower: '100.00',
       gbtcBalance: '0.00000000',
@@ -97,10 +98,28 @@ export class MemoryStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const userId = 'user-' + randomBytes(8).toString('hex');
+    // Generate unique referral code (6 characters, alphanumeric)
+    const generateReferralCode = () => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let code = '';
+      for (let i = 0; i < 6; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return code;
+    };
+    
+    // Ensure referral code is unique
+    let referralCode = generateReferralCode();
+    const existingCodes = Array.from(this.users.values()).map(u => u.referralCode).filter(Boolean);
+    while (existingCodes.includes(referralCode)) {
+      referralCode = generateReferralCode();
+    }
+    
     const user: User = {
       id: userId,
       username: insertUser.username,
       password: insertUser.password,
+      referralCode,
       usdtBalance: '0.00',
       hashPower: '0.00',
       gbtcBalance: '0.00000000',

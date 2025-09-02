@@ -2,13 +2,12 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { User, Users, Lock, Copy, TrendingUp, Award, Calendar, ChevronRight, LogOut } from "lucide-react";
-import { motion } from "framer-motion";
+import { User, Shield, Copy, TrendingUp, Award, LogOut } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -120,240 +119,211 @@ export default function AccountPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-4">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header with Username */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-2"
-        >
-          <div className="flex justify-center items-center gap-3 mb-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
-              <User className="w-8 h-8 text-white" />
+    <div className="mobile-page">
+      {/* Header */}
+      <div className="mobile-header">
+        <h1 className="text-lg font-display font-bold text-primary">MY ACCOUNT</h1>
+        <div className="text-right">
+          <p className="text-xs text-muted-foreground font-mono">BALANCE</p>
+          <p className="text-sm font-display font-bold text-accent">
+            ${parseFloat(user?.usdtBalance || '0').toFixed(2)}
+          </p>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="mobile-content">
+        {/* User Profile Card */}
+        <Card className="mobile-card bg-gradient-to-br from-primary/10 to-chart-3/10">
+          <div className="text-center">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-accent mx-auto mb-3 flex items-center justify-center">
+              <User className="w-10 h-10 text-background" />
+            </div>
+            <h2 className="text-xl font-display font-bold mb-1">@{user?.username}</h2>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              {user?.isAdmin ? (
+                <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/30">
+                  <Shield className="w-3 h-3 mr-1" />
+                  ADMINISTRATOR
+                </Badge>
+              ) : (
+                <Badge className="bg-primary/20 text-primary border-primary/30">
+                  STANDARD USER
+                </Badge>
+              )}
+            </div>
+            <Button
+              onClick={() => logoutMutation.mutate()}
+              variant="destructive"
+              className="w-full"
+              disabled={logoutMutation.isPending}
+              data-testid="button-logout"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              LOGOUT
+            </Button>
+          </div>
+        </Card>
+
+        {/* Security Section */}
+        <Card className="mobile-card">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-display font-bold">Security Settings</p>
+              <p className="text-xs text-muted-foreground">Manage your PIN</p>
+            </div>
+            <Button
+              onClick={() => setShowPinDialog(true)}
+              variant="outline"
+              size="sm"
+              className="border-primary text-primary"
+              data-testid="button-change-pin"
+            >
+              <Shield className="w-4 h-4 mr-1" />
+              Change PIN
+            </Button>
+          </div>
+        </Card>
+
+        {/* Referral Section */}
+        <Card className="mobile-card">
+          <p className="text-sm font-mono text-muted-foreground mb-3">YOUR REFERRAL CODE</p>
+          
+          <div className="bg-background rounded-lg p-4 mb-3 text-center">
+            <p className="text-2xl font-display font-black text-primary tracking-wider">
+              {referralData?.referralCode || 'LOADING...'}
+            </p>
+            <div className="flex gap-2 mt-3">
+              <Button
+                onClick={copyReferralCode}
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                data-testid="button-copy-code"
+              >
+                <Copy className="w-4 h-4 mr-1" />
+                Copy Code
+              </Button>
+              <Button
+                onClick={copyReferralLink}
+                size="sm"
+                className="flex-1 bg-primary text-primary-foreground"
+                data-testid="button-copy-link"
+              >
+                <Copy className="w-4 h-4 mr-1" />
+                Copy Link
+              </Button>
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-white">@{user?.username}</h1>
-          <p className="text-gray-400">Account Management</p>
-          {user?.isAdmin && (
-            <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/30">
-              ADMIN
-            </Badge>
-          )}
-          <Button
-            onClick={() => logoutMutation.mutate()}
-            variant="destructive"
-            className="mt-4 bg-red-600 hover:bg-red-700"
-            disabled={logoutMutation.isPending}
-            data-testid="button-logout"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
-        </motion.div>
 
-        {/* Account Info Card */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-orange-500/20">
-            <CardHeader>
-              <CardTitle className="text-xl text-orange-500">Account Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-400">User ID</p>
-                  <p className="text-sm font-mono text-white">{user?.id}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-400">Account Type</p>
-                  <p className="text-sm font-semibold text-white">
-                    {user?.isAdmin ? 'Administrator' : 'Standard User'}
-                  </p>
-                </div>
-              </div>
-              
-              {/* Security Section */}
-              <div className="pt-4 border-t border-gray-700">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-semibold text-white">Security PIN</p>
-                    <p className="text-xs text-gray-400">6-digit PIN for login</p>
-                  </div>
-                  <Button
-                    onClick={() => setShowPinDialog(true)}
-                    variant="outline"
-                    className="border-orange-500 text-orange-500 hover:bg-orange-500/10"
-                    data-testid="button-change-pin"
-                  >
-                    <Lock className="w-4 h-4 mr-2" />
-                    Change PIN
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+          {/* Referral Stats */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="bg-background rounded-lg p-3 text-center">
+              <i className="fas fa-users text-chart-4 text-lg mb-1"></i>
+              <p className="text-xs text-muted-foreground">Referrals</p>
+              <p className="text-lg font-display font-bold">
+                {referralData?.totalReferrals || 0}
+              </p>
+            </div>
+            <div className="bg-background rounded-lg p-3 text-center">
+              <TrendingUp className="w-5 h-5 text-accent mx-auto mb-1" />
+              <p className="text-xs text-muted-foreground">Active</p>
+              <p className="text-lg font-display font-bold">
+                {referralData?.activeReferrals || 0}
+              </p>
+            </div>
+            <div className="bg-background rounded-lg p-3 text-center">
+              <Award className="w-5 h-5 text-yellow-500 mx-auto mb-1" />
+              <p className="text-xs text-muted-foreground">Earned</p>
+              <p className="text-lg font-display font-bold text-accent">
+                ${referralData?.totalEarnings || '0.00'}
+              </p>
+            </div>
+          </div>
+        </Card>
 
-        {/* Referral System Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card className="bg-gray-900 border-gray-800">
-            <CardHeader>
-              <CardTitle className="text-xl text-orange-500">Referral System</CardTitle>
-              <CardDescription className="text-gray-400">
-                Earn rewards by inviting friends to join
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Referral Stats */}
-              <div className="grid grid-cols-3 gap-4">
-                <Card className="bg-gray-800 border-gray-700">
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Users className="w-4 h-4 text-blue-500" />
-                      <p className="text-xs text-gray-400">Total Referrals</p>
-                    </div>
-                    <p className="text-2xl font-bold text-white">
-                      {referralData?.totalReferrals || 0}
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-gray-800 border-gray-700">
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <TrendingUp className="w-4 h-4 text-green-500" />
-                      <p className="text-xs text-gray-400">Active Users</p>
-                    </div>
-                    <p className="text-2xl font-bold text-white">
-                      {referralData?.activeReferrals || 0}
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-gray-800 border-gray-700">
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Award className="w-4 h-4 text-yellow-500" />
-                      <p className="text-xs text-gray-400">Total Earned</p>
-                    </div>
-                    <p className="text-2xl font-bold text-white">
-                      ${referralData?.totalEarnings || '0.00'}
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
+        {/* Quick Actions */}
+        <Card className="mobile-card">
+          <p className="text-sm font-mono text-muted-foreground mb-3">QUICK ACTIONS</p>
+          <div className="space-y-2">
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => window.location.href = '/deposit'}
+            >
+              <i className="fas fa-arrow-down text-accent mr-3"></i>
+              Make a Deposit
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => window.location.href = '/withdraw'}
+            >
+              <i className="fas fa-arrow-up text-destructive mr-3"></i>
+              Request Withdrawal
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => window.location.href = '/transactions'}
+            >
+              <i className="fas fa-history text-chart-4 mr-3"></i>
+              View Transactions
+            </Button>
+          </div>
+        </Card>
 
-              {/* Referral Code */}
-              <div className="bg-gray-800 rounded-lg p-4">
-                <p className="text-sm text-gray-400 mb-2">Your Referral Code</p>
-                <div className="flex items-center space-x-2">
-                  <div className="flex-1 bg-black/50 rounded px-4 py-2">
-                    <p className="text-lg font-mono text-orange-500">
-                      {referralData?.referralCode || user?.username?.toUpperCase()}
-                    </p>
-                  </div>
-                  <Button
-                    onClick={copyReferralCode}
-                    variant="outline"
-                    className="border-gray-600"
-                    data-testid="button-copy-code"
-                  >
-                    <Copy className="w-4 h-4" />
-                  </Button>
-                </div>
-                <Button
-                  onClick={copyReferralLink}
-                  className="w-full mt-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
-                  data-testid="button-copy-link"
+        {/* Referral History (if any) */}
+        {referralData?.referrals && referralData.referrals.length > 0 && (
+          <Card className="mobile-card">
+            <p className="text-sm font-mono text-muted-foreground mb-3">RECENT REFERRALS</p>
+            <div className="space-y-2">
+              {referralData.referrals.slice(0, 3).map((ref) => (
+                <div
+                  key={ref.id}
+                  className="bg-background rounded-lg p-3 flex items-center justify-between"
                 >
-                  <Copy className="w-4 h-4 mr-2" />
-                  Copy Referral Link
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Referral History */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Card className="bg-gray-900 border-gray-800">
-            <CardHeader>
-              <CardTitle className="text-xl text-orange-500">Referral History</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {referralData?.referrals && referralData.referrals.length > 0 ? (
-                <div className="space-y-2">
-                  {referralData.referrals.map((ref) => (
-                    <div
-                      key={ref.id}
-                      className="bg-gray-800 rounded-lg p-3 flex items-center justify-between"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                          <User className="w-4 h-4 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-white">@{ref.username}</p>
-                          <div className="flex items-center space-x-2 text-xs text-gray-400">
-                            <Calendar className="w-3 h-3" />
-                            <span>{new Date(ref.joinedAt).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <Badge 
-                          className={ref.status === 'active' 
-                            ? 'bg-green-500/20 text-green-500 border-green-500/30' 
-                            : 'bg-gray-500/20 text-gray-500 border-gray-500/30'
-                          }
-                        >
-                          {ref.status}
-                        </Badge>
-                        <p className="text-sm font-mono text-orange-500 mt-1">
-                          +${ref.earned}
-                        </p>
-                      </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                      <User className="w-4 h-4 text-primary" />
                     </div>
-                  ))}
+                    <div>
+                      <p className="text-sm font-semibold">@{ref.username}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(ref.joinedAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <Badge 
+                      variant={ref.status === 'active' ? 'default' : 'secondary'}
+                      className="text-xs"
+                    >
+                      {ref.status}
+                    </Badge>
+                    <p className="text-xs font-mono text-accent mt-1">
+                      +${ref.earned}
+                    </p>
+                  </div>
                 </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Users className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                  <p className="text-gray-400">No referrals yet</p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Share your referral code to start earning
-                  </p>
-                </div>
-              )}
-            </CardContent>
+              ))}
+            </div>
           </Card>
-        </motion.div>
+        )}
       </div>
 
       {/* Change PIN Dialog */}
       <Dialog open={showPinDialog} onOpenChange={setShowPinDialog}>
-        <DialogContent className="sm:max-w-md bg-gradient-to-br from-black to-gray-900 border-orange-500/20">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-orange-500">Change Security PIN</DialogTitle>
-            <DialogDescription className="text-gray-400">
+            <DialogTitle>Change Security PIN</DialogTitle>
+            <DialogDescription>
               Enter your current PIN and choose a new 6-digit PIN
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="current-pin" className="text-gray-300">Current PIN</Label>
+              <Label htmlFor="current-pin">Current PIN</Label>
               <Input
                 id="current-pin"
                 type="password"
@@ -361,12 +331,11 @@ export default function AccountPage() {
                 onChange={(e) => setCurrentPin(e.target.value)}
                 placeholder="Enter current PIN"
                 maxLength={6}
-                className="bg-black/50 border-gray-700"
                 data-testid="input-current-pin"
               />
             </div>
             <div>
-              <Label htmlFor="new-pin" className="text-gray-300">New PIN</Label>
+              <Label htmlFor="new-pin">New PIN</Label>
               <Input
                 id="new-pin"
                 type="password"
@@ -374,12 +343,11 @@ export default function AccountPage() {
                 onChange={(e) => setNewPin(e.target.value)}
                 placeholder="Enter new 6-digit PIN"
                 maxLength={6}
-                className="bg-black/50 border-gray-700"
                 data-testid="input-new-pin"
               />
             </div>
             <div>
-              <Label htmlFor="confirm-pin" className="text-gray-300">Confirm New PIN</Label>
+              <Label htmlFor="confirm-pin">Confirm New PIN</Label>
               <Input
                 id="confirm-pin"
                 type="password"
@@ -387,14 +355,13 @@ export default function AccountPage() {
                 onChange={(e) => setConfirmPin(e.target.value)}
                 placeholder="Confirm new PIN"
                 maxLength={6}
-                className="bg-black/50 border-gray-700"
                 data-testid="input-confirm-pin"
               />
             </div>
             <Button
               onClick={handlePinChange}
               disabled={changePinMutation.isPending}
-              className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+              className="w-full"
               data-testid="button-confirm-pin-change"
             >
               {changePinMutation.isPending ? 'Changing...' : 'Change PIN'}

@@ -539,12 +539,14 @@ export function registerRoutes(app: Express): Server {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      const userId = req.user!.id;
-      const username = req.user!.username;
+      const user = req.user!;
+      
+      // Get user's referral code
+      const referralCode = user.referralCode || user.username.toUpperCase().slice(0, 6);
 
-      // Mock referral data for now
+      // Mock referral data for now (in production, this would query actual referrals)
       const referralData = {
-        referralCode: username.toUpperCase() + "REF",
+        referralCode: referralCode,
         totalReferrals: 0,
         activeReferrals: 0,
         totalEarnings: "0.00",
