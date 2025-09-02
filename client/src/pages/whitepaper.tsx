@@ -6,374 +6,347 @@ import { motion } from "framer-motion";
 
 export default function Whitepaper() {
   const downloadWhitepaper = () => {
-    // Create the whitepaper content as HTML
+    // Create the whitepaper content as HTML - exact match of displayed version
     const content = `
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Green Bitcoin (GBTC) - Decentralized Mining Infrastructure</title>
+    <title>Green Bitcoin - Whitepaper</title>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 30px; line-height: 1.8; background: #0a0a0a; color: #e0e0e0; }
-        h1 { color: #f7931a; border-bottom: 3px solid #f7931a; padding-bottom: 15px; font-size: 36px; letter-spacing: 1px; }
-        h2 { color: #f7931a; margin-top: 35px; font-size: 24px; border-left: 4px solid #f7931a; padding-left: 15px; }
+        h1 { color: #f7931a; font-size: 30px; text-align: center; }
+        h2 { color: #f7931a; margin-top: 35px; font-size: 24px; }
         h3 { color: #fbbf24; font-size: 18px; margin-top: 20px; }
+        h4 { color: #fbbf24; font-size: 16px; }
         .header { text-align: center; padding: 40px 0; background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%); border-radius: 10px; margin-bottom: 40px; }
-        .vision { font-size: 52px; font-weight: bold; color: #f7931a; text-align: center; margin: 50px 0; letter-spacing: 3px; text-transform: uppercase; }
-        .subtitle { text-align: center; color: #fbbf24; font-size: 20px; margin-bottom: 40px; font-style: italic; }
+        .vision { font-size: 36px; font-weight: bold; color: #f7931a; text-align: center; margin: 40px 0 20px; }
+        .subtitle { text-align: center; color: #fbbf24; font-size: 18px; margin-bottom: 20px; }
         .feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 20px 0; }
         .feature { background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #333; }
-        .feature h4 { color: #fbbf24; margin-bottom: 10px; }
-        .metric { background: #1a1a1a; padding: 15px; border-left: 3px solid #f7931a; margin: 10px 0; }
-        .formula { background: #1a1a1a; padding: 15px; font-family: 'Courier New', monospace; border: 1px solid #f7931a; border-radius: 5px; color: #fbbf24; text-align: center; font-size: 16px; }
+        .metric { background: #1a1a1a; padding: 15px; margin: 10px 0; border-radius: 8px; }
         ul { margin: 15px 0; padding-left: 25px; }
         li { margin: 8px 0; }
         .section { margin: 35px 0; }
         .highlight { color: #f7931a; font-weight: bold; }
-        .logo { font-size: 64px; color: #f7931a; text-align: center; margin-bottom: 20px; }
         .footer { text-align: center; margin-top: 60px; padding-top: 30px; border-top: 1px solid #333; color: #888; }
         table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th { background: #1a1a1a; color: #f7931a; padding: 12px; text-align: left; border: 1px solid #333; }
-        td { padding: 10px; border: 1px solid #333; background: #0f0f0f; }
-        .chart-bar { background: linear-gradient(to right, #f7931a, #fbbf24); height: 20px; border-radius: 3px; }
+        th { color: #f7931a; padding: 8px; text-align: left; border-bottom: 1px solid #333; }
+        td { padding: 12px 8px; border-bottom: 1px solid rgba(51,51,51,0.5); }
+        .progress-bar { background: #1a1a1a; height: 12px; border-radius: 9999px; margin: 5px 0; }
+        .progress-fill { background: linear-gradient(to right, #f7931a, #fbbf24); height: 12px; border-radius: 9999px; }
+        .formula { background: #1a1a1a; padding: 15px; font-family: 'Courier New', monospace; border: 1px solid #f7931a; border-radius: 5px; color: #fbbf24; text-align: center; font-size: 16px; margin: 20px 0; }
     </style>
 </head>
 <body>
     <div class="header">
-        <div style="text-align: center; margin-bottom: 20px;">
-            <div style="display: inline-block; width: 100px; height: 100px; background: linear-gradient(135deg, #f7931a, #fbbf24); border-radius: 50%; position: relative; box-shadow: 0 10px 30px rgba(247, 147, 26, 0.3);">
-                <svg viewBox="0 0 32 32" style="width: 60px; height: 60px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" fill="#000000">
+        <!-- Bitcoin Logo -->
+        <div style="width: 96px; height: 96px; margin: 0 auto 16px; position: relative;">
+            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #f7931a, #fbbf24); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                <svg viewBox="0 0 32 32" style="width: 56px; height: 56px;" fill="black">
                     <path d="M23.189 13.02c.314-2.096-1.283-3.223-3.465-3.975l.708-2.84-1.728-.43-.69 2.765c-.454-.114-.92-.22-1.385-.326l.695-2.783L15.596 5l-.708 2.839c-.376-.086-.746-.17-1.104-.26l.002-.009-2.384-.595-.46 1.846s1.283.294 1.256.312c.7.175.826.638.805 1.006l-.806 3.235c.048.012.11.03.18.057l-.183-.045-1.13 4.532c-.086.212-.303.531-.793.41.018.025-1.256-.313-1.256-.313l-.858 1.978 2.25.561c.418.105.828.215 1.231.318l-.715 2.872 1.727.43.708-2.84c.472.127.93.245 1.378.357l-.706 2.828 1.728.43.715-2.866c2.948.558 5.164.333 6.097-2.333.752-2.146-.037-3.385-1.588-4.192 1.13-.26 1.98-1.003 2.207-2.538zm-3.95 5.538c-.533 2.147-4.148.986-5.32.695l.95-3.805c1.172.293 4.929.872 4.37 3.11zm.535-5.569c-.487 1.953-3.495.96-4.47.717l.86-3.45c.975.243 4.118.696 3.61 2.733z"/>
                 </svg>
             </div>
         </div>
-        <h1 style="border: none; margin: 0;">GREEN BITCOIN (GBTC)</h1>
+        <h1>GREEN BITCOIN</h1>
         <p style="color: #fbbf24; font-size: 18px; margin-top: 10px;">Decentralized Mining Infrastructure</p>
     </div>
     
-    <div class="vision">OUR VISION</div>
-    <div class="subtitle">Democratizing Bitcoin Mining Through Innovation</div>
-    
     <div class="section">
-        <p style="font-size: 18px; text-align: center; line-height: 1.8;">
-            Green Bitcoin represents the next evolution in cryptocurrency mining - a platform that eliminates traditional barriers to entry. We've built a decentralized infrastructure where anyone can participate in mining without expensive hardware, technical expertise, or operational overhead.
-        </p>
-        
-        <p style="font-size: 18px; text-align: center; line-height: 1.8; margin-top: 20px;">
-            Our mission is simple: make mining accessible to everyone, everywhere. By leveraging distributed hash power and smart distribution algorithms, we're creating a fair and transparent ecosystem where success isn't determined by capital alone, but by strategic participation and network growth.
-        </p>
-        
-        <p style="text-align: center; font-size: 20px; color: #f7931a; font-weight: bold; margin-top: 30px;">
-            Build. Mine. Prosper. Together.
-        </p>
+        <div class="vision">OUR VISION</div>
+        <div class="subtitle">Democratizing Bitcoin Mining Through Innovation</div>
+        <p>Green Bitcoin represents the next evolution in cryptocurrency mining - a platform that eliminates traditional barriers to entry. We've built a decentralized infrastructure where anyone can participate in mining without expensive hardware, technical expertise, or operational overhead.</p>
+        <p>Our mission is simple: make mining accessible to everyone, everywhere. By leveraging distributed hash power and smart distribution algorithms, we're creating a fair and transparent ecosystem where success isn't determined by capital alone, but by strategic participation and network growth.</p>
+        <p style="text-align: center; font-size: 20px; font-weight: bold; color: #f7931a; margin-top: 30px;">Build. Mine. Prosper. Together.</p>
     </div>
     
     <div class="section">
-        <h2>💎 Token Supply Parameters</h2>
-        
+        <h2>🪙 Token Supply Parameters</h2>
         <table>
-            <tr>
-                <th>Parameter</th>
-                <th>Value</th>
-                <th>Details</th>
-            </tr>
-            <tr>
-                <td><strong>Maximum Supply</strong></td>
-                <td style="color: #f7931a; font-weight: bold;">2,100,000 GBTC</td>
-                <td>10x rarer than Bitcoin</td>
-            </tr>
-            <tr>
-                <td><strong>Block Time</strong></td>
-                <td style="color: #fbbf24;">1 hour</td>
-                <td>Predictable mining schedule</td>
-            </tr>
-            <tr>
-                <td><strong>Blocks per Day</strong></td>
-                <td style="color: #fbbf24;">24</td>
-                <td>One block every hour</td>
-            </tr>
-            <tr>
-                <td><strong>Halving Interval</strong></td>
-                <td style="color: #fbbf24;">4,200 blocks</td>
-                <td>Approximately 6 months</td>
-            </tr>
-            <tr>
-                <td><strong>Initial Block Reward</strong></td>
-                <td style="color: #f7931a; font-weight: bold;">50 GBTC</td>
-                <td>Starting reward per block</td>
-            </tr>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th style="text-align: right;">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Maximum Supply</td>
+                    <td style="text-align: right; font-weight: bold; color: #fbbf24;">2,100,000 GBTC</td>
+                </tr>
+                <tr>
+                    <td>Block Time</td>
+                    <td style="text-align: right; color: #fbbf24;">1 hour</td>
+                </tr>
+                <tr>
+                    <td>Blocks per Day</td>
+                    <td style="text-align: right; color: #fbbf24;">24</td>
+                </tr>
+                <tr>
+                    <td>Halving Interval</td>
+                    <td style="text-align: right; color: #fbbf24;">4,200 blocks (~6 months)</td>
+                </tr>
+                <tr>
+                    <td>Initial Block Reward</td>
+                    <td style="text-align: right; font-weight: bold; color: #fbbf24;">50 GBTC</td>
+                </tr>
+            </tbody>
         </table>
     </div>
     
     <div class="section">
         <h2>⚡ Block Rewards & Halving Schedule</h2>
-        
         <table>
-            <tr>
-                <th>Halving Event</th>
-                <th>Block Number</th>
-                <th>Time Period</th>
-                <th>Block Reward</th>
-                <th>Daily Rewards</th>
-            </tr>
-            <tr>
-                <td>Launch</td>
-                <td>0</td>
-                <td>Month 0</td>
-                <td style="color: #f7931a; font-weight: bold;">50 GBTC</td>
-                <td>1,200 GBTC</td>
-            </tr>
-            <tr>
-                <td>1st Halving</td>
-                <td>4,200</td>
-                <td>~6 months</td>
-                <td style="color: #fbbf24;">25 GBTC</td>
-                <td>600 GBTC</td>
-            </tr>
-            <tr>
-                <td>2nd Halving</td>
-                <td>8,400</td>
-                <td>~12 months</td>
-                <td style="color: #fbbf24;">12.5 GBTC</td>
-                <td>300 GBTC</td>
-            </tr>
-            <tr>
-                <td>3rd Halving</td>
-                <td>12,600</td>
-                <td>~18 months</td>
-                <td>6.25 GBTC</td>
-                <td>150 GBTC</td>
-            </tr>
-            <tr>
-                <td>4th Halving</td>
-                <td>16,800</td>
-                <td>~24 months</td>
-                <td>3.125 GBTC</td>
-                <td>75 GBTC</td>
-            </tr>
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th style="text-align: center;">Block #</th>
+                    <th style="text-align: center;">Time</th>
+                    <th style="text-align: right;">Reward</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Launch</td>
+                    <td style="text-align: center;">0</td>
+                    <td style="text-align: center;">Month 0</td>
+                    <td style="text-align: right; font-weight: bold; color: #fbbf24;">50 GBTC</td>
+                </tr>
+                <tr>
+                    <td>1st Halving</td>
+                    <td style="text-align: center;">4,200</td>
+                    <td style="text-align: center;">~6 months</td>
+                    <td style="text-align: right; color: #fbbf24;">25 GBTC</td>
+                </tr>
+                <tr>
+                    <td>2nd Halving</td>
+                    <td style="text-align: center;">8,400</td>
+                    <td style="text-align: center;">~12 months</td>
+                    <td style="text-align: right; color: #fbbf24;">12.5 GBTC</td>
+                </tr>
+                <tr>
+                    <td>3rd Halving</td>
+                    <td style="text-align: center;">12,600</td>
+                    <td style="text-align: center;">~18 months</td>
+                    <td style="text-align: right; color: #888;">6.25 GBTC</td>
+                </tr>
+                <tr>
+                    <td>4th Halving</td>
+                    <td style="text-align: center;">16,800</td>
+                    <td style="text-align: center;">~24 months</td>
+                    <td style="text-align: right; color: #888;">3.125 GBTC</td>
+                </tr>
+            </tbody>
         </table>
-        
-        <p style="margin-top: 20px;">The halving continues every 4,200 blocks until the maximum supply of 2.1 million GBTC is reached, creating a deflationary supply curve that rewards early adopters.</p>
+        <p style="font-size: 12px; color: #888; margin-top: 16px;">Halving continues every 4,200 blocks until max supply is reached</p>
     </div>
     
     <div class="section">
-        <h2>📊 Supply Release Curve</h2>
-        
-        <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #333;">
-            <h4 style="color: #fbbf24; margin-bottom: 15px;">Projected GBTC in Circulation</h4>
-            
-            <div style="margin-bottom: 10px;">
-                <span style="color: #888;">Year 1:</span>
-                <div style="width: 15%; margin-top: 5px;" class="chart-bar"></div>
-                <span style="color: #f7931a; font-weight: bold;">~315,000 GBTC (15%)</span>
+        <h2>📈 Supply Release Curve</h2>
+        <div style="margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span style="font-size: 14px; color: #888;">Year 1</span>
+                <span style="font-size: 14px; font-weight: bold; color: #fbbf24;">~315,000 GBTC</span>
             </div>
-            
-            <div style="margin-bottom: 10px;">
-                <span style="color: #888;">Year 2:</span>
-                <div style="width: 19%; margin-top: 5px;" class="chart-bar"></div>
-                <span style="color: #f7931a; font-weight: bold;">~393,750 GBTC (19%)</span>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 15%;"></div>
             </div>
-            
-            <div style="margin-bottom: 10px;">
-                <span style="color: #888;">Year 5:</span>
-                <div style="width: 48%; margin-top: 5px;" class="chart-bar"></div>
-                <span style="color: #f7931a; font-weight: bold;">~1,000,000 GBTC (48%)</span>
+        </div>
+        <div style="margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span style="font-size: 14px; color: #888;">Year 2</span>
+                <span style="font-size: 14px; font-weight: bold; color: #fbbf24;">~393,750 GBTC</span>
             </div>
-            
-            <div style="margin-bottom: 10px;">
-                <span style="color: #888;">Year 10+:</span>
-                <div style="width: 100%; margin-top: 5px;" class="chart-bar"></div>
-                <span style="color: #f7931a; font-weight: bold;">2,100,000 GBTC (100%)</span>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 19%;"></div>
+            </div>
+        </div>
+        <div style="margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span style="font-size: 14px; color: #888;">Year 5</span>
+                <span style="font-size: 14px; font-weight: bold; color: #fbbf24;">~1,000,000 GBTC</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 48%;"></div>
+            </div>
+        </div>
+        <div style="margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span style="font-size: 14px; color: #888;">Year 10+</span>
+                <span style="font-size: 14px; font-weight: bold; color: #f7931a;">2,100,000 GBTC</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 100%;"></div>
             </div>
         </div>
     </div>
     
     <div class="section">
         <h2>🚀 Launch Timeline (TGE)</h2>
+        <div class="metric" style="background: #1a1a1a; padding: 16px; border: 1px solid #f7931a;">
+            <p style="font-size: 14px; color: #ccc; margin-bottom: 8px;">Token Generation Event will occur when we reach:</p>
+            <p style="font-size: 24px; font-weight: bold; color: #f7931a;">100K - 1M Verified Participants</p>
+            <p style="font-size: 12px; color: #888; margin-top: 8px;">Ensuring strong community adoption and network stability</p>
+        </div>
         
-        <p style="font-size: 16px; margin-bottom: 20px;">
-            The Token Generation Event (TGE) will take place only when the GBTC ecosystem reaches <span class="highlight">100K - 1 Million verified participants</span>. This ensures strong community adoption, global visibility, and network stability.
-        </p>
-        
-        <div class="feature-grid">
-            <div class="feature">
-                <h4>📦 Mining Phase</h4>
-                <p>Users accumulate mining rewards before TGE. All mined GBTC is stored securely in user accounts, ready for the official launch.</p>
+        <div style="margin-top: 20px;">
+            <div style="display: flex; align-items: start; margin-bottom: 12px;">
+                <div style="width: 32px; height: 32px; background: rgba(247,147,26,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                    <span style="color: #f7931a; font-weight: bold;">1</span>
+                </div>
+                <div>
+                    <h4 style="margin: 0;">Mining Phase</h4>
+                    <p style="font-size: 12px; color: #888; margin: 4px 0;">Users accumulate rewards before TGE</p>
+                </div>
             </div>
             
-            <div class="feature">
-                <h4>🎯 TGE Milestone</h4>
-                <p>Official GBTC release when we achieve 100K-1M network participants, ensuring massive adoption from day one.</p>
+            <div style="display: flex; align-items: start; margin-bottom: 12px;">
+                <div style="width: 32px; height: 32px; background: rgba(247,147,26,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                    <span style="color: #f7931a; font-weight: bold;">2</span>
+                </div>
+                <div>
+                    <h4 style="margin: 0;">TGE Milestone</h4>
+                    <p style="font-size: 12px; color: #888; margin: 4px 0;">Official GBTC release at network milestone</p>
+                </div>
             </div>
             
-            <div class="feature">
-                <h4>💰 Exchange Listings</h4>
-                <p>Major CEX and DEX listings immediately after TGE, providing instant liquidity and trading opportunities.</p>
-            </div>
-            
-            <div class="feature">
-                <h4>🔓 Withdrawals Enabled</h4>
-                <p>After TGE, users can withdraw mined tokens directly to personal wallets or trade on exchanges.</p>
+            <div style="display: flex; align-items: start; margin-bottom: 12px;">
+                <div style="width: 32px; height: 32px; background: rgba(247,147,26,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                    <span style="color: #f7931a; font-weight: bold;">3</span>
+                </div>
+                <div>
+                    <h4 style="margin: 0;">Withdrawals Enabled</h4>
+                    <p style="font-size: 12px; color: #888; margin: 4px 0;">Transfer tokens to wallets or exchanges</p>
+                </div>
             </div>
         </div>
     </div>
     
     <div class="section">
-        <h2>💸 Automatic Referral Commission System</h2>
-        
-        <div style="background: linear-gradient(135deg, rgba(247,147,26,0.1), rgba(251,191,36,0.1)); padding: 20px; border-radius: 8px; border: 1px solid #f7931a; margin-bottom: 20px;">
-            <h3 style="color: #fbbf24; margin-bottom: 15px;">Earn USDT on Every Hash Power Purchase</h3>
-            <ul style="font-size: 16px;">
-                <li><span class="highlight">10% USDT Commission:</span> Automatically receive 10% commission when your referral purchases hash power</li>
-                <li><span class="highlight">Instant Detection:</span> System automatically detects hash purchases and transfers commission immediately</li>
-                <li><span class="highlight">Example:</span> When your referral buys $50 worth of hash → You instantly receive $5 USDT</li>
-                <li><span class="highlight">Unlimited Earnings:</span> Build your network - earn from every hash power purchase they make</li>
+        <h2>💸 Referral & Commission System</h2>
+        <div style="background: linear-gradient(135deg, rgba(247,147,26,0.1), rgba(251,191,36,0.1)); padding: 16px; border-radius: 8px; border: 1px solid #f7931a; margin-bottom: 16px;">
+            <h3 style="margin-bottom: 12px;">Automatic Commission on Hash Purchase</h3>
+            <ul style="list-style: none; padding: 0;">
+                <li style="margin-bottom: 12px;">• <span class="highlight">10% USDT Commission:</span> Automatically receive 10% when your referral purchases hash power</li>
+                <li style="margin-bottom: 12px;">• <span class="highlight">Instant Detection:</span> System detects hash purchases and transfers commission immediately</li>
+                <li style="margin-bottom: 12px;">• <span class="highlight">Example:</span> Referral buys $50 hash → You get $5 USDT instantly</li>
             </ul>
         </div>
         
         <div class="metric" style="text-align: center; background: linear-gradient(135deg, rgba(247,147,26,0.2), rgba(251,191,36,0.2));">
-            <p style="color: #f7931a; font-weight: bold; font-size: 18px;">🚀 Commission Based on Hash Purchase - Not Deposit!</p>
-            <p style="color: #fbbf24; font-size: 14px; margin-top: 10px;">Your earnings grow with your network's mining activity</p>
+            <p style="color: #f7931a; font-weight: bold; font-size: 14px;">🚀 Commission Based on Hash Purchase - Not Deposit!</p>
+            <p style="color: #fbbf24; font-size: 12px; margin-top: 4px;">Your earnings grow with your network's mining activity</p>
         </div>
     </div>
     
     <div class="section">
         <h2>🔄 P2P Transfer & Trading (Pre-TGE)</h2>
-        
-        <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #f7931a; margin-bottom: 20px;">
-            <h3 style="color: #fbbf24;">Trade GBTC Before Official Launch</h3>
-            <p>GBTC supports peer-to-peer transfers between users, enabling an organic secondary market before the Token Generation Event. This creates immediate liquidity and price discovery during the mining phase.</p>
+        <div style="background: #1a1a1a; padding: 16px; border-radius: 8px; border: 1px solid #f7931a; margin-bottom: 16px;">
+            <h3>Trade GBTC Before Official Launch</h3>
+            <p style="font-size: 14px;">GBTC supports peer-to-peer transfers between users, enabling an organic secondary market before the Token Generation Event. This creates immediate liquidity and price discovery during the mining phase.</p>
         </div>
         
-        <div class="feature">
-            <h4>Instant P2P Transfers</h4>
-            <p>Send GBTC directly to any user within the platform using their username. Transfers are instant and secure.</p>
+        <div class="feature" style="margin-bottom: 16px;">
+            <h4>▶ Instant P2P Transfers</h4>
+            <p style="font-size: 14px; color: #888;">Send GBTC directly to any user within the platform using their username. Transfers are instant and secure.</p>
         </div>
         
-        <div class="feature">
-            <h4>Self-Managed Trading</h4>
-            <p>Create your own ask/bid prices for GBTC based on personal deals:</p>
-            <ul>
-                <li>Negotiate prices directly with other miners</li>
-                <li>Execute trades through P2P transfers</li>
-                <li>Build reputation as a trusted trader</li>
-                <li>Benefit from early price appreciation</li>
+        <div class="feature" style="margin-bottom: 16px;">
+            <h4>▶ Self-Managed Trading</h4>
+            <p style="font-size: 14px; color: #888;">Create your own ask/bid prices for GBTC based on personal deals:</p>
+            <ul style="font-size: 12px; color: #888;">
+                <li>• Negotiate prices directly with other miners</li>
+                <li>• Execute trades through P2P transfers</li>
+                <li>• Build reputation as a trusted trader</li>
+                <li>• Benefit from early price appreciation</li>
             </ul>
         </div>
         
-        <div class="feature-grid">
-            <div class="feature">
-                <h4>Benefits for Sellers</h4>
-                <p>Realize profits before TGE by selling mined GBTC to eager buyers at market-determined prices.</p>
-            </div>
-            
-            <div class="feature">
-                <h4>Benefits for Buyers</h4>
-                <p>Accumulate GBTC at potentially lower prices before exchange listings and broader market exposure.</p>
+        <div class="feature" style="margin-bottom: 16px;">
+            <h4>▶ Trading Benefits</h4>
+            <div class="feature-grid">
+                <div style="background: rgba(0,0,0,0.5); padding: 8px; border-radius: 4px;">
+                    <p style="color: #fbbf24; font-weight: bold; font-size: 12px;">For Sellers:</p>
+                    <p style="color: #888; font-size: 12px;">Realize profits before TGE</p>
+                </div>
+                <div style="background: rgba(0,0,0,0.5); padding: 8px; border-radius: 4px;">
+                    <p style="color: #fbbf24; font-weight: bold; font-size: 12px;">For Buyers:</p>
+                    <p style="color: #888; font-size: 12px;">Accumulate at lower prices</p>
+                </div>
             </div>
         </div>
         
         <div class="metric" style="text-align: center; background: linear-gradient(135deg, rgba(247,147,26,0.2), rgba(251,191,36,0.2));">
-            <p style="color: #f7931a; font-weight: bold; font-size: 18px;">⚡ P2P Market Active Now - Start Trading GBTC with Other Miners!</p>
+            <p style="color: #f7931a; font-weight: bold; font-size: 14px;">⚡ P2P Market Active Now</p>
+            <p style="color: #888; font-size: 12px; margin-top: 4px;">Start trading GBTC with other miners - No waiting for TGE!</p>
         </div>
     </div>
     
     <div class="section">
         <h2>🌐 Utility & Multi-Chain Expansion</h2>
         
-        <p style="font-size: 16px; margin-bottom: 20px;">
-            GBTC is built for multi-chain interoperability and real-world DeFi use cases:
-        </p>
-        
-        <div class="feature">
-            <h4>1. Wrapped Bitcoin (wBTC-style)</h4>
-            <p>GBTC can be wrapped and bridged to multiple chains (Ethereum, Solana, BSC, Polygon, etc.), enabling cross-chain liquidity and maximum flexibility.</p>
+        <div class="feature" style="margin-bottom: 16px;">
+            <h4>▶ Wrapped Bitcoin Style</h4>
+            <p style="font-size: 14px; color: #888;">Bridge to Ethereum, Solana, BSC, Polygon for cross-chain liquidity</p>
         </div>
         
-        <div class="feature">
-            <h4>2. DeFi Integration</h4>
-            <p>GBTC can be staked, farmed, or provided as liquidity on decentralized exchanges. Earn additional rewards through various DeFi protocols.</p>
+        <div class="feature" style="margin-bottom: 16px;">
+            <h4>▶ DeFi Integration</h4>
+            <p style="font-size: 14px; color: #888;">Stake, farm, and provide liquidity on decentralized exchanges</p>
         </div>
         
-        <div class="feature">
-            <h4>3. Bridge Utility</h4>
-            <p>Seamlessly move GBTC between chains for optimal trading, staking, and yield farming opportunities across the entire crypto ecosystem.</p>
+        <div class="feature" style="margin-bottom: 16px;">
+            <h4>▶ Bridge Utility</h4>
+            <p style="font-size: 14px; color: #888;">Seamlessly move GBTC between chains for maximum flexibility</p>
         </div>
         
-        <div class="feature">
-            <h4>4. BTC Relationship</h4>
-            <p>GBTC mirrors Bitcoin's scarcity model but is 10x rarer (2.1M vs 21M supply). It serves as a complementary asset alongside BTC, optimized for faster adoption in DeFi.</p>
+        <div class="feature" style="margin-bottom: 16px;">
+            <h4>▶ BTC Relationship</h4>
+            <p style="font-size: 14px; color: #888;">10x rarer than Bitcoin (2.1M vs 21M), optimized for DeFi adoption</p>
         </div>
     </div>
     
     <div class="section">
         <h2>⚡ Core Technology</h2>
-        
         <div class="feature-grid">
             <div class="feature">
-                <h4>Smart Mining System</h4>
-                <ul>
-                    <li>Distributed hash power</li>
-                    <li>Proportional reward distribution</li>
-                    <li>Real-time network adjustments</li>
-                    <li>Automated mining operations</li>
+                <h4># Smart Mining</h4>
+                <ul style="font-size: 14px; color: #888;">
+                    <li>• Distributed hash power</li>
+                    <li>• Proportional rewards</li>
+                    <li>• Real-time adjustments</li>
+                    <li>• Automated operations</li>
                 </ul>
             </div>
             
             <div class="feature">
-                <h4>Daily Block Cycles</h4>
-                <ul>
-                    <li>24 blocks per day</li>
-                    <li>Reset at 00:00 UTC</li>
-                    <li>Continuous blockchain height</li>
-                    <li>Predictable mining schedule</li>
+                <h4>🕐 Block Cycles</h4>
+                <ul style="font-size: 14px; color: #888;">
+                    <li>• 24 blocks per day</li>
+                    <li>• Reset at 00:00 UTC</li>
+                    <li>• Continuous height</li>
+                    <li>• Predictable schedule</li>
                 </ul>
             </div>
             
             <div class="feature">
-                <h4>Secure Authentication</h4>
-                <ul>
-                    <li>Username-based identity</li>
-                    <li>6-digit PIN protection</li>
-                    <li>Zero-knowledge security</li>
-                    <li>Complete user anonymity</li>
+                <h4>🛡️ Security</h4>
+                <ul style="font-size: 14px; color: #888;">
+                    <li>• Username identity</li>
+                    <li>• 6-digit PIN</li>
+                    <li>• Zero-knowledge</li>
+                    <li>• Full anonymity</li>
                 </ul>
             </div>
             
             <div class="feature">
-                <h4>Direct Referral Network</h4>
-                <ul>
-                    <li>10% USDT commission</li>
-                    <li>Instant reward distribution</li>
-                    <li>Single-tier transparency</li>
-                    <li>Build your mining network</li>
+                <h4>👥 Referral Network</h4>
+                <ul style="font-size: 14px; color: #888;">
+                    <li>• 10% USDT commission</li>
+                    <li>• Instant rewards</li>
+                    <li>• Single-tier system</li>
+                    <li>• Build your network</li>
                 </ul>
-            </div>
-        </div>
-    </div>
-    
-    <div class="section">
-        <h2>🎯 Strategic Advantages</h2>
-        
-        <div class="feature-grid">
-            <div class="feature">
-                <h4>Zero Hardware Investment</h4>
-                <p>No need for expensive mining rigs, cooling systems, or technical maintenance. Access professional mining capabilities through our infrastructure.</p>
-            </div>
-            
-            <div class="feature">
-                <h4>Predictable Returns</h4>
-                <p>Transparent reward calculations based on your hash power percentage. Monitor your earnings in real-time with our comprehensive dashboard.</p>
-            </div>
-            
-            <div class="feature">
-                <h4>Global Accessibility</h4>
-                <p>Mine from anywhere in the world with just an internet connection. Our platform operates 24/7 across all time zones.</p>
-            </div>
-            
-            <div class="feature">
-                <h4>Community Growth</h4>
-                <p>Build your mining network and earn from both personal mining and referral commissions. Grow together with the ecosystem.</p>
             </div>
         </div>
     </div>
@@ -390,6 +363,31 @@ export default function Whitepaper() {
         
         <h3>Active Mining Protocol</h3>
         <p>Our 24-hour claim system ensures network vitality by requiring miners to actively participate. This prevents resource hoarding and maintains fair distribution among engaged participants.</p>
+    </div>
+    
+    <div class="section">
+        <h2>🎯 Strategic Advantages</h2>
+        <div class="feature-grid">
+            <div class="feature">
+                <h4>Zero Hardware Investment</h4>
+                <p style="font-size: 14px;">No need for expensive mining rigs, cooling systems, or technical maintenance. Access professional mining capabilities through our infrastructure.</p>
+            </div>
+            
+            <div class="feature">
+                <h4>Predictable Returns</h4>
+                <p style="font-size: 14px;">Transparent reward calculations based on your hash power percentage. Monitor your earnings in real-time with our comprehensive dashboard.</p>
+            </div>
+            
+            <div class="feature">
+                <h4>Global Accessibility</h4>
+                <p style="font-size: 14px;">Mine from anywhere in the world with just an internet connection. Our platform operates 24/7 across all time zones.</p>
+            </div>
+            
+            <div class="feature">
+                <h4>Community Growth</h4>
+                <p style="font-size: 14px;">Build your mining network and earn from both personal mining and referral commissions. Grow together with the ecosystem.</p>
+            </div>
+        </div>
     </div>
     
     <div class="footer">
@@ -1003,32 +1001,26 @@ export default function Whitepaper() {
                 <h2 className="text-2xl font-bold text-[#f7931a]">Platform Features</h2>
               </div>
               
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div>
-                  <div className="flex items-center mb-2">
-                    <Hash className="w-5 h-5 text-[#fbbf24] mr-2" />
-                    <h3 className="text-lg font-semibold text-[#fbbf24]">Hash Power Acquisition</h3>
-                  </div>
-                  <p className="text-gray-400 text-sm mb-3">
-                    Purchase computational power directly with USDT to begin mining immediately.
+                  <h3 className="text-lg font-semibold text-[#fbbf24] mb-2">Hash Power Acquisition</h3>
+                  <p className="text-sm text-gray-300 mb-3">
+                    Purchase computational power directly with USDT to begin mining immediately. Your hash power determines your share of block rewards.
                   </p>
-                  <div className="bg-[#1a1a1a] p-3 rounded-lg border border-[#f7931a]/50">
-                    <p className="text-center font-mono text-[#fbbf24]">
-                      Rewards = (Your Hash ÷ Network Hash) × Block Reward
+                  
+                  <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#f7931a]/30">
+                    <p className="text-center text-[#fbbf24] font-mono">
+                      Mining Rewards = (Your Hash Power ÷ Network Hash Power) × Block Reward
                     </p>
                   </div>
                 </div>
                 
                 <div>
-                  <div className="flex items-center mb-2">
-                    <Activity className="w-5 h-5 text-[#fbbf24] mr-2" />
-                    <h3 className="text-lg font-semibold text-[#fbbf24]">Active Mining Protocol</h3>
-                  </div>
-                  <p className="text-gray-400 text-sm">
-                    24-hour claim system ensures network vitality. Active participation prevents resource hoarding and maintains fair distribution.
+                  <h3 className="text-lg font-semibold text-[#fbbf24] mb-2">Active Mining Protocol</h3>
+                  <p className="text-sm text-gray-300">
+                    Our 24-hour claim system ensures network vitality by requiring miners to actively participate. This prevents resource hoarding and maintains fair distribution among engaged participants.
                   </p>
                 </div>
-                
               </div>
             </div>
           </Card>
@@ -1047,48 +1039,53 @@ export default function Whitepaper() {
                 <h2 className="text-2xl font-bold text-[#f7931a]">Strategic Advantages</h2>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="bg-[#1a1a1a] p-3 rounded-lg">
-                  <Wallet className="w-5 h-5 text-[#fbbf24] mb-2" />
-                  <h4 className="text-[#fbbf24] font-semibold text-sm mb-1">Zero Hardware</h4>
-                  <p className="text-gray-500 text-xs">No rigs, cooling, or maintenance</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333]">
+                  <h4 className="text-[#fbbf24] font-semibold mb-2">Zero Hardware Investment</h4>
+                  <p className="text-sm text-gray-400">
+                    No need for expensive mining rigs, cooling systems, or technical maintenance. Access professional mining capabilities through our infrastructure.
+                  </p>
                 </div>
                 
-                <div className="bg-[#1a1a1a] p-3 rounded-lg">
-                  <TrendingUp className="w-5 h-5 text-[#fbbf24] mb-2" />
-                  <h4 className="text-[#fbbf24] font-semibold text-sm mb-1">Predictable Returns</h4>
-                  <p className="text-gray-500 text-xs">Transparent real-time monitoring</p>
+                <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333]">
+                  <h4 className="text-[#fbbf24] font-semibold mb-2">Predictable Returns</h4>
+                  <p className="text-sm text-gray-400">
+                    Transparent reward calculations based on your hash power percentage. Monitor your earnings in real-time with our comprehensive dashboard.
+                  </p>
                 </div>
                 
-                <div className="bg-[#1a1a1a] p-3 rounded-lg">
-                  <Globe className="w-5 h-5 text-[#fbbf24] mb-2" />
-                  <h4 className="text-[#fbbf24] font-semibold text-sm mb-1">Global Access</h4>
-                  <p className="text-gray-500 text-xs">Mine anywhere, 24/7 operations</p>
+                <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333]">
+                  <h4 className="text-[#fbbf24] font-semibold mb-2">Global Accessibility</h4>
+                  <p className="text-sm text-gray-400">
+                    Mine from anywhere in the world with just an internet connection. Our platform operates 24/7 across all time zones.
+                  </p>
                 </div>
                 
-                <div className="bg-[#1a1a1a] p-3 rounded-lg">
-                  <Users className="w-5 h-5 text-[#fbbf24] mb-2" />
-                  <h4 className="text-[#fbbf24] font-semibold text-sm mb-1">Community Growth</h4>
-                  <p className="text-gray-500 text-xs">Mining & referral rewards</p>
+                <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333]">
+                  <h4 className="text-[#fbbf24] font-semibold mb-2">Community Growth</h4>
+                  <p className="text-sm text-gray-400">
+                    Build your mining network and earn from both personal mining and referral commissions. Grow together with the ecosystem.
+                  </p>
                 </div>
               </div>
             </div>
           </Card>
         </motion.div>
 
-        {/* Download Button */}
+        {/* Footer */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 1.2 }}
         >
-          <Button 
-            onClick={downloadWhitepaper}
-            className="w-full bg-gradient-to-r from-[#f7931a] to-[#fbbf24] hover:from-[#fbbf24] hover:to-[#f7931a] text-black font-bold py-6"
-          >
-            <Download className="w-5 h-5 mr-2" />
-            Download Full Whitepaper
-          </Button>
+          <div className="text-center pt-8 pb-4 border-t border-[#333]">
+            <p className="text-[#f7931a] text-lg font-bold mb-2">
+              Green Bitcoin - Where Mining Meets Innovation
+            </p>
+            <p className="text-gray-500 text-sm">
+              © 2025 Green Bitcoin. Building the Future of Decentralized Mining.
+            </p>
+          </div>
         </motion.div>
       </div>
     </div>
