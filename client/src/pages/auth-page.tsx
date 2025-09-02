@@ -73,6 +73,7 @@ export default function AuthPage() {
                         value={loginForm.username}
                         onChange={(e) => setLoginForm(prev => ({ ...prev, username: e.target.value }))}
                         required
+                        autoComplete="username"
                         className="bg-black border-gray-800"
                         data-testid="input-login-username"
                       />
@@ -81,7 +82,9 @@ export default function AuthPage() {
                       <Label htmlFor="login-pin">6-Digit PIN</Label>
                       <Input
                         id="login-pin"
-                        type="password"
+                        type="tel"
+                        inputMode="numeric"
+                        pattern="[0-9]{6}"
                         placeholder="Enter your 6-digit PIN"
                         value={loginForm.pin}
                         onChange={(e) => {
@@ -90,6 +93,8 @@ export default function AuthPage() {
                         }}
                         maxLength={6}
                         required
+                        autoComplete="off"
+                        style={{ WebkitTextSecurity: 'disc', textSecurity: 'disc' } as any}
                         className="bg-black border-gray-800 text-center font-mono text-lg"
                         data-testid="input-login-pin"
                       />
@@ -144,6 +149,7 @@ export default function AuthPage() {
                           setRegisterForm(prev => ({ ...prev, username: value }));
                         }}
                         required
+                        autoComplete="off"
                         className="bg-black border-gray-800"
                         data-testid="input-register-username"
                       />
@@ -153,7 +159,9 @@ export default function AuthPage() {
                       <Label htmlFor="register-pin">Create 6-Digit PIN</Label>
                       <Input
                         id="register-pin"
-                        type="password"
+                        type="tel"
+                        inputMode="numeric"
+                        pattern="[0-9]{6}"
                         placeholder="Create a 6-digit PIN"
                         value={registerForm.pin}
                         onChange={(e) => {
@@ -162,6 +170,8 @@ export default function AuthPage() {
                         }}
                         maxLength={6}
                         required
+                        autoComplete="off"
+                        style={{ WebkitTextSecurity: 'disc', textSecurity: 'disc' } as any}
                         className="bg-black border-gray-800 text-center font-mono text-lg"
                         data-testid="input-register-pin"
                       />
@@ -171,7 +181,9 @@ export default function AuthPage() {
                       <Label htmlFor="register-confirm-pin">Confirm 6-Digit PIN</Label>
                       <Input
                         id="register-confirm-pin"
-                        type="password"
+                        type="tel"
+                        inputMode="numeric"
+                        pattern="[0-9]{6}"
                         placeholder="Confirm your 6-digit PIN"
                         value={registerForm.confirmPin}
                         onChange={(e) => {
@@ -180,6 +192,8 @@ export default function AuthPage() {
                         }}
                         maxLength={6}
                         required
+                        autoComplete="off"
+                        style={{ WebkitTextSecurity: 'disc', textSecurity: 'disc' } as any}
                         className="bg-black border-gray-800 text-center font-mono text-lg"
                         data-testid="input-register-confirm-pin"
                       />
