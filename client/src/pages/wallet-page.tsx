@@ -733,11 +733,18 @@ export default function WalletPage() {
       </Dialog>
 
       {/* Transfer Details Dialog */}
-      <Dialog open={!!selectedTransfer} onOpenChange={() => setSelectedTransfer(null)}>
+      <Dialog 
+        open={!!selectedTransfer} 
+        onOpenChange={(open) => {
+          if (!open) {
+            setTimeout(() => setSelectedTransfer(null), 100);
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-md bg-[#1a1a1a] border-gray-800">
           <DialogHeader>
             <DialogTitle className="text-white font-medium text-center">
-              Transfer In Details
+              {selectedTransfer?.displayType === 'Transfer In' ? 'Transfer In Details' : 'Transfer Out Details'}
             </DialogTitle>
           </DialogHeader>
           {selectedTransfer && (
@@ -745,7 +752,7 @@ export default function WalletPage() {
               <div className="space-y-1">
                 <p className="text-gray-500 text-sm">Amount</p>
                 <p className="text-white font-mono text-lg">
-                  BTC {parseFloat(selectedTransfer.amount).toFixed(8)}
+                  GBTC {parseFloat(selectedTransfer.amount).toFixed(8)}
                 </p>
               </div>
               
