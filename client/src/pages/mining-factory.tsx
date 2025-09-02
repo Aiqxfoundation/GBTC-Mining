@@ -523,7 +523,7 @@ export default function MiningFactory() {
                 <span className="text-[10px] text-muted-foreground uppercase">Total Supply</span>
                 <Award className="w-4 h-4 text-primary/50" />
               </div>
-              <p className="text-lg font-bold text-primary">{(totalSupply / 1000000).toFixed(0)}M</p>
+              <p className="text-lg font-bold text-primary">{(totalSupply / 1000000).toFixed(1)}M</p>
               <p className="text-[10px] text-muted-foreground">GBTC</p>
             </div>
           </Card>
