@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -25,7 +25,6 @@ export default function AccountPage() {
   const [currentPin, setCurrentPin] = useState("");
   const [newPin, setNewPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
-  const [activeTab, setActiveTab] = useState<'overview' | 'referrals' | 'security'>('overview');
 
   // Fetch referral data
   const { data: referralData } = useQuery<{
@@ -256,262 +255,223 @@ export default function AccountPage() {
           </div>
         </Card>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-4">
-          <Button
-            onClick={() => setActiveTab('overview')}
-            variant={activeTab === 'overview' ? 'default' : 'outline'}
-            size="sm"
-            className="flex-1"
-          >
-            <Clock className="w-3 h-3 mr-1" />
-            History
-          </Button>
-          <Button
-            onClick={() => setActiveTab('referrals')}
-            variant={activeTab === 'referrals' ? 'default' : 'outline'}
-            size="sm"
-            className="flex-1"
-          >
-            <Award className="w-3 h-3 mr-1" />
-            Referrals
-          </Button>
-          <Button
-            onClick={() => setActiveTab('security')}
-            variant={activeTab === 'security' ? 'default' : 'outline'}
-            size="sm"
-            className="flex-1"
-          >
-            <Shield className="w-3 h-3 mr-1" />
-            Security
-          </Button>
-        </div>
-
-        {/* Transaction History Tab */}
-        {activeTab === 'overview' && (
-          <Card className="mobile-card">
-            <p className="text-sm font-mono text-muted-foreground mb-3">RECENT TRANSACTIONS</p>
-            {allTransactions.length > 0 ? (
-              <div className="space-y-2">
-                {allTransactions.map((tx: any) => (
-                  <div
-                    key={tx.id}
-                    className="bg-background rounded-lg p-3 flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        tx.type === 'deposit' 
-                          ? 'bg-accent/20 text-accent' 
-                          : 'bg-destructive/20 text-destructive'
-                      }`}>
-                        {tx.type === 'deposit' ? (
-                          <ArrowDown className="w-4 h-4" />
-                        ) : (
-                          <ArrowUp className="w-4 h-4" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold">
-                          {tx.type === 'deposit' ? 'Deposit' : 'Withdrawal'}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(tx.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className={`text-sm font-bold ${
-                        tx.type === 'deposit' ? 'text-accent' : 'text-destructive'
-                      }`}>
-                        {tx.type === 'deposit' ? '+' : '-'}${parseFloat(tx.amount).toFixed(2)}
-                      </p>
-                      <Badge 
-                        variant={tx.status === 'approved' ? 'default' : tx.status === 'pending' ? 'secondary' : 'destructive'}
-                        className="text-xs"
-                      >
-                        {tx.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p className="text-sm">No transactions yet</p>
-              </div>
-            )}
-            <Button
-              onClick={() => window.location.href = '/transactions'}
-              variant="outline"
-              className="w-full mt-3"
-            >
-              View All Transactions
-            </Button>
-          </Card>
-        )}
-
-        {/* Referrals Tab */}
-        {activeTab === 'referrals' && (
-          <>
-            <Card className="mobile-card">
-              <p className="text-sm font-mono text-muted-foreground mb-3">YOUR REFERRAL CODE</p>
-              
-              <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg p-4 mb-3 text-center border border-primary/20">
-                <p className="text-2xl font-display font-black text-primary tracking-wider">
-                  {referralData?.referralCode || 'LOADING...'}
-                </p>
-                <div className="flex gap-2 mt-3">
-                  <Button
-                    onClick={copyReferralCode}
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    data-testid="button-copy-code"
-                  >
-                    <Copy className="w-4 h-4 mr-1" />
-                    Copy Code
-                  </Button>
-                  <Button
-                    onClick={copyReferralLink}
-                    size="sm"
-                    className="flex-1 bg-primary text-primary-foreground"
-                    data-testid="button-copy-link"
-                  >
-                    <Copy className="w-4 h-4 mr-1" />
-                    Copy Link
-                  </Button>
-                </div>
-              </div>
-
-              {/* Referral Stats */}
-              <div className="grid grid-cols-3 gap-2">
-                <div className="bg-background rounded-lg p-3 text-center">
-                  <i className="fas fa-users text-chart-4 text-lg mb-1"></i>
-                  <p className="text-xs text-muted-foreground">Total</p>
-                  <p className="text-lg font-display font-bold">
-                    {referralData?.totalReferrals || 0}
-                  </p>
-                </div>
-                <div className="bg-background rounded-lg p-3 text-center">
-                  <TrendingUp className="w-5 h-5 text-accent mx-auto mb-1" />
-                  <p className="text-xs text-muted-foreground">Active</p>
-                  <p className="text-lg font-display font-bold">
-                    {referralData?.activeReferrals || 0}
-                  </p>
-                </div>
-                <div className="bg-background rounded-lg p-3 text-center">
-                  <Award className="w-5 h-5 text-yellow-500 mx-auto mb-1" />
-                  <p className="text-xs text-muted-foreground">Earned</p>
-                  <p className="text-lg font-display font-bold text-accent">
-                    ${referralData?.totalEarnings || '0.00'}
-                  </p>
-                </div>
-              </div>
-            </Card>
-
-            {/* Referral List */}
-            {referralData?.referrals && referralData.referrals.length > 0 && (
-              <Card className="mobile-card">
-                <p className="text-sm font-mono text-muted-foreground mb-3">YOUR REFERRALS</p>
-                <div className="space-y-2">
-                  {referralData.referrals.map((ref) => (
-                    <div
-                      key={ref.id}
-                      className="bg-background rounded-lg p-3 flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                          <Bitcoin className="w-4 h-4 text-primary" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold">@{ref.username}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(ref.joinedAt).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <Badge 
-                          variant={ref.status === 'active' ? 'default' : 'secondary'}
-                          className="text-xs"
-                        >
-                          {ref.status}
-                        </Badge>
-                        <p className="text-xs font-mono text-accent mt-1">
-                          +${ref.earned}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )}
-          </>
-        )}
-
-        {/* Security Tab */}
-        {activeTab === 'security' && (
-          <Card className="mobile-card">
-            <p className="text-sm font-mono text-muted-foreground mb-3">SECURITY SETTINGS</p>
-            
-            <div className="space-y-3">
-              <div className="bg-background rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Shield className="w-5 h-5 text-primary" />
-                    <p className="font-semibold">Security PIN</p>
-                  </div>
-                  <Badge variant="outline" className="text-xs">
-                    6-DIGIT
-                  </Badge>
-                </div>
-                <p className="text-xs text-muted-foreground mb-3">
-                  Protect your account with a secure PIN
-                </p>
-                <Button
-                  onClick={() => setShowPinDialog(true)}
-                  variant="outline"
-                  size="sm"
-                  className="w-full border-primary text-primary"
-                  data-testid="button-change-pin"
+        {/* Transaction History Section */}
+        <Card className="mobile-card">
+          <p className="text-sm font-mono text-muted-foreground mb-3">RECENT TRANSACTIONS</p>
+          {allTransactions.length > 0 ? (
+            <div className="space-y-2">
+              {allTransactions.map((tx: any) => (
+                <div
+                  key={tx.id}
+                  className="bg-background rounded-lg p-3 flex items-center justify-between"
                 >
-                  Change PIN
-                </Button>
-              </div>
-
-              <div className="bg-background rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Hash className="w-5 h-5 text-chart-4" />
-                    <p className="font-semibold">2FA Authentication</p>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      tx.type === 'deposit' 
+                        ? 'bg-accent/20 text-accent' 
+                        : 'bg-destructive/20 text-destructive'
+                    }`}>
+                      {tx.type === 'deposit' ? (
+                        <ArrowDown className="w-4 h-4" />
+                      ) : (
+                        <ArrowUp className="w-4 h-4" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">
+                        {tx.type === 'deposit' ? 'Deposit' : 'Withdrawal'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(tx.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
                   </div>
-                  <Badge variant="secondary" className="text-xs">
-                    COMING SOON
-                  </Badge>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Enhanced security with two-factor authentication
-                </p>
-              </div>
-
-              <div className="bg-background rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-chart-3" />
-                    <p className="font-semibold">Login History</p>
+                  <div className="text-right">
+                    <p className={`text-sm font-bold ${
+                      tx.type === 'deposit' ? 'text-accent' : 'text-destructive'
+                    }`}>
+                      {tx.type === 'deposit' ? '+' : '-'}${parseFloat(tx.amount).toFixed(2)}
+                    </p>
+                    <Badge 
+                      variant={tx.status === 'approved' ? 'default' : tx.status === 'pending' ? 'secondary' : 'destructive'}
+                      className="text-xs"
+                    >
+                      {tx.status}
+                    </Badge>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground mb-1">
-                  Last login: {new Date().toLocaleDateString()}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  IP: 192.168.1.1
-                </p>
-              </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
+              <p className="text-sm">No transactions yet</p>
+            </div>
+          )}
+          <Button
+            onClick={() => window.location.href = '/transactions'}
+            variant="outline"
+            className="w-full mt-3"
+          >
+            View All Transactions
+          </Button>
+        </Card>
+
+        {/* Referrals Section */}
+        <Card className="mobile-card">
+          <p className="text-sm font-mono text-muted-foreground mb-3">REFERRAL PROGRAM</p>
+          
+          <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg p-4 mb-3 text-center border border-primary/20">
+            <p className="text-2xl font-display font-black text-primary tracking-wider">
+              {referralData?.referralCode || 'LOADING...'}
+            </p>
+            <div className="flex gap-2 mt-3">
+              <Button
+                onClick={copyReferralCode}
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                data-testid="button-copy-code"
+              >
+                <Copy className="w-4 h-4 mr-1" />
+                Copy Code
+              </Button>
+              <Button
+                onClick={copyReferralLink}
+                size="sm"
+                className="flex-1 bg-primary text-primary-foreground"
+                data-testid="button-copy-link"
+              >
+                <Copy className="w-4 h-4 mr-1" />
+                Copy Link
+              </Button>
+            </div>
+          </div>
+
+          {/* Referral Stats */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="bg-background rounded-lg p-3 text-center">
+              <i className="fas fa-users text-chart-4 text-lg mb-1"></i>
+              <p className="text-xs text-muted-foreground">Total</p>
+              <p className="text-lg font-display font-bold">
+                {referralData?.totalReferrals || 0}
+              </p>
+            </div>
+            <div className="bg-background rounded-lg p-3 text-center">
+              <TrendingUp className="w-5 h-5 text-accent mx-auto mb-1" />
+              <p className="text-xs text-muted-foreground">Active</p>
+              <p className="text-lg font-display font-bold">
+                {referralData?.activeReferrals || 0}
+              </p>
+            </div>
+            <div className="bg-background rounded-lg p-3 text-center">
+              <Award className="w-5 h-5 text-yellow-500 mx-auto mb-1" />
+              <p className="text-xs text-muted-foreground">Earned</p>
+              <p className="text-lg font-display font-bold text-accent">
+                ${referralData?.totalEarnings || '0.00'}
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Referral List */}
+        {referralData?.referrals && referralData.referrals.length > 0 && (
+          <Card className="mobile-card">
+            <p className="text-sm font-mono text-muted-foreground mb-3">YOUR REFERRALS</p>
+            <div className="space-y-2">
+              {referralData.referrals.map((ref) => (
+                <div
+                  key={ref.id}
+                  className="bg-background rounded-lg p-3 flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                      <Bitcoin className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">@{ref.username}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(ref.joinedAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <Badge 
+                      variant={ref.status === 'active' ? 'default' : 'secondary'}
+                      className="text-xs"
+                    >
+                      {ref.status}
+                    </Badge>
+                    <p className="text-xs font-mono text-accent mt-1">
+                      +${ref.earned}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </Card>
         )}
+
+        {/* Security Section */}
+        <Card className="mobile-card">
+          <p className="text-sm font-mono text-muted-foreground mb-3">SECURITY SETTINGS</p>
+          
+          <div className="space-y-3">
+            <div className="bg-background rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-primary" />
+                  <p className="font-semibold">Security PIN</p>
+                </div>
+                <Badge variant="outline" className="text-xs">
+                  6-DIGIT
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">
+                Protect your account with a secure PIN
+              </p>
+              <Button
+                onClick={() => setShowPinDialog(true)}
+                variant="outline"
+                size="sm"
+                className="w-full border-primary text-primary"
+                data-testid="button-change-pin"
+              >
+                Change PIN
+              </Button>
+            </div>
+
+            <div className="bg-background rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Hash className="w-5 h-5 text-chart-4" />
+                  <p className="font-semibold">2FA Authentication</p>
+                </div>
+                <Badge variant="secondary" className="text-xs">
+                  COMING SOON
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Enhanced security with two-factor authentication
+              </p>
+            </div>
+
+            <div className="bg-background rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-chart-3" />
+                  <p className="font-semibold">Login History</p>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mb-1">
+                Last login: {new Date().toLocaleDateString()}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                IP: 192.168.1.1
+              </p>
+            </div>
+          </div>
+        </Card>
       </div>
 
       {/* Change PIN Dialog */}
