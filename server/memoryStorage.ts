@@ -61,7 +61,7 @@ export class MemoryStorage implements IStorage {
       hashPower: '100.00',
       baseHashPower: '100.00',
       referralHashBonus: '0.00',
-      gbtcBalance: '0.00000000',
+      gbtcBalance: '50.00000000',  // Added GBTC balance for testing
       unclaimedBalance: '0.00000000',
       totalReferralEarnings: '0.00',
       lastActiveBlock: 0,
@@ -72,6 +72,35 @@ export class MemoryStorage implements IStorage {
     
     this.users.set(adminId, adminUser);
     this.usersByUsername.set('admin', adminId);
+    
+    // Create tempuser for testing
+    const tempUserId = 'user-temp' + randomBytes(6).toString('hex');
+    const tempBuf = (await scryptAsync('123456', salt, 64)) as Buffer;
+    const tempHashedPassword = `${tempBuf.toString("hex")}.${salt}`;
+    
+    const tempUser: User = {
+      id: tempUserId,
+      username: 'tempuser',
+      password: tempHashedPassword,
+      referralCode: 'TEMP1234',
+      referredBy: undefined,
+      usdtBalance: '1000.00',
+      hashPower: '10.00',
+      baseHashPower: '10.00',
+      referralHashBonus: '0.00',
+      gbtcBalance: '5.00000000',
+      unclaimedBalance: '0.00000000',
+      totalReferralEarnings: '0.00',
+      lastActiveBlock: 0,
+      isAdmin: false,
+      isFrozen: false,
+      createdAt: new Date()
+    };
+    
+    this.users.set(tempUserId, tempUser);
+    this.usersByUsername.set('tempuser', tempUserId);
+    
+    console.log('Test user created: username: tempuser, PIN: 123456');
     
     // Initialize system settings
     this.systemSettings.set('blockReward-1', {
@@ -88,7 +117,9 @@ export class MemoryStorage implements IStorage {
       updatedAt: new Date()
     });
     
-    console.log('Memory storage initialized with default admin user (username: admin, PIN: 123456)');
+    console.log('Memory storage initialized with default users:');
+    console.log('- Admin: username: admin, PIN: 123456, GBTC: 50, USDT: 10000');
+    console.log('- Test User: username: tempuser, PIN: 123456, GBTC: 5, USDT: 1000');
   }
 
   async getUser(id: string): Promise<User | undefined> {

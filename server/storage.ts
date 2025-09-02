@@ -675,7 +675,9 @@ async function initializeStorage() {
     isUsingMemoryStorage = false;
   } else {
     console.log('Database unavailable - using in-memory storage (data will be lost on restart)');
-    console.log('Note: Default admin account created - username: admin, PIN: 123456');
+    console.log('Note: Default accounts created:');
+    console.log('- Admin: username: admin, PIN: 123456, GBTC: 50, USDT: 10000');
+    console.log('- Test User: username: tempuser, PIN: 123456, GBTC: 5, USDT: 1000');
     storage = new MemoryStorage();
     isUsingMemoryStorage = true;
   }
@@ -695,7 +697,9 @@ export async function initStorage() {
     isUsingMemoryStorage = false;
   } else {
     console.log('Database unavailable - using in-memory storage (data will be lost on restart)');
-    console.log('Note: Default admin account created - username: admin, PIN: 123456');
+    console.log('Note: Default accounts created:');
+    console.log('- Admin: username: admin, PIN: 123456, GBTC: 50, USDT: 10000');
+    console.log('- Test User: username: tempuser, PIN: 123456, GBTC: 5, USDT: 1000');
     storage = new MemoryStorage();
     isUsingMemoryStorage = true;
   }
