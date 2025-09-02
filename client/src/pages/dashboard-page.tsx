@@ -206,7 +206,7 @@ export default function DashboardPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground font-mono">UNCLAIMED</p>
+                  <p className="text-sm text-muted-foreground font-mono">PENDING_REWARDS</p>
                   <p className="text-2xl font-display font-black text-chart-3" data-testid="text-unclaimed-rewards">
                     {parseFloat(user.unclaimedBalance || '0').toFixed(4)}
                   </p>
@@ -380,21 +380,19 @@ export default function DashboardPage() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <i className="fas fa-pickaxe text-primary mr-3"></i>
-                  Mining Status
+                  Mining Operations
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Block Reward:</span>
-                    <span className="font-semibold text-primary">6.25 GBTC</span>
+                    <span className="text-muted-foreground">Current Block:</span>
+                    <span className="font-semibold text-primary">#2</span>
                   </div>
                   
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Unclaimed Rewards:</span>
-                    <span className="font-semibold text-accent" data-testid="text-unclaimed-mining">
-                      {parseFloat(user.unclaimedBalance || '0').toFixed(4)} GBTC
-                    </span>
+                    <span className="text-muted-foreground">Block Reward:</span>
+                    <span className="font-semibold text-chart-4">6.25 GBTC</span>
                   </div>
                   
                   <div className="pt-4 border-t border-border">
@@ -409,7 +407,7 @@ export default function DashboardPage() {
                       ) : (
                         <i className="fas fa-coins mr-2"></i>
                       )}
-                      Claim Rewards
+                      Claim {parseFloat(user.unclaimedBalance || '0').toFixed(4)} GBTC
                     </Button>
                   </div>
                 </div>
@@ -423,20 +421,26 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <Button className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/80">
-                    <i className="fas fa-chart-line mr-2"></i>
-                    View Statistics
-                  </Button>
+                  <Link href="/withdraw">
+                    <Button className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                      <i className="fas fa-arrow-up mr-2"></i>
+                      Withdraw Funds
+                    </Button>
+                  </Link>
                   
-                  <Button className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/80">
-                    <i className="fas fa-history mr-2"></i>
-                    Transaction History
-                  </Button>
+                  <Link href="/transactions">
+                    <Button className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                      <i className="fas fa-history mr-2"></i>
+                      Transaction History
+                    </Button>
+                  </Link>
                   
-                  <Button className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/80">
-                    <i className="fas fa-download mr-2"></i>
-                    Withdraw GBTC
-                  </Button>
+                  <Link href="/account">
+                    <Button className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                      <i className="fas fa-user mr-2"></i>
+                      My Account
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>
