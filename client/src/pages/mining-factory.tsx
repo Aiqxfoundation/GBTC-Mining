@@ -247,16 +247,6 @@ export default function MiningFactory() {
             GBTC BLOCKCHAIN NETWORK
           </p>
         </div>
-        <div className="text-right">
-          <div className="flex flex-col items-end">
-            <span className="text-xs font-mono text-muted-foreground">
-              Block #{globalStats?.blockHeight || 0}
-            </span>
-            <span className="text-xs font-mono text-muted-foreground">
-              Reward: {globalStats?.currentBlockReward || 50} GBTC
-            </span>
-          </div>
-        </div>
       </div>
 
       <div className="mobile-content">
