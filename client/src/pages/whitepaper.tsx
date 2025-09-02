@@ -238,40 +238,6 @@ export default function Whitepaper() {
     </div>
     
     <div class="section">
-        <h2>💰 Deposit & Withdrawal System</h2>
-        
-        <div class="feature-grid">
-            <div class="feature">
-                <h4>📥 USDT Deposit</h4>
-                <div style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 10px;">
-                    <p style="color: #fbbf24; font-weight: bold; margin-bottom: 10px;">Send USDT to Platform Address:</p>
-                    <ul style="font-size: 14px;">
-                        <li>✅ BEP20 Network (BSC)</li>
-                        <li>✅ ERC20 Network (Ethereum)</li>
-                        <li>📊 Minimum: $50 USDT</li>
-                        <li>⚡ Processing: Instant after confirmation</li>
-                    </ul>
-                    <p style="color: #888; font-size: 12px; margin-top: 10px;">*Deposit address provided after login</p>
-                </div>
-            </div>
-            
-            <div class="feature">
-                <h4>📤 USDT Withdrawal</h4>
-                <div style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 10px;">
-                    <p style="color: #fbbf24; font-weight: bold; margin-bottom: 10px;">Withdraw to Your Wallet:</p>
-                    <ul style="font-size: 14px;">
-                        <li>💵 Minimum: $50 USDT</li>
-                        <li>🏷️ Network Fee: $2 USDT</li>
-                        <li>⏱️ Processing: 24-48 hours</li>
-                        <li>🔒 Security verification required</li>
-                    </ul>
-                    <p style="color: #888; font-size: 12px; margin-top: 10px;">*Withdrawals undergo manual review for security</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="section">
         <h2>🔄 P2P Transfer & Trading (Pre-TGE)</h2>
         
         <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #f7931a; margin-bottom: 20px;">
