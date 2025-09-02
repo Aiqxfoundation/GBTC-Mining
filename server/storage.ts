@@ -36,11 +36,13 @@ export interface IStorage {
   updateUser(userId: string, updates: Partial<User>): Promise<void>;
   freezeUser(userId: string): Promise<void>;
   unfreezeUser(userId: string): Promise<void>;
+  getAllUsers(): Promise<User[]>;
+  updateUserBalances(userId: string, balances: { usdtBalance?: string; gbtcBalance?: string; hashPower?: string }): Promise<void>;
   
   // Deposit methods
   createDeposit(deposit: InsertDeposit & { userId: string }): Promise<Deposit>;
   getPendingDeposits(): Promise<(Deposit & { user: User })[]>;
-  approveDeposit(depositId: string, adminNote?: string): Promise<void>;
+  approveDeposit(depositId: string, adminNote?: string, actualAmount?: string): Promise<void>;
   rejectDeposit(depositId: string, adminNote?: string): Promise<void>;
   
   // Withdrawal methods
@@ -152,6 +154,22 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, userId));
   }
 
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users).orderBy(desc(users.createdAt));
+  }
+
+  async updateUserBalances(userId: string, balances: { usdtBalance?: string; gbtcBalance?: string; hashPower?: string }): Promise<void> {
+    const updates: any = {};
+    if (balances.usdtBalance !== undefined) updates.usdtBalance = balances.usdtBalance;
+    if (balances.gbtcBalance !== undefined) updates.gbtcBalance = balances.gbtcBalance;
+    if (balances.hashPower !== undefined) updates.hashPower = balances.hashPower;
+    
+    await db
+      .update(users)
+      .set(updates)
+      .where(eq(users.id, userId));
+  }
+
   async createDeposit(deposit: InsertDeposit & { userId: string }): Promise<Deposit> {
     const [newDeposit] = await db
       .insert(deposits)
@@ -174,7 +192,7 @@ export class DatabaseStorage implements IStorage {
     }));
   }
 
-  async approveDeposit(depositId: string, adminNote?: string): Promise<void> {
+  async approveDeposit(depositId: string, adminNote?: string, actualAmount?: string): Promise<void> {
     // Get the deposit first
     const [deposit] = await db
       .select()
@@ -183,20 +201,28 @@ export class DatabaseStorage implements IStorage {
     
     if (!deposit) throw new Error("Deposit not found");
     
-    // Update deposit status
+    // Use actualAmount if provided (admin verified amount), otherwise use original amount
+    const amountToCredit = actualAmount || deposit.amount;
+    
+    // Update deposit status and amount if actualAmount provided
     await db
       .update(deposits)
-      .set({ status: "approved", adminNote, updatedAt: new Date() })
+      .set({ 
+        status: "approved", 
+        adminNote, 
+        amount: amountToCredit,
+        updatedAt: new Date() 
+      })
       .where(eq(deposits.id, depositId));
     
-    // Update user balance
+    // Update user balance with the verified amount
     const [user] = await db
       .select()
       .from(users)
       .where(eq(users.id, deposit.userId));
     
     if (user) {
-      const newBalance = (parseFloat(user.usdtBalance || "0") + parseFloat(deposit.amount)).toFixed(2);
+      const newBalance = (parseFloat(user.usdtBalance || "0") + parseFloat(amountToCredit)).toFixed(2);
       await db
         .update(users)
         .set({ usdtBalance: newBalance })

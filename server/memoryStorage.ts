@@ -146,6 +146,21 @@ export class MemoryStorage implements IStorage {
     }
   }
 
+  async getAllUsers(): Promise<User[]> {
+    return Array.from(this.users.values()).sort((a, b) => 
+      (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0)
+    );
+  }
+
+  async updateUserBalances(userId: string, balances: { usdtBalance?: string; gbtcBalance?: string; hashPower?: string }): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      if (balances.usdtBalance !== undefined) user.usdtBalance = balances.usdtBalance;
+      if (balances.gbtcBalance !== undefined) user.gbtcBalance = balances.gbtcBalance;
+      if (balances.hashPower !== undefined) user.hashPower = balances.hashPower;
+    }
+  }
+
   async createDeposit(deposit: InsertDeposit & { userId: string }): Promise<Deposit> {
     // Check cooldown (72 hours = 259200000 ms)
     const lastRequest = this.lastDepositTime.get(deposit.userId);
@@ -194,17 +209,21 @@ export class MemoryStorage implements IStorage {
     );
   }
 
-  async approveDeposit(depositId: string, adminNote?: string): Promise<void> {
+  async approveDeposit(depositId: string, adminNote?: string, actualAmount?: string): Promise<void> {
     const deposit = this.deposits.get(depositId);
     if (!deposit) throw new Error("Deposit not found");
     
+    // Use actualAmount if provided (admin verified amount), otherwise use original amount
+    const amountToCredit = actualAmount || deposit.amount;
+    
     deposit.status = 'approved';
     deposit.adminNote = adminNote || null;
+    deposit.amount = amountToCredit; // Update with verified amount
     deposit.updatedAt = new Date();
     
     const user = this.users.get(deposit.userId);
     if (user) {
-      const newBalance = (parseFloat(user.usdtBalance || "0") + parseFloat(deposit.amount)).toFixed(2);
+      const newBalance = (parseFloat(user.usdtBalance || "0") + parseFloat(amountToCredit)).toFixed(2);
       user.usdtBalance = newBalance;
     }
   }

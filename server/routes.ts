@@ -53,8 +53,9 @@ export function registerRoutes(app: Express): Server {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      const { adminNote } = req.body;
-      await storage.approveDeposit(req.params.id, adminNote);
+      const { actualAmount, adminNote } = req.body;
+      // Use actualAmount if provided for verification, otherwise use original amount
+      await storage.approveDeposit(req.params.id, adminNote, actualAmount);
       res.json({ message: "Deposit approved" });
     } catch (error) {
       next(error);
@@ -297,6 +298,40 @@ export function registerRoutes(app: Express): Server {
         totalWithdrawals,
         totalHashPower
       });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Get all users for admin
+  app.get("/api/admin/users", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated() || !req.user!.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Update user balances
+  app.patch("/api/admin/users/:userId/balances", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated() || !req.user!.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { usdtBalance, gbtcBalance, hashPower } = req.body;
+      await storage.updateUserBalances(req.params.userId, {
+        usdtBalance,
+        gbtcBalance,
+        hashPower
+      });
+      
+      res.json({ message: "User balances updated successfully" });
     } catch (error) {
       next(error);
     }
