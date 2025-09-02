@@ -14,8 +14,10 @@ export function setupMining() {
     console.log('Mining initialization will retry automatically');
   });
   
-  // Generate a new block AND distribute rewards every hour
-  cron.schedule("0 * * * *", async () => {
+  // Generate a new block AND distribute rewards every 5 minutes for testing
+  // Change back to "0 * * * *" for production (hourly)
+  cron.schedule("*/5 * * * *", async () => {
+    console.log('Running scheduled block generation and reward distribution...');
     await generateBlock();
     await distributeRewards();
   });
@@ -27,6 +29,13 @@ export function setupMining() {
   
   // Check for reset on startup
   checkAndPerformDailyReset();
+  
+  // Generate an initial block after 10 seconds to kickstart the system
+  setTimeout(async () => {
+    console.log('Generating initial block to kickstart mining system...');
+    await generateBlock();
+    await distributeRewards();
+  }, 10000);
 }
 
 async function checkAndPerformDailyReset() {
@@ -193,37 +202,23 @@ async function distributeRewards() {
     // Get all users with hash power
     const allUsers = await db.select().from(users);
     
-    // Filter users who are eligible for rewards (active in mining)
+    // Filter users who are eligible for rewards (have hash power)
     const eligibleUsers = allUsers.filter(u => {
       const hashPower = parseFloat(u.hashPower || "0");
-      const lastActiveBlock = u.lastActiveBlock;
       
-      // User must have hash power
-      if (hashPower <= 0) return false;
-      
-      // For strict participation: user must have been active in the previous block
-      // If lastActiveBlock is null/undefined, they haven't participated yet
-      // If lastActiveBlock is less than currentBlock - 1, they missed the previous block
-      if (lastActiveBlock === undefined || lastActiveBlock === null) {
-        // New miners must wait for next block
-        return false;
-      }
-      
-      // User must have been active in recent blocks (within last 2 blocks for some leniency)
-      if (lastActiveBlock < currentBlock - 2) {
-        return false;
-      }
-      
-      return true;
+      // User must have hash power to be eligible
+      return hashPower > 0;
     });
     
     // Recalculate total eligible hash power
     const eligibleHashPower = eligibleUsers.reduce((sum, u) => sum + parseFloat(u.hashPower || "0"), 0);
     
     if (eligibleHashPower === 0) {
-      console.log(`No eligible miners for block ${currentBlock}`);
+      console.log(`No eligible miners for block ${currentBlock} - no users have hash power`);
       return;
     }
+    
+    console.log(`Found ${eligibleUsers.length} eligible miners with total hash power: ${eligibleHashPower} GH/s`);
     
     // Create unclaimed blocks for each eligible user based on their hash power share
     for (const user of eligibleUsers) {
@@ -242,6 +237,8 @@ async function distributeRewards() {
           txHash,
           userReward
         );
+        
+        console.log(`Reward created for user ${user.username}: ${userReward} GBTC (${userHashPower} GH/s)`);
       }
     }
     

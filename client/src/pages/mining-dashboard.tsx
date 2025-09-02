@@ -57,7 +57,7 @@ export default function MiningDashboard() {
   const baseGlobalHashrate = 584732.50; // Base global hashrate in GH/s
   const networkGrowthRate = 1.0012; // 0.12% hourly growth to simulate network expansion
   const currentHour = new Date().getHours();
-  const globalHashrate = baseGlobalHashrate * Math.pow(networkGrowthRate, currentHour);
+  const globalHashrate = Math.round(baseGlobalHashrate * Math.pow(networkGrowthRate, currentHour) * 100) / 100;
 
   // Block timer countdown and coin generation
   useEffect(() => {
@@ -98,9 +98,9 @@ export default function MiningDashboard() {
 
   // Fair distribution formula: Your reward = (Your hashpower / Total hashpower) × Block reward
   const currentBlockReward = 50; // GBTC per block
-  const myMiningShare = myHashrate > 0 ? (myHashrate / globalHashrate) * 100 : 0; // Percentage
-  const myEstimatedReward = (myHashrate / globalHashrate) * currentBlockReward; // GBTC per block
-  const dailyEstimatedRewards = myEstimatedReward * 24; // 24 blocks per day (1 block per hour)
+  const myMiningShare = myHashrate > 0 ? Math.round((myHashrate / globalHashrate) * 100 * 1000000) / 1000000 : 0; // Percentage with 6 decimals precision
+  const myEstimatedReward = Math.round((myHashrate / globalHashrate) * currentBlockReward * 100000000) / 100000000; // GBTC per block with 8 decimals
+  const dailyEstimatedRewards = Math.round(myEstimatedReward * 24 * 10000) / 10000; // 24 blocks per day with 4 decimals
   const unclaimedGBTC = parseFloat(user?.unclaimedBalance || '0');
   const isNewUser = myHashrate === 0;
 
@@ -355,16 +355,6 @@ export default function MiningDashboard() {
               <div className="text-xs text-muted-foreground">Daily Est.</div>
             </div>
           </div>
-          
-          {/* Fair Distribution Formula */}
-          <div className="p-2 bg-primary/5 rounded-lg border border-primary/20">
-            <div className="text-xs text-muted-foreground text-center">
-              <span className="font-semibold">Fair Distribution Formula:</span>
-              <div className="font-mono mt-1 text-primary">
-                ({myHashrate.toFixed(2)} GH/s ÷ {globalHashrate.toFixed(0)} GH/s) × 50 GBTC = {myEstimatedReward.toFixed(6)} GBTC/block
-              </div>
-            </div>
-          </div>
         </Card>
 
         {/* Supply Metrics Card */}
@@ -420,7 +410,7 @@ export default function MiningDashboard() {
             <div className="mt-3 p-2 bg-primary/5 rounded-lg border border-primary/20">
               <div className="text-xs text-muted-foreground text-center">
                 <span className="font-semibold">Max Supply:</span>
-                <span className="font-mono ml-2 text-primary">{parseFloat(supplyMetrics.maxSupply).toLocaleString()} GBTC</span>
+                <span className="font-mono ml-2 text-primary">2,100,000 GBTC</span>
               </div>
             </div>
           </Card>
