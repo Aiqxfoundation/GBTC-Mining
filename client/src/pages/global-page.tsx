@@ -218,9 +218,6 @@ export default function GlobalPage() {
                   <div className="h-full bg-white/20 animate-pulse"></div>
                 </motion.div>
               </div>
-              <div className="mt-2 text-xs text-gray-500">
-                🏁 Exchange listing at 25% (5.25M GBTC)
-              </div>
             </div>
             
             <div className="grid grid-cols-3 gap-2">

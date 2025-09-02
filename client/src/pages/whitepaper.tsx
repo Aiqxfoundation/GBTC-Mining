@@ -651,20 +651,11 @@ export default function Whitepaper() {
                     • Expanding user base through referrals<br/>
                     • Mining optimization and improvements<br/>
                     • Community building and education<br/>
-                    • Reaching 25% of total supply mined
+                    • Continuous network growth
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-primary font-semibold">Phase 3: Exchange Listing (At 25% Mined)</p>
-                  <p className="text-sm text-muted-foreground">
-                    • GBTC token becomes tradeable<br/>
-                    • Exchange partnerships established<br/>
-                    • External withdrawals enabled<br/>
-                    • Market price discovery begins
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-primary font-semibold">Phase 4: Ecosystem Expansion</p>
+                  <p className="text-xs text-primary font-semibold">Phase 3: Ecosystem Expansion</p>
                   <p className="text-sm text-muted-foreground">
                     • Additional use cases for GBTC<br/>
                     • Partnership integrations<br/>
