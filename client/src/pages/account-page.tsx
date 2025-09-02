@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Copy, LogOut } from "lucide-react";
+import { Shield, Copy, LogOut, User, Gift, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -102,124 +102,140 @@ export default function AccountPage() {
     }
   };
 
+  const copyReferralLink = () => {
+    const link = `${window.location.origin}/register?ref=${referralData?.referralCode}`;
+    navigator.clipboard.writeText(link);
+    toast({ 
+      title: "Copied!", 
+      description: "Referral link copied to clipboard" 
+    });
+  };
+
   return (
-    <div className="mobile-page">
+    <div className="mobile-page bg-gradient-to-b from-background via-background to-primary/5">
       {/* Header */}
-      <div className="mobile-header">
+      <div className="mobile-header border-b border-primary/20">
         <h1 className="text-lg font-display font-bold text-primary">ACCOUNT</h1>
-        <div className="text-right">
-          <p className="text-xs text-muted-foreground font-mono">BALANCE</p>
-          <p className="text-sm font-display font-bold text-accent">
-            ${parseFloat(user?.usdtBalance || '0').toFixed(2)}
-          </p>
-        </div>
       </div>
 
       {/* Content */}
       <div className="mobile-content">
-        {/* User Info Card */}
-        <Card className="mobile-card bg-gradient-to-br from-primary/5 to-background">
-          <div className="text-center mb-4">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-chart-4 mx-auto mb-3 flex items-center justify-center">
-              <span className="text-3xl font-display font-bold text-background">
-                {user?.username?.[0]?.toUpperCase() || 'U'}
-              </span>
+        {/* Compact User Card */}
+        <div className="bg-gradient-to-r from-primary/10 via-chart-4/10 to-primary/10 rounded-lg p-4 mb-4 border border-primary/20">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-chart-4 flex items-center justify-center">
+              <User className="w-6 h-6 text-background" />
             </div>
-            <h2 className="text-xl font-display font-bold">@{user?.username}</h2>
-            {user?.isAdmin && (
-              <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/30 mt-2">
-                ADMINISTRATOR
-              </Badge>
-            )}
-          </div>
-
-          {/* Wallet Info */}
-          <div className="grid grid-cols-3 gap-3 mb-4">
-            <div className="text-center">
-              <p className="text-xs text-muted-foreground mb-1">USDT</p>
-              <p className="text-lg font-display font-bold text-accent">
-                ${parseFloat(user?.usdtBalance || '0').toFixed(0)}
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-xs text-muted-foreground mb-1">GBTC</p>
-              <p className="text-lg font-display font-bold text-primary">
-                {parseFloat(user?.gbtcBalance || '0').toFixed(2)}
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-xs text-muted-foreground mb-1">POWER</p>
-              <p className="text-lg font-display font-bold text-chart-4">
-                {parseFloat(user?.hashPower || '0').toFixed(0)}
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <p className="text-lg font-display font-bold">@{user?.username}</p>
+                {user?.isAdmin && (
+                  <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/30 text-xs px-2 py-0">
+                    ADMIN
+                  </Badge>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground font-mono">
+                ID: {user?.id?.slice(0, 8)}...
               </p>
             </div>
           </div>
-        </Card>
+        </div>
 
-        {/* Referral Code Card */}
-        <Card className="mobile-card">
-          <p className="text-sm font-mono text-muted-foreground mb-3">REFERRAL CODE</p>
-          
-          <div className="bg-gradient-to-r from-primary/20 to-primary/10 rounded-lg p-4 border border-primary/30">
+        {/* Compact Options Grid */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          {/* Referral Code */}
+          <Card className="p-3 bg-gradient-to-br from-background to-primary/5 border-primary/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Gift className="w-4 h-4 text-primary" />
+              <p className="text-xs font-semibold text-muted-foreground">REFERRAL</p>
+            </div>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-display font-black text-primary tracking-wider">
-                  {referralData?.referralCode || 'LOADING...'}
+                <p className="text-sm font-display font-bold text-primary">
+                  {referralData?.referralCode || '------'}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {referralData?.totalReferrals || 0} referrals • ${referralData?.totalEarnings || '0.00'} earned
+                <p className="text-xs text-muted-foreground">
+                  {referralData?.totalReferrals || 0} refs
                 </p>
               </div>
               <Button
                 onClick={copyReferralCode}
                 variant="ghost"
                 size="icon"
-                className="text-primary hover:text-primary/80"
+                className="h-8 w-8"
                 data-testid="button-copy-code"
               >
-                <Copy className="w-5 h-5" />
+                <Copy className="w-3 h-3" />
               </Button>
             </div>
-          </div>
-        </Card>
+          </Card>
 
-        {/* Security PIN Card */}
-        <Card className="mobile-card">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Shield className="w-5 h-5 text-primary" />
-              </div>
+          {/* Security PIN */}
+          <Card className="p-3 bg-gradient-to-br from-background to-chart-4/5 border-chart-4/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Lock className="w-4 h-4 text-chart-4" />
+              <p className="text-xs font-semibold text-muted-foreground">SECURITY</p>
+            </div>
+            <div className="flex items-center justify-between">
               <div>
-                <p className="font-semibold">Security PIN</p>
-                <p className="text-xs text-muted-foreground">6-digit security code</p>
+                <p className="text-sm font-semibold">PIN</p>
+                <p className="text-xs text-muted-foreground">6-digit</p>
               </div>
+              <Button
+                onClick={() => setShowPinDialog(true)}
+                variant="ghost"
+                size="sm"
+                className="h-8 px-3 text-xs"
+                data-testid="button-change-pin"
+              >
+                Change
+              </Button>
+            </div>
+          </Card>
+        </div>
+
+        {/* Referral Stats */}
+        <Card className="mobile-card bg-gradient-to-r from-primary/5 to-accent/5 border-primary/10">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">REFERRAL EARNINGS</p>
+              <p className="text-xl font-display font-bold text-accent">
+                ${referralData?.totalEarnings || '0.00'}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-muted-foreground mb-1">ACTIVE</p>
+              <p className="text-xl font-display font-bold text-primary">
+                {referralData?.activeReferrals || 0}
+              </p>
             </div>
             <Button
-              onClick={() => setShowPinDialog(true)}
+              onClick={copyReferralLink}
               variant="outline"
               size="sm"
-              className="border-primary text-primary"
-              data-testid="button-change-pin"
+              className="border-primary/30 text-primary"
             >
-              Change
+              <Copy className="w-3 h-3 mr-1" />
+              Link
             </Button>
           </div>
         </Card>
 
+        {/* Spacer */}
+        <div className="flex-1"></div>
+
         {/* Logout Button */}
-        <Card className="mobile-card">
-          <Button
-            onClick={() => logoutMutation.mutate()}
-            variant="destructive"
-            className="w-full"
-            disabled={logoutMutation.isPending}
-            data-testid="button-logout"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            LOGOUT
-          </Button>
-        </Card>
+        <Button
+          onClick={() => logoutMutation.mutate()}
+          variant="destructive"
+          className="w-full"
+          disabled={logoutMutation.isPending}
+          data-testid="button-logout"
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          LOGOUT
+        </Button>
       </div>
 
       {/* Change PIN Dialog */}
