@@ -111,15 +111,6 @@ export default function AccountPage() {
     }
   };
 
-  const copyReferralLink = () => {
-    const link = `${window.location.origin}/register?ref=${referralData?.referralCode}`;
-    navigator.clipboard.writeText(link);
-    toast({ 
-      title: "Copied", 
-      description: "Referral link copied" 
-    });
-  };
-
   return (
     <div className="mobile-page">
       {/* Header */}
@@ -275,15 +266,6 @@ export default function AccountPage() {
                 <Users className="w-12 h-12 mx-auto mb-3 opacity-30" />
                 <p>No referrals yet</p>
                 <p className="text-xs mt-2">Share your code to earn commissions</p>
-                <Button
-                  onClick={copyReferralLink}
-                  variant="outline"
-                  size="sm"
-                  className="mt-3"
-                >
-                  <Copy className="w-3 h-3 mr-1" />
-                  Copy Referral Link
-                </Button>
               </div>
             )}
           </div>
