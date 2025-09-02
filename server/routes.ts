@@ -544,13 +544,37 @@ export function registerRoutes(app: Express): Server {
       // Get user's referral code
       const referralCode = user.referralCode || user.username.toUpperCase().slice(0, 6);
 
-      // Mock referral data for now (in production, this would query actual referrals)
+      // Get all users referred by this user
+      const referredUsers = await storage.getUsersByReferralCode(referralCode);
+      
+      // Calculate stats
+      const totalReferrals = referredUsers.length;
+      const activeReferrals = referredUsers.filter(u => parseFloat(u.hashPower) > 0).length;
+      
+      // Calculate total earnings from referrals (5% commission on their deposits)
+      let totalEarnings = 0;
+      for (const referredUser of referredUsers) {
+        // In a real system, we'd track actual commissions from deposits
+        // For now, estimate based on their balance
+        totalEarnings += parseFloat(referredUser.usdtBalance) * 0.05;
+      }
+
+      // Format referral list with details
+      const referrals = referredUsers.map(u => ({
+        id: u.id,
+        username: u.username,
+        joinedAt: u.createdAt,
+        status: parseFloat(u.hashPower) > 0 ? 'mining' : 'inactive',
+        hashPower: u.hashPower,
+        earned: (parseFloat(u.usdtBalance) * 0.05).toFixed(2)
+      }));
+
       const referralData = {
         referralCode: referralCode,
-        totalReferrals: 0,
-        activeReferrals: 0,
-        totalEarnings: "0.00",
-        referrals: []
+        totalReferrals: totalReferrals,
+        activeReferrals: activeReferrals,
+        totalEarnings: totalEarnings.toFixed(2),
+        referrals: referrals
       };
 
       res.json(referralData);

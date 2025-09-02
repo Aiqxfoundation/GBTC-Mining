@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Copy, LogOut } from "lucide-react";
+import { Shield, Copy, LogOut, Users, Activity } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -15,11 +15,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 
 export default function AccountPage() {
   const { user, logoutMutation } = useAuth();
   const { toast } = useToast();
   const [showPinDialog, setShowPinDialog] = useState(false);
+  const [showReferralsDialog, setShowReferralsDialog] = useState(false);
   const [currentPin, setCurrentPin] = useState("");
   const [newPin, setNewPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
@@ -30,6 +32,14 @@ export default function AccountPage() {
     totalReferrals: number;
     activeReferrals: number;
     totalEarnings: string;
+    referrals: Array<{
+      id: string;
+      username: string;
+      joinedAt: string;
+      status: 'mining' | 'inactive';
+      hashPower: string;
+      earned: string;
+    }>;
   }>({
     queryKey: ["/api/referrals"],
     enabled: !!user,
@@ -101,6 +111,15 @@ export default function AccountPage() {
     }
   };
 
+  const copyReferralLink = () => {
+    const link = `${window.location.origin}/register?ref=${referralData?.referralCode}`;
+    navigator.clipboard.writeText(link);
+    toast({ 
+      title: "Copied", 
+      description: "Referral link copied" 
+    });
+  };
+
   return (
     <div className="mobile-page">
       {/* Header */}
@@ -123,14 +142,14 @@ export default function AccountPage() {
           )}
         </div>
 
-        {/* Referral Card */}
-        <Card className="mobile-card bg-gradient-to-br from-primary/5 to-transparent">
+        {/* Referral Code Card */}
+        <Card className="mobile-card bg-gradient-to-br from-primary/5 to-transparent mb-4">
           <div className="text-center">
-            <p className="text-xs text-muted-foreground mb-2">INVITE & EARN</p>
+            <p className="text-xs text-muted-foreground mb-2">YOUR REFERRAL CODE</p>
             
             {/* Referral Code */}
-            <div className="inline-flex items-center gap-2 bg-background rounded-lg px-4 py-2 border border-primary/20 mb-4">
-              <span className="font-mono text-lg font-bold text-primary">
+            <div className="inline-flex items-center gap-2 bg-background rounded-lg px-4 py-2 border border-primary/20 mb-3">
+              <span className="font-mono text-base font-bold text-primary">
                 {referralData?.referralCode || '------'}
               </span>
               <button
@@ -138,26 +157,48 @@ export default function AccountPage() {
                 className="text-primary hover:text-primary/80 transition-colors"
                 data-testid="button-copy-code"
               >
-                <Copy className="w-4 h-4" />
+                <Copy className="w-3 h-3" />
               </button>
             </div>
 
             {/* Stats Row */}
-            <div className="flex justify-center gap-6 text-sm">
+            <div className="flex justify-around text-xs">
               <div>
-                <span className="text-muted-foreground">Invites: </span>
-                <span className="font-bold">{referralData?.totalReferrals || 0}</span>
+                <p className="text-muted-foreground">Total</p>
+                <p className="font-bold text-base">{referralData?.totalReferrals || 0}</p>
               </div>
               <div>
-                <span className="text-muted-foreground">Earned: </span>
-                <span className="font-bold text-accent">${referralData?.totalEarnings || '0'}</span>
+                <p className="text-muted-foreground">Active</p>
+                <p className="font-bold text-base text-primary">{referralData?.activeReferrals || 0}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Earned</p>
+                <p className="font-bold text-base text-accent">${referralData?.totalEarnings || '0'}</p>
               </div>
             </div>
           </div>
         </Card>
 
         {/* Options */}
-        <div className="space-y-3 mt-6">
+        <div className="space-y-3">
+          {/* View Referrals */}
+          <Card 
+            className="mobile-card cursor-pointer hover:border-primary/50 transition-colors"
+            onClick={() => setShowReferralsDialog(true)}
+            data-testid="button-view-referrals"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Users className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="font-semibold">My Referrals</p>
+                  <p className="text-xs text-muted-foreground">View referred users</p>
+                </div>
+              </div>
+              <span className="text-xs text-muted-foreground">›</span>
+            </div>
+          </Card>
+
           {/* Security PIN */}
           <Card 
             className="mobile-card cursor-pointer hover:border-primary/50 transition-colors"
@@ -189,6 +230,65 @@ export default function AccountPage() {
           </Card>
         </div>
       </div>
+
+      {/* Referrals Dialog */}
+      <Dialog open={showReferralsDialog} onOpenChange={setShowReferralsDialog}>
+        <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>My Referrals</DialogTitle>
+            <DialogDescription>
+              Users who joined using your referral code
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-3">
+            {referralData?.referrals && referralData.referrals.length > 0 ? (
+              referralData.referrals.map(ref => (
+                <div key={ref.id} className="p-3 bg-background rounded-lg border">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="font-semibold">@{ref.username}</p>
+                    <Badge 
+                      variant={ref.status === 'mining' ? 'default' : 'secondary'}
+                      className={ref.status === 'mining' ? 'bg-primary/20 text-primary' : ''}
+                    >
+                      {ref.status === 'mining' ? (
+                        <>
+                          <Activity className="w-3 h-3 mr-1" />
+                          Mining
+                        </>
+                      ) : (
+                        'Inactive'
+                      )}
+                    </Badge>
+                  </div>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <p>Joined: {new Date(ref.joinedAt).toLocaleDateString()}</p>
+                    {ref.status === 'mining' && (
+                      <p>Hash Power: {ref.hashPower} TH/s</p>
+                    )}
+                    <p>Commission Earned: ${ref.earned}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Users className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                <p>No referrals yet</p>
+                <p className="text-xs mt-2">Share your code to earn commissions</p>
+                <Button
+                  onClick={copyReferralLink}
+                  variant="outline"
+                  size="sm"
+                  className="mt-3"
+                >
+                  <Copy className="w-3 h-3 mr-1" />
+                  Copy Referral Link
+                </Button>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Change PIN Dialog */}
       <Dialog open={showPinDialog} onOpenChange={setShowPinDialog}>

@@ -9,6 +9,7 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   referralCode: text("referral_code").unique(),
+  referredBy: text("referred_by"), // Referral code of the user who referred them
   usdtBalance: decimal("usdt_balance", { precision: 10, scale: 2 }).default("0.00"),
   hashPower: decimal("hash_power", { precision: 10, scale: 2 }).default("0.00"),
   gbtcBalance: decimal("gbtc_balance", { precision: 18, scale: 8 }).default("0.00000000"),

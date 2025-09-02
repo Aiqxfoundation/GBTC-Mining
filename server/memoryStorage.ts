@@ -96,6 +96,16 @@ export class MemoryStorage implements IStorage {
     return this.users.get(userId);
   }
 
+  async getUsersByReferralCode(referralCode: string): Promise<User[]> {
+    const referredUsers: User[] = [];
+    for (const user of this.users.values()) {
+      if (user.referredBy === referralCode) {
+        referredUsers.push(user);
+      }
+    }
+    return referredUsers;
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const userId = 'user-' + randomBytes(8).toString('hex');
     // Generate unique referral code (6 characters, alphanumeric)
@@ -120,6 +130,7 @@ export class MemoryStorage implements IStorage {
       username: insertUser.username,
       password: insertUser.password,
       referralCode,
+      referredBy: insertUser.referredBy || undefined,
       usdtBalance: '0.00',
       hashPower: '0.00',
       gbtcBalance: '0.00000000',
