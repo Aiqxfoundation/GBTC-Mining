@@ -29,7 +29,6 @@ export default function AdminPage() {
   const [editingDeposit, setEditingDeposit] = useState<any>(null);
   const [editingWithdrawal, setEditingWithdrawal] = useState<any>(null);
   const [actualAmount, setActualAmount] = useState("");
-  const [adminNote, setAdminNote] = useState("");
   const [txHashInput, setTxHashInput] = useState("");
   const [blockRewardInput, setBlockRewardInput] = useState("");
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -75,8 +74,8 @@ export default function AdminPage() {
   });
 
   const approveDepositMutation = useMutation({
-    mutationFn: async ({ id, actualAmount, adminNote }: { id: string; actualAmount: string; adminNote?: string }) => {
-      const res = await apiRequest("PATCH", `/api/deposits/${id}/approve`, { actualAmount, adminNote });
+    mutationFn: async ({ id, actualAmount }: { id: string; actualAmount: string }) => {
+      const res = await apiRequest("PATCH", `/api/deposits/${id}/approve`, { actualAmount });
       return res.json();
     },
     onSuccess: () => {
@@ -86,7 +85,6 @@ export default function AdminPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       setEditingDeposit(null);
       setActualAmount("");
-      setAdminNote("");
     },
     onError: (error: Error) => {
       toast({ title: "Approval failed", description: error.message, variant: "destructive" });
@@ -94,15 +92,14 @@ export default function AdminPage() {
   });
 
   const rejectDepositMutation = useMutation({
-    mutationFn: async ({ id, adminNote }: { id: string; adminNote?: string }) => {
-      const res = await apiRequest("PATCH", `/api/deposits/${id}/reject`, { adminNote });
+    mutationFn: async ({ id }: { id: string }) => {
+      const res = await apiRequest("PATCH", `/api/deposits/${id}/reject`, {});
       return res.json();
     },
     onSuccess: () => {
       toast({ title: "Deposit rejected", description: "The deposit has been rejected." });
       queryClient.invalidateQueries({ queryKey: ["/api/deposits/pending"] });
       setEditingDeposit(null);
-      setAdminNote("");
     },
     onError: (error: Error) => {
       toast({ title: "Rejection failed", description: error.message, variant: "destructive" });
@@ -190,6 +187,7 @@ export default function AdminPage() {
     onSuccess: () => {
       toast({ title: "Withdrawal rejected", description: "The withdrawal request has been rejected." });
       queryClient.invalidateQueries({ queryKey: ["/api/withdrawals/pending"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
       setEditingWithdrawal(null);
     },
     onError: (error: Error) => {
@@ -352,7 +350,7 @@ export default function AdminPage() {
                   <div>
                     <p className="text-xs text-muted-foreground">Withdrawals</p>
                     <p className="text-xl font-bold text-destructive">
-                      {parseFloat(adminStats?.totalWithdrawals || "0").toFixed(0)}
+                      ${parseFloat(adminStats?.totalWithdrawals || "0").toFixed(0)}
                     </p>
                   </div>
                   <ArrowUp className="w-6 h-6 text-destructive" />
@@ -362,7 +360,7 @@ export default function AdminPage() {
               <Card className="mobile-card p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-muted-foreground">Hash Power</p>
+                    <p className="text-xs text-muted-foreground">Hash Purchased</p>
                     <p className="text-xl font-bold text-primary">
                       {parseFloat(adminStats?.totalHashPower || "0").toFixed(0)} TH/s
                     </p>
@@ -450,7 +448,6 @@ export default function AdminPage() {
                         onClick={() => {
                           setEditingDeposit(deposit);
                           setActualAmount("");
-                          setAdminNote("");
                         }}
                         size="sm"
                         className="flex-1"
@@ -458,7 +455,7 @@ export default function AdminPage() {
                         Verify
                       </Button>
                       <Button 
-                        onClick={() => rejectDepositMutation.mutate({ id: deposit.id, adminNote: "Not verified" })}
+                        onClick={() => rejectDepositMutation.mutate({ id: deposit.id })}
                         variant="destructive"
                         size="sm"
                         className="flex-1"
@@ -767,17 +764,6 @@ export default function AdminPage() {
                 />
               </div>
               
-              <div>
-                <Label htmlFor="admin-note">Admin Note</Label>
-                <Textarea
-                  id="admin-note"
-                  placeholder="Optional notes..."
-                  value={adminNote}
-                  onChange={(e) => setAdminNote(e.target.value)}
-                  rows={2}
-                />
-              </div>
-              
               <DialogFooter className="flex gap-2">
                 <Button 
                   onClick={() => setEditingDeposit(null)}
@@ -797,8 +783,7 @@ export default function AdminPage() {
                     }
                     approveDepositMutation.mutate({
                       id: editingDeposit.id,
-                      actualAmount,
-                      adminNote
+                      actualAmount
                     });
                   }}
                   disabled={!actualAmount || approveDepositMutation.isPending}
@@ -832,7 +817,17 @@ export default function AdminPage() {
               
               <div>
                 <Label>Address</Label>
-                <Input value={editingWithdrawal.address} readOnly className="font-mono text-xs" />
+                <div className="flex items-center gap-2">
+                  <Input value={editingWithdrawal.address} readOnly className="font-mono text-xs" />
+                  <Button
+                    onClick={() => handleCopyAddress(editingWithdrawal.address, editingWithdrawal.id)}
+                    size="sm"
+                    variant="outline"
+                    type="button"
+                  >
+                    {copiedAddress === editingWithdrawal.id ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                  </Button>
+                </div>
               </div>
               
               <div>
