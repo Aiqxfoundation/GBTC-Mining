@@ -219,6 +219,86 @@ export default function Whitepaper() {
     </div>
     
     <div class="section">
+        <h2>💸 Referral & Commission System</h2>
+        
+        <div style="background: linear-gradient(135deg, rgba(247,147,26,0.1), rgba(251,191,36,0.1)); padding: 20px; border-radius: 8px; border: 1px solid #f7931a; margin-bottom: 20px;">
+            <h3 style="color: #fbbf24; margin-bottom: 15px;">Earn USDT Income While Mining</h3>
+            <ul style="font-size: 16px;">
+                <li><span class="highlight">10% USDT Commission:</span> Earn instant cash rewards on every deposit made by your referrals</li>
+                <li><span class="highlight">Immediate Income:</span> Commissions credited directly to your USDT balance</li>
+                <li><span class="highlight">No Limits:</span> Build unlimited referral network for passive USDT income</li>
+            </ul>
+        </div>
+        
+        <div class="feature-grid">
+            <div class="feature">
+                <h4>Deposit Conditions</h4>
+                <ul>
+                    <li>Minimum: $50 USDT</li>
+                    <li>Maximum: Unlimited</li>
+                    <li>Processing: Instant</li>
+                    <li>Networks: TRC20, BEP20, ERC20</li>
+                </ul>
+            </div>
+            
+            <div class="feature">
+                <h4>Withdrawal Conditions</h4>
+                <ul>
+                    <li>Minimum: $50 USDT</li>
+                    <li>Fee: $2 USDT</li>
+                    <li>Processing: 24-48 hours</li>
+                    <li>Available: USDT balance only</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="metric" style="text-align: center; background: linear-gradient(135deg, rgba(247,147,26,0.1), rgba(251,191,36,0.1));">
+            <p style="color: #fbbf24; font-weight: bold;">💡 Pro Tip: Your referral earnings in USDT can be withdrawn anytime or reinvested into more hash power for compound growth</p>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>🔄 P2P Transfer & Trading (Pre-TGE)</h2>
+        
+        <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #f7931a; margin-bottom: 20px;">
+            <h3 style="color: #fbbf24;">Trade GBTC Before Official Launch</h3>
+            <p>GBTC supports peer-to-peer transfers between users, enabling an organic secondary market before the Token Generation Event. This creates immediate liquidity and price discovery during the mining phase.</p>
+        </div>
+        
+        <div class="feature">
+            <h4>Instant P2P Transfers</h4>
+            <p>Send GBTC directly to any user within the platform using their username. Transfers are instant and secure.</p>
+        </div>
+        
+        <div class="feature">
+            <h4>Self-Managed Trading</h4>
+            <p>Create your own ask/bid prices for GBTC based on personal deals:</p>
+            <ul>
+                <li>Negotiate prices directly with other miners</li>
+                <li>Execute trades through P2P transfers</li>
+                <li>Build reputation as a trusted trader</li>
+                <li>Benefit from early price appreciation</li>
+            </ul>
+        </div>
+        
+        <div class="feature-grid">
+            <div class="feature">
+                <h4>Benefits for Sellers</h4>
+                <p>Realize profits before TGE by selling mined GBTC to eager buyers at market-determined prices.</p>
+            </div>
+            
+            <div class="feature">
+                <h4>Benefits for Buyers</h4>
+                <p>Accumulate GBTC at potentially lower prices before exchange listings and broader market exposure.</p>
+            </div>
+        </div>
+        
+        <div class="metric" style="text-align: center; background: linear-gradient(135deg, rgba(247,147,26,0.2), rgba(251,191,36,0.2));">
+            <p style="color: #f7931a; font-weight: bold; font-size: 18px;">⚡ P2P Market Active Now - Start Trading GBTC with Other Miners!</p>
+        </div>
+    </div>
+    
+    <div class="section">
         <h2>🌐 Utility & Multi-Chain Expansion</h2>
         
         <p style="font-size: 16px; margin-bottom: 20px;">
@@ -683,11 +763,156 @@ export default function Whitepaper() {
           </Card>
         </motion.div>
 
-        {/* Utility & Multi-Chain Expansion */}
+        {/* Referral & Commission System */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          <Card className="bg-black border-[#f7931a]/20">
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <Users className="w-6 h-6 text-[#f7931a] mr-2" />
+                <h2 className="text-2xl font-bold text-[#f7931a]">Referral & Commission System</h2>
+              </div>
+              
+              <div className="bg-gradient-to-br from-[#f7931a]/10 to-[#fbbf24]/10 p-4 rounded-lg border border-[#f7931a]/30 mb-4">
+                <h3 className="text-lg font-bold text-[#fbbf24] mb-3">Earn USDT Income While Mining</h3>
+                <div className="space-y-3">
+                  <div className="flex items-start">
+                    <span className="text-[#f7931a] mr-2">•</span>
+                    <div>
+                      <p className="text-sm text-gray-300"><span className="font-bold text-[#fbbf24]">10% USDT Commission:</span> Earn instant cash rewards on every deposit made by your referrals</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-[#f7931a] mr-2">•</span>
+                    <div>
+                      <p className="text-sm text-gray-300"><span className="font-bold text-[#fbbf24]">Immediate Income:</span> Commissions credited directly to your USDT balance</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-[#f7931a] mr-2">•</span>
+                    <div>
+                      <p className="text-sm text-gray-300"><span className="font-bold text-[#fbbf24]">No Limits:</span> Build unlimited referral network for passive USDT income</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="bg-[#1a1a1a] p-3 rounded-lg border border-[#333]">
+                  <h4 className="text-[#fbbf24] font-semibold mb-2">Deposit Conditions</h4>
+                  <ul className="text-sm text-gray-400 space-y-1">
+                    <li>• Minimum: $50 USDT</li>
+                    <li>• Maximum: Unlimited</li>
+                    <li>• Processing: Instant</li>
+                    <li>• Networks: TRC20, BEP20, ERC20</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-[#1a1a1a] p-3 rounded-lg border border-[#333]">
+                  <h4 className="text-[#fbbf24] font-semibold mb-2">Withdrawal Conditions</h4>
+                  <ul className="text-sm text-gray-400 space-y-1">
+                    <li>• Minimum: $50 USDT</li>
+                    <li>• Fee: $2 USDT</li>
+                    <li>• Processing: 24-48 hours</li>
+                    <li>• Available: USDT balance only</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div className="mt-4 p-3 bg-[#1a1a1a] rounded-lg border border-[#f7931a]/30">
+                <p className="text-xs text-center text-[#fbbf24]">
+                  💡 <span className="font-bold">Pro Tip:</span> Your referral earnings in USDT can be withdrawn anytime or reinvested into more hash power for compound growth
+                </p>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* P2P Transfer & Trading System */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.7 }}
+        >
+          <Card className="bg-black border-[#f7931a]/20">
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <Activity className="w-6 h-6 text-[#f7931a] mr-2" />
+                <h2 className="text-2xl font-bold text-[#f7931a]">P2P Transfer & Trading (Pre-TGE)</h2>
+              </div>
+              
+              <div className="bg-gradient-to-br from-[#1a1a1a] to-black p-4 rounded-lg border border-[#f7931a]/30 mb-4">
+                <h3 className="text-lg font-bold text-[#fbbf24] mb-2">Trade GBTC Before Official Launch</h3>
+                <p className="text-sm text-gray-300 mb-3">
+                  GBTC supports peer-to-peer transfers between users, enabling an organic secondary market before the Token Generation Event. This creates immediate liquidity and price discovery during the mining phase.
+                </p>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333]">
+                  <div className="flex items-center mb-2">
+                    <ChevronRight className="w-5 h-5 text-[#fbbf24] mr-2" />
+                    <h3 className="font-semibold text-[#fbbf24]">Instant P2P Transfers</h3>
+                  </div>
+                  <p className="text-sm text-gray-400">
+                    Send GBTC directly to any user within the platform using their username. Transfers are instant and secure.
+                  </p>
+                </div>
+                
+                <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333]">
+                  <div className="flex items-center mb-2">
+                    <ChevronRight className="w-5 h-5 text-[#fbbf24] mr-2" />
+                    <h3 className="font-semibold text-[#fbbf24]">Self-Managed Trading</h3>
+                  </div>
+                  <p className="text-sm text-gray-400 mb-2">
+                    Create your own ask/bid prices for GBTC based on personal deals:
+                  </p>
+                  <ul className="text-xs text-gray-500 space-y-1 ml-4">
+                    <li>• Negotiate prices directly with other miners</li>
+                    <li>• Execute trades through P2P transfers</li>
+                    <li>• Build reputation as a trusted trader</li>
+                    <li>• Benefit from early price appreciation</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333]">
+                  <div className="flex items-center mb-2">
+                    <ChevronRight className="w-5 h-5 text-[#fbbf24] mr-2" />
+                    <h3 className="font-semibold text-[#fbbf24]">Trading Benefits</h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="bg-black/50 p-2 rounded">
+                      <p className="text-[#fbbf24] font-semibold">For Sellers:</p>
+                      <p className="text-gray-400">Realize profits before TGE</p>
+                    </div>
+                    <div className="bg-black/50 p-2 rounded">
+                      <p className="text-[#fbbf24] font-semibold">For Buyers:</p>
+                      <p className="text-gray-400">Accumulate at lower prices</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-4 p-3 bg-gradient-to-r from-[#f7931a]/20 to-[#fbbf24]/20 rounded-lg">
+                <p className="text-center text-sm font-bold text-[#f7931a]">
+                  ⚡ P2P Market Active Now
+                </p>
+                <p className="text-center text-xs text-gray-400 mt-1">
+                  Start trading GBTC with other miners - No waiting for TGE!
+                </p>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* Utility & Multi-Chain Expansion */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
         >
           <Card className="bg-black border-[#f7931a]/20">
             <div className="p-6">
@@ -745,7 +970,7 @@ export default function Whitepaper() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.7 }}
+          transition={{ duration: 0.5, delay: 0.9 }}
         >
           <Card className="bg-black border-[#f7931a]/20">
             <div className="p-6">
@@ -815,7 +1040,7 @@ export default function Whitepaper() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
+          transition={{ duration: 0.5, delay: 1.0 }}
         >
           <Card className="bg-black border-[#f7931a]/20">
             <div className="p-6">
@@ -871,7 +1096,7 @@ export default function Whitepaper() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.9 }}
+          transition={{ duration: 0.5, delay: 1.1 }}
         >
           <Card className="bg-black border-[#f7931a]/20">
             <div className="p-6">
@@ -913,7 +1138,7 @@ export default function Whitepaper() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1.0 }}
+          transition={{ duration: 0.5, delay: 1.2 }}
         >
           <Button 
             onClick={downloadWhitepaper}
