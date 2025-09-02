@@ -39,7 +39,6 @@ export default function Whitepaper() {
         <div class="logo">₿</div>
         <h1 style="border: none; margin: 0;">GREEN BITCOIN (GBTC)</h1>
         <p style="color: #fbbf24; font-size: 18px; margin-top: 10px;">Decentralized Mining Infrastructure</p>
-        <p style="color: #888; font-size: 14px;">Version 2.0 | January 2025</p>
     </div>
     
     <div class="vision">OUR VISION</div>
@@ -51,7 +50,7 @@ export default function Whitepaper() {
         </p>
         
         <p style="font-size: 18px; text-align: center; line-height: 1.8; margin-top: 20px;">
-            Our mission is simple: make mining accessible to everyone, everywhere. By leveraging cloud-based hash power and smart distribution algorithms, we're creating a fair and transparent ecosystem where success isn't determined by capital alone, but by strategic participation and network growth.
+            Our mission is simple: make mining accessible to everyone, everywhere. By leveraging distributed hash power and smart distribution algorithms, we're creating a fair and transparent ecosystem where success isn't determined by capital alone, but by strategic participation and network growth.
         </p>
         
         <p style="text-align: center; font-size: 20px; color: #f7931a; font-weight: bold; margin-top: 30px;">
@@ -76,7 +75,7 @@ export default function Whitepaper() {
             <div class="feature">
                 <h4>Smart Mining System</h4>
                 <ul>
-                    <li>Cloud-based hash power</li>
+                    <li>Distributed hash power</li>
                     <li>Proportional reward distribution</li>
                     <li>Real-time network adjustments</li>
                     <li>Automated mining operations</li>
@@ -138,56 +137,6 @@ export default function Whitepaper() {
         </ul>
     </div>
     
-    <div class="section">
-        <h2>💎 Economic Model</h2>
-        
-        <div class="feature-grid">
-            <div class="feature">
-                <h4>Supply Metrics</h4>
-                <ul>
-                    <li>Total Supply: 21,000,000 GBTC</li>
-                    <li>Initial Block Reward: 6.25 GBTC</li>
-                    <li>Halving Schedule: Every 210,000 blocks</li>
-                    <li>Final GBTC: Year 2140 (estimated)</li>
-                </ul>
-            </div>
-            
-            <div class="feature">
-                <h4>Mining Economics</h4>
-                <ul>
-                    <li>Block Time: 10 minutes</li>
-                    <li>Daily Production: 900 GBTC (pre-halving)</li>
-                    <li>Annual Production: 328,500 GBTC</li>
-                    <li>Network Difficulty: Auto-adjusting</li>
-                </ul>
-            </div>
-        </div>
-        
-        <h3>Reward Distribution Algorithm</h3>
-        <p>Every 10 minutes, our system generates a new block and distributes rewards proportionally among all active miners. The distribution is transparent, verifiable, and immutable.</p>
-        
-        <div class="metric">
-            <strong>Example:</strong> With 100 TH/s personal hash power in a 1,000 TH/s network, you receive 10% of each block reward (0.625 GBTC per block).
-        </div>
-    </div>
-    
-    <div class="section">
-        <h2>🌐 Network Architecture</h2>
-        
-        <h3>Decentralized Infrastructure</h3>
-        <p>Green Bitcoin operates on a distributed architecture ensuring no single point of failure. Our cloud-based mining infrastructure provides enterprise-grade reliability with consumer accessibility.</p>
-        
-        <h3>Transaction System</h3>
-        <ul>
-            <li><span class="highlight">USDT Integration:</span> Seamless fiat gateway for hash power purchases</li>
-            <li><span class="highlight">Instant Processing:</span> Real-time transaction confirmation</li>
-            <li><span class="highlight">Withdrawal Flexibility:</span> Commission earnings available for withdrawal anytime</li>
-            <li><span class="highlight">Minimum Thresholds:</span> $10 minimum deposit, $50 minimum withdrawal</li>
-        </ul>
-        
-        <h3>Security Framework</h3>
-        <p>Built with security-first principles, our platform employs industry-standard encryption, session management, and multi-layer authentication to protect user assets and data.</p>
-    </div>
     
     <div class="section">
         <h2>🎯 Strategic Advantages</h2>
@@ -195,7 +144,7 @@ export default function Whitepaper() {
         <div class="feature-grid">
             <div class="feature">
                 <h4>Zero Hardware Investment</h4>
-                <p>No need for expensive mining rigs, cooling systems, or technical maintenance. Access professional mining capabilities through our cloud infrastructure.</p>
+                <p>No need for expensive mining rigs, cooling systems, or technical maintenance. Access professional mining capabilities through our infrastructure.</p>
             </div>
             
             <div class="feature">
@@ -297,9 +246,6 @@ export default function Whitepaper() {
               <p className="text-lg text-[#fbbf24]">
                 Decentralized Mining Infrastructure
               </p>
-              <p className="text-sm text-gray-500 mt-2">
-                Version 2.0 | January 2025
-              </p>
             </div>
           </Card>
         </motion.div>
@@ -323,7 +269,7 @@ export default function Whitepaper() {
                   Green Bitcoin represents the next evolution in cryptocurrency mining - a platform that eliminates traditional barriers to entry. We've built a decentralized infrastructure where anyone can participate in mining without expensive hardware, technical expertise, or operational overhead.
                 </p>
                 <p>
-                  Our mission is simple: make mining accessible to everyone, everywhere. By leveraging cloud-based hash power and smart distribution algorithms, we're creating a fair and transparent ecosystem where success isn't determined by capital alone, but by strategic participation and network growth.
+                  Our mission is simple: make mining accessible to everyone, everywhere. By leveraging distributed hash power and smart distribution algorithms, we're creating a fair and transparent ecosystem where success isn't determined by capital alone, but by strategic participation and network growth.
                 </p>
                 <p className="text-center text-xl font-bold text-[#f7931a] mt-6">
                   Build. Mine. Prosper. Together.
@@ -366,7 +312,7 @@ export default function Whitepaper() {
                     <h3 className="font-semibold text-[#fbbf24]">Smart Mining System</h3>
                   </div>
                   <ul className="text-sm text-gray-400 space-y-1">
-                    <li>• Cloud-based hash power</li>
+                    <li>• Distributed hash power</li>
                     <li>• Proportional reward distribution</li>
                     <li>• Real-time network adjustments</li>
                     <li>• Automated mining operations</li>
@@ -479,99 +425,12 @@ export default function Whitepaper() {
           </Card>
         </motion.div>
 
-        {/* Economic Model */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <Card className="bg-black border-[#f7931a]/20">
-            <div className="p-6">
-              <div className="flex items-center mb-4">
-                <TrendingUp className="w-6 h-6 text-[#f7931a] mr-2" />
-                <h2 className="text-2xl font-bold text-[#f7931a]">Economic Model</h2>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="bg-[#1a1a1a] p-3 rounded-lg">
-                  <p className="text-xs text-gray-500">Total Supply</p>
-                  <p className="text-lg font-bold text-[#fbbf24]">21,000,000 GBTC</p>
-                </div>
-                <div className="bg-[#1a1a1a] p-3 rounded-lg">
-                  <p className="text-xs text-gray-500">Block Reward</p>
-                  <p className="text-lg font-bold text-[#fbbf24]">6.25 GBTC</p>
-                </div>
-                <div className="bg-[#1a1a1a] p-3 rounded-lg">
-                  <p className="text-xs text-gray-500">Block Time</p>
-                  <p className="text-lg font-bold text-[#fbbf24]">10 Minutes</p>
-                </div>
-                <div className="bg-[#1a1a1a] p-3 rounded-lg">
-                  <p className="text-xs text-gray-500">Daily Production</p>
-                  <p className="text-lg font-bold text-[#fbbf24]">900 GBTC</p>
-                </div>
-              </div>
-              
-              <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333]">
-                <h3 className="text-[#fbbf24] font-semibold mb-2">Reward Distribution Example</h3>
-                <p className="text-gray-400 text-sm">
-                  With 100 TH/s personal hash power in a 1,000 TH/s network, you receive 10% of each block reward (0.625 GBTC per block).
-                </p>
-              </div>
-            </div>
-          </Card>
-        </motion.div>
-
-        {/* Network Architecture */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-        >
-          <Card className="bg-black border-[#f7931a]/20">
-            <div className="p-6">
-              <div className="flex items-center mb-4">
-                <Network className="w-6 h-6 text-[#f7931a] mr-2" />
-                <h2 className="text-2xl font-bold text-[#f7931a]">Network Architecture</h2>
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-[#fbbf24] mb-2">Decentralized Infrastructure</h3>
-                  <p className="text-gray-400 text-sm">
-                    Distributed architecture with no single point of failure. Enterprise-grade reliability meets consumer accessibility.
-                  </p>
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-semibold text-[#fbbf24] mb-2">Transaction System</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-[#1a1a1a] p-2 rounded text-center">
-                      <p className="text-xs text-gray-500">Min Deposit</p>
-                      <p className="text-[#f7931a] font-bold">$10 USDT</p>
-                    </div>
-                    <div className="bg-[#1a1a1a] p-2 rounded text-center">
-                      <p className="text-xs text-gray-500">Min Withdrawal</p>
-                      <p className="text-[#f7931a] font-bold">$50 USDT</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-semibold text-[#fbbf24] mb-2">Security Framework</h3>
-                  <p className="text-gray-400 text-sm">
-                    Industry-standard encryption, session management, and multi-layer authentication protect all user assets and data.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </motion.div>
 
         {/* Strategic Advantages */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
         >
           <Card className="bg-black border-[#f7931a]/20">
             <div className="p-6">
@@ -613,7 +472,7 @@ export default function Whitepaper() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.7 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
         >
           <Card className="bg-black border-[#f7931a]/20">
             <div className="p-6">
@@ -660,7 +519,7 @@ export default function Whitepaper() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
         >
           <div className="text-center py-8">
             <p className="text-lg font-bold text-[#f7931a] mb-2">
