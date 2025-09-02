@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Copy, LogOut, ArrowDown, ArrowUp, Send, Clock, History } from "lucide-react";
+import { Shield, Copy, LogOut } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -16,7 +16,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import bitcoinLogo from "@assets/file_00000000221c61fab63936953b889556_1756633909848.png";
 
 export default function AccountPage() {
   const { user, logoutMutation } = useAuth();
@@ -107,154 +106,90 @@ export default function AccountPage() {
     <div className="mobile-page">
       {/* Header */}
       <div className="mobile-header">
-        <h1 className="text-lg font-display font-bold text-primary">MY WALLET</h1>
-        <Button
-          onClick={() => logoutMutation.mutate()}
-          size="sm"
-          variant="ghost"
-          className="text-destructive"
-          data-testid="button-logout"
-        >
-          <LogOut className="w-4 h-4" />
-        </Button>
+        <h1 className="text-lg font-display font-bold text-primary">ACCOUNT</h1>
+        <div className="text-right">
+          <p className="text-xs text-muted-foreground font-mono">BALANCE</p>
+          <p className="text-sm font-display font-bold text-accent">
+            ${parseFloat(user?.usdtBalance || '0').toFixed(2)}
+          </p>
+        </div>
       </div>
 
       {/* Content */}
       <div className="mobile-content">
-        {/* Main Wallet Card - Bitcoin Style */}
-        <Card className="mobile-card bg-gradient-to-br from-yellow-500/10 via-orange-500/10 to-background border-yellow-500/20">
-          <div className="relative">
-            {/* Bitcoin Logo Background */}
-            <div className="absolute top-4 right-4 w-24 h-24 opacity-10">
-              <img src={bitcoinLogo} alt="BTC" className="w-full h-full" />
+        {/* User Info Card */}
+        <Card className="mobile-card bg-gradient-to-br from-primary/5 to-background">
+          <div className="text-center mb-4">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-chart-4 mx-auto mb-3 flex items-center justify-center">
+              <span className="text-3xl font-display font-bold text-background">
+                {user?.username?.[0]?.toUpperCase() || 'U'}
+              </span>
             </div>
-            
-            {/* User Info */}
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center">
-                <img src={bitcoinLogo} alt="BTC" className="w-8 h-8" />
-              </div>
-              <div className="flex-1">
-                <p className="text-xs text-muted-foreground font-mono">BITCOIN WALLET</p>
-                <p className="text-lg font-display font-bold">@{user?.username}</p>
-                {user?.isAdmin && (
-                  <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/30 text-xs">
-                    ADMIN
-                  </Badge>
-                )}
-              </div>
-            </div>
+            <h2 className="text-xl font-display font-bold">@{user?.username}</h2>
+            {user?.isAdmin && (
+              <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/30 mt-2">
+                ADMINISTRATOR
+              </Badge>
+            )}
+          </div>
 
-            {/* Main Balance Display */}
-            <div className="bg-gradient-to-r from-background/80 to-background/60 rounded-lg p-4 mb-4 border border-primary/20">
-              <p className="text-xs text-muted-foreground mb-1">TOTAL BALANCE</p>
-              <div className="flex items-baseline gap-2">
-                <p className="text-3xl font-display font-black text-accent">
-                  ${parseFloat(user?.usdtBalance || '0').toFixed(2)}
-                </p>
-                <span className="text-sm text-muted-foreground">USDT</span>
-              </div>
+          {/* Wallet Info */}
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground mb-1">USDT</p>
+              <p className="text-lg font-display font-bold text-accent">
+                ${parseFloat(user?.usdtBalance || '0').toFixed(0)}
+              </p>
             </div>
-
-            {/* Asset Grid */}
-            <div className="grid grid-cols-3 gap-2 mb-4">
-              <div className="bg-background/50 rounded-lg p-2 text-center">
-                <p className="text-xs text-muted-foreground mb-1">GBTC</p>
-                <p className="text-lg font-display font-bold text-yellow-500">
-                  {parseFloat(user?.gbtcBalance || '0').toFixed(2)}
-                </p>
-              </div>
-              <div className="bg-background/50 rounded-lg p-2 text-center">
-                <p className="text-xs text-muted-foreground mb-1">POWER</p>
-                <p className="text-lg font-display font-bold text-primary">
-                  {parseFloat(user?.hashPower || '0').toFixed(0)}
-                </p>
-                <p className="text-xs text-muted-foreground">TH/s</p>
-              </div>
-              <div className="bg-background/50 rounded-lg p-2 text-center">
-                <p className="text-xs text-muted-foreground mb-1">PENDING</p>
-                <p className="text-lg font-display font-bold text-chart-3">
-                  {parseFloat(user?.unclaimedBalance || '0').toFixed(2)}
-                </p>
-              </div>
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground mb-1">GBTC</p>
+              <p className="text-lg font-display font-bold text-primary">
+                {parseFloat(user?.gbtcBalance || '0').toFixed(2)}
+              </p>
             </div>
-
-            {/* Action Buttons */}
-            <div className="grid grid-cols-4 gap-2">
-              <Button
-                onClick={() => window.location.href = '/deposit'}
-                size="sm"
-                variant="outline"
-                className="flex-col h-auto py-2 border-primary/30 hover:border-accent"
-              >
-                <ArrowDown className="w-4 h-4 mb-1 text-accent" />
-                <span className="text-xs">Deposit</span>
-              </Button>
-              <Button
-                onClick={() => window.location.href = '/withdraw'}
-                size="sm"
-                variant="outline"
-                className="flex-col h-auto py-2 border-primary/30 hover:border-destructive"
-              >
-                <ArrowUp className="w-4 h-4 mb-1 text-destructive" />
-                <span className="text-xs">Withdraw</span>
-              </Button>
-              <Button
-                onClick={() => window.location.href = '/transfer'}
-                size="sm"
-                variant="outline"
-                className="flex-col h-auto py-2 border-primary/30 hover:border-primary"
-              >
-                <Send className="w-4 h-4 mb-1 text-primary" />
-                <span className="text-xs">Transfer</span>
-              </Button>
-              <Button
-                onClick={() => window.location.href = '/transactions'}
-                size="sm"
-                variant="outline"
-                className="flex-col h-auto py-2 border-primary/30 hover:border-chart-4"
-              >
-                <History className="w-4 h-4 mb-1 text-chart-4" />
-                <span className="text-xs">History</span>
-              </Button>
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground mb-1">POWER</p>
+              <p className="text-lg font-display font-bold text-chart-4">
+                {parseFloat(user?.hashPower || '0').toFixed(0)}
+              </p>
             </div>
           </div>
         </Card>
 
         {/* Referral Code Card */}
         <Card className="mobile-card">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-mono text-muted-foreground">REFERRAL CODE</p>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>{referralData?.totalReferrals || 0} referrals</span>
-              <span>•</span>
-              <span className="text-accent">${referralData?.totalEarnings || '0.00'} earned</span>
-            </div>
-          </div>
+          <p className="text-sm font-mono text-muted-foreground mb-3">REFERRAL CODE</p>
           
-          <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg p-3 border border-primary/20">
+          <div className="bg-gradient-to-r from-primary/20 to-primary/10 rounded-lg p-4 border border-primary/30">
             <div className="flex items-center justify-between">
-              <p className="text-xl font-display font-black text-primary tracking-wider">
-                {referralData?.referralCode || 'LOADING...'}
-              </p>
+              <div>
+                <p className="text-2xl font-display font-black text-primary tracking-wider">
+                  {referralData?.referralCode || 'LOADING...'}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {referralData?.totalReferrals || 0} referrals • ${referralData?.totalEarnings || '0.00'} earned
+                </p>
+              </div>
               <Button
                 onClick={copyReferralCode}
                 variant="ghost"
-                size="sm"
+                size="icon"
                 className="text-primary hover:text-primary/80"
                 data-testid="button-copy-code"
               >
-                <Copy className="w-4 h-4" />
+                <Copy className="w-5 h-5" />
               </Button>
             </div>
           </div>
         </Card>
 
-        {/* Security Card */}
+        {/* Security PIN Card */}
         <Card className="mobile-card">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-primary" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <Shield className="w-5 h-5 text-primary" />
+              </div>
               <div>
                 <p className="font-semibold">Security PIN</p>
                 <p className="text-xs text-muted-foreground">6-digit security code</p>
@@ -270,6 +205,20 @@ export default function AccountPage() {
               Change
             </Button>
           </div>
+        </Card>
+
+        {/* Logout Button */}
+        <Card className="mobile-card">
+          <Button
+            onClick={() => logoutMutation.mutate()}
+            variant="destructive"
+            className="w-full"
+            disabled={logoutMutation.isPending}
+            data-testid="button-logout"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            LOGOUT
+          </Button>
         </Card>
       </div>
 
