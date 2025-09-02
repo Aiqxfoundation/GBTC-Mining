@@ -824,4 +824,72 @@ export class MemoryStorage implements IStorage {
     
     return { canWithdraw: true, hoursRemaining: 0 };
   }
+  
+  // Supply tracking methods implementation
+  async getTotalMinedSupply(): Promise<string> {
+    // Calculate total mined supply from all mining blocks
+    let totalMined = 0;
+    for (const block of Array.from(this.miningBlocks.values())) {
+      totalMined += parseFloat(block.reward || "0");
+    }
+    return totalMined.toFixed(8);
+  }
+  
+  async getCirculatingSupply(): Promise<string> {
+    // Circulating supply = All GBTC in user wallets (not unclaimed)
+    let circulatingSupply = 0;
+    for (const user of Array.from(this.users.values())) {
+      circulatingSupply += parseFloat(user.gbtcBalance || "0");
+    }
+    return circulatingSupply.toFixed(8);
+  }
+  
+  async getSupplyMetrics(): Promise<{
+    totalMined: string;
+    circulating: string;
+    maxSupply: string;
+    percentageMined: string;
+    currentBlockReward: string;
+    totalBlocks: number;
+    halvingProgress: { current: number; nextHalving: number; blocksRemaining: number };
+  }> {
+    const MAX_SUPPLY = 2100000; // 2.1M GBTC max supply
+    const HALVING_INTERVAL = 4200; // Blocks between halvings
+    
+    // Get total mined supply
+    const totalMined = await this.getTotalMinedSupply();
+    
+    // Get circulating supply
+    const circulating = await this.getCirculatingSupply();
+    
+    // Get current block reward
+    const blockRewardSetting = this.systemSettings.get("blockReward");
+    const currentBlockReward = blockRewardSetting ? blockRewardSetting.value : "50";
+    
+    // Get total blocks mined
+    const totalBlockHeightSetting = this.systemSettings.get("totalBlockHeight");
+    const totalBlocks = totalBlockHeightSetting ? parseInt(totalBlockHeightSetting.value) : 0;
+    
+    // Calculate halving progress
+    const currentHalvingPeriod = Math.floor(totalBlocks / HALVING_INTERVAL);
+    const nextHalving = (currentHalvingPeriod + 1) * HALVING_INTERVAL;
+    const blocksRemaining = nextHalving - totalBlocks;
+    
+    // Calculate percentage mined
+    const percentageMined = ((parseFloat(totalMined) / MAX_SUPPLY) * 100).toFixed(2);
+    
+    return {
+      totalMined,
+      circulating,
+      maxSupply: MAX_SUPPLY.toString(),
+      percentageMined,
+      currentBlockReward,
+      totalBlocks,
+      halvingProgress: {
+        current: currentHalvingPeriod,
+        nextHalving,
+        blocksRemaining
+      }
+    };
+  }
 }

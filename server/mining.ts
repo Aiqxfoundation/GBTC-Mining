@@ -120,9 +120,29 @@ async function initializeSettings() {
 
 async function generateBlock() {
   try {
+    const MAX_SUPPLY = 2100000; // 2.1M GBTC max supply
+    const HALVING_INTERVAL = 4200; // Blocks between halvings
+    
+    // Check if max supply has been reached
+    const totalMined = await storage.getTotalMinedSupply();
+    const totalMinedNum = parseFloat(totalMined);
+    
+    if (totalMinedNum >= MAX_SUPPLY) {
+      console.log(`Max supply of ${MAX_SUPPLY} GBTC reached. Mining has ended.`);
+      return;
+    }
+    
+    // Check if adding current block reward would exceed max supply
+    if (totalMinedNum + currentBlockReward > MAX_SUPPLY) {
+      // Adjust the final block reward to exactly reach max supply
+      currentBlockReward = MAX_SUPPLY - totalMinedNum;
+      await storage.setSystemSetting("blockReward", currentBlockReward.toString());
+      console.log(`Final block reward adjusted to ${currentBlockReward} GBTC to reach exact max supply`);
+    }
+    
     const totalHashPower = await storage.getTotalHashPower();
     
-    if (parseFloat(totalHashPower) > 0) {
+    if (parseFloat(totalHashPower) > 0 && currentBlockReward > 0) {
       await storage.createMiningBlock(
         dailyBlockNumber,
         currentBlockReward.toString(),
@@ -138,9 +158,10 @@ async function generateBlock() {
       await storage.setSystemSetting("totalBlockHeight", totalBlockHeight.toString());
       
       console.log(`Block #${dailyBlockNumber - 1} (Total: ${totalBlockHeight}) mined with reward ${currentBlockReward} GBTC`);
+      console.log(`Total mined: ${(totalMinedNum + currentBlockReward).toFixed(8)}/${MAX_SUPPLY} GBTC (${((totalMinedNum + currentBlockReward) / MAX_SUPPLY * 100).toFixed(2)}%)`);
       
       // Check for halving every 6 months (4,200 blocks at 1 hour per block)
-      if (totalBlockHeight % 4200 === 0) {
+      if (totalBlockHeight % HALVING_INTERVAL === 0 && currentBlockReward > 0) {
         await halveBlockReward();
       }
     }
@@ -240,9 +261,29 @@ async function distributeRewards() {
 
 export async function halveBlockReward() {
   try {
+    const MAX_SUPPLY = 2100000; // 2.1M GBTC max supply
+    const totalMined = await storage.getTotalMinedSupply();
+    const totalMinedNum = parseFloat(totalMined);
+    
+    // Don't halve if we've reached max supply
+    if (totalMinedNum >= MAX_SUPPLY) {
+      currentBlockReward = 0;
+      await storage.setSystemSetting("blockReward", "0");
+      console.log(`Max supply reached. Block reward set to 0.`);
+      return 0;
+    }
+    
+    // Halve the block reward
     currentBlockReward = currentBlockReward / 2;
+    
+    // Ensure we have at least minimal precision
+    if (currentBlockReward < 0.00000001) {
+      currentBlockReward = 0;
+    }
+    
     await storage.setSystemSetting("blockReward", currentBlockReward.toString());
     console.log(`Block reward halved to ${currentBlockReward} GBTC at total block ${totalBlockHeight}`);
+    console.log(`Halving #${Math.floor(totalBlockHeight / 4200)} completed`);
     return currentBlockReward;
   } catch (error) {
     console.error("Error halving block reward:", error);

@@ -8,6 +8,20 @@ import { useToast } from "@/hooks/use-toast";
 import { Link, useLocation } from "wouter";
 import bitcoinLogo from "@assets/file_00000000221c61fab63936953b889556_1756633909848.png";
 
+interface SupplyMetrics {
+  totalMined: string;
+  circulating: string;
+  maxSupply: string;
+  percentageMined: string;
+  currentBlockReward: string;
+  totalBlocks: number;
+  halvingProgress: {
+    current: number;
+    nextHalving: number;
+    blocksRemaining: number;
+  };
+}
+
 export default function MiningDashboard() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
@@ -20,6 +34,12 @@ export default function MiningDashboard() {
   const [activeTab, setActiveTab] = useState('mining'); // Tab state
   const [coins, setCoins] = useState<number[]>([]);
   const [isBlockAnimating, setIsBlockAnimating] = useState(false)
+  
+  // Fetch supply metrics
+  const { data: supplyMetrics } = useQuery<SupplyMetrics>({
+    queryKey: ['/api/supply-metrics'],
+    refetchInterval: 60000 // Refresh every minute
+  });
 
   // Calculate hours since last claim
   const getHoursSinceLastClaim = () => {
@@ -347,6 +367,65 @@ export default function MiningDashboard() {
           </div>
         </Card>
 
+        {/* Supply Metrics Card */}
+        {supplyMetrics && (
+          <Card className="mining-block relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-2xl"></div>
+            
+            <h3 className="text-lg font-heading font-bold mb-4">Network Supply Metrics</h3>
+            
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="data-card">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-muted-foreground uppercase">Total Mined</span>
+                  <i className="fas fa-coins text-primary"></i>
+                </div>
+                <div className="text-xl font-mono font-bold text-gradient">
+                  {parseFloat(supplyMetrics.totalMined).toLocaleString()}
+                </div>
+                <div className="text-xs text-accent mt-1">
+                  {supplyMetrics.percentageMined}% of max supply
+                </div>
+              </div>
+              
+              <div className="data-card">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-muted-foreground uppercase">Circulating</span>
+                  <i className="fas fa-sync text-chart-3"></i>
+                </div>
+                <div className="text-xl font-mono font-bold text-chart-3">
+                  {parseFloat(supplyMetrics.circulating).toLocaleString()}
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  In wallets
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-3 gap-2">
+              <div className="text-center p-2 rounded-lg bg-background">
+                <div className="text-lg font-mono font-bold text-chart-2">{supplyMetrics.currentBlockReward}</div>
+                <div className="text-xs text-muted-foreground">Block Reward</div>
+              </div>
+              <div className="text-center p-2 rounded-lg bg-background">
+                <div className="text-lg font-mono font-bold text-chart-4">{supplyMetrics.totalBlocks}</div>
+                <div className="text-xs text-muted-foreground">Total Blocks</div>
+              </div>
+              <div className="text-center p-2 rounded-lg bg-background">
+                <div className="text-lg font-mono font-bold text-warning">{supplyMetrics.halvingProgress.blocksRemaining}</div>
+                <div className="text-xs text-muted-foreground">Until Halving</div>
+              </div>
+            </div>
+            
+            <div className="mt-3 p-2 bg-primary/5 rounded-lg border border-primary/20">
+              <div className="text-xs text-muted-foreground text-center">
+                <span className="font-semibold">Max Supply:</span>
+                <span className="font-mono ml-2 text-primary">{parseFloat(supplyMetrics.maxSupply).toLocaleString()} GBTC</span>
+              </div>
+            </div>
+          </Card>
+        )}
+        
         {/* Rewards Section */}
         <Card className="mining-block relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-accent/20 to-transparent rounded-full blur-2xl"></div>

@@ -92,6 +92,19 @@ export interface IStorage {
   getDepositCooldown(userId: string): Promise<{ canDeposit: boolean; hoursRemaining: number }>;
   getWithdrawalCooldown(userId: string): Promise<{ canWithdraw: boolean; hoursRemaining: number }>;
   
+  // Supply tracking methods
+  getTotalMinedSupply(): Promise<string>;
+  getCirculatingSupply(): Promise<string>;
+  getSupplyMetrics(): Promise<{
+    totalMined: string;
+    circulating: string;
+    maxSupply: string;
+    percentageMined: string;
+    currentBlockReward: string;
+    totalBlocks: number;
+    halvingProgress: { current: number; nextHalving: number; blocksRemaining: number };
+  }>;
+  
   sessionStore: session.Store;
 }
 
@@ -643,6 +656,97 @@ export class DatabaseStorage implements IStorage {
   
   async getWithdrawalCooldown(userId: string): Promise<{ canWithdraw: boolean; hoursRemaining: number }> {
     return { canWithdraw: true, hoursRemaining: 0 };
+  }
+  
+  // Supply tracking methods implementation
+  async getTotalMinedSupply(): Promise<string> {
+    try {
+      // Get all mined blocks to calculate total mined supply
+      const blocks = await db.select().from(miningBlocks);
+      const totalMined = blocks.reduce((sum, block) => {
+        return sum + parseFloat(block.reward || "0");
+      }, 0);
+      return totalMined.toFixed(8);
+    } catch (error) {
+      console.error("Error getting total mined supply:", error);
+      return "0";
+    }
+  }
+  
+  async getCirculatingSupply(): Promise<string> {
+    try {
+      // Circulating supply = All GBTC in user wallets (not unclaimed)
+      const allUsers = await db.select().from(users);
+      const circulatingSupply = allUsers.reduce((sum, user) => {
+        return sum + parseFloat(user.gbtcBalance || "0");
+      }, 0);
+      return circulatingSupply.toFixed(8);
+    } catch (error) {
+      console.error("Error getting circulating supply:", error);
+      return "0";
+    }
+  }
+  
+  async getSupplyMetrics(): Promise<{
+    totalMined: string;
+    circulating: string;
+    maxSupply: string;
+    percentageMined: string;
+    currentBlockReward: string;
+    totalBlocks: number;
+    halvingProgress: { current: number; nextHalving: number; blocksRemaining: number };
+  }> {
+    try {
+      const MAX_SUPPLY = 2100000; // 2.1M GBTC max supply
+      const HALVING_INTERVAL = 4200; // Blocks between halvings
+      
+      // Get total mined supply
+      const totalMined = await this.getTotalMinedSupply();
+      
+      // Get circulating supply
+      const circulating = await this.getCirculatingSupply();
+      
+      // Get current block reward
+      const blockRewardSetting = await this.getSystemSetting("blockReward");
+      const currentBlockReward = blockRewardSetting ? blockRewardSetting.value : "50";
+      
+      // Get total blocks mined
+      const totalBlockHeightSetting = await this.getSystemSetting("totalBlockHeight");
+      const totalBlocks = totalBlockHeightSetting ? parseInt(totalBlockHeightSetting.value) : 0;
+      
+      // Calculate halving progress
+      const currentHalvingPeriod = Math.floor(totalBlocks / HALVING_INTERVAL);
+      const nextHalving = (currentHalvingPeriod + 1) * HALVING_INTERVAL;
+      const blocksRemaining = nextHalving - totalBlocks;
+      
+      // Calculate percentage mined
+      const percentageMined = ((parseFloat(totalMined) / MAX_SUPPLY) * 100).toFixed(2);
+      
+      return {
+        totalMined,
+        circulating,
+        maxSupply: MAX_SUPPLY.toString(),
+        percentageMined,
+        currentBlockReward,
+        totalBlocks,
+        halvingProgress: {
+          current: currentHalvingPeriod,
+          nextHalving,
+          blocksRemaining
+        }
+      };
+    } catch (error) {
+      console.error("Error getting supply metrics:", error);
+      return {
+        totalMined: "0",
+        circulating: "0",
+        maxSupply: "2100000",
+        percentageMined: "0",
+        currentBlockReward: "50",
+        totalBlocks: 0,
+        halvingProgress: { current: 0, nextHalving: 4200, blocksRemaining: 4200 }
+      };
+    }
   }
 }
 

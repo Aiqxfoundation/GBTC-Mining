@@ -215,9 +215,6 @@ export async function registerRoutes(app: Express) {
         lastActiveBlock: currentBlock // Update last active block
       });
 
-      // Update referral hash contributions after claim
-      await updateReferralHashContributions();
-
       res.json({ message: "Rewards claimed successfully" });
     } catch (error) {
       next(error);
@@ -375,6 +372,16 @@ export async function registerRoutes(app: Express) {
     }
   });
   
+  // Get supply metrics
+  app.get("/api/supply-metrics", async (req, res, next) => {
+    try {
+      const metrics = await storage.getSupplyMetrics();
+      res.json(metrics);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
   // Get global mining stats
   app.get("/api/global-stats", async (req, res, next) => {
     try {
@@ -382,37 +389,21 @@ export async function registerRoutes(app: Express) {
       const blockHeight = await storage.getSystemSetting("blockNumber");
       const totalBlockHeight = await storage.getSystemSetting("totalBlockHeight");
       const activeMiners = await storage.getActiveMinerCount();
-      const blockReward = await storage.getSystemSetting("blockReward");
+      const supplyMetrics = await storage.getSupplyMetrics();
       
       const currentBlock = blockHeight ? parseInt(blockHeight.value) : 1;
       const totalBlocks = totalBlockHeight ? parseInt(totalBlockHeight.value) : 0;
-      const currentReward = blockReward ? parseFloat(blockReward.value) : 6.25;
-      
-      // Calculate total blocks mined
-      const totalBlocksMined = Math.max(totalBlocks, 0);
-      
-      // Calculate circulation based on blocks mined and halving schedule
-      let totalCirculation = 0;
-      let tempBlocks = totalBlocksMined;
-      let tempReward = 50;
-      
-      while (tempBlocks > 0 && tempReward > 0) {
-        const blocksInThisEra = Math.min(tempBlocks, 210000);
-        totalCirculation += blocksInThisEra * tempReward;
-        tempBlocks -= blocksInThisEra;
-        tempReward = tempReward / 2;
-      }
       
       res.json({
         totalHashrate: parseFloat(totalHashPower),
         blockHeight: currentBlock,
         totalBlockHeight: totalBlocks,
         activeMiners,
-        blockReward: currentReward,
-        totalCirculation: Math.min(totalCirculation, 21000000),
-        maxSupply: 21000000,
-        nextHalving: Math.ceil(totalBlocksMined / 210000) * 210000,
-        blocksUntilHalving: Math.max(0, Math.ceil(totalBlocksMined / 210000) * 210000 - totalBlocksMined)
+        blockReward: parseFloat(supplyMetrics.currentBlockReward),
+        totalCirculation: parseFloat(supplyMetrics.circulating),
+        maxSupply: 2100000,
+        nextHalving: supplyMetrics.halvingProgress.nextHalving,
+        blocksUntilHalving: supplyMetrics.halvingProgress.blocksRemaining
       });
     } catch (error) {
       next(error);
@@ -474,9 +465,6 @@ export async function registerRoutes(app: Express) {
         lastActiveBlock: currentBlock
       });
 
-      // Update referral hash contributions after claim
-      await updateReferralHashContributions();
-      
       res.json({ 
         message: `Successfully claimed ${result.count} blocks for ${result.totalReward} GBTC`,
         count: result.count,
