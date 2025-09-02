@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { ArrowLeft, Download, Bitcoin, Users, Cpu, TrendingUp, Zap, Globe, Target, Coins, Activity, Clock, Hash, Wallet, Shield, Network } from "lucide-react";
+import { ArrowLeft, Download, Bitcoin, Users, Cpu, TrendingUp, Zap, Globe, Target, Coins, Activity, Clock, Hash, Wallet, Shield, Network, Rocket, Calendar, ChevronRight, Lock } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Whitepaper() {
@@ -32,6 +32,10 @@ export default function Whitepaper() {
         .highlight { color: #f7931a; font-weight: bold; }
         .logo { font-size: 64px; color: #f7931a; text-align: center; margin-bottom: 20px; }
         .footer { text-align: center; margin-top: 60px; padding-top: 30px; border-top: 1px solid #333; color: #888; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th { background: #1a1a1a; color: #f7931a; padding: 12px; text-align: left; border: 1px solid #333; }
+        td { padding: 10px; border: 1px solid #333; background: #0f0f0f; }
+        .chart-bar { background: linear-gradient(to right, #f7931a, #fbbf24); height: 20px; border-radius: 3px; }
     </style>
 </head>
 <body>
@@ -59,19 +63,187 @@ export default function Whitepaper() {
     </div>
     
     <div class="section">
-        <h2>⚡ Core Technology</h2>
+        <h2>💎 Token Supply Parameters</h2>
+        
+        <table>
+            <tr>
+                <th>Parameter</th>
+                <th>Value</th>
+                <th>Details</th>
+            </tr>
+            <tr>
+                <td><strong>Maximum Supply</strong></td>
+                <td style="color: #f7931a; font-weight: bold;">2,100,000 GBTC</td>
+                <td>10x rarer than Bitcoin</td>
+            </tr>
+            <tr>
+                <td><strong>Block Time</strong></td>
+                <td style="color: #fbbf24;">1 hour</td>
+                <td>Predictable mining schedule</td>
+            </tr>
+            <tr>
+                <td><strong>Blocks per Day</strong></td>
+                <td style="color: #fbbf24;">24</td>
+                <td>One block every hour</td>
+            </tr>
+            <tr>
+                <td><strong>Halving Interval</strong></td>
+                <td style="color: #fbbf24;">4,200 blocks</td>
+                <td>Approximately 6 months</td>
+            </tr>
+            <tr>
+                <td><strong>Initial Block Reward</strong></td>
+                <td style="color: #f7931a; font-weight: bold;">50 GBTC</td>
+                <td>Starting reward per block</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="section">
+        <h2>⚡ Block Rewards & Halving Schedule</h2>
+        
+        <table>
+            <tr>
+                <th>Halving Event</th>
+                <th>Block Number</th>
+                <th>Time Period</th>
+                <th>Block Reward</th>
+                <th>Daily Rewards</th>
+            </tr>
+            <tr>
+                <td>Launch</td>
+                <td>0</td>
+                <td>Month 0</td>
+                <td style="color: #f7931a; font-weight: bold;">50 GBTC</td>
+                <td>1,200 GBTC</td>
+            </tr>
+            <tr>
+                <td>1st Halving</td>
+                <td>4,200</td>
+                <td>~6 months</td>
+                <td style="color: #fbbf24;">25 GBTC</td>
+                <td>600 GBTC</td>
+            </tr>
+            <tr>
+                <td>2nd Halving</td>
+                <td>8,400</td>
+                <td>~12 months</td>
+                <td style="color: #fbbf24;">12.5 GBTC</td>
+                <td>300 GBTC</td>
+            </tr>
+            <tr>
+                <td>3rd Halving</td>
+                <td>12,600</td>
+                <td>~18 months</td>
+                <td>6.25 GBTC</td>
+                <td>150 GBTC</td>
+            </tr>
+            <tr>
+                <td>4th Halving</td>
+                <td>16,800</td>
+                <td>~24 months</td>
+                <td>3.125 GBTC</td>
+                <td>75 GBTC</td>
+            </tr>
+        </table>
+        
+        <p style="margin-top: 20px;">The halving continues every 4,200 blocks until the maximum supply of 2.1 million GBTC is reached, creating a deflationary supply curve that rewards early adopters.</p>
+    </div>
+    
+    <div class="section">
+        <h2>📊 Supply Release Curve</h2>
+        
+        <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #333;">
+            <h4 style="color: #fbbf24; margin-bottom: 15px;">Projected GBTC in Circulation</h4>
+            
+            <div style="margin-bottom: 10px;">
+                <span style="color: #888;">Year 1:</span>
+                <div style="width: 15%; margin-top: 5px;" class="chart-bar"></div>
+                <span style="color: #f7931a; font-weight: bold;">~315,000 GBTC (15%)</span>
+            </div>
+            
+            <div style="margin-bottom: 10px;">
+                <span style="color: #888;">Year 2:</span>
+                <div style="width: 19%; margin-top: 5px;" class="chart-bar"></div>
+                <span style="color: #f7931a; font-weight: bold;">~393,750 GBTC (19%)</span>
+            </div>
+            
+            <div style="margin-bottom: 10px;">
+                <span style="color: #888;">Year 5:</span>
+                <div style="width: 48%; margin-top: 5px;" class="chart-bar"></div>
+                <span style="color: #f7931a; font-weight: bold;">~1,000,000 GBTC (48%)</span>
+            </div>
+            
+            <div style="margin-bottom: 10px;">
+                <span style="color: #888;">Year 10+:</span>
+                <div style="width: 100%; margin-top: 5px;" class="chart-bar"></div>
+                <span style="color: #f7931a; font-weight: bold;">2,100,000 GBTC (100%)</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>🚀 Launch Timeline (TGE)</h2>
+        
+        <p style="font-size: 16px; margin-bottom: 20px;">
+            The Token Generation Event (TGE) will take place only when the GBTC ecosystem reaches <span class="highlight">100K - 1 Million verified participants</span>. This ensures strong community adoption, global visibility, and network stability.
+        </p>
         
         <div class="feature-grid">
             <div class="feature">
-                <h4>Bitcoin-Standard Economics</h4>
-                <ul>
-                    <li>2,100,000 GBTC maximum supply</li>
-                    <li>50 GBTC block rewards</li>
-                    <li>Halving every 6 months (4,200 blocks)</li>
-                    <li>1-hour block generation</li>
-                </ul>
+                <h4>📦 Mining Phase</h4>
+                <p>Users accumulate mining rewards before TGE. All mined GBTC is stored securely in user accounts, ready for the official launch.</p>
             </div>
             
+            <div class="feature">
+                <h4>🎯 TGE Milestone</h4>
+                <p>Official GBTC release when we achieve 100K-1M network participants, ensuring massive adoption from day one.</p>
+            </div>
+            
+            <div class="feature">
+                <h4>💰 Exchange Listings</h4>
+                <p>Major CEX and DEX listings immediately after TGE, providing instant liquidity and trading opportunities.</p>
+            </div>
+            
+            <div class="feature">
+                <h4>🔓 Withdrawals Enabled</h4>
+                <p>After TGE, users can withdraw mined tokens directly to personal wallets or trade on exchanges.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>🌐 Utility & Multi-Chain Expansion</h2>
+        
+        <p style="font-size: 16px; margin-bottom: 20px;">
+            GBTC is built for multi-chain interoperability and real-world DeFi use cases:
+        </p>
+        
+        <div class="feature">
+            <h4>1. Wrapped Bitcoin (wBTC-style)</h4>
+            <p>GBTC can be wrapped and bridged to multiple chains (Ethereum, Solana, BSC, Polygon, etc.), enabling cross-chain liquidity and maximum flexibility.</p>
+        </div>
+        
+        <div class="feature">
+            <h4>2. DeFi Integration</h4>
+            <p>GBTC can be staked, farmed, or provided as liquidity on decentralized exchanges. Earn additional rewards through various DeFi protocols.</p>
+        </div>
+        
+        <div class="feature">
+            <h4>3. Bridge Utility</h4>
+            <p>Seamlessly move GBTC between chains for optimal trading, staking, and yield farming opportunities across the entire crypto ecosystem.</p>
+        </div>
+        
+        <div class="feature">
+            <h4>4. BTC Relationship</h4>
+            <p>GBTC mirrors Bitcoin's scarcity model but is 10x rarer (2.1M vs 21M supply). It serves as a complementary asset alongside BTC, optimized for faster adoption in DeFi.</p>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>⚡ Core Technology</h2>
+        
+        <div class="feature-grid">
             <div class="feature">
                 <h4>Smart Mining System</h4>
                 <ul>
@@ -85,7 +257,7 @@ export default function Whitepaper() {
             <div class="feature">
                 <h4>Daily Block Cycles</h4>
                 <ul>
-                    <li>144 blocks per day</li>
+                    <li>24 blocks per day</li>
                     <li>Reset at 00:00 UTC</li>
                     <li>Continuous blockchain height</li>
                     <li>Predictable mining schedule</li>
@@ -101,42 +273,18 @@ export default function Whitepaper() {
                     <li>Complete user anonymity</li>
                 </ul>
             </div>
+            
+            <div class="feature">
+                <h4>Direct Referral Network</h4>
+                <ul>
+                    <li>10% USDT commission</li>
+                    <li>Instant reward distribution</li>
+                    <li>Single-tier transparency</li>
+                    <li>Build your mining network</li>
+                </ul>
+            </div>
         </div>
     </div>
-    
-    <div class="section">
-        <h2>🚀 Platform Features</h2>
-        
-        <h3>Hash Power Acquisition</h3>
-        <p>Purchase computational power directly with USDT to begin mining immediately. Your hash power determines your share of block rewards, creating a fair and transparent distribution system.</p>
-        
-        <div class="formula">
-            Mining Rewards = (Your Hash Power ÷ Network Hash Power) × Block Reward
-        </div>
-        
-        <h3>Direct Referral Network</h3>
-        <p>Build your mining network by inviting others to join. Our single-tier referral system ensures transparency and fairness:</p>
-        
-        <div class="metric">
-            <strong>Instant USDT Commission:</strong> Earn 15% on every hash power purchase made by your direct referrals
-        </div>
-        
-        <div class="metric">
-            <strong>Dynamic Hash Bonus:</strong> Receive 5% additional hash power from active miners in your network
-        </div>
-        
-        <h3>Active Mining Protocol</h3>
-        <p>Our 24-hour claim system ensures network vitality by requiring miners to actively participate. This prevents resource hoarding and maintains fair distribution among engaged participants.</p>
-        
-        <h3>GBTC Token Utility</h3>
-        <ul>
-            <li><span class="highlight">Mining Rewards:</span> Earn GBTC through proportional block reward distribution</li>
-            <li><span class="highlight">Peer-to-Peer Transfers:</span> Send and receive GBTC directly between users</li>
-            <li><span class="highlight">Future Gas Token:</span> Planned integration as network transaction fee currency</li>
-            <li><span class="highlight">Ecosystem Currency:</span> Foundation for future platform expansions</li>
-        </ul>
-    </div>
-    
     
     <div class="section">
         <h2>🎯 Strategic Advantages</h2>
@@ -165,17 +313,24 @@ export default function Whitepaper() {
     </div>
     
     <div class="section">
-        <h2>🚀 Roadmap & Future</h2>
+        <h2>🚀 Platform Features</h2>
         
-        <p>Green Bitcoin is more than a mining platform - it's the foundation for a comprehensive decentralized mining ecosystem. Our roadmap includes:</p>
+        <h3>Hash Power Acquisition</h3>
+        <p>Purchase computational power directly with USDT to begin mining immediately. Your hash power determines your share of block rewards.</p>
         
-        <ul style="font-size: 16px;">
-            <li>Advanced mining pool features and collaborative mining options</li>
-            <li>GBTC integration as native gas token for platform transactions</li>
-            <li>Cross-chain bridges for enhanced liquidity and accessibility</li>
-            <li>Decentralized governance for community-driven development</li>
-            <li>Mobile applications for iOS and Android platforms</li>
-            <li>Strategic partnerships with major cryptocurrency exchanges</li>
+        <div class="formula">
+            Mining Rewards = (Your Hash Power ÷ Network Hash Power) × Block Reward
+        </div>
+        
+        <h3>Active Mining Protocol</h3>
+        <p>Our 24-hour claim system ensures network vitality by requiring miners to actively participate. This prevents resource hoarding and maintains fair distribution among engaged participants.</p>
+        
+        <h3>GBTC Token Utility</h3>
+        <ul>
+            <li><span class="highlight">Mining Rewards:</span> Earn GBTC through proportional block reward distribution</li>
+            <li><span class="highlight">Peer-to-Peer Transfers:</span> Send and receive GBTC directly between users</li>
+            <li><span class="highlight">Future Gas Token:</span> Planned integration as network transaction fee currency</li>
+            <li><span class="highlight">DeFi Integration:</span> Stake, farm, and provide liquidity across multiple chains</li>
         </ul>
     </div>
     
@@ -279,7 +434,7 @@ export default function Whitepaper() {
           </Card>
         </motion.div>
 
-        {/* Core Technology */}
+        {/* Token Supply Parameters */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -288,60 +443,350 @@ export default function Whitepaper() {
           <Card className="bg-black border-[#f7931a]/20">
             <div className="p-6">
               <div className="flex items-center mb-4">
+                <Coins className="w-6 h-6 text-[#f7931a] mr-2" />
+                <h2 className="text-2xl font-bold text-[#f7931a]">Token Supply Parameters</h2>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-[#333]">
+                      <th className="text-left py-2 text-[#f7931a]">Parameter</th>
+                      <th className="text-right py-2 text-[#f7931a]">Value</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-gray-300">
+                    <tr className="border-b border-[#333]/50">
+                      <td className="py-3">Maximum Supply</td>
+                      <td className="text-right font-bold text-[#fbbf24]">2,100,000 GBTC</td>
+                    </tr>
+                    <tr className="border-b border-[#333]/50">
+                      <td className="py-3">Block Time</td>
+                      <td className="text-right text-[#fbbf24]">1 hour</td>
+                    </tr>
+                    <tr className="border-b border-[#333]/50">
+                      <td className="py-3">Blocks per Day</td>
+                      <td className="text-right text-[#fbbf24]">24</td>
+                    </tr>
+                    <tr className="border-b border-[#333]/50">
+                      <td className="py-3">Halving Interval</td>
+                      <td className="text-right text-[#fbbf24]">4,200 blocks (~6 months)</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3">Initial Block Reward</td>
+                      <td className="text-right font-bold text-[#fbbf24]">50 GBTC</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* Block Rewards & Halving Schedule */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <Card className="bg-black border-[#f7931a]/20">
+            <div className="p-6">
+              <div className="flex items-center mb-4">
                 <Zap className="w-6 h-6 text-[#f7931a] mr-2" />
+                <h2 className="text-2xl font-bold text-[#f7931a]">Block Rewards & Halving Schedule</h2>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[#333]">
+                      <th className="text-left py-2 text-[#f7931a]">Event</th>
+                      <th className="text-center py-2 text-[#f7931a]">Block #</th>
+                      <th className="text-center py-2 text-[#f7931a]">Time</th>
+                      <th className="text-right py-2 text-[#f7931a]">Reward</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-gray-300">
+                    <tr className="border-b border-[#333]/50">
+                      <td className="py-2">Launch</td>
+                      <td className="text-center">0</td>
+                      <td className="text-center">Month 0</td>
+                      <td className="text-right font-bold text-[#fbbf24]">50 GBTC</td>
+                    </tr>
+                    <tr className="border-b border-[#333]/50">
+                      <td className="py-2">1st Halving</td>
+                      <td className="text-center">4,200</td>
+                      <td className="text-center">~6 months</td>
+                      <td className="text-right text-[#fbbf24]">25 GBTC</td>
+                    </tr>
+                    <tr className="border-b border-[#333]/50">
+                      <td className="py-2">2nd Halving</td>
+                      <td className="text-center">8,400</td>
+                      <td className="text-center">~12 months</td>
+                      <td className="text-right text-[#fbbf24]">12.5 GBTC</td>
+                    </tr>
+                    <tr className="border-b border-[#333]/50">
+                      <td className="py-2">3rd Halving</td>
+                      <td className="text-center">12,600</td>
+                      <td className="text-center">~18 months</td>
+                      <td className="text-right text-gray-400">6.25 GBTC</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2">4th Halving</td>
+                      <td className="text-center">16,800</td>
+                      <td className="text-center">~24 months</td>
+                      <td className="text-right text-gray-400">3.125 GBTC</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <p className="text-xs text-gray-400 mt-4">
+                Halving continues every 4,200 blocks until max supply is reached
+              </p>
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* Supply Release Curve */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <Card className="bg-black border-[#f7931a]/20">
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <TrendingUp className="w-6 h-6 text-[#f7931a] mr-2" />
+                <h2 className="text-2xl font-bold text-[#f7931a]">Supply Release Curve</h2>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm text-gray-400">Year 1</span>
+                    <span className="text-sm font-bold text-[#fbbf24]">~315,000 GBTC</span>
+                  </div>
+                  <div className="w-full bg-[#1a1a1a] rounded-full h-3">
+                    <div className="bg-gradient-to-r from-[#f7931a] to-[#fbbf24] h-3 rounded-full" style={{width: '15%'}}></div>
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm text-gray-400">Year 2</span>
+                    <span className="text-sm font-bold text-[#fbbf24]">~393,750 GBTC</span>
+                  </div>
+                  <div className="w-full bg-[#1a1a1a] rounded-full h-3">
+                    <div className="bg-gradient-to-r from-[#f7931a] to-[#fbbf24] h-3 rounded-full" style={{width: '19%'}}></div>
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm text-gray-400">Year 5</span>
+                    <span className="text-sm font-bold text-[#fbbf24]">~1,000,000 GBTC</span>
+                  </div>
+                  <div className="w-full bg-[#1a1a1a] rounded-full h-3">
+                    <div className="bg-gradient-to-r from-[#f7931a] to-[#fbbf24] h-3 rounded-full" style={{width: '48%'}}></div>
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm text-gray-400">Year 10+</span>
+                    <span className="text-sm font-bold text-[#f7931a]">2,100,000 GBTC</span>
+                  </div>
+                  <div className="w-full bg-[#1a1a1a] rounded-full h-3">
+                    <div className="bg-gradient-to-r from-[#f7931a] to-[#fbbf24] h-3 rounded-full" style={{width: '100%'}}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* Launch Timeline (TGE) */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+        >
+          <Card className="bg-black border-[#f7931a]/20">
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <Rocket className="w-6 h-6 text-[#f7931a] mr-2" />
+                <h2 className="text-2xl font-bold text-[#f7931a]">Launch Timeline (TGE)</h2>
+              </div>
+              
+              <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#f7931a]/30 mb-4">
+                <p className="text-sm text-gray-300 mb-2">
+                  Token Generation Event will occur when we reach:
+                </p>
+                <p className="text-2xl font-bold text-[#f7931a]">
+                  100K - 1M Verified Participants
+                </p>
+                <p className="text-xs text-gray-400 mt-2">
+                  Ensuring strong community adoption and network stability
+                </p>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex items-start">
+                  <div className="w-8 h-8 rounded-full bg-[#f7931a]/20 flex items-center justify-center mr-3 mt-1">
+                    <span className="text-[#f7931a] font-bold text-sm">1</span>
+                  </div>
+                  <div>
+                    <h4 className="text-[#fbbf24] font-semibold mb-1">Mining Phase</h4>
+                    <p className="text-xs text-gray-400">Users accumulate rewards before TGE</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start">
+                  <div className="w-8 h-8 rounded-full bg-[#f7931a]/20 flex items-center justify-center mr-3 mt-1">
+                    <span className="text-[#f7931a] font-bold text-sm">2</span>
+                  </div>
+                  <div>
+                    <h4 className="text-[#fbbf24] font-semibold mb-1">TGE Milestone</h4>
+                    <p className="text-xs text-gray-400">Official GBTC release at network milestone</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start">
+                  <div className="w-8 h-8 rounded-full bg-[#f7931a]/20 flex items-center justify-center mr-3 mt-1">
+                    <span className="text-[#f7931a] font-bold text-sm">3</span>
+                  </div>
+                  <div>
+                    <h4 className="text-[#fbbf24] font-semibold mb-1">Withdrawals Enabled</h4>
+                    <p className="text-xs text-gray-400">Transfer tokens to wallets or exchanges</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* Utility & Multi-Chain Expansion */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          <Card className="bg-black border-[#f7931a]/20">
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <Network className="w-6 h-6 text-[#f7931a] mr-2" />
+                <h2 className="text-2xl font-bold text-[#f7931a]">Utility & Multi-Chain Expansion</h2>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333]">
+                  <div className="flex items-center mb-2">
+                    <ChevronRight className="w-5 h-5 text-[#fbbf24] mr-2" />
+                    <h3 className="font-semibold text-[#fbbf24]">Wrapped Bitcoin Style</h3>
+                  </div>
+                  <p className="text-sm text-gray-400">
+                    Bridge to Ethereum, Solana, BSC, Polygon for cross-chain liquidity
+                  </p>
+                </div>
+                
+                <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333]">
+                  <div className="flex items-center mb-2">
+                    <ChevronRight className="w-5 h-5 text-[#fbbf24] mr-2" />
+                    <h3 className="font-semibold text-[#fbbf24]">DeFi Integration</h3>
+                  </div>
+                  <p className="text-sm text-gray-400">
+                    Stake, farm, and provide liquidity on decentralized exchanges
+                  </p>
+                </div>
+                
+                <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333]">
+                  <div className="flex items-center mb-2">
+                    <ChevronRight className="w-5 h-5 text-[#fbbf24] mr-2" />
+                    <h3 className="font-semibold text-[#fbbf24]">Bridge Utility</h3>
+                  </div>
+                  <p className="text-sm text-gray-400">
+                    Seamlessly move GBTC between chains for maximum flexibility
+                  </p>
+                </div>
+                
+                <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333]">
+                  <div className="flex items-center mb-2">
+                    <ChevronRight className="w-5 h-5 text-[#fbbf24] mr-2" />
+                    <h3 className="font-semibold text-[#fbbf24]">BTC Relationship</h3>
+                  </div>
+                  <p className="text-sm text-gray-400">
+                    10x rarer than Bitcoin (2.1M vs 21M), optimized for DeFi adoption
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* Core Technology */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.7 }}
+        >
+          <Card className="bg-black border-[#f7931a]/20">
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <Cpu className="w-6 h-6 text-[#f7931a] mr-2" />
                 <h2 className="text-2xl font-bold text-[#f7931a]">Core Technology</h2>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333]">
                   <div className="flex items-center mb-2">
-                    <Bitcoin className="w-5 h-5 text-[#fbbf24] mr-2" />
-                    <h3 className="font-semibold text-[#fbbf24]">Bitcoin-Standard Economics</h3>
-                  </div>
-                  <ul className="text-sm text-gray-400 space-y-1">
-                    <li>• 2,100,000 GBTC maximum supply</li>
-                    <li>• 50 GBTC block rewards</li>
-                    <li>• Halving every 6 months (4,200 blocks)</li>
-                    <li>• 1-hour block generation</li>
-                  </ul>
-                </div>
-                
-                <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333]">
-                  <div className="flex items-center mb-2">
-                    <Cpu className="w-5 h-5 text-[#fbbf24] mr-2" />
-                    <h3 className="font-semibold text-[#fbbf24]">Smart Mining System</h3>
+                    <Hash className="w-5 h-5 text-[#fbbf24] mr-2" />
+                    <h3 className="font-semibold text-[#fbbf24]">Smart Mining</h3>
                   </div>
                   <ul className="text-sm text-gray-400 space-y-1">
                     <li>• Distributed hash power</li>
-                    <li>• Proportional reward distribution</li>
-                    <li>• Real-time network adjustments</li>
-                    <li>• Automated mining operations</li>
+                    <li>• Proportional rewards</li>
+                    <li>• Real-time adjustments</li>
+                    <li>• Automated operations</li>
                   </ul>
                 </div>
                 
                 <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333]">
                   <div className="flex items-center mb-2">
                     <Clock className="w-5 h-5 text-[#fbbf24] mr-2" />
-                    <h3 className="font-semibold text-[#fbbf24]">Daily Block Cycles</h3>
+                    <h3 className="font-semibold text-[#fbbf24]">Block Cycles</h3>
                   </div>
                   <ul className="text-sm text-gray-400 space-y-1">
                     <li>• 24 blocks per day</li>
                     <li>• Reset at 00:00 UTC</li>
-                    <li>• Continuous blockchain height</li>
-                    <li>• Predictable mining schedule</li>
+                    <li>• Continuous height</li>
+                    <li>• Predictable schedule</li>
                   </ul>
                 </div>
                 
                 <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333]">
                   <div className="flex items-center mb-2">
                     <Shield className="w-5 h-5 text-[#fbbf24] mr-2" />
-                    <h3 className="font-semibold text-[#fbbf24]">Secure Authentication</h3>
+                    <h3 className="font-semibold text-[#fbbf24]">Security</h3>
                   </div>
                   <ul className="text-sm text-gray-400 space-y-1">
-                    <li>• Username-based identity</li>
-                    <li>• 6-digit PIN protection</li>
-                    <li>• Zero-knowledge security</li>
-                    <li>• Complete user anonymity</li>
+                    <li>• Username identity</li>
+                    <li>• 6-digit PIN</li>
+                    <li>• Zero-knowledge</li>
+                    <li>• Full anonymity</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333]">
+                  <div className="flex items-center mb-2">
+                    <Users className="w-5 h-5 text-[#fbbf24] mr-2" />
+                    <h3 className="font-semibold text-[#fbbf24]">Referral Network</h3>
+                  </div>
+                  <ul className="text-sm text-gray-400 space-y-1">
+                    <li>• 10% USDT commission</li>
+                    <li>• Instant rewards</li>
+                    <li>• Single-tier system</li>
+                    <li>• Build your network</li>
                   </ul>
                 </div>
               </div>
@@ -353,7 +798,7 @@ export default function Whitepaper() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
         >
           <Card className="bg-black border-[#f7931a]/20">
             <div className="p-6">
@@ -369,7 +814,7 @@ export default function Whitepaper() {
                     <h3 className="text-lg font-semibold text-[#fbbf24]">Hash Power Acquisition</h3>
                   </div>
                   <p className="text-gray-400 text-sm mb-3">
-                    Purchase computational power directly with USDT to begin mining immediately. Your hash power determines your share of block rewards.
+                    Purchase computational power directly with USDT to begin mining immediately.
                   </p>
                   <div className="bg-[#1a1a1a] p-3 rounded-lg border border-[#f7931a]/50">
                     <p className="text-center font-mono text-[#fbbf24]">
@@ -380,27 +825,11 @@ export default function Whitepaper() {
                 
                 <div>
                   <div className="flex items-center mb-2">
-                    <Users className="w-5 h-5 text-[#fbbf24] mr-2" />
-                    <h3 className="text-lg font-semibold text-[#fbbf24]">Direct Referral Network</h3>
-                  </div>
-                  <p className="text-gray-400 text-sm mb-3">
-                    Build your mining network by inviting others. Our single-tier system ensures transparency:
-                  </p>
-                  <div className="space-y-2">
-                    <div className="bg-[#1a1a1a] p-3 rounded-lg border-l-4 border-[#f7931a]">
-                      <p className="text-[#fbbf24] font-semibold">10% USDT Commission</p>
-                      <p className="text-gray-400 text-sm">Earn instantly on every referral's hash power purchase</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <div className="flex items-center mb-2">
                     <Activity className="w-5 h-5 text-[#fbbf24] mr-2" />
                     <h3 className="text-lg font-semibold text-[#fbbf24]">Active Mining Protocol</h3>
                   </div>
                   <p className="text-gray-400 text-sm">
-                    Our 24-hour claim system ensures network vitality. Miners must actively participate to maintain their rewards, preventing resource hoarding and ensuring fair distribution.
+                    24-hour claim system ensures network vitality. Active participation prevents resource hoarding and maintains fair distribution.
                   </p>
                 </div>
                 
@@ -410,10 +839,10 @@ export default function Whitepaper() {
                     <h3 className="text-lg font-semibold text-[#fbbf24]">GBTC Token Utility</h3>
                   </div>
                   <ul className="text-gray-400 text-sm space-y-1">
-                    <li>• <span className="text-[#f7931a]">Mining Rewards:</span> Earn through proportional distribution</li>
-                    <li>• <span className="text-[#f7931a]">P2P Transfers:</span> Send and receive between users</li>
-                    <li>• <span className="text-[#f7931a]">Future Gas Token:</span> Network transaction fees</li>
-                    <li>• <span className="text-[#f7931a]">Ecosystem Currency:</span> Platform expansion foundation</li>
+                    <li>• <span className="text-[#f7931a]">Mining Rewards:</span> Proportional distribution</li>
+                    <li>• <span className="text-[#f7931a]">P2P Transfers:</span> Direct user transactions</li>
+                    <li>• <span className="text-[#f7931a]">DeFi Integration:</span> Multi-chain staking & farming</li>
+                    <li>• <span className="text-[#f7931a]">Future Gas Token:</span> Network fee currency</li>
                   </ul>
                 </div>
               </div>
@@ -421,12 +850,11 @@ export default function Whitepaper() {
           </Card>
         </motion.div>
 
-
         {/* Strategic Advantages */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
+          transition={{ duration: 0.5, delay: 0.9 }}
         >
           <Card className="bg-black border-[#f7931a]/20">
             <div className="p-6">
@@ -438,96 +866,45 @@ export default function Whitepaper() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="bg-[#1a1a1a] p-3 rounded-lg">
                   <Wallet className="w-5 h-5 text-[#fbbf24] mb-2" />
-                  <h4 className="text-[#fbbf24] font-semibold text-sm mb-1">Zero Hardware Investment</h4>
-                  <p className="text-gray-500 text-xs">No mining rigs, cooling, or maintenance required</p>
+                  <h4 className="text-[#fbbf24] font-semibold text-sm mb-1">Zero Hardware</h4>
+                  <p className="text-gray-500 text-xs">No rigs, cooling, or maintenance</p>
                 </div>
                 
                 <div className="bg-[#1a1a1a] p-3 rounded-lg">
                   <TrendingUp className="w-5 h-5 text-[#fbbf24] mb-2" />
                   <h4 className="text-[#fbbf24] font-semibold text-sm mb-1">Predictable Returns</h4>
-                  <p className="text-gray-500 text-xs">Transparent calculations, real-time monitoring</p>
+                  <p className="text-gray-500 text-xs">Transparent real-time monitoring</p>
                 </div>
                 
                 <div className="bg-[#1a1a1a] p-3 rounded-lg">
                   <Globe className="w-5 h-5 text-[#fbbf24] mb-2" />
-                  <h4 className="text-[#fbbf24] font-semibold text-sm mb-1">Global Accessibility</h4>
-                  <p className="text-gray-500 text-xs">Mine from anywhere, 24/7 operations</p>
+                  <h4 className="text-[#fbbf24] font-semibold text-sm mb-1">Global Access</h4>
+                  <p className="text-gray-500 text-xs">Mine anywhere, 24/7 operations</p>
                 </div>
                 
                 <div className="bg-[#1a1a1a] p-3 rounded-lg">
                   <Users className="w-5 h-5 text-[#fbbf24] mb-2" />
                   <h4 className="text-[#fbbf24] font-semibold text-sm mb-1">Community Growth</h4>
-                  <p className="text-gray-500 text-xs">Earn from mining and referral commissions</p>
+                  <p className="text-gray-500 text-xs">Mining & referral rewards</p>
                 </div>
               </div>
             </div>
           </Card>
         </motion.div>
 
-        {/* Future Roadmap */}
+        {/* Download Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
+          transition={{ duration: 0.5, delay: 1.0 }}
         >
-          <Card className="bg-black border-[#f7931a]/20">
-            <div className="p-6">
-              <div className="flex items-center mb-4">
-                <Target className="w-6 h-6 text-[#f7931a] mr-2" />
-                <h2 className="text-2xl font-bold text-[#f7931a]">Roadmap & Future</h2>
-              </div>
-              
-              <p className="text-gray-400 text-sm mb-4">
-                Green Bitcoin is the foundation for a comprehensive decentralized mining ecosystem:
-              </p>
-              
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li className="flex items-start">
-                  <span className="text-[#f7931a] mr-2">•</span>
-                  Advanced mining pool features and collaborative options
-                </li>
-                <li className="flex items-start">
-                  <span className="text-[#f7931a] mr-2">•</span>
-                  GBTC as native gas token for platform transactions
-                </li>
-                <li className="flex items-start">
-                  <span className="text-[#f7931a] mr-2">•</span>
-                  Cross-chain bridges for enhanced liquidity
-                </li>
-                <li className="flex items-start">
-                  <span className="text-[#f7931a] mr-2">•</span>
-                  Decentralized governance for community development
-                </li>
-                <li className="flex items-start">
-                  <span className="text-[#f7931a] mr-2">•</span>
-                  Mobile applications for iOS and Android
-                </li>
-                <li className="flex items-start">
-                  <span className="text-[#f7931a] mr-2">•</span>
-                  Strategic exchange partnerships
-                </li>
-              </ul>
-            </div>
-          </Card>
-        </motion.div>
-
-        {/* Footer */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
-          <div className="text-center py-8">
-            <p className="text-lg font-bold text-[#f7931a] mb-2">
-              Green Bitcoin
-            </p>
-            <p className="text-sm text-[#fbbf24]">
-              Where Mining Meets Innovation
-            </p>
-            <p className="text-xs text-gray-500 mt-4">
-              © 2025 Green Bitcoin. Building the Future of Decentralized Mining.
-            </p>
-          </div>
+          <Button 
+            onClick={downloadWhitepaper}
+            className="w-full bg-gradient-to-r from-[#f7931a] to-[#fbbf24] hover:from-[#fbbf24] hover:to-[#f7931a] text-black font-bold py-6"
+          >
+            <Download className="w-5 h-5 mr-2" />
+            Download Full Whitepaper
+          </Button>
         </motion.div>
       </div>
     </div>
