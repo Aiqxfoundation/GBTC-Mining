@@ -66,9 +66,9 @@ export default function Whitepaper() {
                 <h4>Bitcoin-Standard Economics</h4>
                 <ul>
                     <li>21,000,000 GBTC maximum supply</li>
-                    <li>6.25 GBTC block rewards</li>
-                    <li>Halving every 210,000 blocks</li>
-                    <li>10-minute block generation</li>
+                    <li>50 GBTC block rewards</li>
+                    <li>Halving every 2 years</li>
+                    <li>1-hour block generation</li>
                 </ul>
             </div>
             
@@ -300,9 +300,9 @@ export default function Whitepaper() {
                   </div>
                   <ul className="text-sm text-gray-400 space-y-1">
                     <li>• 21,000,000 GBTC maximum supply</li>
-                    <li>• 6.25 GBTC block rewards</li>
-                    <li>• Halving every 210,000 blocks</li>
-                    <li>• 10-minute block generation</li>
+                    <li>• 50 GBTC block rewards</li>
+                    <li>• Halving every 2 years</li>
+                    <li>• 1-hour block generation</li>
                   </ul>
                 </div>
                 
@@ -325,7 +325,7 @@ export default function Whitepaper() {
                     <h3 className="font-semibold text-[#fbbf24]">Daily Block Cycles</h3>
                   </div>
                   <ul className="text-sm text-gray-400 space-y-1">
-                    <li>• 144 blocks per day</li>
+                    <li>• 24 blocks per day</li>
                     <li>• Reset at 00:00 UTC</li>
                     <li>• Continuous blockchain height</li>
                     <li>• Predictable mining schedule</li>

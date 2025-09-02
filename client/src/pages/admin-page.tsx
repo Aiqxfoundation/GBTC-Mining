@@ -212,7 +212,7 @@ export default function AdminPage() {
 
   const halveRewardMutation = useMutation({
     mutationFn: async () => {
-      const currentReward = blockRewardSetting?.value ? parseFloat(blockRewardSetting.value) : 6.25;
+      const currentReward = blockRewardSetting?.value ? parseFloat(blockRewardSetting.value) : 50;
       const newReward = (currentReward / 2).toString();
       const res = await apiRequest("POST", "/api/settings", { key: "blockReward", value: newReward });
       return res.json();
@@ -376,7 +376,7 @@ export default function AdminPage() {
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Block Reward</span>
                   <span className="text-sm font-bold text-green-500">
-                    {parseFloat(blockRewardSetting?.value || "6.25").toFixed(2)} GBTC
+                    {parseFloat(blockRewardSetting?.value || "50").toFixed(2)} GBTC
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -671,7 +671,7 @@ export default function AdminPage() {
               <div className="bg-muted p-3 rounded-lg mb-3">
                 <p className="text-xs text-muted-foreground mb-1">Current Reward</p>
                 <p className="text-2xl font-bold text-green-500">
-                  {parseFloat(blockRewardSetting?.value || "6.25").toFixed(4)} GBTC
+                  {parseFloat(blockRewardSetting?.value || "50").toFixed(4)} GBTC
                 </p>
               </div>
               

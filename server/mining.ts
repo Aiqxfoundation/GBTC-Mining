@@ -5,7 +5,7 @@ import cron from "node-cron";
 
 let dailyBlockNumber = 1; // Daily block counter (resets to 1 at 00:00 UTC)
 let totalBlockHeight = 0; // Total blocks mined (never resets)
-let currentBlockReward = 6.25;
+let currentBlockReward = 50;
 let lastResetDate: string | null = null;
 
 export function setupMining() {
@@ -14,8 +14,8 @@ export function setupMining() {
     console.log('Mining initialization will retry automatically');
   });
   
-  // Generate a new block AND distribute rewards every 10 minutes
-  cron.schedule("*/10 * * * *", async () => {
+  // Generate a new block AND distribute rewards every hour
+  cron.schedule("0 * * * *", async () => {
     await generateBlock();
     await distributeRewards();
   });
@@ -139,8 +139,8 @@ async function generateBlock() {
       
       console.log(`Block #${dailyBlockNumber - 1} (Total: ${totalBlockHeight}) mined with reward ${currentBlockReward} GBTC`);
       
-      // Check for halving every 210,000 blocks
-      if (totalBlockHeight % 210000 === 0) {
+      // Check for halving every 2 years (17,520 blocks at 1 hour per block)
+      if (totalBlockHeight % 17520 === 0) {
         await halveBlockReward();
       }
     }

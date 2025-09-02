@@ -108,7 +108,7 @@ export default function GlobalPage() {
               <Activity className="w-4 h-4 text-[#f7931a] animate-pulse" />
             </div>
             <div className="text-sm text-gray-500">Block Reward</div>
-            <div className="text-xl font-bold text-white">{stats?.blockReward || 6.25} GBTC</div>
+            <div className="text-xl font-bold text-white">{stats?.blockReward || 50} GBTC</div>
           </Card>
         </motion.div>
 

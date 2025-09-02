@@ -143,7 +143,7 @@ export class MemoryStorage implements IStorage {
     this.systemSettings.set('blockReward-1', {
       id: 'blockReward-1',
       key: 'blockReward',
-      value: '6.25',
+      value: '50',
       updatedAt: new Date()
     });
     
