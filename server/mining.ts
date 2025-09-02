@@ -199,8 +199,8 @@ async function distributeRewards() {
     const currentBlock = dailyBlockNumber - 1;
     console.log(`Block ${currentBlock} distributing ${currentBlockReward} GBTC across ${totalHashPowerNum} TH/s`);
     
-    // Get all users with hash power
-    const allUsers = await db.select().from(users);
+    // Get all users from storage interface (works with both memory and database)
+    const allUsers = await storage.getAllUsers();
     
     // Filter users who are eligible for rewards (have hash power)
     const eligibleUsers = allUsers.filter(u => {
