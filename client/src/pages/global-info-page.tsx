@@ -4,8 +4,8 @@ import bitcoinLogo from "@assets/file_00000000221c61fab63936953b889556_175663390
 
 export default function GlobalInfoPage() {
   // Mock data - replace with real API
-  const totalMinted = 1312500; // ~6.25% of total supply
-  const totalSupply = 21000000;
+  const totalMinted = 50; // Initial GBTC in circulation
+  const totalSupply = 2100000; // 2.1M GBTC total supply
   const percentMined = (totalMinted / totalSupply) * 100;
   const targetPercent = 25; // 25% target for exchange listing
   
@@ -15,16 +15,9 @@ export default function GlobalInfoPage() {
   const currentHour = new Date().getHours();
   const globalHashrate = baseHashrate * Math.pow(networkGrowthRate, currentHour);
   
-  // Calculate block reward based on global hashrate (logarithmic decay)
-  const calculateBlockReward = (hashrate: number) => {
-    const baseReward = 6.25;
-    const decayFactor = Math.log10(hashrate / 100000); // Logarithmic scaling
-    const adjustedReward = baseReward / (1 + decayFactor * 0.1);
-    return Math.max(0.1, adjustedReward); // Minimum 0.1 GBTC
-  };
-  
-  const currentBlockReward = calculateBlockReward(globalHashrate);
-  const currentBlockHeight = 871000 + Math.floor(Date.now() / 600000); // Increment every 10 mins
+  // Fixed block reward
+  const currentBlockReward = 50; // 50 GBTC per block
+  const currentBlockHeight = 1 + Math.floor((Date.now() - new Date().setHours(0,0,0,0)) / 3600000); // Increment every hour
   
   const getHashrateDisplay = (hashrate: number) => {
     if (hashrate >= 1000000) return `${(hashrate / 1000000).toFixed(3)} PH/s`;
@@ -39,7 +32,7 @@ export default function GlobalInfoPage() {
     registeredUsers: 5432,
     networkHashrate: globalHashrate,
     blockHeight: currentBlockHeight,
-    blocksToday: 87 + Math.floor(currentHour * 6 / 24), // ~6 blocks per hour
+    blocksToday: currentHour, // 1 block per hour, so blocks = hours passed today
     blockReward: currentBlockReward,
     difficulty: 47.8 + (globalHashrate / 100000) // Dynamic difficulty
   };
@@ -91,13 +84,13 @@ export default function GlobalInfoPage() {
             <div>
               <p className="text-xs text-muted-foreground mb-1">CIRCULATING</p>
               <p className="text-lg font-display font-bold text-primary">
-                {(totalMinted / 1000000).toFixed(2)}M
+                {totalMinted.toFixed(0)} GBTC
               </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground mb-1">TOTAL SUPPLY</p>
               <p className="text-lg font-display font-bold">
-                {totalSupply / 1000000}M
+                {(totalSupply / 1000000).toFixed(1)}M
               </p>
             </div>
             <div>
@@ -109,7 +102,7 @@ export default function GlobalInfoPage() {
             <div>
               <p className="text-xs text-muted-foreground mb-1">BLOCK REWARD</p>
               <p className="text-lg font-display font-bold text-accent">
-                {stats.blockReward.toFixed(4)}
+                {stats.blockReward} GBTC
               </p>
             </div>
           </div>
@@ -171,11 +164,11 @@ export default function GlobalInfoPage() {
           <div className="space-y-2">
             {[0, 1, 2, 3, 4].map(offset => {
               const blockNum = currentBlockHeight - offset;
-              const blockReward = calculateBlockReward(globalHashrate * (1 - offset * 0.001));
+              const blockReward = currentBlockReward; // Fixed 50 GBTC per block
               return (
                 <div key={blockNum} className="flex justify-between items-center p-2 bg-background rounded">
                   <span className="text-xs font-mono">Block #{blockNum.toLocaleString()}</span>
-                  <span className="text-xs text-muted-foreground">{blockReward.toFixed(4)} GBTC</span>
+                  <span className="text-xs text-muted-foreground">{blockReward} GBTC</span>
                   <span className="text-xs text-primary">✓ Mined</span>
                 </div>
               );

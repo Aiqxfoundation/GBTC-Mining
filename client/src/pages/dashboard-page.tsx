@@ -392,7 +392,7 @@ export default function DashboardPage() {
                   
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Block Reward:</span>
-                    <span className="font-semibold text-chart-4">6.25 GBTC</span>
+                    <span className="font-semibold text-chart-4">50 GBTC</span>
                   </div>
                   
                   <div className="pt-4 border-t border-border">

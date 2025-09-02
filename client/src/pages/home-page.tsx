@@ -398,23 +398,19 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.5 }}
-          className="grid grid-cols-2 gap-2"
+          className="grid grid-cols-3 gap-2"
         >
           <Card className="bg-black border-green-500/20 p-2 hover:border-green-500/40 transition-colors">
             <div className="text-[10px] text-gray-500 font-mono">Total Supply</div>
-            <div className="text-lg font-bold text-green-500">21M GBTC</div>
+            <div className="text-lg font-bold text-green-500">2.1M GBTC</div>
           </Card>
           <Card className="bg-black border-green-500/20 p-2 hover:border-green-500/40 transition-colors">
             <div className="text-[10px] text-gray-500 font-mono">Block Reward</div>
-            <div className="text-lg font-bold text-green-500">6.25 GBTC</div>
+            <div className="text-lg font-bold text-green-500">50 GBTC</div>
           </Card>
           <Card className="bg-black border-green-500/20 p-2 hover:border-green-500/40 transition-colors">
             <div className="text-[10px] text-gray-500 font-mono">Block Time</div>
-            <div className="text-lg font-bold text-green-500">10 min</div>
-          </Card>
-          <Card className="bg-black border-green-500/20 p-2 hover:border-green-500/40 transition-colors">
-            <div className="text-[10px] text-gray-500 font-mono">Network</div>
-            <div className="text-lg font-bold text-green-500">L1 Chain</div>
+            <div className="text-lg font-bold text-green-500">1 hour</div>
           </Card>
         </motion.div>
 

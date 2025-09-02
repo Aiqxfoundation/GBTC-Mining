@@ -253,7 +253,7 @@ export default function MiningFactory() {
               Block #{globalStats?.blockHeight || 0}
             </span>
             <span className="text-xs font-mono text-muted-foreground">
-              Reward: {globalStats?.currentBlockReward || 6.25} GBTC
+              Reward: {globalStats?.currentBlockReward || 50} GBTC
             </span>
           </div>
         </div>

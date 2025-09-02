@@ -43,7 +43,7 @@ export default function PurchasePowerPage() {
         userShare: "0.000000",
         dailyReward: "0.00000000",
         hourlyReward: "0.00000000",
-        blockReward: "6.25",
+        blockReward: "50",
         earlyBonus: "0"
       };
     }
@@ -52,8 +52,8 @@ export default function PurchasePowerPage() {
     const userShare = (userHashrate / totalHashrate) * 100;
     
     // Bitcoin-style block generation
-    const blocksPerDay = 144; // Standard: 144 blocks per day (every 10 minutes)
-    const baseBlockReward = 6.25; // Current GBTC block reward
+    const blocksPerDay = 24; // 24 blocks per day (1 block per hour)
+    const baseBlockReward = 50; // Current GBTC block reward
     
     // User's daily reward based on their share of the network
     // This will decrease as more miners join the network
