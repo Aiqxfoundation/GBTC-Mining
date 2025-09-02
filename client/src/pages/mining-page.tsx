@@ -9,7 +9,7 @@ import bitcoinLogo from "@assets/file_00000000221c61fab63936953b889556_175663390
 
 export default function MiningPage() {
   const { user, logoutMutation } = useAuth();
-  const [blockTimer, setBlockTimer] = useState(600); // 10 minutes in seconds
+  const [blockTimer, setBlockTimer] = useState(3600); // 1 hour in seconds
   const [minedBlocks, setMinedBlocks] = useState(1247);
   const [globalHashRate, setGlobalHashRate] = useState(2847.32);
   const [networkDifficulty, setNetworkDifficulty] = useState(1.247);
@@ -22,7 +22,7 @@ export default function MiningPage() {
         if (prev <= 1) {
           // New block mined
           setMinedBlocks(blocks => blocks + 1);
-          return 600; // Reset to 10 minutes
+          return 3600; // Reset to 1 hour
         }
         return prev - 1;
       });
@@ -47,7 +47,7 @@ export default function MiningPage() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const blockProgress = ((600 - blockTimer) / 600) * 100;
+  const blockProgress = ((3600 - blockTimer) / 3600) * 100;
 
   return (
     <div className="min-h-screen matrix-bg">

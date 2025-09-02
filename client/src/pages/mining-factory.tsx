@@ -204,13 +204,13 @@ export default function MiningFactory() {
   });
 
   // Calculate mining stats
-  const totalSupply = 21000000;
+  const totalSupply = 2100000; // 2.1M max supply from whitepaper
   const blockHeight = globalStats?.blockHeight || 1;
   const globalHashrate = globalStats?.totalHashrate || 0;
   const circulation = globalStats?.circulation || 0;
   const currentBlockReward = globalStats?.currentBlockReward || 6.25;
   const networkShare = globalHashrate > 0 ? ((hashPower / globalHashrate) * 100) : 0;
-  const estimatedDaily = globalHashrate > 0 ? ((144 * currentBlockReward) * (hashPower / globalHashrate)) : 0;
+  const estimatedDaily = globalHashrate > 0 ? ((24 * currentBlockReward) * (hashPower / globalHashrate)) : 0; // 24 blocks per day (1 hour block time)
 
   const formatHashrate = (rate: number) => {
     if (rate >= 1000000) return `${(rate / 1000000).toFixed(2)} PH/s`;
@@ -715,7 +715,7 @@ export default function MiningFactory() {
                 <p className="text-sm text-muted-foreground">No blocks to claim</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   {hashPower > 0 
-                    ? "New blocks appear every 10 minutes" 
+                    ? "New blocks appear every 1 hour" 
                     : "Purchase hashrate to start mining"}
                 </p>
               </div>

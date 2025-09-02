@@ -71,7 +71,7 @@ export default function TransferPage() {
   };
 
   // Calculate percentage of supply mined
-  const totalSupply = 21000000;
+  const totalSupply = 2100000; // 2.1M max supply from whitepaper
   const totalMinted = 1312500; // Mock data
   const percentMined = (totalMinted / totalSupply) * 100;
   const isTransferEnabled = percentMined < 25;

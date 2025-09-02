@@ -275,7 +275,7 @@ export default function PurchasePowerPage() {
             <Calculator className="w-4 h-4 text-gray-500 mt-0.5" />
             <div className="space-y-2 text-xs text-gray-500">
               <p>• Hash power starts mining immediately</p>
-              <p>• Rewards distributed every 10 minutes</p>
+              <p>• Rewards distributed every 1 hour</p>
               <p>• No maintenance fees</p>
               <p>• Permanent ownership</p>
             </div>
