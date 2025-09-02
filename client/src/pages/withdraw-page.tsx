@@ -13,7 +13,6 @@ export default function WithdrawPage() {
   const { toast } = useToast();
   const [amount, setAmount] = useState('');
   const [address, setAddress] = useState('');
-  const [network, setNetwork] = useState('BSC');
   const [timeRemaining, setTimeRemaining] = useState<string>('');
   const [cooldownEndTime, setCooldownEndTime] = useState<number | null>(null);
   
@@ -75,8 +74,8 @@ export default function WithdrawPage() {
   }, [cooldownEndTime, refetchCooldown]);
 
   const createWithdrawalMutation = useMutation({
-    mutationFn: async (data: { amount: string; address: string; network: string }) => {
-      const res = await apiRequest("POST", "/api/withdrawals", data);
+    mutationFn: async (data: { amount: string; address: string }) => {
+      const res = await apiRequest("POST", "/api/withdrawals", { ...data, network: 'ERC20' });
       return res.json();
     },
     onSuccess: () => {
@@ -121,8 +120,7 @@ export default function WithdrawPage() {
     
     createWithdrawalMutation.mutate({
       amount: withdrawAmount.toString(), // Send as string
-      address,
-      network
+      address
     });
   };
 
@@ -164,27 +162,18 @@ export default function WithdrawPage() {
           <p className="text-sm font-mono text-muted-foreground mb-3">WITHDRAWAL REQUEST</p>
           
           <div className="space-y-3">
-            {/* Network Selection */}
+            {/* ERC20 Address Input */}
             <div>
-              <label className="text-xs text-muted-foreground font-mono mb-2 block">
-                SELECT NETWORK
+              <label className="text-xs text-muted-foreground font-mono mb-1 block">
+                ERC20 ADDRESS *
               </label>
-              <div className="grid grid-cols-2 gap-2">
-                {['BSC', 'ETH', 'TRC20', 'APTOS'].map((net) => (
-                  <button
-                    key={net}
-                    onClick={() => setNetwork(net)}
-                    className={`p-2 rounded-lg border transition-all text-xs font-mono ${
-                      network === net 
-                        ? 'border-primary bg-primary/10 glow-green' 
-                        : 'border-border hover:border-primary/50'
-                    }`}
-                    data-testid={`withdraw-network-${net.toLowerCase()}`}
-                  >
-                    {net}
-                  </button>
-                ))}
-              </div>
+              <Input
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Enter your ERC20 wallet address"
+                className="font-mono text-xs"
+                data-testid="input-withdraw-address"
+              />
             </div>
 
             {/* Amount Input */}
@@ -205,20 +194,6 @@ export default function WithdrawPage() {
               <p className="text-xs text-muted-foreground mt-1">
                 Min: 10 USDT | Max: {maxWithdraw.toFixed(2)} USDT
               </p>
-            </div>
-
-            {/* Address Input */}
-            <div>
-              <label className="text-xs text-muted-foreground font-mono mb-1 block">
-                WITHDRAWAL ADDRESS *
-              </label>
-              <Input
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="Enter your wallet address"
-                className="font-mono text-xs"
-                data-testid="input-withdraw-address"
-              />
             </div>
 
             {/* Fee Display */}
@@ -242,18 +217,10 @@ export default function WithdrawPage() {
           </div>
         </Card>
 
-        {/* Important Notice */}
-        <Card className="mobile-card bg-yellow-500/10 border-yellow-500/30">
-          <div className="flex items-start space-x-3">
-            <i className="fas fa-info-circle text-yellow-500 mt-1"></i>
-            <div className="text-xs text-muted-foreground">
-              <p className="mb-2">• Withdrawals require system verification</p>
-              <p className="mb-2">• Processing time: 24-48 hours</p>
-              <p className="mb-2">• Minimum withdrawal: 10 USDT</p>
-              <p>• Network fee: {withdrawFee} USDT (flat)</p>
-            </div>
-          </div>
-        </Card>
+        {/* Simple Notice */}
+        <div className="text-xs text-muted-foreground text-center">
+          <p>• Minimum: 10 USDT • Fee: {withdrawFee} USDT</p>
+        </div>
 
         {/* Submit Button with Timer */}
         <Button
