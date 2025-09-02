@@ -11,11 +11,11 @@ import { Loader2 } from "lucide-react";
 export default function AuthPage() {
   const { user, loginMutation, registerMutation } = useAuth();
   const [loginForm, setLoginForm] = useState({ username: "", pin: "" });
-  const [registerForm, setRegisterForm] = useState({ username: "", pin: "", confirmPin: "", referrerUsername: "" });
+  const [registerForm, setRegisterForm] = useState({ username: "", pin: "", confirmPin: "", referredBy: "" });
 
   // Redirect if already logged in
   if (user) {
-    return <Redirect to="/dashboard" />;
+    return <Redirect to="/" />;
   }
 
   const handleLogin = (e: React.FormEvent) => {
@@ -30,7 +30,8 @@ export default function AuthPage() {
     if (registerForm.username && registerForm.pin && registerForm.pin === registerForm.confirmPin && registerForm.pin.length === 6) {
       registerMutation.mutate({
         username: registerForm.username,
-        password: registerForm.pin
+        password: registerForm.pin,
+        referredBy: registerForm.referredBy || undefined
       });
     }
   };
@@ -182,6 +183,22 @@ export default function AuthPage() {
                         className="bg-black border-gray-800 text-center font-mono text-lg"
                         data-testid="input-register-confirm-pin"
                       />
+                    </div>
+                    <div>
+                      <Label htmlFor="register-referrer">Referral Code (Optional)</Label>
+                      <Input
+                        id="register-referrer"
+                        type="text"
+                        placeholder="Enter referral username (optional)"
+                        value={registerForm.referredBy}
+                        onChange={(e) => {
+                          const value = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20);
+                          setRegisterForm(prev => ({ ...prev, referredBy: value }));
+                        }}
+                        className="bg-black border-gray-800"
+                        data-testid="input-register-referrer"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Enter the username of who referred you</p>
                     </div>
                     <Button 
                       type="submit" 
