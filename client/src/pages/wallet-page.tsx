@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, ChevronRight } from "lucide-react";
+import { Loader2, ArrowLeft, ChevronRight, Copy, CheckCircle } from "lucide-react";
 import { useLocation } from "wouter";
 
 interface Transaction {
@@ -44,9 +44,14 @@ export default function WalletPage() {
   const [withdrawAddress, setWithdrawAddress] = useState("");
   const [depositAmount, setDepositAmount] = useState("");
   const [depositTxHash, setDepositTxHash] = useState("");
+  const [copiedAddress, setCopiedAddress] = useState(false);
 
   const usdtBalance = parseFloat(user?.usdtBalance || '0');
   const gbtcBalance = parseFloat(user?.gbtcBalance || '0');
+
+  // Generate system deposit addresses
+  const systemGBTCAddress = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
+  const systemUSDTAddress = "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb";
 
   // Fetch transactions
   const { data: transactions } = useQuery<TransactionData>({
@@ -55,47 +60,66 @@ export default function WalletPage() {
     refetchInterval: 10000
   });
 
-  // Combine and sort transactions for display
+  // Combine and sort transactions for display - filter by asset type
   const getTransactionHistory = () => {
     if (!transactions) return [];
     
     const allTransactions: any[] = [];
     
-    // Add deposits
-    transactions.deposits?.forEach(d => {
-      allTransactions.push({
-        ...d,
-        displayType: 'Deposit',
-        displayAmount: d.amount
+    // For GBTC, only show GBTC-related transactions
+    if (selectedAsset === 'GBTC') {
+      // Add GBTC deposits
+      transactions.deposits?.filter(d => d.network === 'GBTC').forEach(d => {
+        allTransactions.push({
+          ...d,
+          displayType: 'Deposit',
+          displayAmount: d.amount
+        });
       });
-    });
-    
-    // Add withdrawals
-    transactions.withdrawals?.forEach(w => {
-      allTransactions.push({
-        ...w,
-        displayType: 'Withdraw',
-        displayAmount: w.amount
+      
+      // Add GBTC withdrawals
+      transactions.withdrawals?.filter(w => w.network === 'GBTC').forEach(w => {
+        allTransactions.push({
+          ...w,
+          displayType: 'Withdraw',
+          displayAmount: w.amount
+        });
       });
-    });
-    
-    // Add sent transfers
-    transactions.sentTransfers?.forEach(t => {
-      allTransactions.push({
-        ...t,
-        displayType: 'Transfer Out',
-        displayAmount: t.amount
+      
+      // Add all transfers (GBTC only)
+      transactions.sentTransfers?.forEach(t => {
+        allTransactions.push({
+          ...t,
+          displayType: 'Transfer Out',
+          displayAmount: t.amount
+        });
       });
-    });
-    
-    // Add received transfers
-    transactions.receivedTransfers?.forEach(t => {
-      allTransactions.push({
-        ...t,
-        displayType: 'Transfer In',
-        displayAmount: t.amount
+      
+      transactions.receivedTransfers?.forEach(t => {
+        allTransactions.push({
+          ...t,
+          displayType: 'Transfer In',
+          displayAmount: t.amount
+        });
       });
-    });
+    } else {
+      // For USDT, only show USDT transactions
+      transactions.deposits?.filter(d => d.network === 'BSC').forEach(d => {
+        allTransactions.push({
+          ...d,
+          displayType: 'Deposit',
+          displayAmount: d.amount
+        });
+      });
+      
+      transactions.withdrawals?.filter(w => w.network === 'BSC').forEach(w => {
+        allTransactions.push({
+          ...w,
+          displayType: 'Withdraw',
+          displayAmount: w.amount
+        });
+      });
+    }
     
     // Sort by date (newest first)
     return allTransactions.sort((a, b) => 
@@ -262,6 +286,16 @@ export default function WalletPage() {
     }
   };
 
+  const copyAddress = (address: string) => {
+    navigator.clipboard.writeText(address);
+    setCopiedAddress(true);
+    toast({ 
+      title: "Copied", 
+      description: "Address copied to clipboard" 
+    });
+    setTimeout(() => setCopiedAddress(false), 2000);
+  };
+
   // Main wallet view
   if (!selectedAsset) {
     return (
@@ -291,7 +325,7 @@ export default function WalletPage() {
               <ChevronRight className="w-5 h-5 text-gray-500" />
             </div>
             
-            <div className="grid grid-cols-3 gap-4 mt-4 text-sm">
+            <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
               <div>
                 <p className="text-[#f7931a] text-xs">Balance</p>
                 <p className="text-white font-medium">{gbtcBalance.toFixed(8)}</p>
@@ -299,10 +333,6 @@ export default function WalletPage() {
               <div>
                 <p className="text-[#f7931a] text-xs">Available</p>
                 <p className="text-white font-medium">{gbtcBalance.toFixed(8)}</p>
-              </div>
-              <div>
-                <p className="text-[#f7931a] text-xs">Frozen</p>
-                <p className="text-white font-medium">0.00000000</p>
               </div>
             </div>
           </Card>
@@ -325,7 +355,7 @@ export default function WalletPage() {
               <ChevronRight className="w-5 h-5 text-gray-500" />
             </div>
             
-            <div className="grid grid-cols-3 gap-4 mt-4 text-sm">
+            <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
               <div>
                 <p className="text-[#26a17b] text-xs">Balance</p>
                 <p className="text-white font-medium">{usdtBalance.toFixed(2)}</p>
@@ -333,10 +363,6 @@ export default function WalletPage() {
               <div>
                 <p className="text-[#26a17b] text-xs">Available</p>
                 <p className="text-white font-medium">{usdtBalance.toFixed(2)}</p>
-              </div>
-              <div>
-                <p className="text-[#26a17b] text-xs">Frozen</p>
-                <p className="text-white font-medium">0.00</p>
               </div>
             </div>
           </Card>
@@ -379,7 +405,7 @@ export default function WalletPage() {
         </div>
 
         {/* Balance Info */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
             <p className="text-gray-500 text-xs mb-1">Balance</p>
             <p className="text-white font-medium">
@@ -390,12 +416,6 @@ export default function WalletPage() {
             <p className="text-gray-500 text-xs mb-1">Available</p>
             <p className="text-white font-medium">
               {selectedAsset === 'GBTC' ? gbtcBalance.toFixed(8) : usdtBalance.toFixed(2)}
-            </p>
-          </div>
-          <div>
-            <p className="text-gray-500 text-xs mb-1">Frozen</p>
-            <p className="text-white font-medium">
-              {selectedAsset === 'GBTC' ? '0.00000000' : '0.00'}
             </p>
           </div>
         </div>
@@ -448,7 +468,7 @@ export default function WalletPage() {
                         <div>
                           <p className="text-gray-500 text-xs">Amount</p>
                           <p className="text-white text-sm">
-                            {tx.displayAmount} {selectedAsset === 'GBTC' && tx.network === 'GBTC' ? 'GBTC' : 'USDT'}
+                            {tx.displayAmount}
                           </p>
                         </div>
                         <div>
@@ -485,6 +505,34 @@ export default function WalletPage() {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            {/* System Deposit Address */}
+            <div>
+              <Label className="text-gray-400 text-sm">Deposit Address</Label>
+              <div className="flex items-center gap-2 mt-1">
+                <Input
+                  value={selectedAsset === 'GBTC' ? systemGBTCAddress : systemUSDTAddress}
+                  readOnly
+                  className="bg-[#1a1a1a] border-gray-700 text-white font-mono text-xs"
+                />
+                <Button
+                  onClick={() => copyAddress(selectedAsset === 'GBTC' ? systemGBTCAddress : systemUSDTAddress)}
+                  variant="ghost"
+                  size="sm"
+                  className="px-2"
+                  data-testid="button-copy-deposit-address"
+                >
+                  {copiedAddress ? (
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                  ) : (
+                    <Copy className="w-4 h-4 text-gray-400" />
+                  )}
+                </Button>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Send {selectedAsset} to this address
+              </p>
+            </div>
+
             <div>
               <Label htmlFor="deposit-amount" className="text-gray-400 text-sm">Amount</Label>
               <Input
