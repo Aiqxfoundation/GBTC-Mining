@@ -472,12 +472,6 @@ export default function WalletPage() {
           </Button>
         </div>
 
-        {/* Live UTC Time */}
-        <div className="text-center mb-4">
-          <p className="text-gray-500 text-xs">Current UTC Time</p>
-          <p className="text-white font-mono text-sm">{currentUTCTime}</p>
-        </div>
-
         {/* Financial Records */}
         <div>
           <h3 className="text-gray-400 text-sm font-medium mb-3">Financial Records</h3>
