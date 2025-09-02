@@ -139,8 +139,8 @@ async function generateBlock() {
       
       console.log(`Block #${dailyBlockNumber - 1} (Total: ${totalBlockHeight}) mined with reward ${currentBlockReward} GBTC`);
       
-      // Check for halving every 2 years (17,520 blocks at 1 hour per block)
-      if (totalBlockHeight % 17520 === 0) {
+      // Check for halving every 6 months (4,200 blocks at 1 hour per block)
+      if (totalBlockHeight % 4200 === 0) {
         await halveBlockReward();
       }
     }
@@ -224,8 +224,7 @@ async function distributeRewards() {
       }
     }
     
-    // Update referral hash contributions after distribution
-    await updateReferralHashContributions();
+    // No longer update referral hash contributions since we removed hash bonus
     
     // Expire old blocks
     await storage.expireOldBlocks();
@@ -238,44 +237,6 @@ async function distributeRewards() {
   }
 }
 
-// Function to update referral hash contributions
-async function updateReferralHashContributions() {
-  try {
-    const allUsers = await storage.getAllUsers();
-    
-    // For each user, calculate their referral hash bonus from active referrals
-    for (const user of allUsers) {
-      if (!user.referralCode) continue;
-      
-      const referredUsers = await storage.getUsersByReferralCode(user.referralCode);
-      let totalReferralBonus = 0;
-      
-      for (const referred of referredUsers) {
-        // Check if referred user is active (has hash power and has claimed recently)
-        const isActive = parseFloat(referred.baseHashPower || "0") > 0 && 
-                        referred.lastActiveBlock !== undefined && 
-                        referred.lastActiveBlock !== null &&
-                        referred.lastActiveBlock >= dailyBlockNumber - 3; // Active within last 3 blocks
-        
-        if (isActive) {
-          // Add 5% of their base hash power as bonus
-          totalReferralBonus += parseFloat(referred.baseHashPower || "0") * 0.05;
-        }
-      }
-      
-      // Update user's referral hash bonus and total hash power
-      const newReferralBonus = totalReferralBonus.toFixed(2);
-      const totalHashPower = (parseFloat(user.baseHashPower || "0") + totalReferralBonus).toFixed(2);
-      
-      await storage.updateUser(user.id, {
-        referralHashBonus: newReferralBonus,
-        hashPower: totalHashPower
-      });
-    }
-  } catch (error) {
-    console.error("Error updating referral hash contributions:", error);
-  }
-}
 
 export async function halveBlockReward() {
   try {

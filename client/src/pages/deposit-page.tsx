@@ -121,7 +121,7 @@ export default function DepositPage() {
       <div className="mobile-header">
         <div>
           <h1 className="text-lg font-display font-bold text-primary">DEPOSIT USDT</h1>
-          <p className="text-xs text-muted-foreground font-mono">Min deposit: 10 USDT</p>
+          <p className="text-xs text-muted-foreground font-mono">Min deposit: 50 USDT</p>
         </div>
         <div className="text-right">
           <p className="text-xs text-muted-foreground font-mono">BALANCE</p>
@@ -229,7 +229,7 @@ export default function DepositPage() {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
-                min="10"
+                min="50"
                 step="0.01"
                 data-testid="input-amount"
               />

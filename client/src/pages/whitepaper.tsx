@@ -65,9 +65,9 @@ export default function Whitepaper() {
             <div class="feature">
                 <h4>Bitcoin-Standard Economics</h4>
                 <ul>
-                    <li>21,000,000 GBTC maximum supply</li>
+                    <li>2,100,000 GBTC maximum supply</li>
                     <li>50 GBTC block rewards</li>
-                    <li>Halving every 2 years</li>
+                    <li>Halving every 6 months (4,200 blocks)</li>
                     <li>1-hour block generation</li>
                 </ul>
             </div>
@@ -299,9 +299,9 @@ export default function Whitepaper() {
                     <h3 className="font-semibold text-[#fbbf24]">Bitcoin-Standard Economics</h3>
                   </div>
                   <ul className="text-sm text-gray-400 space-y-1">
-                    <li>• 21,000,000 GBTC maximum supply</li>
+                    <li>• 2,100,000 GBTC maximum supply</li>
                     <li>• 50 GBTC block rewards</li>
-                    <li>• Halving every 2 years</li>
+                    <li>• Halving every 6 months (4,200 blocks)</li>
                     <li>• 1-hour block generation</li>
                   </ul>
                 </div>
@@ -388,12 +388,8 @@ export default function Whitepaper() {
                   </p>
                   <div className="space-y-2">
                     <div className="bg-[#1a1a1a] p-3 rounded-lg border-l-4 border-[#f7931a]">
-                      <p className="text-[#fbbf24] font-semibold">15% USDT Commission</p>
+                      <p className="text-[#fbbf24] font-semibold">10% USDT Commission</p>
                       <p className="text-gray-400 text-sm">Earn instantly on every referral's hash power purchase</p>
-                    </div>
-                    <div className="bg-[#1a1a1a] p-3 rounded-lg border-l-4 border-[#f7931a]">
-                      <p className="text-[#fbbf24] font-semibold">5% Hash Power Bonus</p>
-                      <p className="text-gray-400 text-sm">Receive additional hash from active miners in your network</p>
                     </div>
                   </div>
                 </div>

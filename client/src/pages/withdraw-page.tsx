@@ -192,7 +192,7 @@ export default function WithdrawPage() {
                 data-testid="input-withdraw-amount"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Min: 10 USDT | Max: {maxWithdraw.toFixed(2)} USDT
+                Min: 50 USDT | Max: {maxWithdraw.toFixed(2)} USDT
               </p>
             </div>
 
@@ -219,7 +219,7 @@ export default function WithdrawPage() {
 
         {/* Simple Notice */}
         <div className="text-xs text-muted-foreground text-center">
-          <p>• Minimum: 10 USDT • Fee: {withdrawFee} USDT</p>
+          <p>• Minimum: 50 USDT • Fee: {withdrawFee} USDT</p>
         </div>
 
         {/* Submit Button with Timer */}

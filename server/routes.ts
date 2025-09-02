@@ -166,29 +166,21 @@ export async function registerRoutes(app: Express) {
         if (referrers.length > 0) {
           const referrer = referrers[0];
           
-          // Calculate commissions
-          const usdtCommission = amount * 0.15; // 15% USDT commission
-          const hashBonus = amount * 0.05; // 5% hash power bonus
+          // Calculate commission - 10% USDT commission only, no hash bonus
+          const usdtCommission = amount * 0.10; // 10% USDT commission
           
           // Update referrer's balances
           const referrerNewUsdt = (parseFloat(referrer.usdtBalance || "0") + usdtCommission).toFixed(2);
-          const referrerNewBaseHash = (parseFloat(referrer.baseHashPower || "0") + hashBonus).toFixed(2);
           const referrerTotalEarnings = (parseFloat(referrer.totalReferralEarnings || "0") + usdtCommission).toFixed(2);
-          
-          // Calculate referrer's total hash power including their referral bonuses
-          const referrerTotalHash = (parseFloat(referrerNewBaseHash) + parseFloat(referrer.referralHashBonus || "0")).toFixed(2);
           
           await storage.updateUser(referrer.id, {
             usdtBalance: referrerNewUsdt,
-            baseHashPower: referrerNewBaseHash,
-            hashPower: referrerTotalHash,
             totalReferralEarnings: referrerTotalEarnings
           });
         }
       }
 
-      // Update referral hash contributions for all users
-      await updateReferralHashContributions();
+      // No longer update referral hash contributions since we removed hash bonus
 
       res.json({ message: "Hash power purchased successfully" });
     } catch (error) {
@@ -196,36 +188,6 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  // Function to update referral hash contributions
-  async function updateReferralHashContributions() {
-    const allUsers = await storage.getAllUsers();
-    
-    // For each user, calculate their referral hash bonus from active referrals
-    for (const user of allUsers) {
-      if (!user.referralCode) continue;
-      
-      const referredUsers = await storage.getUsersByReferralCode(user.referralCode);
-      let totalReferralBonus = 0;
-      
-      for (const referred of referredUsers) {
-        // Check if referred user is active (has hash power and has claimed recently)
-        const isActive = parseFloat(referred.baseHashPower || "0") > 0;
-        if (isActive) {
-          // Add 5% of their base hash power as bonus
-          totalReferralBonus += parseFloat(referred.baseHashPower || "0") * 0.05;
-        }
-      }
-      
-      // Update user's referral hash bonus and total hash power
-      const newReferralBonus = totalReferralBonus.toFixed(2);
-      const totalHashPower = (parseFloat(user.baseHashPower || "0") + totalReferralBonus).toFixed(2);
-      
-      await storage.updateUser(user.id, {
-        referralHashBonus: newReferralBonus,
-        hashPower: totalHashPower
-      });
-    }
-  }
 
   // Claim mining rewards with strict participation rules
   app.post("/api/claim-rewards", async (req, res, next) => {
