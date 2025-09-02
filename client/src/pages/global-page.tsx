@@ -110,8 +110,8 @@ export default function GlobalPage() {
             <div className="text-right">
               <div className="text-xs text-gray-500">Network Status</div>
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-green-500">Online</span>
+                <div className="w-2 h-2 bg-[#f7931a] rounded-full animate-pulse"></div>
+                <span className="text-sm text-[#f7931a]">Online</span>
               </div>
             </div>
           </div>
@@ -135,11 +135,11 @@ export default function GlobalPage() {
             </div>
             <div className="p-4 font-mono text-xs space-y-1">
               <div className="text-[#f7931a]">[{new Date().toLocaleTimeString()}] GLOBAL NETWORK STATUS</div>
-              <div className="text-green-400">[NETWORK] Active Miners: {stats?.activeMinerCount || 0}</div>
-              <div className="text-blue-400">[BLOCKS] Generated Today: {stats?.blocksToday || 0}</div>
-              <div className="text-yellow-400">[HASH] Current Block: #{stats?.blockHeight || 1}</div>
-              <div className="text-purple-400">[SUPPLY] Mined: {stats?.supplyProgress?.toFixed(4) || 0}% of 21M</div>
-              <div className="text-cyan-400">[POWER] Total Hash: {stats?.hashRateDisplay || '0 GH/s'}</div>
+              <div className="text-gray-400">[NETWORK] Active Miners: {stats?.activeMinerCount || 0}</div>
+              <div className="text-gray-400">[BLOCKS] Generated Today: {stats?.blocksToday || 0}</div>
+              <div className="text-[#f7931a]">[HASH] Current Block: #{stats?.blockHeight || 1}</div>
+              <div className="text-gray-400">[SUPPLY] Mined: {stats?.supplyProgress?.toFixed(4) || 0}% of 21M</div>
+              <div className="text-[#f7931a]">[POWER] Total Hash: {stats?.hashRateDisplay || '0 GH/s'}</div>
             </div>
           </Card>
         </motion.div>
@@ -151,7 +151,7 @@ export default function GlobalPage() {
           transition={{ delay: 0.3 }}
           className="grid grid-cols-2 gap-3 mb-6"
         >
-          <Card className="bg-gradient-to-br from-[#f7931a]/10 to-transparent border-[#f7931a]/20 p-4">
+          <Card className="bg-gray-950 border-gray-800 p-4">
             <div className="flex items-center justify-between mb-2">
               <Zap className="w-5 h-5 text-[#f7931a]" />
               <Activity className="w-4 h-4 text-[#f7931a] animate-pulse" />
@@ -160,31 +160,31 @@ export default function GlobalPage() {
             <div className="text-xl font-bold text-[#f7931a]">{stats?.hashRateDisplay || '0 GH/s'}</div>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-500/10 to-transparent border-green-500/20 p-4">
+          <Card className="bg-gray-950 border-gray-800 p-4">
             <div className="flex items-center justify-between mb-2">
-              <Users className="w-5 h-5 text-green-500" />
-              <span className="text-xs text-green-400">LIVE</span>
+              <Users className="w-5 h-5 text-[#f7931a]" />
+              <span className="text-xs text-[#f7931a]">LIVE</span>
             </div>
             <div className="text-sm text-gray-500">Active Miners</div>
-            <div className="text-xl font-bold text-green-500">{stats?.activeMinerCount || 0}</div>
+            <div className="text-xl font-bold text-white">{stats?.activeMinerCount || 0}</div>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-500/10 to-transparent border-purple-500/20 p-4">
+          <Card className="bg-gray-950 border-gray-800 p-4">
             <div className="flex items-center justify-between mb-2">
-              <Database className="w-5 h-5 text-purple-500" />
-              <Activity className="w-4 h-4 text-purple-400 animate-pulse" />
+              <Database className="w-5 h-5 text-[#f7931a]" />
+              <Activity className="w-4 h-4 text-[#f7931a] animate-pulse" />
             </div>
             <div className="text-sm text-gray-500">Block Height</div>
-            <div className="text-xl font-bold text-purple-500">#{stats?.blockHeight || 1}</div>
+            <div className="text-xl font-bold text-white">#{stats?.blockHeight || 1}</div>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-500/10 to-transparent border-blue-500/20 p-4">
+          <Card className="bg-gray-950 border-gray-800 p-4">
             <div className="flex items-center justify-between mb-2">
-              <TrendingUp className="w-5 h-5 text-blue-500" />
+              <TrendingUp className="w-5 h-5 text-[#f7931a]" />
               <span className="text-xs text-gray-400">{stats?.networkDifficulty || '0T'}</span>
             </div>
             <div className="text-sm text-gray-500">Network Difficulty</div>
-            <div className="text-xl font-bold text-blue-500">{stats?.networkDifficulty || '0T'}</div>
+            <div className="text-xl font-bold text-white">{stats?.networkDifficulty || '0T'}</div>
           </Card>
         </motion.div>
 
@@ -229,11 +229,11 @@ export default function GlobalPage() {
                 <div className="text-xs text-gray-500">Mined</div>
               </div>
               <div className="text-center p-2 rounded bg-gray-900">
-                <div className="text-lg font-bold text-green-500">{stats?.blockReward || 6.25}</div>
+                <div className="text-lg font-bold text-[#f7931a]">{stats?.blockReward || 6.25}</div>
                 <div className="text-xs text-gray-500">Per Block</div>
               </div>
               <div className="text-center p-2 rounded bg-gray-900">
-                <div className="text-lg font-bold text-purple-500">10min</div>
+                <div className="text-lg font-bold text-white">10min</div>
                 <div className="text-xs text-gray-500">Block Time</div>
               </div>
             </div>
@@ -253,15 +253,15 @@ export default function GlobalPage() {
           </Card>
           <Card className="bg-gray-950 border-gray-800 p-3">
             <div className="text-xs text-gray-500 mb-1">Total Deposits</div>
-            <div className="text-lg font-bold text-accent">{formatUSDT(stats?.totalDeposits || '0')}</div>
+            <div className="text-lg font-bold text-[#f7931a]">{formatUSDT(stats?.totalDeposits || '0')}</div>
           </Card>
           <Card className="bg-gray-950 border-gray-800 p-3">
             <div className="text-xs text-gray-500 mb-1">Blocks Today</div>
-            <div className="text-lg font-bold text-primary">{stats?.blocksToday || 0}</div>
+            <div className="text-lg font-bold text-white">{stats?.blocksToday || 0}</div>
           </Card>
           <Card className="bg-gray-950 border-gray-800 p-3">
             <div className="text-xs text-gray-500 mb-1">Hash/USD Rate</div>
-            <div className="text-lg font-bold text-purple-500">1 GH/s = 1 USDT</div>
+            <div className="text-lg font-bold text-[#f7931a]">1 GH/s = 1 USDT</div>
           </Card>
         </motion.div>
 
@@ -273,7 +273,7 @@ export default function GlobalPage() {
         >
           <Card className="bg-gray-950 border-gray-800 p-4">
             <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-              <Activity className="w-4 h-4 text-green-500" />
+              <Activity className="w-4 h-4 text-[#f7931a]" />
               Network Information
             </h3>
             <div className="space-y-2">
@@ -283,23 +283,23 @@ export default function GlobalPage() {
               </div>
               <div className="flex justify-between p-2 rounded bg-gray-900">
                 <span className="text-xs text-gray-400">Current Block</span>
-                <span className="text-xs text-green-500 font-mono">#{stats?.blockHeight || 1}</span>
+                <span className="text-xs text-white font-mono">#{stats?.blockHeight || 1}</span>
               </div>
               <div className="flex justify-between p-2 rounded bg-gray-900">
                 <span className="text-xs text-gray-400">Block Reward</span>
-                <span className="text-xs text-purple-500 font-mono">{stats?.blockReward || 6.25} GBTC</span>
+                <span className="text-xs text-[#f7931a] font-mono">{stats?.blockReward || 6.25} GBTC</span>
               </div>
               <div className="flex justify-between p-2 rounded bg-gray-900">
                 <span className="text-xs text-gray-400">Next Halving</span>
-                <span className="text-xs text-blue-500 font-mono">Block #{stats?.nextHalving || 210000}</span>
+                <span className="text-xs text-white font-mono">Block #{stats?.nextHalving || 210000}</span>
               </div>
               <div className="flex justify-between p-2 rounded bg-gray-900">
                 <span className="text-xs text-gray-400">Halving Progress</span>
-                <span className="text-xs text-orange-500 font-mono">{stats?.halvingProgress?.toFixed(1) || 0}%</span>
+                <span className="text-xs text-[#f7931a] font-mono">{stats?.halvingProgress?.toFixed(1) || 0}%</span>
               </div>
               <div className="flex justify-between p-2 rounded bg-gray-900">
                 <span className="text-xs text-gray-400">Registered Users</span>
-                <span className="text-xs text-cyan-500 font-mono">{stats?.userCount || 0}</span>
+                <span className="text-xs text-white font-mono">{stats?.userCount || 0}</span>
               </div>
             </div>
           </Card>
