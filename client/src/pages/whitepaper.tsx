@@ -231,19 +231,6 @@ export default function Whitepaper() {
             </ul>
         </div>
         
-        <div class="feature">
-            <h4>⚡ How Automatic Commission Works</h4>
-            <div style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 10px;">
-                <ol style="font-size: 14px; line-height: 1.8;">
-                    <li>1️⃣ Your referral deposits USDT to their account</li>
-                    <li>2️⃣ They purchase hash power (minimum $50)</li>
-                    <li>3️⃣ System automatically detects the purchase</li>
-                    <li>4️⃣ 10% commission instantly transfers to your USDT balance</li>
-                    <li>5️⃣ You can withdraw or reinvest your commission immediately</li>
-                </ol>
-            </div>
-        </div>
-        
         <div class="metric" style="text-align: center; background: linear-gradient(135deg, rgba(247,147,26,0.2), rgba(251,191,36,0.2));">
             <p style="color: #f7931a; font-weight: bold; font-size: 18px;">🚀 Commission Based on Hash Purchase - Not Deposit!</p>
             <p style="color: #fbbf24; font-size: 14px; margin-top: 10px;">Your earnings grow with your network's mining activity</p>
@@ -438,13 +425,6 @@ export default function Whitepaper() {
         <h3>Active Mining Protocol</h3>
         <p>Our 24-hour claim system ensures network vitality by requiring miners to actively participate. This prevents resource hoarding and maintains fair distribution among engaged participants.</p>
         
-        <h3>GBTC Token Utility</h3>
-        <ul>
-            <li><span class="highlight">Mining Rewards:</span> Earn GBTC through proportional block reward distribution</li>
-            <li><span class="highlight">Peer-to-Peer Transfers:</span> Send and receive GBTC directly between users</li>
-            <li><span class="highlight">Future Gas Token:</span> Planned integration as network transaction fee currency</li>
-            <li><span class="highlight">DeFi Integration:</span> Stake, farm, and provide liquidity across multiple chains</li>
-        </ul>
     </div>
     
     <div class="footer">
@@ -827,16 +807,6 @@ export default function Whitepaper() {
                 </div>
               </div>
               
-              <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333] mb-4">
-                <h4 className="text-[#fbbf24] font-semibold mb-3">⚡ How Automatic Commission Works</h4>
-                <ol className="text-sm text-gray-400 space-y-2">
-                  <li>1️⃣ Your referral deposits USDT to their account</li>
-                  <li>2️⃣ They purchase hash power (minimum $50)</li>
-                  <li>3️⃣ System automatically detects the purchase</li>
-                  <li>4️⃣ 10% commission instantly transfers to your USDT balance</li>
-                  <li>5️⃣ You can withdraw or reinvest your commission</li>
-                </ol>
-              </div>
               
               <div className="p-3 bg-gradient-to-r from-[#f7931a]/20 to-[#fbbf24]/20 rounded-lg">
                 <p className="text-center text-sm font-bold text-[#f7931a]">
@@ -1094,18 +1064,6 @@ export default function Whitepaper() {
                   </p>
                 </div>
                 
-                <div>
-                  <div className="flex items-center mb-2">
-                    <Coins className="w-5 h-5 text-[#fbbf24] mr-2" />
-                    <h3 className="text-lg font-semibold text-[#fbbf24]">GBTC Token Utility</h3>
-                  </div>
-                  <ul className="text-gray-400 text-sm space-y-1">
-                    <li>• <span className="text-[#f7931a]">Mining Rewards:</span> Proportional distribution</li>
-                    <li>• <span className="text-[#f7931a]">P2P Transfers:</span> Direct user transactions</li>
-                    <li>• <span className="text-[#f7931a]">DeFi Integration:</span> Multi-chain staking & farming</li>
-                    <li>• <span className="text-[#f7931a]">Future Gas Token:</span> Network fee currency</li>
-                  </ul>
-                </div>
               </div>
             </div>
           </Card>
