@@ -51,9 +51,11 @@ export default function Whitepaper() {
         <h2>GBTC Token Economics</h2>
         <ul>
             <li><strong>Max Supply:</strong> 21,000,000 GBTC</li>
-            <li><strong>Block Reward:</strong> 6.25 GBTC</li>
+            <li><strong>Block Reward:</strong> 6.25 GBTC (halves every 210,000 blocks)</li>
             <li><strong>Block Time:</strong> 10 Minutes</li>
-            <li><strong>Daily Blocks:</strong> 144 Blocks</li>
+            <li><strong>Daily Blocks:</strong> 144 Blocks (resets at 00:00 UTC)</li>
+            <li><strong>Daily Block Reset:</strong> Block counter resets to #1 every day at 00:00 UTC</li>
+            <li><strong>Total Block Height:</strong> Cumulative count of all blocks ever mined</li>
         </ul>
         
         <h3>Distribution Formula</h3>
@@ -90,20 +92,42 @@ export default function Whitepaper() {
         </div>
         <div class="info">
             <p><strong>Hash Power Contribution: 5%</strong><br>
-            When your miners are actively mining, 5% of their hash power contributes to your total hash power.</p>
+            When your miners are actively mining, 5% of their hash power contributes to your total hash power. If they stop mining (inactive), their contribution is automatically removed from your hash power.</p>
+        </div>
+        <div class="warning">
+            <p><strong>Active Mining Requirement:</strong><br>
+            To participate in block rewards, users must have claimed rewards from the previous block. New miners must wait for the next block to start earning rewards. This ensures fair distribution among active participants.</p>
         </div>
     </div>
     
     <div class="section">
         <h2>Mining Operations</h2>
+        <h3>Daily Block Reset System</h3>
+        <p>Every day at 00:00 UTC, the daily block counter resets to Block #1 while the total blockchain height continues counting. This creates a 24-hour mining cycle of 144 blocks.</p>
+        <ul>
+            <li>Daily blocks: #1 to #144 (resets at midnight UTC)</li>
+            <li>Total height: Cumulative count (never resets)</li>
+            <li>Block rewards: 6.25 GBTC per block until halving</li>
+            <li>Halving schedule: Every 210,000 total blocks</li>
+        </ul>
+        
         <h3>Automatic Mining Process</h3>
         <ol>
             <li>Purchase hash power with USDT</li>
-            <li>Mining starts automatically</li>
+            <li>Wait for next block to start participating</li>
             <li>New block generated every 10 minutes</li>
-            <li>Rewards distributed proportionally</li>
+            <li>Rewards distributed to active miners only</li>
+            <li>Must have claimed previous block to participate</li>
             <li>Claim rewards within 24 hours to continue</li>
         </ol>
+        
+        <h3>Active Participation Rules</h3>
+        <ul>
+            <li>New miners must wait for the next block to start earning</li>
+            <li>Must claim previous block rewards to participate in new blocks</li>
+            <li>Inactive miners are excluded from reward distribution</li>
+            <li>Referral hash contributions removed when referrals become inactive</li>
+        </ul>
     </div>
     
     <div class="section">
@@ -322,6 +346,7 @@ export default function Whitepaper() {
                 <div className="bg-black/30 p-2 rounded">
                   <p className="text-muted-foreground text-xs">Block Reward</p>
                   <p className="font-bold text-accent">6.25 GBTC</p>
+                  <p className="text-xs text-muted-foreground">(Halves every 210K blocks)</p>
                 </div>
                 <div className="bg-black/30 p-2 rounded">
                   <p className="text-muted-foreground text-xs">Block Time</p>
@@ -330,6 +355,7 @@ export default function Whitepaper() {
                 <div className="bg-black/30 p-2 rounded">
                   <p className="text-muted-foreground text-xs">Daily Blocks</p>
                   <p className="font-bold text-accent">144 Blocks</p>
+                  <p className="text-xs text-muted-foreground">(Resets at 00:00 UTC)</p>
                 </div>
               </div>
               <div>
@@ -430,7 +456,8 @@ export default function Whitepaper() {
                     <p className="text-xs text-primary font-semibold mb-1">Hash Power Contribution: 5%</p>
                     <p className="text-sm text-muted-foreground">
                       When your miners are actively mining, 5% of their hash power contributes to 
-                      your total hash power, increasing your mining rewards.
+                      your total hash power. This bonus is dynamic - if they stop claiming blocks, 
+                      their contribution is automatically removed from your hash power.
                     </p>
                   </div>
                 </div>
@@ -459,16 +486,39 @@ export default function Whitepaper() {
             </div>
             <div className="space-y-3">
               <div>
+                <h3 className="text-sm font-semibold text-orange-500 mb-1">Daily Block Reset Cycle</h3>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Every day at 00:00 UTC, the daily block counter resets to Block #1 while the total 
+                  blockchain height continues counting. This creates a 24-hour mining cycle of 144 blocks.
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Daily blocks: #1 to #144 (resets at midnight UTC)</li>
+                  <li>• Total height: Cumulative count (never resets)</li>
+                  <li>• Block rewards: 6.25 GBTC per block until halving</li>
+                  <li>• Halving schedule: Every 210,000 total blocks</li>
+                </ul>
+              </div>
+              <div className="mt-3">
                 <h3 className="text-sm font-semibold text-orange-500 mb-1">Automatic Mining Process</h3>
                 <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
                   <li>Purchase hash power with USDT</li>
-                  <li>Mining starts automatically</li>
+                  <li>Wait for next block to start participating</li>
                   <li>New block generated every 10 minutes</li>
-                  <li>Rewards distributed proportionally</li>
+                  <li>Rewards distributed to active miners only</li>
+                  <li>Must have claimed previous block to participate</li>
                   <li>Claim rewards within 24 hours to continue</li>
                 </ol>
               </div>
-              <div className="p-3 bg-destructive/10 rounded-lg">
+              <div className="p-3 bg-warning/10 rounded-lg">
+                <h3 className="text-sm font-semibold text-warning mb-1">Active Participation Rules</h3>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• New miners must wait for the next block to start earning</li>
+                  <li>• Must claim previous block rewards to participate in new blocks</li>
+                  <li>• Inactive miners are excluded from reward distribution</li>
+                  <li>• Referral hash contributions removed when referrals become inactive</li>
+                </ul>
+              </div>
+              <div className="p-3 bg-destructive/10 rounded-lg mt-3">
                 <h3 className="text-sm font-semibold text-destructive mb-1">Mining Stop Conditions</h3>
                 <ul className="text-sm text-muted-foreground space-y-1">
                   <li>• Not claiming rewards within 24 hours</li>
