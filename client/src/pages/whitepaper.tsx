@@ -424,7 +424,6 @@ export default function Whitepaper() {
         
         <h3>Active Mining Protocol</h3>
         <p>Our 24-hour claim system ensures network vitality by requiring miners to actively participate. This prevents resource hoarding and maintains fair distribution among engaged participants.</p>
-        
     </div>
     
     <div class="footer">
