@@ -90,6 +90,20 @@ export async function registerRoutes(app: Express) {
     }
   });
 
+  // Also support the route the frontend is using
+  app.get("/api/deposits/pending", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated() || !req.user!.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const deposits = await storage.getPendingDeposits();
+      res.json(deposits);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   app.patch("/api/deposits/:id/approve", async (req, res, next) => {
     try {
       if (!req.isAuthenticated() || !req.user!.isAdmin) {
@@ -271,6 +285,20 @@ export async function registerRoutes(app: Express) {
   });
 
   app.get("/api/admin/withdrawals", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated() || !req.user!.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const withdrawals = await storage.getPendingWithdrawals();
+      res.json(withdrawals);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Also support the route the frontend is using
+  app.get("/api/withdrawals/pending", async (req, res, next) => {
     try {
       if (!req.isAuthenticated() || !req.user!.isAdmin) {
         return res.status(403).json({ message: "Admin access required" });
