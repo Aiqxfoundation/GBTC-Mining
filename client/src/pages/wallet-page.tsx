@@ -423,8 +423,13 @@ export default function WalletPage() {
         {/* Action Buttons */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           <Button
-            onClick={() => setShowDepositDialog(true)}
-            className="bg-transparent border-2 border-[#4a90e2] text-[#4a90e2] hover:bg-[#4a90e2] hover:text-white font-medium"
+            onClick={() => selectedAsset === 'GBTC' ? null : setShowDepositDialog(true)}
+            disabled={selectedAsset === 'GBTC'}
+            className={`bg-transparent border-2 ${
+              selectedAsset === 'GBTC' 
+                ? 'border-gray-600 text-gray-600 cursor-not-allowed opacity-50' 
+                : 'border-[#4a90e2] text-[#4a90e2] hover:bg-[#4a90e2] hover:text-white'
+            } font-medium`}
             data-testid="button-deposit"
           >
             Deposit
