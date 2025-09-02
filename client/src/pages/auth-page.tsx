@@ -189,16 +189,16 @@ export default function AuthPage() {
                       <Input
                         id="register-referrer"
                         type="text"
-                        placeholder="Enter referral username (optional)"
+                        placeholder="Enter 8-character referral code"
                         value={registerForm.referredBy}
                         onChange={(e) => {
-                          const value = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20);
+                          const value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8);
                           setRegisterForm(prev => ({ ...prev, referredBy: value }));
                         }}
-                        className="bg-black border-gray-800"
+                        className="bg-black border-gray-800 font-mono"
                         data-testid="input-register-referrer"
                       />
-                      <p className="text-xs text-gray-500 mt-1">Enter the username of who referred you</p>
+                      <p className="text-xs text-gray-500 mt-1">Enter the referral code from who invited you</p>
                     </div>
                     <Button 
                       type="submit" 

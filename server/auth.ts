@@ -97,28 +97,41 @@ export function setupAuth(app: Express) {
 
   app.post("/api/register", async (req, res, next) => {
     try {
-      const { username, password, referralCode } = req.body;
+      const { username, password, referredBy } = req.body;
       
       const existingUser = await storage.getUserByUsername(username);
       if (existingUser) {
         return res.status(400).send("Username already exists");
       }
 
-      // Generate unique referral code (6 characters, alphanumeric)
+      // Generate unique hash-style referral code (8 characters, alphanumeric)
       const generateReferralCode = () => {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
         let code = '';
-        for (let i = 0; i < 6; i++) {
+        // Generate a more hash-like code with mixed case
+        for (let i = 0; i < 8; i++) {
           code += chars.charAt(Math.floor(Math.random() * chars.length));
         }
-        return code;
+        // Add timestamp component for uniqueness
+        const timestamp = Date.now().toString(36).slice(-2).toUpperCase();
+        return code.slice(0, 6) + timestamp;
       };
+
+      // Validate referral code if provided
+      let validatedReferredBy = undefined;
+      if (referredBy) {
+        const referrer = await storage.findUserByOwnReferralCode(referredBy);
+        if (referrer) {
+          validatedReferredBy = referredBy;
+        }
+        // If referral code doesn't exist, we just ignore it (don't throw error)
+      }
 
       const user = await storage.createUser({
         username,
         password: await hashPassword(password),
         referralCode: generateReferralCode(),
-        referredBy: referralCode || undefined
+        referredBy: validatedReferredBy
       });
 
       req.login(user, (err) => {

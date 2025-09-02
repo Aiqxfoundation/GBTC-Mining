@@ -55,7 +55,7 @@ export class MemoryStorage implements IStorage {
       id: adminId,
       username: 'admin',
       password: hashedPassword,
-      referralCode: 'ADMIN01',
+      referralCode: 'ADM1N0X7',
       referredBy: undefined,
       usdtBalance: '10000.00',
       hashPower: '100.00',
@@ -111,16 +111,28 @@ export class MemoryStorage implements IStorage {
     return referredUsers;
   }
 
+  async findUserByOwnReferralCode(referralCode: string): Promise<User | null> {
+    for (const user of this.users.values()) {
+      if (user.referralCode === referralCode) {
+        return user;
+      }
+    }
+    return null;
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const userId = 'user-' + randomBytes(8).toString('hex');
-    // Generate unique referral code (6 characters, alphanumeric)
+    // Generate unique hash-style referral code (8 characters, alphanumeric)
     const generateReferralCode = () => {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
       let code = '';
-      for (let i = 0; i < 6; i++) {
+      // Generate a more hash-like code with mixed case
+      for (let i = 0; i < 8; i++) {
         code += chars.charAt(Math.floor(Math.random() * chars.length));
       }
-      return code;
+      // Add timestamp component for uniqueness
+      const timestamp = Date.now().toString(36).slice(-2).toUpperCase();
+      return code.slice(0, 6) + timestamp;
     };
     
     // Ensure referral code is unique
