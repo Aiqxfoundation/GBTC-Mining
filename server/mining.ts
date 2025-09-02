@@ -3,8 +3,10 @@ import { db } from "./db";
 import { users } from "@shared/schema";
 import cron from "node-cron";
 
-let blockNumber = 1;
+let dailyBlockNumber = 1; // Daily block counter (resets to 1 at 00:00 UTC)
+let totalBlockHeight = 0; // Total blocks mined (never resets)
 let currentBlockReward = 6.25;
+let lastResetDate: string | null = null;
 
 export function setupMining() {
   // Initialize block reward from database (non-blocking)
@@ -17,6 +19,50 @@ export function setupMining() {
     await generateBlock();
     await distributeRewards();
   });
+  
+  // Daily reset at 00:00 UTC
+  cron.schedule("0 0 * * *", async () => {
+    await dailyReset();
+  });
+  
+  // Check for reset on startup
+  checkAndPerformDailyReset();
+}
+
+async function checkAndPerformDailyReset() {
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  
+  try {
+    const lastResetSetting = await storage.getSystemSetting("lastResetDate");
+    if (lastResetSetting && lastResetSetting.value !== today) {
+      await dailyReset();
+    } else if (!lastResetSetting) {
+      await storage.setSystemSetting("lastResetDate", today);
+      lastResetDate = today;
+    }
+  } catch (error) {
+    console.error("Error checking daily reset:", error);
+  }
+}
+
+async function dailyReset() {
+  try {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    
+    console.log(`Performing daily block reset at ${new Date().toISOString()}`);
+    
+    // Reset daily block number to 1
+    dailyBlockNumber = 1;
+    await storage.setSystemSetting("blockNumber", dailyBlockNumber.toString());
+    
+    // Update last reset date
+    await storage.setSystemSetting("lastResetDate", today);
+    lastResetDate = today;
+    
+    console.log(`Daily reset complete. Block counter reset to 1. Total blocks: ${totalBlockHeight}`);
+  } catch (error) {
+    console.error("Error during daily reset:", error);
+  }
 }
 
 async function initializeSettings() {
@@ -24,6 +70,7 @@ async function initializeSettings() {
   
   while (retries > 0) {
     try {
+      // Load block reward
       const blockRewardSetting = await storage.getSystemSetting("blockReward");
       if (blockRewardSetting) {
         currentBlockReward = parseFloat(blockRewardSetting.value);
@@ -31,14 +78,26 @@ async function initializeSettings() {
         await storage.setSystemSetting("blockReward", currentBlockReward.toString());
       }
 
+      // Load daily block number
       const blockNumberSetting = await storage.getSystemSetting("blockNumber");
       if (blockNumberSetting) {
-        blockNumber = parseInt(blockNumberSetting.value);
+        dailyBlockNumber = parseInt(blockNumberSetting.value);
       } else {
-        await storage.setSystemSetting("blockNumber", blockNumber.toString());
+        await storage.setSystemSetting("blockNumber", dailyBlockNumber.toString());
       }
       
-      console.log(`Mining settings initialized: Block ${blockNumber}, Reward ${currentBlockReward} GBTC`);
+      // Load total block height
+      const totalBlockHeightSetting = await storage.getSystemSetting("totalBlockHeight");
+      if (totalBlockHeightSetting) {
+        totalBlockHeight = parseInt(totalBlockHeightSetting.value);
+      } else {
+        await storage.setSystemSetting("totalBlockHeight", totalBlockHeight.toString());
+      }
+      
+      // Check and perform daily reset if needed
+      await checkAndPerformDailyReset();
+      
+      console.log(`Mining initialized: Daily Block ${dailyBlockNumber}, Total Height ${totalBlockHeight}, Reward ${currentBlockReward} GBTC`);
       return; // Success, exit retry loop
       
     } catch (error: any) {
@@ -65,15 +124,25 @@ async function generateBlock() {
     
     if (parseFloat(totalHashPower) > 0) {
       await storage.createMiningBlock(
-        blockNumber,
+        dailyBlockNumber,
         currentBlockReward.toString(),
         totalHashPower
       );
       
-      blockNumber++;
-      await storage.setSystemSetting("blockNumber", blockNumber.toString());
+      // Increment both counters
+      dailyBlockNumber++;
+      totalBlockHeight++;
       
-      console.log(`Block ${blockNumber - 1} mined with reward ${currentBlockReward} GBTC`);
+      // Save to database
+      await storage.setSystemSetting("blockNumber", dailyBlockNumber.toString());
+      await storage.setSystemSetting("totalBlockHeight", totalBlockHeight.toString());
+      
+      console.log(`Block #${dailyBlockNumber - 1} (Total: ${totalBlockHeight}) mined with reward ${currentBlockReward} GBTC`);
+      
+      // Check for halving every 210,000 blocks
+      if (totalBlockHeight % 210000 === 0) {
+        await halveBlockReward();
+      }
     }
   } catch (error: any) {
     if (error?.message?.includes('endpoint has been disabled') || error?.code === 'XX000') {
@@ -97,16 +166,48 @@ async function distributeRewards() {
       currentBlockReward = parseFloat(blockRewardSetting.value);
     }
     
-    console.log(`Block ${blockNumber - 1} distributing ${currentBlockReward} GBTC across ${totalHashPowerNum} TH/s`);
+    const currentBlock = dailyBlockNumber - 1;
+    console.log(`Block ${currentBlock} distributing ${currentBlockReward} GBTC across ${totalHashPowerNum} TH/s`);
     
     // Get all users with hash power
     const allUsers = await db.select().from(users);
-    const usersWithPower = allUsers.filter(u => parseFloat(u.hashPower || "0") > 0);
     
-    // Create unclaimed blocks for each user based on their hash power share
-    for (const user of usersWithPower) {
+    // Filter users who are eligible for rewards (active in mining)
+    const eligibleUsers = allUsers.filter(u => {
+      const hashPower = parseFloat(u.hashPower || "0");
+      const lastActiveBlock = u.lastActiveBlock;
+      
+      // User must have hash power
+      if (hashPower <= 0) return false;
+      
+      // For strict participation: user must have been active in the previous block
+      // If lastActiveBlock is null/undefined, they haven't participated yet
+      // If lastActiveBlock is less than currentBlock - 1, they missed the previous block
+      if (lastActiveBlock === undefined || lastActiveBlock === null) {
+        // New miners must wait for next block
+        return false;
+      }
+      
+      // User must have been active in recent blocks (within last 2 blocks for some leniency)
+      if (lastActiveBlock < currentBlock - 2) {
+        return false;
+      }
+      
+      return true;
+    });
+    
+    // Recalculate total eligible hash power
+    const eligibleHashPower = eligibleUsers.reduce((sum, u) => sum + parseFloat(u.hashPower || "0"), 0);
+    
+    if (eligibleHashPower === 0) {
+      console.log(`No eligible miners for block ${currentBlock}`);
+      return;
+    }
+    
+    // Create unclaimed blocks for each eligible user based on their hash power share
+    for (const user of eligibleUsers) {
       const userHashPower = parseFloat(user.hashPower || "0");
-      const userShare = userHashPower / totalHashPowerNum;
+      const userShare = userHashPower / eligibleHashPower;
       const userReward = (currentBlockReward * userShare).toFixed(8);
       
       if (parseFloat(userReward) > 0.00000001) { // Only create block if reward is meaningful
@@ -116,12 +217,15 @@ async function distributeRewards() {
         // Create unclaimed block for this user with the current block number
         await storage.createUnclaimedBlock(
           user.id,
-          blockNumber - 1, // Use the block that was just mined
+          currentBlock,
           txHash,
           userReward
         );
       }
     }
+    
+    // Update referral hash contributions after distribution
+    await updateReferralHashContributions();
     
     // Expire old blocks
     await storage.expireOldBlocks();
@@ -134,11 +238,50 @@ async function distributeRewards() {
   }
 }
 
+// Function to update referral hash contributions
+async function updateReferralHashContributions() {
+  try {
+    const allUsers = await storage.getAllUsers();
+    
+    // For each user, calculate their referral hash bonus from active referrals
+    for (const user of allUsers) {
+      if (!user.referralCode) continue;
+      
+      const referredUsers = await storage.getUsersByReferralCode(user.referralCode);
+      let totalReferralBonus = 0;
+      
+      for (const referred of referredUsers) {
+        // Check if referred user is active (has hash power and has claimed recently)
+        const isActive = parseFloat(referred.baseHashPower || "0") > 0 && 
+                        referred.lastActiveBlock !== undefined && 
+                        referred.lastActiveBlock !== null &&
+                        referred.lastActiveBlock >= dailyBlockNumber - 3; // Active within last 3 blocks
+        
+        if (isActive) {
+          // Add 5% of their base hash power as bonus
+          totalReferralBonus += parseFloat(referred.baseHashPower || "0") * 0.05;
+        }
+      }
+      
+      // Update user's referral hash bonus and total hash power
+      const newReferralBonus = totalReferralBonus.toFixed(2);
+      const totalHashPower = (parseFloat(user.baseHashPower || "0") + totalReferralBonus).toFixed(2);
+      
+      await storage.updateUser(user.id, {
+        referralHashBonus: newReferralBonus,
+        hashPower: totalHashPower
+      });
+    }
+  } catch (error) {
+    console.error("Error updating referral hash contributions:", error);
+  }
+}
+
 export async function halveBlockReward() {
   try {
     currentBlockReward = currentBlockReward / 2;
     await storage.setSystemSetting("blockReward", currentBlockReward.toString());
-    console.log(`Block reward halved to ${currentBlockReward} GBTC`);
+    console.log(`Block reward halved to ${currentBlockReward} GBTC at total block ${totalBlockHeight}`);
     return currentBlockReward;
   } catch (error) {
     console.error("Error halving block reward:", error);

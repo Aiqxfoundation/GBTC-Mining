@@ -12,8 +12,12 @@ export const users = pgTable("users", {
   referredBy: text("referred_by"), // Referral code of the user who referred them
   usdtBalance: decimal("usdt_balance", { precision: 10, scale: 2 }).default("0.00"),
   hashPower: decimal("hash_power", { precision: 10, scale: 2 }).default("0.00"),
+  baseHashPower: decimal("base_hash_power", { precision: 10, scale: 2 }).default("0.00"), // User's own hash power
+  referralHashBonus: decimal("referral_hash_bonus", { precision: 10, scale: 2 }).default("0.00"), // 5% from active referrals
   gbtcBalance: decimal("gbtc_balance", { precision: 18, scale: 8 }).default("0.00000000"),
   unclaimedBalance: decimal("unclaimed_balance", { precision: 18, scale: 8 }).default("0.00000000"),
+  totalReferralEarnings: decimal("total_referral_earnings", { precision: 10, scale: 2 }).default("0.00"),
+  lastActiveBlock: integer("last_active_block"), // Last block user was active in
   isAdmin: boolean("is_admin").default(false),
   isFrozen: boolean("is_frozen").default(false),
   createdAt: timestamp("created_at").defaultNow(),
