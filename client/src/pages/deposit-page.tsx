@@ -10,16 +10,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Clock } from "lucide-react";
 
 const networkAddresses = {
-  BSC: '0xc1de03ab9892b9eb1deed8a2dd453b7fcefea9e9',
-  ETH: '0xc1de03ab9892b9eb1deed8a2dd453b7fcefea9e9',
-  TRC20: 'THLwx1Ejfo8nSUjeVahCxTbxm7jCLkusPc',
-  APTOS: '0xa02e7dfd29bde133c04b2b2c3a6f6623bcab6865211635dbc8271d51ec8ae053'
+  BEP20: '0xc1de03ab9892b9eb1deed8a2dd453b7fcefea9e9',
+  ERC20: '0xc1de03ab9892b9eb1deed8a2dd453b7fcefea9e9'
 };
 
 export default function DepositPage() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [selectedNetwork, setSelectedNetwork] = useState<string>('BSC');
+  const [selectedNetwork, setSelectedNetwork] = useState<string>('BEP20');
   const [txid, setTxid] = useState('');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
@@ -152,7 +150,7 @@ export default function DepositPage() {
         )}
         {/* Network Selection */}
         <Card className="mobile-card">
-          <p className="text-sm font-mono text-muted-foreground mb-3">SELECT NETWORK</p>
+          <p className="text-sm font-mono text-muted-foreground mb-3">SELECT NETWORK FOR USDT DEPOSIT</p>
           <div className="grid grid-cols-2 gap-2">
             {Object.keys(networkAddresses).map((network) => (
               <button
@@ -169,9 +167,7 @@ export default function DepositPage() {
                   {network}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {network === 'BSC' ? 'BEP-20' : 
-                   network === 'ETH' ? 'ERC-20' : 
-                   network === 'TRC20' ? 'TRC-20' : 'APT'}
+                  {network === 'BEP20' ? 'Binance Smart Chain' : 'Ethereum Network'}
                 </p>
               </button>
             ))}
@@ -181,8 +177,14 @@ export default function DepositPage() {
         {/* Deposit Address */}
         <Card className="mobile-card bg-gradient-to-br from-primary/10 to-chart-4/10">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-mono text-muted-foreground">DEPOSIT ADDRESS</p>
+            <p className="text-sm font-mono text-muted-foreground">SEND USDT TO THIS ADDRESS</p>
             <div className={`w-3 h-3 rounded-full mining-pulse bg-primary glow-green`}></div>
+          </div>
+          
+          <div className="bg-black/40 rounded-lg p-2 mb-2">
+            <p className="text-xs text-primary font-bold mb-1">
+              {selectedNetwork} Network {selectedNetwork === 'BEP20' ? '(BSC)' : '(Ethereum)'}
+            </p>
           </div>
           
           <div className="bg-background rounded-lg p-3 mb-3">
@@ -200,6 +202,10 @@ export default function DepositPage() {
             <i className={`fas fa-${copied ? 'check' : 'copy'} mr-2`}></i>
             {copied ? 'Copied!' : 'Copy Address'}
           </Button>
+          
+          <p className="text-xs text-yellow-500 mt-3 text-center">
+            ⚠️ Only send USDT on {selectedNetwork} network to this address
+          </p>
         </Card>
 
         {/* TXID Submission Form */}

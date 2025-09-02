@@ -219,41 +219,68 @@ export default function Whitepaper() {
     </div>
     
     <div class="section">
-        <h2>💸 Referral & Commission System</h2>
+        <h2>💸 Automatic Referral Commission System</h2>
         
         <div style="background: linear-gradient(135deg, rgba(247,147,26,0.1), rgba(251,191,36,0.1)); padding: 20px; border-radius: 8px; border: 1px solid #f7931a; margin-bottom: 20px;">
-            <h3 style="color: #fbbf24; margin-bottom: 15px;">Earn USDT Income While Mining</h3>
+            <h3 style="color: #fbbf24; margin-bottom: 15px;">Earn USDT on Every Hash Power Purchase</h3>
             <ul style="font-size: 16px;">
-                <li><span class="highlight">10% USDT Commission:</span> Earn instant cash rewards on every deposit made by your referrals</li>
-                <li><span class="highlight">Immediate Income:</span> Commissions credited directly to your USDT balance</li>
-                <li><span class="highlight">No Limits:</span> Build unlimited referral network for passive USDT income</li>
+                <li><span class="highlight">10% USDT Commission:</span> Automatically receive 10% commission when your referral purchases hash power</li>
+                <li><span class="highlight">Instant Detection:</span> System automatically detects hash purchases and transfers commission immediately</li>
+                <li><span class="highlight">Example:</span> When your referral buys $50 worth of hash → You instantly receive $5 USDT</li>
+                <li><span class="highlight">Unlimited Earnings:</span> Build your network - earn from every hash power purchase they make</li>
             </ul>
         </div>
         
-        <div class="feature-grid">
-            <div class="feature">
-                <h4>Deposit Conditions</h4>
-                <ul>
-                    <li>Minimum: $50 USDT</li>
-                    <li>Maximum: Unlimited</li>
-                    <li>Processing: Instant</li>
-                    <li>Networks: TRC20, BEP20, ERC20</li>
-                </ul>
-            </div>
-            
-            <div class="feature">
-                <h4>Withdrawal Conditions</h4>
-                <ul>
-                    <li>Minimum: $50 USDT</li>
-                    <li>Fee: $2 USDT</li>
-                    <li>Processing: 24-48 hours</li>
-                    <li>Available: USDT balance only</li>
-                </ul>
+        <div class="feature">
+            <h4>⚡ How Automatic Commission Works</h4>
+            <div style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                <ol style="font-size: 14px; line-height: 1.8;">
+                    <li>1️⃣ Your referral deposits USDT to their account</li>
+                    <li>2️⃣ They purchase hash power (minimum $50)</li>
+                    <li>3️⃣ System automatically detects the purchase</li>
+                    <li>4️⃣ 10% commission instantly transfers to your USDT balance</li>
+                    <li>5️⃣ You can withdraw or reinvest your commission immediately</li>
+                </ol>
             </div>
         </div>
         
-        <div class="metric" style="text-align: center; background: linear-gradient(135deg, rgba(247,147,26,0.1), rgba(251,191,36,0.1));">
-            <p style="color: #fbbf24; font-weight: bold;">💡 Pro Tip: Your referral earnings in USDT can be withdrawn anytime or reinvested into more hash power for compound growth</p>
+        <div class="metric" style="text-align: center; background: linear-gradient(135deg, rgba(247,147,26,0.2), rgba(251,191,36,0.2));">
+            <p style="color: #f7931a; font-weight: bold; font-size: 18px;">🚀 Commission Based on Hash Purchase - Not Deposit!</p>
+            <p style="color: #fbbf24; font-size: 14px; margin-top: 10px;">Your earnings grow with your network's mining activity</p>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>💰 Deposit & Withdrawal System</h2>
+        
+        <div class="feature-grid">
+            <div class="feature">
+                <h4>📥 USDT Deposit</h4>
+                <div style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                    <p style="color: #fbbf24; font-weight: bold; margin-bottom: 10px;">Send USDT to Platform Address:</p>
+                    <ul style="font-size: 14px;">
+                        <li>✅ BEP20 Network (BSC)</li>
+                        <li>✅ ERC20 Network (Ethereum)</li>
+                        <li>📊 Minimum: $50 USDT</li>
+                        <li>⚡ Processing: Instant after confirmation</li>
+                    </ul>
+                    <p style="color: #888; font-size: 12px; margin-top: 10px;">*Deposit address provided after login</p>
+                </div>
+            </div>
+            
+            <div class="feature">
+                <h4>📤 USDT Withdrawal</h4>
+                <div style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                    <p style="color: #fbbf24; font-weight: bold; margin-bottom: 10px;">Withdraw to Your Wallet:</p>
+                    <ul style="font-size: 14px;">
+                        <li>💵 Minimum: $50 USDT</li>
+                        <li>🏷️ Network Fee: $2 USDT</li>
+                        <li>⏱️ Processing: 24-48 hours</li>
+                        <li>🔒 Security verification required</li>
+                    </ul>
+                    <p style="color: #888; font-size: 12px; margin-top: 10px;">*Withdrawals undergo manual review for security</p>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -777,54 +804,46 @@ export default function Whitepaper() {
               </div>
               
               <div className="bg-gradient-to-br from-[#f7931a]/10 to-[#fbbf24]/10 p-4 rounded-lg border border-[#f7931a]/30 mb-4">
-                <h3 className="text-lg font-bold text-[#fbbf24] mb-3">Earn USDT Income While Mining</h3>
+                <h3 className="text-lg font-bold text-[#fbbf24] mb-3">Automatic Commission on Hash Purchase</h3>
                 <div className="space-y-3">
                   <div className="flex items-start">
                     <span className="text-[#f7931a] mr-2">•</span>
                     <div>
-                      <p className="text-sm text-gray-300"><span className="font-bold text-[#fbbf24]">10% USDT Commission:</span> Earn instant cash rewards on every deposit made by your referrals</p>
+                      <p className="text-sm text-gray-300"><span className="font-bold text-[#fbbf24]">10% USDT Commission:</span> Automatically receive 10% when your referral purchases hash power</p>
                     </div>
                   </div>
                   <div className="flex items-start">
                     <span className="text-[#f7931a] mr-2">•</span>
                     <div>
-                      <p className="text-sm text-gray-300"><span className="font-bold text-[#fbbf24]">Immediate Income:</span> Commissions credited directly to your USDT balance</p>
+                      <p className="text-sm text-gray-300"><span className="font-bold text-[#fbbf24]">Instant Detection:</span> System detects hash purchases and transfers commission immediately</p>
                     </div>
                   </div>
                   <div className="flex items-start">
                     <span className="text-[#f7931a] mr-2">•</span>
                     <div>
-                      <p className="text-sm text-gray-300"><span className="font-bold text-[#fbbf24]">No Limits:</span> Build unlimited referral network for passive USDT income</p>
+                      <p className="text-sm text-gray-300"><span className="font-bold text-[#fbbf24]">Example:</span> Referral buys $50 hash → You get $5 USDT instantly</p>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="bg-[#1a1a1a] p-3 rounded-lg border border-[#333]">
-                  <h4 className="text-[#fbbf24] font-semibold mb-2">Deposit Conditions</h4>
-                  <ul className="text-sm text-gray-400 space-y-1">
-                    <li>• Minimum: $50 USDT</li>
-                    <li>• Maximum: Unlimited</li>
-                    <li>• Processing: Instant</li>
-                    <li>• Networks: TRC20, BEP20, ERC20</li>
-                  </ul>
-                </div>
-                
-                <div className="bg-[#1a1a1a] p-3 rounded-lg border border-[#333]">
-                  <h4 className="text-[#fbbf24] font-semibold mb-2">Withdrawal Conditions</h4>
-                  <ul className="text-sm text-gray-400 space-y-1">
-                    <li>• Minimum: $50 USDT</li>
-                    <li>• Fee: $2 USDT</li>
-                    <li>• Processing: 24-48 hours</li>
-                    <li>• Available: USDT balance only</li>
-                  </ul>
-                </div>
+              <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#333] mb-4">
+                <h4 className="text-[#fbbf24] font-semibold mb-3">⚡ How Automatic Commission Works</h4>
+                <ol className="text-sm text-gray-400 space-y-2">
+                  <li>1️⃣ Your referral deposits USDT to their account</li>
+                  <li>2️⃣ They purchase hash power (minimum $50)</li>
+                  <li>3️⃣ System automatically detects the purchase</li>
+                  <li>4️⃣ 10% commission instantly transfers to your USDT balance</li>
+                  <li>5️⃣ You can withdraw or reinvest your commission</li>
+                </ol>
               </div>
               
-              <div className="mt-4 p-3 bg-[#1a1a1a] rounded-lg border border-[#f7931a]/30">
-                <p className="text-xs text-center text-[#fbbf24]">
-                  💡 <span className="font-bold">Pro Tip:</span> Your referral earnings in USDT can be withdrawn anytime or reinvested into more hash power for compound growth
+              <div className="p-3 bg-gradient-to-r from-[#f7931a]/20 to-[#fbbf24]/20 rounded-lg">
+                <p className="text-center text-sm font-bold text-[#f7931a]">
+                  🚀 Commission Based on Hash Purchase - Not Deposit!
+                </p>
+                <p className="text-center text-xs text-[#fbbf24] mt-1">
+                  Your earnings grow with your network's mining activity
                 </p>
               </div>
             </div>
