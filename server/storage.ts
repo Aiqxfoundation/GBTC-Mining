@@ -841,15 +841,52 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCurrentEthPrice(): Promise<string> {
-    // Simulated ETH price - in production, this would fetch from an API
-    // For now, we'll return a realistic but static price
-    const basePrice = 3500;
-    const variation = Math.random() * 200 - 100; // ±$100 variation
-    return (basePrice + variation).toFixed(2);
+    // Fetch real-time ETH price from API
+    return await fetchRealEthPrice();
   }
 }
 
 import { MemoryStorage } from "./memoryStorage";
+
+// Cache for ETH price to avoid rate limiting
+let ethPriceCache: { price: string; timestamp: number } | null = null;
+const CACHE_DURATION = 30000; // Cache for 30 seconds
+
+// Helper function to fetch real ETH price
+export async function fetchRealEthPrice(): Promise<string> {
+  try {
+    // Check cache first
+    if (ethPriceCache && Date.now() - ethPriceCache.timestamp < CACHE_DURATION) {
+      return ethPriceCache.price;
+    }
+
+    // Fetch from CoinGecko's free API (no API key required)
+    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch ETH price');
+    }
+    
+    const data = await response.json();
+    const price = data.ethereum?.usd;
+    
+    if (!price) {
+      throw new Error('Invalid price data');
+    }
+    
+    // Cache the price
+    ethPriceCache = {
+      price: price.toFixed(2),
+      timestamp: Date.now()
+    };
+    
+    return price.toFixed(2);
+  } catch (error) {
+    console.error('Error fetching ETH price:', error);
+    // Fallback to a reasonable default if API fails
+    return "3500.00";
+  }
+}
 
 // Storage variables will be initialized during server startup
 

@@ -12,7 +12,7 @@ import {
   type MinerActivity,
   type EthConversion
 } from "@shared/schema";
-import { IStorage } from "./storage";
+import { IStorage, fetchRealEthPrice } from "./storage";
 import session from "express-session";
 import MemoryStore from "memorystore";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
@@ -983,9 +983,7 @@ export class MemoryStorage implements IStorage {
   }
   
   async getCurrentEthPrice(): Promise<string> {
-    // Simulated ETH price - in production, this would fetch from an API
-    const basePrice = 3500;
-    const variation = Math.random() * 200 - 100; // ±$100 variation
-    return (basePrice + variation).toFixed(2);
+    // Fetch real-time ETH price from API
+    return await fetchRealEthPrice();
   }
 }
