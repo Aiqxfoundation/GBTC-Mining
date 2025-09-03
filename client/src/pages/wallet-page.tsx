@@ -604,7 +604,7 @@ export default function WalletPage() {
               <Button
                 onClick={handleDeposit}
                 disabled={depositMutation.isPending}
-                className="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-3"
+                className="w-full bg-[#f7931a] hover:bg-[#e8821a] text-black font-medium py-3"
                 data-testid="button-confirm-deposit"
               >
                 {depositMutation.isPending ? (
