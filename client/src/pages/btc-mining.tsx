@@ -107,8 +107,8 @@ export default function BtcStakingEnhanced() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
   
-  const [btcSliderValue, setBtcSliderValue] = useState([1]);
-  const [hashrateSliderValue, setHashrateSliderValue] = useState([111000]); // Default for 1 BTC at $111k
+  const [btcSliderValue, setBtcSliderValue] = useState([0]);
+  const [hashrateSliderValue, setHashrateSliderValue] = useState([0]);
   const [lockMonths, setLockMonths] = useState([12]); // Default to 1 year (12 months)
 
   // Fetch BTC prices and hashrate info
@@ -180,6 +180,15 @@ export default function BtcStakingEnhanced() {
   const btcPrice = parseFloat(priceData?.btcPrice || "0");
   const userHashPower = parseFloat(user?.hashPower || "0");
   
+  // Initialize sliders based on available balance
+  useEffect(() => {
+    if (btcBalance > 0 && btcSliderValue[0] === 0) {
+      // Set default to 10% of balance or 0.1 BTC, whichever is smaller
+      const defaultAmount = Math.min(btcBalance * 0.1, 0.1);
+      setBtcSliderValue([defaultAmount]);
+    }
+  }, [btcBalance]);
+  
   const btcAmount = btcSliderValue[0];
   const hashrateAmount = hashrateSliderValue[0];
   const months = lockMonths[0];
@@ -195,11 +204,11 @@ export default function BtcStakingEnhanced() {
   // Update hashrate slider when BTC slider changes
   // Using 1 GH/s = 1 USD model, so required GH/s = BTC amount * BTC price
   useEffect(() => {
-    if (btcPrice > 0) {
-      const requiredHashrate = btcAmount * btcPrice;
+    if (btcPrice > 0 && btcAmount > 0) {
+      const requiredHashrate = Math.min(btcAmount * btcPrice, userHashPower);
       setHashrateSliderValue([requiredHashrate]);
     }
-  }, [btcAmount, btcPrice]);
+  }, [btcAmount, btcPrice, userHashPower]);
 
   const handleStake = () => {
     stakeMutation.mutate({
@@ -309,15 +318,15 @@ export default function BtcStakingEnhanced() {
                 <BtcSlider
                   value={btcSliderValue}
                   onValueChange={setBtcSliderValue}
-                  min={0.1}
-                  max={Math.max(10, btcBalance)}
-                  step={0.1}
+                  min={btcBalance > 0 ? Math.min(0.001, btcBalance) : 0}
+                  max={btcBalance > 0 ? btcBalance : 10}
+                  step={btcBalance > 1 ? 0.01 : 0.001}
                   className="mb-2"
                   data-testid="slider-btc-amount"
                 />
                 <div className="flex justify-between text-xs text-gray-400">
-                  <span>0.1 BTC</span>
-                  <span>{Math.max(10, btcBalance).toFixed(1)} BTC</span>
+                  <span>{btcBalance > 0 ? `${Math.min(0.001, btcBalance).toFixed(3)} BTC` : '0 BTC'}</span>
+                  <span>{btcBalance > 0 ? `${btcBalance.toFixed(8)} BTC (Available)` : '10 BTC'}</span>
                 </div>
               </div>
 
@@ -337,16 +346,16 @@ export default function BtcStakingEnhanced() {
                 <HashSlider
                   value={hashrateSliderValue}
                   onValueChange={setHashrateSliderValue}
-                  min={1000}
-                  max={Math.max(500000, btcPrice * 10)}
-                  step={1000}
+                  min={0}
+                  max={Math.max(userHashPower, btcPrice * 10)}
+                  step={100}
                   className="mb-2"
                   disabled={true}
                   data-testid="slider-hashrate-amount"
                 />
                 <div className="flex justify-between text-xs text-gray-400">
-                  <span>1,000 GH/s</span>
-                  <span>{Math.max(500000, btcPrice * 10).toLocaleString()} GH/s</span>
+                  <span>0 GH/s</span>
+                  <span>{userHashPower > 0 ? `${userHashPower.toLocaleString()} GH/s (Available)` : `${(btcPrice * 10).toLocaleString()} GH/s`}</span>
                 </div>
               </div>
 
@@ -418,16 +427,23 @@ export default function BtcStakingEnhanced() {
                 disabled={
                   btcBalance < btcAmount ||
                   userHashPower < hashrateAmount ||
-                  stakeMutation.isPending
+                  stakeMutation.isPending ||
+                  btcAmount <= 0
                 }
                 data-testid="button-create-stake"
               >
                 {stakeMutation.isPending ? (
                   "Creating Stake..."
+                ) : btcAmount <= 0 ? (
+                  "Select BTC Amount to Stake"
+                ) : btcBalance < btcAmount ? (
+                  `Insufficient BTC (Need ${(btcAmount - btcBalance).toFixed(8)} more)`
+                ) : userHashPower < hashrateAmount ? (
+                  `Insufficient Hashrate (Need ${(hashrateAmount - userHashPower).toFixed(0)} more GH/s)`
                 ) : (
                   <>
                     <Lock className="w-4 h-4 mr-2" />
-                    Lock {btcAmount} BTC for {formatDuration(months)} @ {apr}% APR
+                    Lock {btcAmount.toFixed(8)} BTC for {formatDuration(months)} @ {apr}% APR
                   </>
                 )}
               </Button>
