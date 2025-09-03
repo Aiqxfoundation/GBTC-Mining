@@ -213,21 +213,21 @@ export function EthAssetPage() {
         <div className="grid grid-cols-3 gap-3 mb-6">
           <Button
             onClick={() => setDepositOpen(true)}
-            className="bg-[#f7931a] text-black hover:bg-[#f7931a]/90 font-medium"
+            className="bg-transparent border-2 border-[#f7931a] text-[#f7931a] hover:bg-[#f7931a] hover:text-black font-medium"
             data-testid="button-eth-deposit"
           >
             Deposit
           </Button>
           <Button
             onClick={() => setWithdrawOpen(true)}
-            className="bg-[#f7931a] text-black hover:bg-[#f7931a]/90 font-medium"
+            className="bg-transparent border-2 border-[#f7931a] text-[#f7931a] hover:bg-[#f7931a] hover:text-black font-medium"
             data-testid="button-eth-withdraw"
           >
             Withdraw
           </Button>
           <Button
             onClick={() => setConvertOpen(true)}
-            className="bg-[#f7931a] text-black hover:bg-[#f7931a]/90 font-medium"
+            className="bg-transparent border-2 border-[#f7931a] text-[#f7931a] hover:bg-[#f7931a] hover:text-black font-medium"
             data-testid="button-eth-convert"
           >
             Convert
