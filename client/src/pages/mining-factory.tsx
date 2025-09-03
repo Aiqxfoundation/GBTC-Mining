@@ -435,89 +435,35 @@ export default function MiningFactory() {
                   )}
 
 
-                  {/* Decentralized Digital Lightning */}
+                  {/* Lightning bolts */}
                   {isMining && !isBlockForm && (
                     <>
-                      {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, index) => (
+                      {[0, 1, 2, 3].map((bolt) => (
                         <motion.div
-                          key={`bolt-${angle}`}
+                          key={`bolt-${bolt}`}
                           className="absolute"
                           style={{
                             left: '50%',
                             top: '50%',
-                            transform: `rotate(${angle}deg)`,
+                            transform: `rotate(${bolt * 90}deg)`,
                           }}
                           animate={{
-                            opacity: [0, 0.8, 1, 0],
-                            scale: [0.8, 1, 1.2, 0.8],
+                            opacity: [0, 1, 0],
                           }}
                           transition={{
-                            duration: 1.5,
+                            duration: 0.5,
                             repeat: Infinity,
-                            delay: index * 0.2,
-                            repeatDelay: 1,
+                            delay: bolt * 0.5,
+                            repeatDelay: 2,
                           }}
                         >
-                          <svg width="90" height="30" viewBox="0 0 90 30" className="-ml-12 -mt-3.5">
-                            <defs>
-                              <linearGradient id={`lightning-gradient-${angle}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stopColor="#f59e0b" stopOpacity="0"/>
-                                <stop offset="30%" stopColor="#fbbf24" stopOpacity="0.8"/>
-                                <stop offset="50%" stopColor="#fde047" stopOpacity="1"/>
-                                <stop offset="70%" stopColor="#fbbf24" stopOpacity="0.8"/>
-                                <stop offset="100%" stopColor="#f59e0b" stopOpacity="0"/>
-                              </linearGradient>
-                              <filter id={`glow-${angle}`}>
-                                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                                <feMerge>
-                                  <feMergeNode in="coloredBlur"/>
-                                  <feMergeNode in="SourceGraphic"/>
-                                </feMerge>
-                              </filter>
-                            </defs>
+                          <svg width="80" height="20" viewBox="0 0 80 20" className="-ml-10 -mt-2">
                             <path
-                              d="M 15 15 L 25 10 L 28 15 L 35 8 L 38 15 L 45 6 L 48 15 L 55 8 L 58 15 L 65 10 L 68 15 L 75 12"
-                              stroke={`url(#lightning-gradient-${angle})`}
-                              strokeWidth="2.5"
+                              d="M 20 10 L 30 5 L 35 10 L 45 5 L 50 10 L 60 5 L 65 10 L 75 5"
+                              stroke="#fbbf24"
+                              strokeWidth="2"
                               fill="none"
-                              filter={`url(#glow-${angle})`}
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
                             />
-                            <path
-                              d="M 15 15 L 25 20 L 28 15 L 35 22 L 38 15 L 45 24 L 48 15 L 55 22 L 58 15 L 65 20 L 68 15 L 75 18"
-                              stroke={`url(#lightning-gradient-${angle})`}
-                              strokeWidth="1.5"
-                              fill="none"
-                              filter={`url(#glow-${angle})`}
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              opacity="0.6"
-                            />
-                            {/* Digital particles */}
-                            {[20, 35, 50, 65].map((x) => (
-                              <circle
-                                key={x}
-                                cx={x}
-                                cy="15"
-                                r="1"
-                                fill="#fde047"
-                                opacity="0.8"
-                              >
-                                <animate
-                                  attributeName="r"
-                                  values="1;2;1"
-                                  dur="1s"
-                                  repeatCount="indefinite"
-                                />
-                                <animate
-                                  attributeName="opacity"
-                                  values="0.8;1;0.8"
-                                  dur="1s"
-                                  repeatCount="indefinite"
-                                />
-                              </circle>
-                            ))}
                           </svg>
                         </motion.div>
                       ))}
