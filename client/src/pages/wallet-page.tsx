@@ -608,7 +608,7 @@ export default function WalletPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className={`grid ${selectedAsset === 'BTC' ? 'grid-cols-2' : 'grid-cols-3'} gap-3 mb-6`}>
+        <div className="grid grid-cols-3 gap-3 mb-6">
           <Button
             onClick={() => selectedAsset === 'GBTC' ? null : setShowDepositDialog(true)}
             disabled={selectedAsset === 'GBTC'}
@@ -628,34 +628,20 @@ export default function WalletPage() {
           >
             Withdraw
           </Button>
-          {selectedAsset !== 'BTC' && (
-            <Button
-              onClick={() => setShowTransferDialog(true)}
-              disabled={selectedAsset === 'USDT'}
-              className={`bg-transparent border-2 ${
-                selectedAsset === 'GBTC' 
-                  ? 'border-[#f7931a] text-[#f7931a] hover:bg-[#f7931a] hover:text-black' 
-                  : 'border-gray-600 text-gray-600 cursor-not-allowed'
-              } font-medium`}
-              data-testid="button-transfer"
-            >
-              Transfer
-            </Button>
-          )}
+          <Button
+            onClick={() => selectedAsset === 'BTC' ? setLocation('/btc-mining') : setShowTransferDialog(true)}
+            disabled={selectedAsset === 'USDT'}
+            className={`bg-transparent border-2 ${
+              selectedAsset === 'USDT' 
+                ? 'border-gray-600 text-gray-600 cursor-not-allowed' 
+                : 'border-[#f7931a] text-[#f7931a] hover:bg-[#f7931a] hover:text-black'
+            } font-medium`}
+            data-testid={selectedAsset === 'BTC' ? "button-mine" : "button-transfer"}
+          >
+            {selectedAsset === 'BTC' ? 'Mine' : 'Transfer'}
+          </Button>
         </div>
         
-        {/* Mysterious Button - Only for BTC */}
-        {selectedAsset === 'BTC' && (
-          <div className="mb-6">
-            <Button
-              onClick={() => setLocation('/mysterious-btc')}
-              className="w-full bg-gradient-to-r from-purple-600 to-purple-900 text-white hover:from-purple-700 hover:to-purple-950 font-medium py-6 text-lg shadow-lg"
-              data-testid="button-mysterious"
-            >
-              🚪 Mysterious Door 🚪
-            </Button>
-          </div>
-        )}
 
         {/* Financial Records */}
         <div>
@@ -837,8 +823,8 @@ export default function WalletPage() {
               <div className="bg-red-900/20 border border-red-800 rounded-lg p-4">
                 <h3 className="text-red-500 font-medium mb-3">Important Rules</h3>
                 <div className="space-y-2 text-xs text-red-400">
-                  <p>• Minimum deposit: {selectedAsset === 'GBTC' ? '0.001 GBTC' : '10 USDT'}</p>
-                  <p>• Only send {selectedAsset === 'USDT' ? 'USDT from BSC/ETH Network' : 'GBTC'} to this address</p>
+                  <p>• Minimum deposit: {selectedAsset === 'GBTC' ? '0.001 GBTC' : selectedAsset === 'BTC' ? '0.0001 BTC' : '10 USDT'}</p>
+                  <p>• Only send {selectedAsset === 'BTC' ? 'BTC from Bitcoin Network' : selectedAsset === 'USDT' ? 'USDT from BSC/ETH Network' : 'GBTC'} to this address</p>
                   <p>• System will verify transaction hash. It requires some time, so please be patient</p>
                   <p>• You can deposit only once within 12 hours (to prevent multiple attempts)</p>
                   <p>• If you submit wrong TX Hash, your deposit will fail and may result in loss of funds</p>
@@ -967,8 +953,8 @@ export default function WalletPage() {
             <div className="bg-red-900/20 border border-red-800 rounded-lg p-4">
               <h3 className="text-red-500 font-medium mb-3">Important Rules</h3>
               <div className="space-y-2 text-xs text-red-400">
-                <p>• Minimum withdrawal: {selectedAsset === 'GBTC' ? '0.01 GBTC' : '20 USDT'}</p>
-                <p>• Maximum withdrawal: {selectedAsset === 'GBTC' ? '100 GBTC' : '10000 USDT'} per request</p>
+                <p>• Minimum withdrawal: {selectedAsset === 'GBTC' ? '0.01 GBTC' : selectedAsset === 'BTC' ? '0.001 BTC' : '20 USDT'}</p>
+                <p>• Maximum withdrawal: {selectedAsset === 'GBTC' ? '100 GBTC' : selectedAsset === 'BTC' ? '10 BTC' : '10000 USDT'} per request</p>
                 <p>• System will verify your withdrawal request manually</p>
                 <p>• You can withdraw only once within 12 hours (to prevent multiple attempts)</p>
                 <p>• Wrong address may result in permanent loss of funds</p>
