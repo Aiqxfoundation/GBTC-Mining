@@ -231,72 +231,121 @@ export default function BtcStakingEnhanced() {
   };
 
   return (
-    <div className="mobile-page bg-[#1a1a1a]">
-      {/* Bitcoin-themed Header */}
-      <div className="mobile-header bg-gradient-to-r from-[#1a1a1a] to-[#0d0d0d] border-b border-[#f7931a]/30 shadow-lg shadow-[#f7931a]/10">
-        <div className="flex items-center justify-between">
+    <div className="mobile-page bg-black relative overflow-hidden">
+      {/* Animated Bitcoin Background */}
+      <div className="absolute inset-0">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#f7931a]/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-[#ffb347]/10 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-r from-[#f7931a]/5 to-[#ffb347]/5 rounded-full blur-2xl animate-spin-slow" />
+      </div>
+      {/* Premium Bitcoin Header */}
+      <div className="mobile-header backdrop-blur-md bg-black/50 border-b-2 border-[#f7931a]/50 shadow-2xl relative z-10">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#f7931a]/10 via-transparent to-[#ffb347]/10" />
+        <div className="flex items-center justify-between relative">
           <div className="flex items-center">
             <Button
               onClick={() => setLocation('/wallet')}
               variant="ghost"
               size="sm"
-              className="p-0 mr-3 hover:bg-[#f7931a]/20"
+              className="p-0 mr-3 hover:bg-[#f7931a]/20 transition-all duration-300 hover:scale-110"
               data-testid="button-back"
             >
-              <ArrowLeft className="w-5 h-5 text-[#f7931a]" />
+              <ArrowLeft className="w-5 h-5 text-[#f7931a] drop-shadow-glow" />
             </Button>
-            <h1 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#f7931a] to-[#ffb347]">
-              ₿ Advanced BTC Staking
-            </h1>
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <span className="text-3xl animate-bounce-slow">₿</span>
+                <div className="absolute inset-0 text-3xl blur-md opacity-50">₿</div>
+              </div>
+              <h1 className="text-lg font-black tracking-wider">
+                <span className="text-[#f7931a]">BTC</span>
+                <span className="text-white ml-1">STAKING</span>
+                <span className="text-[#ffb347] ml-1 text-xs align-super">PRO</span>
+              </h1>
+            </div>
           </div>
-          <Badge className="bg-gradient-to-r from-[#f7931a] to-[#ffb347] text-black font-bold animate-pulse">
-            {apr}% APR
-          </Badge>
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#f7931a] to-[#ffb347] blur-md" />
+            <Badge className="relative bg-gradient-to-r from-[#f7931a] to-[#ffb347] text-black font-black px-3 py-1 shadow-glow">
+              <span className="text-lg">{apr}%</span>
+              <span className="text-xs ml-1">APR</span>
+            </Badge>
+          </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="mobile-content">
-        {/* Real-time Price & Balance Display */}
-        <Card className="p-4 bg-gradient-to-br from-[#1a1a1a] to-black border-[#f7931a]/30 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[#f7931a]/10 rounded-full blur-3xl" />
-          <div className="flex items-center justify-between relative">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-[#f7931a]/20 rounded-lg">
-                <span className="text-2xl">₿</span>
-              </div>
-              <div>
-                <div className="flex items-center gap-1">
-                  <p className="text-xs text-gray-400">Live Price</p>
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+      {/* Premium Content */}
+      <div className="mobile-content relative z-10">
+        {/* Floating Stats Cards */}
+        <div className="relative mb-4">
+          <Card className="p-5 backdrop-blur-xl bg-gradient-to-br from-black/80 via-[#1a0e00]/50 to-black/80 border-2 border-[#f7931a]/40 shadow-2xl relative overflow-hidden group hover:border-[#f7931a]/60 transition-all duration-500">
+            {/* Animated Background Pattern */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #f7931a 0, #f7931a 1px, transparent 1px, transparent 15px)', backgroundSize: '20px 20px' }} />
+            </div>
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#f7931a]/20 rounded-full blur-3xl group-hover:bg-[#f7931a]/30 transition-all duration-500" />
+            
+            <div className="flex items-center justify-between relative">
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="p-3 bg-gradient-to-br from-[#f7931a] to-[#ffb347] rounded-2xl shadow-glow animate-pulse-slow">
+                    <span className="text-3xl text-black font-black">₿</span>
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse border-2 border-black" />
                 </div>
-                <p className="text-xl font-bold text-white">
-                  ${priceData?.btcPrice ? Number(priceData.btcPrice).toLocaleString() : '0'}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-[#f7931a]/70 font-semibold uppercase tracking-wider">Live Price</p>
+                    <div className="flex gap-1">
+                      <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-ping" />
+                      <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-ping delay-100" />
+                      <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-ping delay-200" />
+                    </div>
+                  </div>
+                  <p className="text-2xl font-black text-white">
+                    <span className="text-[#f7931a]">$</span>{priceData?.btcPrice ? Number(priceData.btcPrice).toLocaleString() : '0'}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right bg-black/50 backdrop-blur-sm rounded-xl px-3 py-2 border border-[#f7931a]/20">
+                <div className="flex items-center gap-2 justify-end mb-1">
+                  <p className="text-xs text-[#f7931a]/70 font-semibold uppercase tracking-wider">Your Balance</p>
+                  <div className="relative">
+                    <div className="w-2 h-2 bg-green-400 rounded-full" />
+                    <div className="absolute inset-0 w-2 h-2 bg-green-400 rounded-full animate-ping" />
+                  </div>
+                </div>
+                <p className="text-xl font-black">
+                  <span className="text-[#f7931a]">₿</span>
+                  <span className="text-white ml-1">{btcBalance.toFixed(8)}</span>
+                </p>
+                <p className="text-xs text-[#ffb347] font-medium">
+                  ≈ ${(btcBalance * btcPrice).toLocaleString()}
                 </p>
               </div>
             </div>
-            <div className="text-right">
-              <div className="flex items-center gap-1 justify-end">
-                <p className="text-xs text-gray-400">Balance</p>
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              </div>
-              <p className="text-lg font-bold text-[#f7931a]">
-                ₿ {btcBalance.toFixed(8)}
-              </p>
-              <p className="text-xs text-gray-500">
-                ${(btcBalance * btcPrice).toLocaleString()}
-              </p>
-            </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
 
-        <Tabs defaultValue="stake" className="mt-4">
-          <TabsList className="grid w-full grid-cols-2 bg-gradient-to-r from-[#1a1a1a] to-[#0d0d0d] border border-[#f7931a]/30">
-            <TabsTrigger value="stake" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#f7931a] data-[state=active]:to-[#ffb347] data-[state=active]:text-black data-[state=active]:font-bold">
-              ⚡ Create Stake
+        <Tabs defaultValue="stake" className="mt-6">
+          <TabsList className="grid w-full grid-cols-2 bg-black/50 backdrop-blur-md border-2 border-[#f7931a]/30 p-1 rounded-2xl shadow-glow">
+            <TabsTrigger 
+              value="stake" 
+              className="rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#f7931a] data-[state=active]:to-[#ffb347] data-[state=active]:text-black data-[state=active]:font-black data-[state=active]:shadow-glow data-[state=inactive]:text-gray-400"
+            >
+              <span className="flex items-center gap-2">
+                <span className="text-lg">⚡</span>
+                <span>CREATE</span>
+              </span>
             </TabsTrigger>
-            <TabsTrigger value="active" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#f7931a] data-[state=active]:to-[#ffb347] data-[state=active]:text-black data-[state=active]:font-bold">
-              💼 Active Stakes
+            <TabsTrigger 
+              value="active" 
+              className="rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#f7931a] data-[state=active]:to-[#ffb347] data-[state=active]:text-black data-[state=active]:font-black data-[state=active]:shadow-glow data-[state=inactive]:text-gray-400"
+            >
+              <span className="flex items-center gap-2">
+                <span className="text-lg">📊</span>
+                <span>ACTIVE</span>
+              </span>
             </TabsTrigger>
           </TabsList>
 
