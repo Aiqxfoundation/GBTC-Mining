@@ -230,7 +230,9 @@ export default function AdminPage() {
     },
     onSuccess: (_, variables) => {
       toast({ title: "Updated", description: `${variables.currency} address updated` });
+      // Invalidate all address queries across the app
       queryClient.invalidateQueries({ queryKey: ["/api/admin/deposit-addresses"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/deposit-addresses"] });
       setAddressEditMode(null);
       setUsdtAddress("");
       setEthAddress("");

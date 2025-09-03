@@ -36,7 +36,7 @@ export function EthAssetPage() {
   const { data: user } = useQuery<any>({ queryKey: ['/api/user'] });
   
   // Get ETH price
-  const { data: ethPriceData, refetch: refetchPrice } = useQuery({
+  const { data: ethPriceData, refetch: refetchPrice } = useQuery<{ price: string }>({
     queryKey: ['/api/eth/price'],
     refetchInterval: 30000, // Refresh every 30 seconds
   });
@@ -50,10 +50,14 @@ export function EthAssetPage() {
   const ethPrice = parseFloat(ethPriceData?.price || "0");
   const convertUsdValue = convertAmount ? (parseFloat(convertAmount) * ethPrice * 0.999).toFixed(2) : "0.00";
   
-  // Fetch global deposit address from API
+  // Fetch global deposit address from API with auto-refresh
   const { data: globalAddresses } = useQuery<{ usdt: string; eth: string }>({
     queryKey: ["/api/deposit-addresses"],
-    enabled: !!user
+    enabled: !!user,
+    staleTime: 0, // Always consider data stale
+    refetchInterval: 5000, // Refetch every 5 seconds
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
   
   const systemETHAddress = globalAddresses?.eth || "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb";

@@ -105,10 +105,14 @@ export default function WalletPage() {
   const gbtcBalance = parseFloat(user?.gbtcBalance || '0');
   const ethBalance = parseFloat(user?.ethBalance || '0');
 
-  // Fetch global deposit addresses from API
+  // Fetch global deposit addresses from API with auto-refresh
   const { data: globalAddresses } = useQuery<{ usdt: string; eth: string }>({
     queryKey: ["/api/deposit-addresses"],
-    enabled: !!user
+    enabled: !!user,
+    staleTime: 0, // Always consider data stale
+    refetchInterval: 5000, // Refetch every 5 seconds
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
 
   // Use global addresses or fallback to defaults
