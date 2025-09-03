@@ -13,18 +13,33 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-// Time periods with corresponding APR rates (3 months to 10 years)
-const TIME_PERIODS = [
-  { months: 3, label: "3 Months", apr: 5, color: "bg-gray-600", icon: Zap },
-  { months: 6, label: "6 Months", apr: 8, color: "bg-blue-600", icon: Trophy },
-  { months: 12, label: "1 Year", apr: 12, color: "bg-green-600", icon: Gem },
-  { months: 24, label: "2 Years", apr: 18, color: "bg-purple-600", icon: Crown },
-  { months: 36, label: "3 Years", apr: 25, color: "bg-orange-600", icon: Trophy },
-  { months: 48, label: "4 Years", apr: 32, color: "bg-pink-600", icon: Gem },
-  { months: 60, label: "5 Years", apr: 40, color: "bg-red-600", icon: Crown },
-  { months: 84, label: "7 Years", apr: 50, color: "bg-indigo-600", icon: Trophy },
-  { months: 120, label: "10 Years", apr: 65, color: "bg-yellow-600", icon: Crown },
-];
+// Function to calculate APR based on lock time (months)
+const calculateAPR = (months: number): number => {
+  // Linear interpolation: 5% at 3 months to 65% at 120 months (10 years)
+  // APR = 5 + (months - 3) * (65 - 5) / (120 - 3)
+  const minMonths = 3;
+  const maxMonths = 120;
+  const minAPR = 5;
+  const maxAPR = 65;
+  
+  const clampedMonths = Math.max(minMonths, Math.min(maxMonths, months));
+  const apr = minAPR + ((clampedMonths - minMonths) * (maxAPR - minAPR)) / (maxMonths - minMonths);
+  return Math.round(apr * 10) / 10; // Round to 1 decimal place
+};
+
+// Function to format months into readable duration
+const formatDuration = (months: number): string => {
+  if (months < 12) {
+    return `${months} Month${months !== 1 ? 's' : ''}`;
+  } else if (months % 12 === 0) {
+    const years = months / 12;
+    return `${years} Year${years !== 1 ? 's' : ''}`;
+  } else {
+    const years = Math.floor(months / 12);
+    const remainingMonths = months % 12;
+    return `${years} Year${years !== 1 ? 's' : ''} ${remainingMonths} Month${remainingMonths !== 1 ? 's' : ''}`;
+  }
+};
 
 export default function BtcStakingEnhanced() {
   const { user } = useAuth();
@@ -34,7 +49,7 @@ export default function BtcStakingEnhanced() {
   
   const [btcSliderValue, setBtcSliderValue] = useState([1]);
   const [hashrateSliderValue, setHashrateSliderValue] = useState([111000]); // Default for 1 BTC at $111k
-  const [selectedPeriod, setSelectedPeriod] = useState(TIME_PERIODS[2]); // Default to 1 year
+  const [lockMonths, setLockMonths] = useState([12]); // Default to 1 year (12 months)
   const [useHashrate, setUseHashrate] = useState(true);
 
   // Fetch BTC prices and hashrate info
@@ -86,7 +101,7 @@ export default function BtcStakingEnhanced() {
     onSuccess: () => {
       toast({
         title: "Stake Created Successfully",
-        description: `Your BTC is now locked for ${selectedPeriod.label} earning ${selectedPeriod.apr}% APR`,
+        description: `Your BTC is now locked for ${formatDuration(months)} earning ${apr}% APR`,
         className: "bg-green-800 text-white",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/btc/balance'] });
@@ -108,10 +123,12 @@ export default function BtcStakingEnhanced() {
   
   const btcAmount = btcSliderValue[0];
   const hashrateAmount = hashrateSliderValue[0];
+  const months = lockMonths[0];
+  const apr = calculateAPR(months);
   
-  // Calculate returns based on selected period
-  const dailyReward = (btcAmount * selectedPeriod.apr / 100 / 365);
-  const totalReturn = (btcAmount * selectedPeriod.apr / 100 * (selectedPeriod.months / 12));
+  // Calculate returns based on lock time
+  const dailyReward = (btcAmount * apr / 100 / 365);
+  const totalReturn = (btcAmount * apr / 100 * (months / 12));
   const totalWithPrincipal = btcAmount + totalReturn;
   const dollarValue = btcAmount * btcPrice;
   const dollarReturn = totalReturn * btcPrice;
@@ -129,8 +146,8 @@ export default function BtcStakingEnhanced() {
     stakeMutation.mutate({
       btcAmount: btcAmount.toString(),
       useHashrate,
-      months: selectedPeriod.months,
-      apr: selectedPeriod.apr,
+      months: months,
+      apr: apr,
     });
   };
 
@@ -151,8 +168,8 @@ export default function BtcStakingEnhanced() {
             </Button>
             <h1 className="text-lg font-medium text-white">Advanced BTC Staking</h1>
           </div>
-          <Badge className={`${selectedPeriod.color} text-white`}>
-            {selectedPeriod.apr}% APR
+          <Badge className="bg-[#f7931a] text-black">
+            {apr}% APR
           </Badge>
         </div>
       </div>
@@ -192,35 +209,29 @@ export default function BtcStakingEnhanced() {
 
           <TabsContent value="stake" className="mt-4">
             <Card className="p-4 bg-[#242424] border-gray-800">
-              {/* Time Period Selector */}
+              {/* Lock Time Slider */}
               <div className="mb-6">
-                <Label className="text-white mb-3 block">Select Lock Period</Label>
-                <div className="grid grid-cols-3 gap-2">
-                  {TIME_PERIODS.map((period) => {
-                    const Icon = period.icon;
-                    return (
-                      <button
-                        key={period.months}
-                        onClick={() => setSelectedPeriod(period)}
-                        className={`p-3 rounded-lg border-2 transition-all ${
-                          selectedPeriod.months === period.months
-                            ? `${period.color} border-white text-white`
-                            : 'bg-[#1a1a1a] border-gray-700 text-gray-400 hover:border-gray-500'
-                        }`}
-                        data-testid={`button-period-${period.months}`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Icon className="w-4 h-4" />
-                            <span className="text-sm font-medium">{period.label}</span>
-                          </div>
-                          <Badge className="bg-black/30 text-xs">
-                            {period.apr}%
-                          </Badge>
-                        </div>
-                      </button>
-                    );
-                  })}
+                <div className="flex justify-between items-center mb-2">
+                  <Label className="text-white">Lock Duration</Label>
+                  <div className="text-right">
+                    <p className="text-lg font-bold text-[#f7931a]">{formatDuration(months)}</p>
+                    <p className="text-xs text-gray-400">
+                      APR: {apr}%
+                    </p>
+                  </div>
+                </div>
+                <Slider
+                  value={lockMonths}
+                  onValueChange={setLockMonths}
+                  min={3}
+                  max={120}
+                  step={1}
+                  className="mb-2"
+                  data-testid="slider-lock-time"
+                />
+                <div className="flex justify-between text-xs text-gray-400">
+                  <span>3 Months</span>
+                  <span>10 Years</span>
                 </div>
               </div>
 
@@ -316,7 +327,7 @@ export default function BtcStakingEnhanced() {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-400">Total After {selectedPeriod.label}</span>
+                    <span className="text-sm text-gray-400">Total After {formatDuration(months)}</span>
                     <span className="text-sm font-bold text-[#f7931a]">
                       {totalWithPrincipal.toFixed(8)} BTC
                     </span>
@@ -351,14 +362,14 @@ export default function BtcStakingEnhanced() {
                   </li>
                   <li className="flex items-center gap-1">
                     <CheckCircle className="w-3 h-3 text-yellow-400" />
-                    Lock Period: {selectedPeriod.label} commitment
+                    Lock Period: {formatDuration(months)} commitment
                   </li>
                 </ul>
               </div>
 
               <Button
                 onClick={handleStake}
-                className={`w-full ${selectedPeriod.color} hover:opacity-90 text-white font-medium`}
+                className="w-full bg-[#f7931a] hover:opacity-90 text-black font-medium"
                 disabled={
                   btcBalance < btcAmount ||
                   (useHashrate && userHashPower < hashrateAmount) ||
@@ -371,7 +382,7 @@ export default function BtcStakingEnhanced() {
                 ) : (
                   <>
                     <Lock className="w-4 h-4 mr-2" />
-                    Lock {btcAmount} BTC for {selectedPeriod.label} @ {selectedPeriod.apr}% APR
+                    Lock {btcAmount} BTC for {formatDuration(months)} @ {apr}% APR
                   </>
                 )}
               </Button>
@@ -393,14 +404,13 @@ export default function BtcStakingEnhanced() {
                   </div>
                   
                   {stakesData.stakes.map((stake: any) => {
-                    const periodInfo = TIME_PERIODS.find(p => p.apr === parseFloat(stake.aprRate)) || TIME_PERIODS[2];
-                    const Icon = periodInfo.icon;
+                    const stakeMonths = stake.lockMonths || 12; // Default to 12 if not set
                     
                     return (
                       <div key={stake.id} className="bg-[#1a1a1a] rounded-lg p-4 border border-gray-700">
                         <div className="flex justify-between items-start mb-3">
                           <div className="flex items-center gap-2">
-                            <Icon className={`w-5 h-5 text-white`} />
+                            <Clock className="w-5 h-5 text-white" />
                             <div>
                               <p className="text-white font-medium">
                                 {parseFloat(stake.btcAmount).toFixed(8)} BTC
@@ -410,7 +420,7 @@ export default function BtcStakingEnhanced() {
                               </p>
                             </div>
                           </div>
-                          <Badge className={`${periodInfo.color} text-white`}>
+                          <Badge className="bg-[#f7931a] text-black">
                             {stake.aprRate}% APR
                           </Badge>
                         </div>
@@ -455,7 +465,7 @@ export default function BtcStakingEnhanced() {
                           </div>
                           <div className="w-full bg-gray-700 rounded-full h-2">
                             <div 
-                              className={`${periodInfo.color} h-2 rounded-full transition-all`}
+                              className="bg-[#f7931a] h-2 rounded-full transition-all"
                               style={{
                                 width: `${Math.min(100, Math.floor(
                                   ((new Date().getTime() - new Date(stake.stakedAt).getTime()) /
@@ -483,7 +493,7 @@ export default function BtcStakingEnhanced() {
                   <Bitcoin className="w-12 h-12 text-gray-600 mx-auto mb-3" />
                   <p className="text-gray-400">No active stakes</p>
                   <p className="text-xs text-gray-500 mt-1">
-                    Create your first stake to start earning up to 30% APR
+                    Create your first stake to start earning up to 65% APR
                   </p>
                 </div>
               )}
@@ -495,23 +505,36 @@ export default function BtcStakingEnhanced() {
         <Card className="mt-4 p-4 bg-[#242424] border-gray-800">
           <h3 className="text-[#f7931a] font-medium mb-3 flex items-center gap-2">
             <Hash className="w-4 h-4" />
-            APR Rates by Lock Period
+            Dynamic APR Formula
           </h3>
-          <div className="space-y-2 text-xs">
-            {TIME_PERIODS.map((period) => {
-              const Icon = period.icon;
-              return (
-                <div key={period.months} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Icon className="w-3 h-3 text-gray-400" />
-                    <span className="text-gray-400">{period.label}</span>
-                  </div>
-                  <Badge className={`${period.color} text-white text-xs`}>
-                    {period.apr}% APR
-                  </Badge>
+          <div className="space-y-3 text-xs">
+            <div className="bg-[#1a1a1a] rounded p-3">
+              <p className="text-gray-400 mb-2">APR increases with lock duration:</p>
+              <div className="space-y-1 text-gray-500">
+                <div className="flex justify-between">
+                  <span>3 Months</span>
+                  <span className="text-green-400">5% APR</span>
                 </div>
-              );
-            })}
+                <div className="flex justify-between">
+                  <span>1 Year</span>
+                  <span className="text-green-400">12% APR</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>5 Years</span>
+                  <span className="text-green-400">40% APR</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>10 Years</span>
+                  <span className="text-green-400">65% APR</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-3 h-3 text-[#f7931a]" />
+              <p className="text-gray-400">
+                Longer lock periods earn higher rewards
+              </p>
+            </div>
           </div>
         </Card>
       </div>
