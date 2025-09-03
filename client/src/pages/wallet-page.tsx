@@ -348,8 +348,8 @@ export default function WalletPage() {
                 <p className="text-white font-medium">{gbtcBalance.toFixed(8)}</p>
               </div>
               <div>
-                <p className="text-[#f7931a] text-xs">Available</p>
-                <p className="text-white font-medium">{gbtcBalance.toFixed(8)}</p>
+                <p className="text-[#f7931a] text-xs"></p>
+                <p className="text-white font-medium"></p>
               </div>
             </div>
           </Card>
@@ -378,8 +378,8 @@ export default function WalletPage() {
                 <p className="text-white font-medium">{usdtBalance.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-[#26a17b] text-xs">Available</p>
-                <p className="text-white font-medium">{usdtBalance.toFixed(2)}</p>
+                <p className="text-[#26a17b] text-xs"></p>
+                <p className="text-white font-medium"></p>
               </div>
             </div>
           </Card>
@@ -430,10 +430,8 @@ export default function WalletPage() {
             </p>
           </div>
           <div>
-            <p className="text-gray-500 text-xs mb-1">Available</p>
-            <p className="text-white font-medium">
-              {selectedAsset === 'GBTC' ? gbtcBalance.toFixed(8) : usdtBalance.toFixed(2)}
-            </p>
+            <p className="text-gray-500 text-xs mb-1"></p>
+            <p className="text-white font-medium"></p>
           </div>
         </div>
 
@@ -445,7 +443,7 @@ export default function WalletPage() {
             className={`bg-transparent border-2 ${
               selectedAsset === 'GBTC' 
                 ? 'border-gray-600 text-gray-600 cursor-not-allowed opacity-50' 
-                : 'border-[#4a90e2] text-[#4a90e2] hover:bg-[#4a90e2] hover:text-white'
+                : 'border-gray-400 text-gray-400 hover:bg-gray-700 hover:text-white'
             } font-medium`}
             data-testid="button-deposit"
           >
@@ -528,82 +526,133 @@ export default function WalletPage() {
         </div>
       </div>
 
-      {/* Deposit Dialog */}
+      {/* Deposit Dialog - Full Page */}
       <Dialog open={showDepositDialog} onOpenChange={setShowDepositDialog}>
-        <DialogContent className="sm:max-w-md bg-[#242424] border-gray-800">
-          <DialogHeader>
-            <DialogTitle className="text-white font-medium">
-              Deposit {selectedAsset}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            {/* System Deposit Address */}
-            <div>
-              <Label className="text-gray-400 text-sm">Deposit Address</Label>
-              <div className="flex items-center gap-2 mt-1">
-                <Input
-                  value={selectedAsset === 'GBTC' ? systemGBTCAddress : systemUSDTAddress}
-                  readOnly
-                  className="bg-[#1a1a1a] border-gray-700 text-white font-mono text-xs"
-                />
+        <DialogContent className="fixed inset-0 w-full h-full max-w-none m-0 p-0 bg-[#1a1a1a] border-0 rounded-none overflow-y-auto">
+          <div className="min-h-full flex flex-col">
+            <DialogHeader className="p-4 bg-[#242424] border-b border-gray-800">
+              <div className="flex items-center justify-between">
+                <DialogTitle className="text-white font-medium text-lg">
+                  Deposit {selectedAsset}
+                </DialogTitle>
                 <Button
-                  onClick={() => copyAddress(selectedAsset === 'GBTC' ? systemGBTCAddress : systemUSDTAddress)}
+                  onClick={() => setShowDepositDialog(false)}
                   variant="ghost"
                   size="sm"
-                  className="px-2"
-                  data-testid="button-copy-deposit-address"
+                  className="text-gray-400 hover:text-white"
                 >
-                  {copiedAddress ? (
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <Copy className="w-4 h-4 text-gray-400" />
-                  )}
+                  <span className="text-2xl">&times;</span>
                 </Button>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Send {selectedAsset} to this address
-              </p>
-            </div>
+            </DialogHeader>
+            
+            <div className="flex-1 p-4 space-y-4">
+              {/* System Deposit Address */}
+              <div className="bg-[#242424] rounded-lg p-4">
+                <Label className="text-gray-400 text-sm">Deposit Address</Label>
+                <div className="flex items-center gap-2 mt-2">
+                  <Input
+                    value={selectedAsset === 'GBTC' ? systemGBTCAddress : systemUSDTAddress}
+                    readOnly
+                    className="bg-[#1a1a1a] border-gray-700 text-white font-mono text-xs"
+                  />
+                  <Button
+                    onClick={() => copyAddress(selectedAsset === 'GBTC' ? systemGBTCAddress : systemUSDTAddress)}
+                    variant="ghost"
+                    size="sm"
+                    className="px-2"
+                    data-testid="button-copy-deposit-address"
+                  >
+                    {copiedAddress ? (
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <Copy className="w-4 h-4 text-gray-400" />
+                    )}
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Send {selectedAsset} to this address
+                </p>
+              </div>
 
-            <div>
-              <Label htmlFor="deposit-amount" className="text-gray-400 text-sm">Amount</Label>
-              <Input
-                id="deposit-amount"
-                type="number"
-                value={depositAmount}
-                onChange={(e) => setDepositAmount(e.target.value)}
-                placeholder={selectedAsset === 'GBTC' ? "0.00000000" : "0.00"}
-                step={selectedAsset === 'GBTC' ? "0.00000001" : "0.01"}
-                className="bg-[#1a1a1a] border-gray-700 text-white placeholder:text-gray-600"
-                data-testid="input-deposit-amount"
-              />
+              <div className="bg-[#242424] rounded-lg p-4">
+                <Label htmlFor="deposit-amount" className="text-gray-400 text-sm">Amount</Label>
+                <Input
+                  id="deposit-amount"
+                  type="number"
+                  value={depositAmount}
+                  onChange={(e) => setDepositAmount(e.target.value)}
+                  placeholder={selectedAsset === 'GBTC' ? "0.00000000" : "0.00"}
+                  step={selectedAsset === 'GBTC' ? "0.00000001" : "0.01"}
+                  className="bg-[#1a1a1a] border-gray-700 text-white placeholder:text-gray-600 mt-2"
+                  data-testid="input-deposit-amount"
+                />
+              </div>
+              
+              <div className="bg-[#242424] rounded-lg p-4">
+                <Label htmlFor="deposit-txhash" className="text-gray-400 text-sm">Transaction Hash</Label>
+                <Input
+                  id="deposit-txhash"
+                  value={depositTxHash}
+                  onChange={(e) => setDepositTxHash(e.target.value)}
+                  placeholder="Enter transaction hash"
+                  className="bg-[#1a1a1a] border-gray-700 text-white placeholder:text-gray-600 font-mono text-xs mt-2"
+                  data-testid="input-deposit-txhash"
+                />
+              </div>
+              
+              <Button
+                onClick={handleDeposit}
+                disabled={depositMutation.isPending}
+                className="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-3"
+                data-testid="button-confirm-deposit"
+              >
+                {depositMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Processing...
+                  </>
+                ) : (
+                  'Submit Deposit'
+                )}
+              </Button>
+              
+              {/* Instructions Section */}
+              <div className="bg-[#242424] rounded-lg p-4 mt-6">
+                <h3 className="text-[#f7931a] font-medium mb-3">Deposit Instructions</h3>
+                <div className="space-y-3 text-sm text-gray-400">
+                  <div className="flex items-start">
+                    <span className="text-[#f7931a] mr-2">1.</span>
+                    <p>Copy the deposit address above and send your {selectedAsset} from your external wallet to this address.</p>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-[#f7931a] mr-2">2.</span>
+                    <p>After sending, enter the exact amount you sent in the Amount field.</p>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-[#f7931a] mr-2">3.</span>
+                    <p>Enter the transaction hash from your wallet or blockchain explorer.</p>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-[#f7931a] mr-2">4.</span>
+                    <p>Click Submit Deposit to process your deposit request.</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Important Rules */}
+              <div className="bg-red-900/20 border border-red-800 rounded-lg p-4">
+                <h3 className="text-red-500 font-medium mb-3">Important Rules</h3>
+                <div className="space-y-2 text-xs text-red-400">
+                  <p>• Minimum deposit: {selectedAsset === 'GBTC' ? '0.001 GBTC' : '10 USDT'}</p>
+                  <p>• Only send {selectedAsset === 'USDT' ? 'USDT on BSC Network' : 'GBTC'} to this address</p>
+                  <p>• Deposits require network confirmations (usually 10-30 minutes)</p>
+                  <p>• Incorrect deposits cannot be recovered - double check the address</p>
+                  <p>• Contact support if your deposit doesn't appear within 2 hours</p>
+                  <p>• Do not send from exchange wallets that require memo/tag</p>
+                </div>
+              </div>
             </div>
-            <div>
-              <Label htmlFor="deposit-txhash" className="text-gray-400 text-sm">Transaction Hash</Label>
-              <Input
-                id="deposit-txhash"
-                value={depositTxHash}
-                onChange={(e) => setDepositTxHash(e.target.value)}
-                placeholder="Enter transaction hash"
-                className="bg-[#1a1a1a] border-gray-700 text-white placeholder:text-gray-600 font-mono text-xs"
-                data-testid="input-deposit-txhash"
-              />
-            </div>
-            <Button
-              onClick={handleDeposit}
-              disabled={depositMutation.isPending}
-              className="w-full bg-[#4a90e2] hover:bg-[#3a7bc8] text-white font-medium"
-              data-testid="button-confirm-deposit"
-            >
-              {depositMutation.isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Processing...
-                </>
-              ) : (
-                'Submit Deposit'
-              )}
-            </Button>
           </div>
         </DialogContent>
       </Dialog>
