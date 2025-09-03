@@ -36,6 +36,7 @@ export class MemoryStorage implements IStorage {
   private lastDepositTime: Map<string, Date> = new Map(); // userId -> last deposit timestamp
   private lastWithdrawalTime: Map<string, Date> = new Map(); // userId -> last withdrawal timestamp
   private ethConversions: Map<string, EthConversion[]> = new Map(); // userId -> conversions
+  private btcConversions: Map<string, any[]> = new Map(); // userId -> BTC/USDT conversions
   
   sessionStore: session.Store;
 
@@ -994,6 +995,32 @@ export class MemoryStorage implements IStorage {
     return newWithdrawal;
   }
   
+  // Track BTC/USDT conversions
+  async createBtcConversion(userId: string, fromCurrency: string, toCurrency: string, fromAmount: string, toAmount: string, fee: string, rate: string): Promise<any> {
+    const conversionId = 'btc-conv-' + randomBytes(8).toString('hex');
+    const conversion = {
+      id: conversionId,
+      userId,
+      fromCurrency,
+      toCurrency,
+      fromAmount,
+      toAmount,
+      fee,
+      rate,
+      createdAt: new Date()
+    };
+    
+    if (!this.btcConversions.has(userId)) {
+      this.btcConversions.set(userId, []);
+    }
+    this.btcConversions.get(userId)!.push(conversion);
+    return conversion;
+  }
+
+  async getUserBtcConversions(userId: string): Promise<any[]> {
+    return this.btcConversions.get(userId) || [];
+  }
+
   async convertEthToUsdt(userId: string, ethAmount: string, ethPrice: string): Promise<{ usdtAmount: string; feeAmount: string }> {
     const ethAmountNum = parseFloat(ethAmount);
     const ethPriceNum = parseFloat(ethPrice);

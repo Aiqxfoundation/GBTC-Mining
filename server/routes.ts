@@ -1011,7 +1011,23 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  // BTC/USDT Conversion endpoint
+  // Get conversion history
+  app.get("/api/conversions", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    const btcConversions = await storage.getUserBtcConversions(req.user!.id);
+    const ethConversions = await storage.getEthConversions(req.user!.id);
+    
+    // Combine all conversions and sort by date
+    const allConversions = [...btcConversions, ...ethConversions]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+    res.json(allConversions);
+  });
+
+  // BTC/USDT/ETH Conversion endpoint
   app.post("/api/convert", async (req, res, next) => {
     try {
       if (!req.isAuthenticated()) {
@@ -1024,8 +1040,8 @@ export async function registerRoutes(app: Express) {
       }
 
       const { fromCurrency, toCurrency, amount } = z.object({
-        fromCurrency: z.enum(["BTC", "USDT"]),
-        toCurrency: z.enum(["BTC", "USDT"]),
+        fromCurrency: z.enum(["BTC", "USDT", "ETH"]),
+        toCurrency: z.enum(["BTC", "USDT", "ETH"]),
         amount: z.string().refine(val => parseFloat(val) > 0, "Amount must be positive")
       }).parse(req.body);
 
@@ -1056,6 +1072,17 @@ export async function registerRoutes(app: Express) {
         
         await storage.updateUserBtcBalance(user.id, newBtcBalance);
         await storage.updateUser(user.id, { usdtBalance: newUsdtBalance });
+        
+        // Save conversion history
+        await storage.createBtcConversion(
+          user.id,
+          fromCurrency,
+          toCurrency,
+          amount,
+          finalAmount.toFixed(2),
+          fee.toFixed(2),
+          btcPrice.toString()
+        );
 
         result = {
           convertedAmount: finalAmount.toFixed(2),
@@ -1079,11 +1106,90 @@ export async function registerRoutes(app: Express) {
         
         await storage.updateUser(user.id, { usdtBalance: newUsdtBalance });
         await storage.updateUserBtcBalance(user.id, newBtcBalance);
+        
+        // Save conversion history
+        await storage.createBtcConversion(
+          user.id,
+          fromCurrency,
+          toCurrency,
+          amount,
+          finalAmount.toFixed(8),
+          fee.toFixed(8),
+          btcPrice.toString()
+        );
 
         result = {
           convertedAmount: finalAmount.toFixed(8),
           fee: fee.toFixed(8),
           rate: btcPrice.toString()
+        };
+      } else if (fromCurrency === "ETH" && toCurrency === "USDT") {
+        // Convert ETH to USDT
+        const ethBalance = parseFloat(user.ethBalance || "0");
+        if (ethBalance < convertAmount) {
+          return res.status(400).json({ message: "Insufficient ETH balance" });
+        }
+        
+        const ethPrice = parseFloat(await storage.getCurrentEthPrice());
+        const usdtValue = convertAmount * ethPrice;
+        const fee = usdtValue * conversionFee;
+        const finalAmount = usdtValue - fee;
+        
+        // Update balances
+        const newEthBalance = (ethBalance - convertAmount).toFixed(8);
+        const newUsdtBalance = (parseFloat(user.usdtBalance || "0") + finalAmount).toFixed(2);
+        
+        await storage.updateUser(user.id, { ethBalance: newEthBalance, usdtBalance: newUsdtBalance });
+        
+        // Save conversion history
+        await storage.createBtcConversion(
+          user.id,
+          fromCurrency,
+          toCurrency,
+          amount,
+          finalAmount.toFixed(2),
+          fee.toFixed(2),
+          ethPrice.toString()
+        );
+        
+        result = {
+          convertedAmount: finalAmount.toFixed(2),
+          fee: fee.toFixed(2),
+          rate: ethPrice.toString()
+        };
+      } else if (fromCurrency === "USDT" && toCurrency === "ETH") {
+        // Convert USDT to ETH
+        const usdtBalance = parseFloat(user.usdtBalance || "0");
+        if (usdtBalance < convertAmount) {
+          return res.status(400).json({ message: "Insufficient USDT balance" });
+        }
+        
+        const ethPrice = parseFloat(await storage.getCurrentEthPrice());
+        const ethValue = convertAmount / ethPrice;
+        const fee = ethValue * conversionFee;
+        const finalAmount = ethValue - fee;
+        
+        // Update balances
+        const newUsdtBalance = (usdtBalance - convertAmount).toFixed(2);
+        const newEthBalance = (parseFloat(user.ethBalance || "0") + finalAmount).toFixed(8);
+        
+        await storage.updateUser(user.id, { usdtBalance: newUsdtBalance, ethBalance: newEthBalance });
+        
+        // Save conversion history
+        await storage.createBtcConversion(
+          user.id,
+          fromCurrency,
+          toCurrency,
+          amount,
+          finalAmount.toFixed(8),
+          fee.toFixed(8),
+          ethPrice.toString()
+        );
+        
+        result = {
+          convertedAmount: finalAmount.toFixed(8),
+          fee: fee.toFixed(8),
+          rate: ethPrice.toString()
         };
       } else {
         return res.status(400).json({ message: "Invalid conversion pair" });

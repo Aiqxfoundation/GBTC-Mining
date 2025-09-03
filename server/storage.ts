@@ -126,6 +126,10 @@ export interface IStorage {
   getEthConversions(userId: string): Promise<EthConversion[]>;
   getCurrentEthPrice(): Promise<string>;
   
+  // Conversion tracking
+  createBtcConversion(userId: string, fromCurrency: string, toCurrency: string, fromAmount: string, toAmount: string, fee: string, rate: string): Promise<any>;
+  getUserBtcConversions(userId: string): Promise<any[]>;
+  
   // BTC Staking operations
   createBtcStake(userId: string, btcAmount: string, gbtcHashrate: string, btcPrice: string, months?: number, apr?: number): Promise<any>;
   getUserBtcStakes(userId: string): Promise<any[]>;
@@ -894,6 +898,34 @@ export class DatabaseStorage implements IStorage {
   async getCurrentEthPrice(): Promise<string> {
     // Fetch real-time ETH price from API
     return await fetchRealEthPrice();
+  }
+  
+  // Conversion tracking - memory based for now
+  private btcConversions = new Map<string, any[]>();
+  
+  async createBtcConversion(userId: string, fromCurrency: string, toCurrency: string, fromAmount: string, toAmount: string, fee: string, rate: string): Promise<any> {
+    const conversionId = 'conv-' + Math.random().toString(36).substring(7);
+    const conversion = {
+      id: conversionId,
+      userId,
+      fromCurrency,
+      toCurrency,
+      fromAmount,
+      toAmount,
+      fee,
+      rate,
+      createdAt: new Date()
+    };
+    
+    if (!this.btcConversions.has(userId)) {
+      this.btcConversions.set(userId, []);
+    }
+    this.btcConversions.get(userId)!.push(conversion);
+    return conversion;
+  }
+  
+  async getUserBtcConversions(userId: string): Promise<any[]> {
+    return this.btcConversions.get(userId) || [];
   }
 
   // BTC Staking methods
