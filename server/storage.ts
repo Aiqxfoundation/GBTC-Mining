@@ -255,11 +255,20 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, deposit.userId));
     
     if (user) {
-      const newBalance = (parseFloat(user.usdtBalance || "0") + parseFloat(amountToCredit)).toFixed(2);
-      await db
-        .update(users)
-        .set({ usdtBalance: newBalance })
-        .where(eq(users.id, deposit.userId));
+      // Check deposit currency/network
+      if (deposit.network === 'ETH') {
+        const newBalance = (parseFloat(user.ethBalance || "0") + parseFloat(amountToCredit)).toFixed(8);
+        await db
+          .update(users)
+          .set({ ethBalance: newBalance })
+          .where(eq(users.id, deposit.userId));
+      } else {
+        const newBalance = (parseFloat(user.usdtBalance || "0") + parseFloat(amountToCredit)).toFixed(2);
+        await db
+          .update(users)
+          .set({ usdtBalance: newBalance })
+          .where(eq(users.id, deposit.userId));
+      }
     }
   }
 
@@ -325,9 +334,19 @@ export class DatabaseStorage implements IStorage {
 
     const amount = parseFloat(withdrawal.amount);
     const isUSDT = withdrawal.network === 'ERC20' || withdrawal.network === 'BSC' || withdrawal.network === 'TRC20';
+    const isETH = withdrawal.network === 'ETH';
 
     // Check balance and deduct
-    if (isUSDT) {
+    if (isETH) {
+      const ethBalance = parseFloat(user.ethBalance || "0");
+      if (ethBalance < amount) {
+        throw new Error("Insufficient ETH balance");
+      }
+      const newBalance = (ethBalance - amount).toFixed(8);
+      await db.update(users)
+        .set({ ethBalance: newBalance })
+        .where(eq(users.id, user.id));
+    } else if (isUSDT) {
       const usdtBalance = parseFloat(user.usdtBalance || "0");
       if (usdtBalance < amount) {
         throw new Error("Insufficient USDT balance");

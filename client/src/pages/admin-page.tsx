@@ -427,7 +427,10 @@ export default function AdminPage() {
                       <div className="flex justify-between items-center">
                         <span className="text-xs text-destructive">Claimed:</span>
                         <span className="font-bold text-destructive">
-                          ${parseFloat(deposit.amount).toFixed(2)}
+                          {deposit.network === 'ETH' ? 
+                            `${parseFloat(deposit.amount).toFixed(8)} ETH` : 
+                            `$${parseFloat(deposit.amount).toFixed(2)}`
+                          }
                         </span>
                       </div>
                     </div>
@@ -514,13 +517,23 @@ export default function AdminPage() {
                       <div className="flex justify-between items-center">
                         <span className="text-xs">Amount:</span>
                         <span className="font-bold">
-                          {parseFloat(withdrawal.amount).toFixed(2)} USDT
+                          {withdrawal.network === 'ETH' ? 
+                            `${parseFloat(withdrawal.amount).toFixed(8)} ETH` :
+                            withdrawal.network === 'GBTC' ?
+                            `${parseFloat(withdrawal.amount).toFixed(8)} GBTC` :
+                            `${parseFloat(withdrawal.amount).toFixed(2)} USDT`
+                          }
                         </span>
                       </div>
                       <div className="flex justify-between items-center mt-1">
                         <span className="text-xs text-muted-foreground">Balance:</span>
                         <span className="text-xs">
-                          {parseFloat(withdrawal.user?.usdtBalance || '0').toFixed(2)} USDT
+                          {withdrawal.network === 'ETH' ?
+                            `${parseFloat(withdrawal.user?.ethBalance || '0').toFixed(8)} ETH` :
+                            withdrawal.network === 'GBTC' ?
+                            `${parseFloat(withdrawal.user?.gbtcBalance || '0').toFixed(8)} GBTC` :
+                            `${parseFloat(withdrawal.user?.usdtBalance || '0').toFixed(2)} USDT`
+                          }
                         </span>
                       </div>
                     </div>
