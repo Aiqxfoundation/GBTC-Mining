@@ -315,26 +315,19 @@ export default function MiningFactory() {
                     </svg>
                   </motion.div>
 
-                  {/* Energy core center - explosion animation */}
+                  {/* Energy core center - transforms to block */}
                   <motion.div
                     className="absolute w-16 h-16"
                     animate={isBlockForm ? {
-                      scale: [1, 1.5, 0.8, 1.3, 1],
-                      opacity: [1, 0.6, 1, 0.7, 1],
-                      filter: [
-                        'brightness(1) blur(0px)',
-                        'brightness(1.5) blur(2px)',
-                        'brightness(2) blur(0px)',
-                        'brightness(1.3) blur(1px)',
-                        'brightness(1) blur(0px)'
-                      ]
+                      rotate: [0, 90, 180, 270, 360],
+                      scale: [1, 0.8, 1],
+                      borderRadius: ["50%", "20%", "10%", "20%", "50%"],
                     } : isMining ? {
                       scale: [1, 1.2, 1],
                     } : {}}
                     transition={isBlockForm ? {
-                      duration: 0.8,
-                      ease: "easeOut",
-                      times: [0, 0.2, 0.5, 0.8, 1]
+                      duration: 1,
+                      ease: "easeInOut",
                     } : {
                       duration: 2,
                       repeat: Infinity,
@@ -379,12 +372,12 @@ export default function MiningFactory() {
                           </div>
                         </div>
                       )}
+                      
+                      {/* Bitcoin symbol */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-xl font-bold text-white">₿</span>
+                      </div>
                     </motion.div>
-                    
-                    {/* Bitcoin symbol - placed outside rotating element */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <span className="text-xl font-bold text-white">₿</span>
-                    </div>
 
                     {/* Pulsing glow */}
                     {isMining && (
@@ -405,92 +398,7 @@ export default function MiningFactory() {
                     )}
                   </motion.div>
 
-                  {/* Explosion particles */}
-                  {isBlockForm && (
-                    <>
-                      {[...Array(12)].map((_, i) => (
-                        <motion.div
-                          key={`particle-${i}`}
-                          className="absolute w-2 h-2 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full"
-                          style={{
-                            left: '50%',
-                            top: '50%',
-                          }}
-                          initial={{
-                            x: 0,
-                            y: 0,
-                            opacity: 1,
-                            scale: 1
-                          }}
-                          animate={{
-                            x: Math.cos(i * 30 * Math.PI / 180) * 80,
-                            y: Math.sin(i * 30 * Math.PI / 180) * 80,
-                            opacity: [1, 1, 0],
-                            scale: [1, 1.5, 0.5],
-                          }}
-                          transition={{
-                            duration: 0.8,
-                            ease: "easeOut"
-                          }}
-                        />
-                      ))}
-                      {/* Explosion shockwave */}
-                      <motion.div
-                        className="absolute rounded-full border-4 border-yellow-400"
-                        style={{
-                          left: '50%',
-                          top: '50%',
-                          transform: 'translate(-50%, -50%)'
-                        }}
-                        initial={{
-                          width: 20,
-                          height: 20,
-                          opacity: 1,
-                        }}
-                        animate={{
-                          width: [20, 150],
-                          height: [20, 150],
-                          opacity: [1, 0],
-                          borderWidth: [4, 1],
-                        }}
-                        transition={{
-                          duration: 0.6,
-                          ease: "easeOut"
-                        }}
-                      />
-                      {/* Dazzling sparks */}
-                      {[...Array(8)].map((_, i) => (
-                        <motion.div
-                          key={`spark-${i}`}
-                          className="absolute"
-                          style={{
-                            left: '50%',
-                            top: '50%',
-                            width: '60px',
-                            height: '2px',
-                            background: 'linear-gradient(90deg, transparent, #fde047, transparent)',
-                            transformOrigin: 'left center',
-                            transform: `rotate(${i * 45}deg)`
-                          }}
-                          initial={{
-                            scaleX: 0,
-                            opacity: 1,
-                          }}
-                          animate={{
-                            scaleX: [0, 1.5, 0],
-                            opacity: [0, 1, 0],
-                          }}
-                          transition={{
-                            duration: 0.5,
-                            ease: "easeOut",
-                            delay: 0.1,
-                          }}
-                        />
-                      ))}
-                    </>
-                  )}
-                  
-                  {/* Energy rings - only when not exploding */}
+                  {/* Energy rings */}
                   {isMining && !isBlockForm && (
                     <>
                       {[0, 1, 2].map((ring) => (
