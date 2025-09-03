@@ -399,8 +399,9 @@ export async function registerRoutes(app: Express) {
         blockHeight: currentBlock,
         totalBlockHeight: totalBlocks,
         activeMiners,
-        blockReward: parseFloat(supplyMetrics.currentBlockReward),
-        totalCirculation: parseFloat(supplyMetrics.circulating),
+        currentBlockReward: parseFloat(supplyMetrics.currentBlockReward),
+        circulation: parseFloat(supplyMetrics.circulating),
+        totalMined: parseFloat(supplyMetrics.totalMined),
         maxSupply: 2100000,
         nextHalving: supplyMetrics.halvingProgress.nextHalving,
         blocksUntilHalving: supplyMetrics.halvingProgress.blocksRemaining

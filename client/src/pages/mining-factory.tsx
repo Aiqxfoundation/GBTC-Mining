@@ -205,19 +205,26 @@ export default function MiningFactory() {
     }
   });
 
-  // Calculate mining stats
-  const totalSupply = 2100000; // 2.1M max supply from whitepaper
+  // Calculate mining stats based on mathematical distribution
+  const totalSupply = 2100000; // 2.1M max supply
   const blockHeight = globalStats?.blockHeight || 1;
+  const totalBlockHeight = globalStats?.totalBlockHeight || blockHeight;
   const globalHashrate = globalStats?.totalHashrate || 0;
   const circulation = globalStats?.circulation || 0;
-  const currentBlockReward = globalStats?.currentBlockReward || 6.25;
+  const currentBlockReward = globalStats?.currentBlockReward || 50;
   const networkShare = globalHashrate > 0 ? ((hashPower / globalHashrate) * 100) : 0;
-  const estimatedDaily = globalHashrate > 0 ? ((24 * currentBlockReward) * (hashPower / globalHashrate)) : 0; // 24 blocks per day (1 hour block time)
+  const blocksPerDay = 24; // 1 hour per block = 24 blocks/day
+  const estimatedDaily = globalHashrate > 0 ? ((blocksPerDay * currentBlockReward) * (hashPower / globalHashrate)) : 0;
 
   const formatHashrate = (rate: number) => {
     if (rate >= 1000000) return `${(rate / 1000000).toFixed(2)} PH/s`;
     if (rate >= 1000) return `${(rate / 1000).toFixed(2)} TH/s`;
     return `${rate.toFixed(2)} GH/s`;
+  };
+
+  const formatUTCTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toUTCString().replace('GMT', 'UTC');
   };
 
   const getTimeRemaining = (expiresAt: string) => {
@@ -230,7 +237,10 @@ export default function MiningFactory() {
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     
-    return `${hours}h ${minutes}m`;
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes} min`;
   };
 
   const totalUnclaimedReward = unclaimedBlocks?.reduce((sum: number, block: any) => 
@@ -253,31 +263,31 @@ export default function MiningFactory() {
 
       <div className="mobile-content">
         {/* Mining Animation Section */}
-        <Card className="mobile-card bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20 overflow-hidden relative">
+        <Card className="mobile-card bg-gradient-to-br from-yellow-900/20 to-yellow-600/10 border-yellow-500/30 overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none"></div>
           
           <div className="relative z-10 p-4">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
-                <div className={`w-3 h-3 rounded-full ${isMining ? 'bg-success animate-pulse' : 'bg-destructive'}`}></div>
-                <span className="text-sm font-mono text-primary">
-                  {isMining ? 'MINING ACTIVE' : 'MINING INACTIVE'}
+                <div className={`w-2 h-2 rounded-full ${isMining ? 'bg-yellow-400 animate-pulse' : 'bg-red-500'}`}></div>
+                <span className="text-[10px] font-mono text-yellow-400">
+                  {isMining ? 'MINING' : 'OFFLINE'}
                 </span>
               </div>
-              <span className="text-sm font-mono text-accent">
+              <span className="text-[10px] font-mono text-yellow-500">
                 {formatHashrate(hashPower)}
               </span>
             </div>
 
             {/* Energy Core Mining Animation */}
-            <div className="flex justify-center my-6 relative">
-              <div className="relative w-48 h-48 flex items-center justify-center">
+            <div className="flex justify-center my-3 relative">
+              <div className="relative w-36 h-36 flex items-center justify-center">
                 
                 {/* Central Energy Core */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   {/* Outer hexagon frame */}
                   <motion.div
-                    className="absolute w-36 h-36"
+                    className="absolute w-28 h-28"
                     animate={isMining ? {
                       rotate: [0, 360],
                     } : {}}
@@ -307,7 +317,7 @@ export default function MiningFactory() {
 
                   {/* Energy core center - transforms to block */}
                   <motion.div
-                    className="absolute w-20 h-20"
+                    className="absolute w-16 h-16"
                     animate={isBlockForm ? {
                       rotate: [0, 90, 180, 270, 360],
                       scale: [1, 0.8, 1],
@@ -365,7 +375,7 @@ export default function MiningFactory() {
                       
                       {/* Bitcoin symbol */}
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-2xl font-bold text-orange-900">₿</span>
+                        <span className="text-lg font-bold text-orange-900">₿</span>
                       </div>
                     </motion.div>
 
@@ -555,28 +565,28 @@ export default function MiningFactory() {
         </div>
 
         {/* Personal Mining Stats */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          <Card className="mobile-card bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
-            <div className="p-2 text-center">
-              <Zap className="w-5 h-5 text-primary mx-auto mb-1" />
-              <p className="text-[10px] text-muted-foreground">Network Share</p>
-              <p className="text-sm font-bold text-primary">{networkShare.toFixed(4)}%</p>
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          <Card className="mobile-card bg-gradient-to-br from-yellow-900/20 to-transparent border-yellow-500/30">
+            <div className="p-1.5 text-center">
+              <Zap className="w-4 h-4 text-yellow-400 mx-auto mb-0.5" />
+              <p className="text-[8px] text-yellow-200/70">Share</p>
+              <p className="text-[11px] font-bold text-yellow-400">{networkShare.toFixed(2)}%</p>
             </div>
           </Card>
 
-          <Card className="mobile-card bg-gradient-to-br from-accent/10 to-transparent border-accent/20">
-            <div className="p-2 text-center">
-              <Cpu className="w-5 h-5 text-accent mx-auto mb-1" />
-              <p className="text-[10px] text-muted-foreground">Your Hashrate</p>
-              <p className="text-sm font-bold text-accent">{formatHashrate(hashPower)}</p>
+          <Card className="mobile-card bg-gradient-to-br from-yellow-900/20 to-transparent border-yellow-500/30">
+            <div className="p-1.5 text-center">
+              <Cpu className="w-4 h-4 text-yellow-400 mx-auto mb-0.5" />
+              <p className="text-[8px] text-yellow-200/70">Power</p>
+              <p className="text-[11px] font-bold text-yellow-400">{formatHashrate(hashPower)}</p>
             </div>
           </Card>
 
-          <Card className="mobile-card bg-gradient-to-br from-success/10 to-transparent border-success/20">
-            <div className="p-2 text-center">
-              <TrendingUp className="w-5 h-5 text-success mx-auto mb-1" />
-              <p className="text-[10px] text-muted-foreground">Est. Daily</p>
-              <p className="text-sm font-bold text-success">{estimatedDaily.toFixed(4)}</p>
+          <Card className="mobile-card bg-gradient-to-br from-yellow-900/20 to-transparent border-yellow-500/30">
+            <div className="p-1.5 text-center">
+              <TrendingUp className="w-4 h-4 text-yellow-400 mx-auto mb-0.5" />
+              <p className="text-[8px] text-yellow-200/70">Daily ⃿</p>
+              <p className="text-[11px] font-bold text-yellow-400">{estimatedDaily.toFixed(3)}</p>
             </div>
           </Card>
         </div>
@@ -584,7 +594,7 @@ export default function MiningFactory() {
         {/* Unclaimed Blocks Section */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-mono text-primary">UNCLAIMED BLOCKS</p>
+            <p className="text-xs font-mono text-yellow-400">PENDING REWARDS</p>
             {unclaimedBlocks && unclaimedBlocks.length > 1 && (
               <Button
                 onClick={() => claimAllMutation.mutate()}
@@ -618,13 +628,13 @@ export default function MiningFactory() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <Card className="mobile-card bg-gradient-to-r from-black/50 to-primary/5 border-primary/20 overflow-hidden">
+                  <Card className="mobile-card bg-gradient-to-r from-yellow-900/30 to-yellow-600/20 border-yellow-500/40 overflow-hidden shadow-lg shadow-yellow-500/20">
                     <div className="p-3 relative">
-                      {/* Block pattern background */}
-                      <div className="absolute inset-0 opacity-5">
+                      {/* Golden block pattern background */}
+                      <div className="absolute inset-0 opacity-10">
                         <div className="grid grid-cols-8 h-full">
                           {[...Array(8)].map((_, i) => (
-                            <div key={i} className="border-r border-primary/20"></div>
+                            <div key={i} className="border-r border-yellow-500/20"></div>
                           ))}
                         </div>
                       </div>
@@ -633,33 +643,33 @@ export default function MiningFactory() {
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center space-x-2">
                             <motion.div 
-                              className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center shadow-lg"
+                              className="w-9 h-9 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-md flex items-center justify-center shadow-lg shadow-yellow-500/30"
                               animate={{ rotate: [0, 5, -5, 0] }}
                               transition={{ duration: 2, repeat: Infinity }}
                             >
-                              <Blocks className="w-5 h-5 text-white" />
+                              <span className="text-base font-bold text-yellow-900">₿</span>
                             </motion.div>
                             <div>
-                              <p className="text-sm font-bold text-primary">BLOCK #{block.blockNumber}</p>
-                              <p className="text-[9px] font-mono text-muted-foreground truncate max-w-[120px]">
-                                {block.txHash}
+                              <p className="text-xs font-bold text-yellow-400">BLOCK #{block.blockNumber}</p>
+                              <p className="text-[9px] font-mono text-yellow-200/50">
+                                {formatUTCTime(block.createdAt)}
                               </p>
                             </div>
                           </div>
                           <div className="text-right">
                             <motion.p 
-                              className="text-base font-bold text-accent"
+                              className="text-sm font-bold text-yellow-400"
                               animate={{ scale: [1, 1.05, 1] }}
                               transition={{ duration: 2, repeat: Infinity }}
                             >
-                              {parseFloat(block.reward).toFixed(8)}
+                              {parseFloat(block.reward).toFixed(6)}
                             </motion.p>
-                            <p className="text-[10px] text-primary">GBTC</p>
+                            <p className="text-[9px] text-yellow-300">⃿</p>
                           </div>
                         </div>
                         
                         <div className="flex items-center justify-between">
-                          <div className={`text-xs font-mono px-2 py-1 rounded ${
+                          <div className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
                             getTimeRemaining(block.expiresAt) === 'EXPIRED' 
                               ? 'bg-destructive/20 text-destructive' 
                               : 'bg-warning/20 text-warning'
@@ -674,7 +684,7 @@ export default function MiningFactory() {
                               claimBlockMutation.isPending || 
                               getTimeRemaining(block.expiresAt) === 'EXPIRED'
                             }
-                            className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
+                            className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black"
                             size="sm"
                             data-testid={`button-claim-${block.id}`}
                           >
@@ -682,8 +692,8 @@ export default function MiningFactory() {
                               <Loader2 className="w-4 h-4 animate-spin" />
                             ) : (
                               <>
-                                <Award className="w-3 h-3 mr-1" />
-                                CLAIM
+                                <Award className="w-3 h-3 mr-0.5" />
+                                <span className="text-[10px] font-bold">CLAIM</span>
                               </>
                             )}
                           </Button>
