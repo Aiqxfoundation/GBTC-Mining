@@ -112,7 +112,7 @@ export default function BtcStakingEnhanced() {
   const [lockMonths, setLockMonths] = useState([12]); // Default to 1 year (12 months)
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Fetch BTC prices and hashrate info
+  // Fetch BTC prices and hashrate info with real-time updates
   const { data: priceData } = useQuery<{
     btcPrice: string;
     hashratePrice: string;
@@ -120,18 +120,21 @@ export default function BtcStakingEnhanced() {
     timestamp: string;
   }>({
     queryKey: ['/api/btc/prices'],
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 10000, // Refresh every 10 seconds
+    refetchIntervalInBackground: true,
   });
 
-  // Fetch user's BTC balance
+  // Fetch user's BTC balance with real-time updates
   const { data: balanceData } = useQuery<{
     btcBalance: string;
   }>({
     queryKey: ['/api/btc/balance'],
     enabled: !!user,
+    refetchInterval: 3000, // Refresh every 3 seconds
+    refetchIntervalInBackground: true,
   });
 
-  // Fetch user's active stakes
+  // Fetch user's active stakes with real-time updates
   const { data: stakesData } = useQuery<{
     stakes: any[];
     currentBtcPrice: string;
@@ -140,6 +143,8 @@ export default function BtcStakingEnhanced() {
   }>({
     queryKey: ['/api/btc/stakes'],
     enabled: !!user,
+    refetchInterval: 5000, // Refresh every 5 seconds
+    refetchIntervalInBackground: true,
   });
 
   // Create stake mutation
@@ -227,22 +232,24 @@ export default function BtcStakingEnhanced() {
 
   return (
     <div className="mobile-page bg-[#1a1a1a]">
-      {/* Header */}
-      <div className="mobile-header bg-[#1a1a1a] border-b border-gray-800">
+      {/* Bitcoin-themed Header */}
+      <div className="mobile-header bg-gradient-to-r from-[#1a1a1a] to-[#0d0d0d] border-b border-[#f7931a]/30 shadow-lg shadow-[#f7931a]/10">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Button
               onClick={() => setLocation('/wallet')}
               variant="ghost"
               size="sm"
-              className="p-0 mr-3"
+              className="p-0 mr-3 hover:bg-[#f7931a]/20"
               data-testid="button-back"
             >
-              <ArrowLeft className="w-5 h-5 text-white" />
+              <ArrowLeft className="w-5 h-5 text-[#f7931a]" />
             </Button>
-            <h1 className="text-lg font-medium text-white">Advanced BTC Staking</h1>
+            <h1 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#f7931a] to-[#ffb347]">
+              ₿ Advanced BTC Staking
+            </h1>
           </div>
-          <Badge className="bg-[#f7931a] text-black">
+          <Badge className="bg-gradient-to-r from-[#f7931a] to-[#ffb347] text-black font-bold animate-pulse">
             {apr}% APR
           </Badge>
         </div>
@@ -250,46 +257,62 @@ export default function BtcStakingEnhanced() {
 
       {/* Content */}
       <div className="mobile-content">
-        {/* Real-time Price Display */}
-        <Card className="p-4 bg-gradient-to-r from-[#f7931a]/20 to-[#f7931a]/10 border-[#f7931a]/30">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Bitcoin className="w-6 h-6 text-[#f7931a]" />
+        {/* Real-time Price & Balance Display */}
+        <Card className="p-4 bg-gradient-to-br from-[#1a1a1a] to-black border-[#f7931a]/30 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#f7931a]/10 rounded-full blur-3xl" />
+          <div className="flex items-center justify-between relative">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-[#f7931a]/20 rounded-lg">
+                <span className="text-2xl">₿</span>
+              </div>
               <div>
-                <p className="text-xs text-gray-400">Bitcoin Price</p>
+                <div className="flex items-center gap-1">
+                  <p className="text-xs text-gray-400">Live Price</p>
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                </div>
                 <p className="text-xl font-bold text-white">
                   ${priceData?.btcPrice ? Number(priceData.btcPrice).toLocaleString() : '0'}
                 </p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-xs text-gray-400">Your Balance</p>
-              <p className="text-lg font-medium text-[#f7931a]">
-                {btcBalance.toFixed(8)} BTC
+              <div className="flex items-center gap-1 justify-end">
+                <p className="text-xs text-gray-400">Balance</p>
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+              </div>
+              <p className="text-lg font-bold text-[#f7931a]">
+                ₿ {btcBalance.toFixed(8)}
+              </p>
+              <p className="text-xs text-gray-500">
+                ${(btcBalance * btcPrice).toLocaleString()}
               </p>
             </div>
           </div>
         </Card>
 
         <Tabs defaultValue="stake" className="mt-4">
-          <TabsList className="grid w-full grid-cols-2 bg-[#242424]">
-            <TabsTrigger value="stake" className="data-[state=active]:bg-[#f7931a] data-[state=active]:text-black">
-              Create Stake
+          <TabsList className="grid w-full grid-cols-2 bg-gradient-to-r from-[#1a1a1a] to-[#0d0d0d] border border-[#f7931a]/30">
+            <TabsTrigger value="stake" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#f7931a] data-[state=active]:to-[#ffb347] data-[state=active]:text-black data-[state=active]:font-bold">
+              ⚡ Create Stake
             </TabsTrigger>
-            <TabsTrigger value="active" className="data-[state=active]:bg-[#f7931a] data-[state=active]:text-black">
-              Active Stakes
+            <TabsTrigger value="active" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#f7931a] data-[state=active]:to-[#ffb347] data-[state=active]:text-black data-[state=active]:font-bold">
+              💼 Active Stakes
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="stake" className="mt-4">
-            <Card className="p-4 bg-[#242424] border-gray-800">
+            <Card className="p-4 bg-gradient-to-br from-[#1a1a1a] to-black border-[#f7931a]/30 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-24 h-24 bg-[#f7931a]/10 rounded-full blur-2xl" />
               {/* Lock Time Slider */}
-              <div className="mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <Label className="text-white">Lock Duration</Label>
-                  <div className="text-right">
+              <div className="mb-6 relative">
+                <div className="flex justify-between items-center mb-3">
+                  <Label className="text-[#f7931a] font-semibold flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    Lock Duration
+                  </Label>
+                  <div className="text-right bg-[#f7931a]/10 px-3 py-1 rounded-lg border border-[#f7931a]/30">
                     <p className="text-lg font-bold text-[#f7931a]">{formatDuration(months)}</p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-green-400">
                       APR: {apr}%
                     </p>
                   </div>
@@ -313,13 +336,16 @@ export default function BtcStakingEnhanced() {
 
               {/* BTC Amount Slider */}
               <div className="mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <Label className="text-white">BTC Amount</Label>
-                  <div className="text-right">
+                <div className="flex justify-between items-center mb-3">
+                  <Label className="text-[#f7931a] font-semibold flex items-center gap-2">
+                    <span className="text-lg">₿</span>
+                    BTC Amount
+                  </Label>
+                  <div className="text-right bg-[#f7931a]/10 px-3 py-1 rounded-lg border border-[#f7931a]/30">
                     <p className="text-lg font-bold text-[#f7931a]">
                       {btcAmount.toFixed(8)} BTC
                       {maxBtcAllowed > 0 && (
-                        <span className="text-xs text-gray-400 ml-1">
+                        <span className="text-xs text-green-400 ml-1">
                           ({(btcAmount / maxBtcAllowed * 100).toFixed(0)}%)
                         </span>
                       )}
@@ -360,19 +386,22 @@ export default function BtcStakingEnhanced() {
 
               {/* Hashrate Amount Slider */}
               <div className="mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <Label className="text-white">GBTC Hashrate Required</Label>
-                  <div className="text-right">
+                <div className="flex justify-between items-center mb-3">
+                  <Label className="text-green-400 font-semibold flex items-center gap-2">
+                    <Cpu className="w-4 h-4" />
+                    GBTC Hashrate Required
+                  </Label>
+                  <div className="text-right bg-green-500/10 px-3 py-1 rounded-lg border border-green-500/30">
                     <p className="text-lg font-bold text-green-400">
                       {hashrateAmount.toFixed(0)} GH/s
                       {userHashPower > 0 && (
-                        <span className="text-xs text-gray-400 ml-1">
+                        <span className="text-xs text-green-300 ml-1">
                           ({(hashrateAmount / userHashPower * 100).toFixed(0)}%)
                         </span>
                       )}
                     </p>
                     <p className="text-xs text-gray-400">
-                      {userHashPower >= hashrateAmount ? 'Ready ✓' : `Need ${(hashrateAmount - userHashPower).toFixed(0)} more`}
+                      {userHashPower >= hashrateAmount ? '✓ Ready' : `Need ${(hashrateAmount - userHashPower).toFixed(0)} more`}
                     </p>
                   </div>
                 </div>
@@ -400,8 +429,9 @@ export default function BtcStakingEnhanced() {
               <Separator className="mb-6 bg-gray-700" />
 
               {/* Returns Calculator */}
-              <div className="bg-gradient-to-r from-[#1a1a1a] to-[#242424] rounded-lg p-4 mb-6">
-                <h3 className="text-white font-medium mb-3 flex items-center gap-2">
+              <div className="bg-gradient-to-br from-[#1a1a1a] via-[#0d0d0d] to-black rounded-xl p-4 mb-6 border border-[#f7931a]/20 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full blur-2xl" />
+                <h3 className="text-[#f7931a] font-bold mb-3 flex items-center gap-2 relative">
                   <TrendingUp className="w-4 h-4 text-green-400" />
                   Projected Returns
                 </h3>
@@ -441,8 +471,11 @@ export default function BtcStakingEnhanced() {
               </div>
 
               {/* Requirements Check */}
-              <div className="bg-yellow-900/20 border border-yellow-600/30 rounded p-3 mb-6">
-                <p className="text-xs text-yellow-400 mb-2">Auto-Balance Status (100% Optimized):</p>
+              <div className="bg-gradient-to-r from-[#f7931a]/10 to-[#f7931a]/5 border border-[#f7931a]/30 rounded-xl p-4 mb-6">
+                <p className="text-sm font-bold text-[#f7931a] mb-3 flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  Auto-Balance Status (100% Optimized)
+                </p>
                 <ul className="text-xs text-gray-400 space-y-1">
                   <li className="flex items-center gap-1">
                     <CheckCircle className={`w-3 h-3 ${btcBalance >= btcAmount ? 'text-green-400' : 'text-gray-600'}`} />
@@ -465,7 +498,7 @@ export default function BtcStakingEnhanced() {
 
               <Button
                 onClick={handleStake}
-                className="w-full bg-[#f7931a] hover:opacity-90 text-black font-medium"
+                className="w-full bg-gradient-to-r from-[#f7931a] to-[#ffb347] hover:from-[#ffb347] hover:to-[#f7931a] text-black font-bold text-lg py-6 rounded-xl shadow-lg shadow-[#f7931a]/30 transition-all duration-300 transform hover:scale-[1.02]"
                 disabled={
                   btcBalance < btcAmount ||
                   userHashPower < hashrateAmount ||
@@ -493,7 +526,8 @@ export default function BtcStakingEnhanced() {
           </TabsContent>
 
           <TabsContent value="active" className="mt-4">
-            <Card className="p-4 bg-[#242424] border-gray-800">
+            <Card className="p-4 bg-gradient-to-br from-[#1a1a1a] to-black border-[#f7931a]/30 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-24 h-24 bg-green-500/10 rounded-full blur-2xl" />
               {stakesData?.stakes && stakesData.stakes.length > 0 ? (
                 <div className="space-y-3">
                   <div className="flex justify-between items-center mb-4">
