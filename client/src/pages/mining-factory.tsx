@@ -309,7 +309,6 @@ export default function MiningFactory() {
                   <motion.div
                     className="absolute w-20 h-20"
                     animate={isBlockForm ? {
-                      rotate: [0, 90, 180, 270, 360],
                       scale: [1, 0.8, 1],
                       borderRadius: ["50%", "20%", "10%", "20%", "50%"],
                     } : isMining ? {
