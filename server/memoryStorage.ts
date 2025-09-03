@@ -61,9 +61,10 @@ export class MemoryStorage implements IStorage {
       referredBy: null,
       usdtBalance: '10000.00',
       ethBalance: '0.00000000',
-      hashPower: '104.50', // 100 base + 4.5 bonus from referrals
-      baseHashPower: '100.00',
-      referralHashBonus: '4.50', // 5% of 90 TH/s from 3 referrals
+      btcBalance: '10.00000000',  // Added BTC balance for testing
+      hashPower: '1104.50', // 1000 base + 104.5 bonus from referrals (increased for staking)
+      baseHashPower: '1000.00',
+      referralHashBonus: '104.50', // 5% of 90 TH/s from 3 referrals
       gbtcBalance: '50.00000000',  // Added GBTC balance for testing
       unclaimedBalance: '0.00000000',
       totalReferralEarnings: '0.00',
@@ -1039,5 +1040,124 @@ export class MemoryStorage implements IStorage {
   async getCurrentEthPrice(): Promise<string> {
     // Fetch real-time ETH price from API
     return await fetchRealEthPrice();
+  }
+
+  // BTC Staking methods
+  private btcStakes: Map<string, any> = new Map();
+  private btcStakingRewards: Map<string, any[]> = new Map();
+  private btcPriceHistory: any[] = [];
+
+  async createBtcStake(userId: string, btcAmount: string, gbtcHashrate: string, btcPrice: string, months: number = 12, apr: number = 20): Promise<any> {
+    const stakeId = 'stake-' + randomBytes(8).toString('hex');
+    const dailyReward = (parseFloat(btcAmount) * apr / 100 / 365).toFixed(8); // Dynamic APR daily
+    const unlockAt = new Date();
+    unlockAt.setMonth(unlockAt.getMonth() + months); // Dynamic lock period
+
+    const stake = {
+      id: stakeId,
+      userId,
+      btcAmount,
+      gbtcHashrate,
+      btcPriceAtStake: btcPrice,
+      aprRate: apr.toFixed(2),
+      dailyReward,
+      totalRewardsPaid: '0.00000000',
+      stakedAt: new Date(),
+      unlockAt,
+      status: 'active',
+      lastRewardAt: null,
+      lockMonths: months
+    };
+
+    this.btcStakes.set(stakeId, stake);
+    return stake;
+  }
+
+  async getUserBtcStakes(userId: string): Promise<any[]> {
+    const stakes: any[] = [];
+    for (const [_, stake] of this.btcStakes) {
+      if (stake.userId === userId) {
+        stakes.push(stake);
+      }
+    }
+    return stakes.sort((a, b) => b.stakedAt.getTime() - a.stakedAt.getTime());
+  }
+
+  async getActiveBtcStakes(): Promise<any[]> {
+    const stakes: any[] = [];
+    for (const [_, stake] of this.btcStakes) {
+      if (stake.status === 'active') {
+        stakes.push(stake);
+      }
+    }
+    return stakes;
+  }
+
+  async processDailyBtcRewards(): Promise<void> {
+    const activeStakes = await this.getActiveBtcStakes();
+    const currentBtcPrice = await this.getCurrentBtcPrice();
+
+    for (const stake of activeStakes) {
+      // Record reward payment
+      const rewardId = 'reward-' + randomBytes(8).toString('hex');
+      const reward = {
+        id: rewardId,
+        stakeId: stake.id,
+        userId: stake.userId,
+        rewardAmount: stake.dailyReward,
+        btcPrice: currentBtcPrice,
+        paidAt: new Date()
+      };
+
+      if (!this.btcStakingRewards.has(stake.userId)) {
+        this.btcStakingRewards.set(stake.userId, []);
+      }
+      this.btcStakingRewards.get(stake.userId)!.push(reward);
+
+      // Update user BTC balance
+      const user = this.users.get(stake.userId);
+      if (user) {
+        const currentBalance = parseFloat((user as any).btcBalance || '0');
+        (user as any).btcBalance = (currentBalance + parseFloat(stake.dailyReward)).toFixed(8);
+      }
+
+      // Update stake's total rewards paid
+      stake.totalRewardsPaid = (parseFloat(stake.totalRewardsPaid) + parseFloat(stake.dailyReward)).toFixed(8);
+      stake.lastRewardAt = new Date();
+    }
+  }
+
+  async getCurrentBtcPrice(): Promise<string> {
+    // Return a simulated BTC price for memory storage
+    // In production, this would fetch from an API
+    return "98000.00";
+  }
+
+  async updateBtcPrice(price: string, source: string = 'system'): Promise<void> {
+    this.btcPriceHistory.push({
+      price,
+      source,
+      timestamp: new Date()
+    });
+  }
+
+  async getSystemHashratePrice(): Promise<string> {
+    // Calculate price of 1 GH/s based on BTC price
+    const btcPrice = await this.getCurrentBtcPrice();
+    // 1 BTC worth of hashrate = btcPrice / 1000 (assuming 1000 GH/s = 1 BTC equivalent)
+    const pricePerGH = (parseFloat(btcPrice) / 1000).toFixed(8);
+    return pricePerGH;
+  }
+
+  async getUserBtcBalance(userId: string): Promise<string> {
+    const user = this.users.get(userId);
+    return (user as any)?.btcBalance || '0.00000000';
+  }
+
+  async updateUserBtcBalance(userId: string, btcBalance: string): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      (user as any).btcBalance = btcBalance;
+    }
   }
 }

@@ -852,9 +852,11 @@ export async function registerRoutes(app: Express) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      const { btcAmount, useHashrate } = z.object({
-        btcAmount: z.string().refine(val => parseFloat(val) >= 1, "Minimum stake is 1 BTC"),
-        useHashrate: z.boolean().default(true)
+      const { btcAmount, useHashrate, months, apr } = z.object({
+        btcAmount: z.string().refine(val => parseFloat(val) >= 0.1, "Minimum stake is 0.1 BTC"),
+        useHashrate: z.boolean().default(true),
+        months: z.number().optional().default(12),
+        apr: z.number().optional().default(20)
       }).parse(req.body);
 
       const user = req.user!;
@@ -876,12 +878,14 @@ export async function registerRoutes(app: Express) {
         });
       }
 
-      // Create stake
+      // Create stake with dynamic lock period and APR
       const stake = await storage.createBtcStake(
         user.id,
         btcAmount,
         requiredHashrate.toString(),
-        btcPrice
+        btcPrice,
+        months,
+        apr
       );
 
       // Deduct BTC balance and hashrate
@@ -896,8 +900,8 @@ export async function registerRoutes(app: Express) {
       res.json({
         message: "BTC stake created successfully",
         stake,
-        lockDuration: "1 year",
-        aprRate: "20%",
+        lockDuration: `${months} month${months !== 1 ? 's' : ''}`,
+        aprRate: `${apr}%`,
         dailyReward: stake.dailyReward
       });
     } catch (error) {

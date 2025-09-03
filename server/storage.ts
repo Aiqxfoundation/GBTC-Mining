@@ -127,7 +127,7 @@ export interface IStorage {
   getCurrentEthPrice(): Promise<string>;
   
   // BTC Staking operations
-  createBtcStake(userId: string, btcAmount: string, gbtcHashrate: string, btcPrice: string): Promise<any>;
+  createBtcStake(userId: string, btcAmount: string, gbtcHashrate: string, btcPrice: string, months?: number, apr?: number): Promise<any>;
   getUserBtcStakes(userId: string): Promise<any[]>;
   getActiveBtcStakes(): Promise<any[]>;
   processDailyBtcRewards(): Promise<void>;
@@ -897,10 +897,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   // BTC Staking methods
-  async createBtcStake(userId: string, btcAmount: string, gbtcHashrate: string, btcPrice: string): Promise<any> {
-    const dailyReward = (parseFloat(btcAmount) * 0.20 / 365).toFixed(8); // 20% APR daily
+  async createBtcStake(userId: string, btcAmount: string, gbtcHashrate: string, btcPrice: string, months: number = 12, apr: number = 20): Promise<any> {
+    const dailyReward = (parseFloat(btcAmount) * apr / 100 / 365).toFixed(8); // Dynamic APR daily
     const unlockAt = new Date();
-    unlockAt.setFullYear(unlockAt.getFullYear() + 1); // 1 year lock
+    unlockAt.setMonth(unlockAt.getMonth() + months); // Dynamic lock period
 
     const [stake] = await db.insert(btcStakes).values({
       userId,
