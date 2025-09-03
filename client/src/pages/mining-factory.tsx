@@ -374,7 +374,12 @@ export default function MiningFactory() {
                           duration: 0.3,
                         }}
                       >
-                        <span className="text-2xl font-bold text-orange-900">B</span>
+                        <span style={{
+                          fontSize: '24px',
+                          fontWeight: '700',
+                          color: '#7c2d12',
+                          fontFamily: 'Arial, Helvetica, sans-serif'
+                        }}>B</span>
                       </motion.div>
                     </motion.div>
 
