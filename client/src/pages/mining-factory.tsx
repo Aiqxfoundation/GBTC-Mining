@@ -502,7 +502,7 @@ export default function MiningFactory() {
             <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[8px] font-mono mt-2 bg-black/30 rounded p-2">
               <div className="flex items-center justify-between">
                 <span className="text-yellow-200/60">Height:</span>
-                <span className="text-yellow-400 font-semibold">#{totalBlockHeight}</span>
+                <span className="text-yellow-400 font-semibold">#{blockHeight}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-yellow-200/60">Next:</span>
