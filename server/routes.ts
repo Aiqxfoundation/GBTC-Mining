@@ -852,9 +852,8 @@ export async function registerRoutes(app: Express) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      const { btcAmount, useHashrate, months, apr } = z.object({
+      const { btcAmount, months, apr } = z.object({
         btcAmount: z.string().refine(val => parseFloat(val) >= 0.1, "Minimum stake is 0.1 BTC"),
-        useHashrate: z.boolean().default(true),
         months: z.number().optional().default(12),
         apr: z.number().optional().default(20)
       }).parse(req.body);
@@ -872,7 +871,8 @@ export async function registerRoutes(app: Express) {
       // Calculate required hashrate (1 GH/s = 1 USD, so GH/s needed = BTC amount * BTC price)
       const requiredHashrate = parseFloat(btcAmount) * parseFloat(btcPrice);
       
-      if (useHashrate && userHashPower < requiredHashrate) {
+      // Always require hashrate
+      if (userHashPower < requiredHashrate) {
         return res.status(400).json({ 
           message: `Insufficient hashrate. Need ${requiredHashrate} GH/s but you have ${userHashPower} GH/s` 
         });
@@ -892,10 +892,9 @@ export async function registerRoutes(app: Express) {
       const newBtcBalance = (btcBalance - parseFloat(btcAmount)).toFixed(8);
       await storage.updateUserBtcBalance(user.id, newBtcBalance);
       
-      if (useHashrate) {
-        const newHashPower = (userHashPower - requiredHashrate).toFixed(2);
-        await storage.updateUser(user.id, { hashPower: newHashPower });
-      }
+      // Always deduct hashrate
+      const newHashPower = (userHashPower - requiredHashrate).toFixed(2);
+      await storage.updateUser(user.id, { hashPower: newHashPower });
 
       res.json({
         message: "BTC stake created successfully",

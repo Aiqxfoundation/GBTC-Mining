@@ -50,7 +50,6 @@ export default function BtcStakingEnhanced() {
   const [btcSliderValue, setBtcSliderValue] = useState([1]);
   const [hashrateSliderValue, setHashrateSliderValue] = useState([111000]); // Default for 1 BTC at $111k
   const [lockMonths, setLockMonths] = useState([12]); // Default to 1 year (12 months)
-  const [useHashrate, setUseHashrate] = useState(true);
 
   // Fetch BTC prices and hashrate info
   const { data: priceData } = useQuery<{
@@ -84,7 +83,7 @@ export default function BtcStakingEnhanced() {
 
   // Create stake mutation
   const stakeMutation = useMutation({
-    mutationFn: async (data: { btcAmount: string; useHashrate: boolean; months: number; apr: number }) => {
+    mutationFn: async (data: { btcAmount: string; months: number; apr: number }) => {
       const response = await fetch('/api/btc/stake', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -136,16 +135,15 @@ export default function BtcStakingEnhanced() {
   // Update hashrate slider when BTC slider changes
   // Using 1 GH/s = 1 USD model, so required GH/s = BTC amount * BTC price
   useEffect(() => {
-    if (useHashrate && btcPrice > 0) {
+    if (btcPrice > 0) {
       const requiredHashrate = btcAmount * btcPrice;
       setHashrateSliderValue([requiredHashrate]);
     }
-  }, [btcAmount, btcPrice, useHashrate]);
+  }, [btcAmount, btcPrice]);
 
   const handleStake = () => {
     stakeMutation.mutate({
       btcAmount: btcAmount.toString(),
-      useHashrate,
       months: months,
       apr: apr,
     });
@@ -266,43 +264,30 @@ export default function BtcStakingEnhanced() {
               {/* Hashrate Amount Slider */}
               <div className="mb-6">
                 <div className="flex justify-between items-center mb-2">
-                  <div className="flex items-center gap-2">
-                    <Label className="text-white">GBTC Hashrate</Label>
-                    <input
-                      type="checkbox"
-                      checked={useHashrate}
-                      onChange={(e) => setUseHashrate(e.target.checked)}
-                      className="w-4 h-4 rounded"
-                      data-testid="checkbox-use-hashrate"
-                    />
-                  </div>
+                  <Label className="text-white">GBTC Hashrate Required</Label>
                   <div className="text-right">
                     <p className="text-lg font-bold text-green-400">
-                      {useHashrate ? hashrateAmount.toFixed(0) : '0'} GH/s
+                      {hashrateAmount.toFixed(0)} GH/s
                     </p>
                     <p className="text-xs text-gray-400">
-                      {useHashrate ? `Required: ${(btcAmount * btcPrice).toFixed(0)} GH/s` : 'Not used'}
+                      Auto-calculated: ${(btcAmount * btcPrice).toFixed(0)} GH/s
                     </p>
                   </div>
                 </div>
-                {useHashrate && (
-                  <>
-                    <Slider
-                      value={hashrateSliderValue}
-                      onValueChange={setHashrateSliderValue}
-                      min={1000}
-                      max={Math.max(500000, btcPrice * 10)}
-                      step={1000}
-                      className="mb-2"
-                      disabled={!useHashrate}
-                      data-testid="slider-hashrate-amount"
-                    />
-                    <div className="flex justify-between text-xs text-gray-400">
-                      <span>1,000 GH/s</span>
-                      <span>{Math.max(500000, btcPrice * 10).toLocaleString()} GH/s</span>
-                    </div>
-                  </>
-                )}
+                <Slider
+                  value={hashrateSliderValue}
+                  onValueChange={setHashrateSliderValue}
+                  min={1000}
+                  max={Math.max(500000, btcPrice * 10)}
+                  step={1000}
+                  className="mb-2"
+                  disabled={true}
+                  data-testid="slider-hashrate-amount"
+                />
+                <div className="flex justify-between text-xs text-gray-400">
+                  <span>1,000 GH/s</span>
+                  <span>{Math.max(500000, btcPrice * 10).toLocaleString()} GH/s</span>
+                </div>
               </div>
 
               <Separator className="mb-6 bg-gray-700" />
@@ -357,8 +342,8 @@ export default function BtcStakingEnhanced() {
                     BTC Balance: {btcBalance >= btcAmount ? 'Sufficient' : `Need ${(btcAmount - btcBalance).toFixed(8)} more BTC`}
                   </li>
                   <li className="flex items-center gap-1">
-                    <CheckCircle className={`w-3 h-3 ${!useHashrate || userHashPower >= hashrateAmount ? 'text-green-400' : 'text-gray-600'}`} />
-                    Hashrate: {!useHashrate ? 'Not Required' : userHashPower >= hashrateAmount ? 'Sufficient' : `Need ${(hashrateAmount - userHashPower).toFixed(0)} more GH/s`}
+                    <CheckCircle className={`w-3 h-3 ${userHashPower >= hashrateAmount ? 'text-green-400' : 'text-gray-600'}`} />
+                    Hashrate: {userHashPower >= hashrateAmount ? 'Sufficient' : `Need ${(hashrateAmount - userHashPower).toFixed(0)} more GH/s`}
                   </li>
                   <li className="flex items-center gap-1">
                     <CheckCircle className="w-3 h-3 text-yellow-400" />
@@ -372,7 +357,7 @@ export default function BtcStakingEnhanced() {
                 className="w-full bg-[#f7931a] hover:opacity-90 text-black font-medium"
                 disabled={
                   btcBalance < btcAmount ||
-                  (useHashrate && userHashPower < hashrateAmount) ||
+                  userHashPower < hashrateAmount ||
                   stakeMutation.isPending
                 }
                 data-testid="button-create-stake"
