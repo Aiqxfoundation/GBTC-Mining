@@ -27,6 +27,8 @@ export class MemoryStorage implements IStorage {
   private deposits: Map<string, Deposit> = new Map();
   private withdrawals: Map<string, Withdrawal> = new Map();
   private miningBlocks: Map<string, MiningBlock> = new Map();
+  private btcPriceCache: { price: string; timestamp: number } | null = null;
+  private readonly PRICE_CACHE_DURATION = 30000; // 30 seconds cache
   private systemSettings: Map<string, SystemSetting> = new Map();
   private unclaimedBlocks: Map<string, UnclaimedBlock> = new Map();
   private transfers: Map<string, Transfer> = new Map();
@@ -91,6 +93,7 @@ export class MemoryStorage implements IStorage {
       referredBy: null,
       usdtBalance: '1000.00',
       ethBalance: '0.00000000',
+      btcBalance: '0.50000000',
       hashPower: '10.00',
       baseHashPower: '10.00',
       referralHashBonus: '0.00',
@@ -130,6 +133,7 @@ export class MemoryStorage implements IStorage {
         referredBy: 'ADM1N0X7', // Referred by admin
         usdtBalance: '500.00',
         ethBalance: '0.00000000',
+        btcBalance: '0.00000000',
         hashPower: (20 + i * 5).toFixed(2), // 25, 30, 35 TH/s
         baseHashPower: (20 + i * 5).toFixed(2),
         referralHashBonus: '0.00',
@@ -225,6 +229,7 @@ export class MemoryStorage implements IStorage {
       referredBy: insertUser.referredBy || null,
       usdtBalance: '0.00',
       ethBalance: '0.00000000',
+      btcBalance: '0.00000000',
       hashPower: '0.00',
       baseHashPower: '0.00',
       referralHashBonus: '0.00',
@@ -1075,7 +1080,7 @@ export class MemoryStorage implements IStorage {
 
   async getUserBtcStakes(userId: string): Promise<any[]> {
     const stakes: any[] = [];
-    for (const [_, stake] of this.btcStakes) {
+    for (const stake of Array.from(this.btcStakes.values())) {
       if (stake.userId === userId) {
         stakes.push(stake);
       }
@@ -1085,7 +1090,7 @@ export class MemoryStorage implements IStorage {
 
   async getActiveBtcStakes(): Promise<any[]> {
     const stakes: any[] = [];
-    for (const [_, stake] of this.btcStakes) {
+    for (const stake of Array.from(this.btcStakes.values())) {
       if (stake.status === 'active') {
         stakes.push(stake);
       }
@@ -1128,8 +1133,35 @@ export class MemoryStorage implements IStorage {
   }
 
   async getCurrentBtcPrice(): Promise<string> {
-    // Real-time BTC price (current market price ~$111,000)
-    // In production, this would fetch from a price API
+    // Check if we have a cached price that's still fresh
+    const now = Date.now();
+    if (this.btcPriceCache && (now - this.btcPriceCache.timestamp) < this.PRICE_CACHE_DURATION) {
+      return this.btcPriceCache.price;
+    }
+
+    // Fetch fresh price from public API
+    try {
+      // Using CoinGecko public API (no key required)
+      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+      if (response.ok) {
+        const data = await response.json();
+        const price = data.bitcoin?.usd || 111000;
+        const priceStr = price.toFixed(2);
+        
+        // Cache the price
+        this.btcPriceCache = {
+          price: priceStr,
+          timestamp: now
+        };
+        
+        console.log('Fetched live BTC price:', priceStr);
+        return priceStr;
+      }
+    } catch (error) {
+      console.error('Failed to fetch BTC price:', error);
+    }
+    
+    // Fallback to a default if API fails
     return "111000.00";
   }
 
