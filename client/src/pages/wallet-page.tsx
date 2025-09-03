@@ -47,13 +47,26 @@ export default function WalletPage() {
   const [copiedAddress, setCopiedAddress] = useState(false);
   const [selectedTransfer, setSelectedTransfer] = useState<any>(null);
   const [currentUTCTime, setCurrentUTCTime] = useState("");
+  const [depositCooldown, setDepositCooldown] = useState<number>(0);
 
-  // Update UTC time every second
+  // Update UTC time every second and handle deposit cooldown
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
       const utcTime = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
       setCurrentUTCTime(utcTime);
+      
+      // Check and update deposit cooldown from localStorage
+      const storedCooldown = localStorage.getItem('depositCooldownEnd');
+      if (storedCooldown) {
+        const cooldownEnd = parseInt(storedCooldown);
+        const remainingTime = Math.max(0, cooldownEnd - Date.now());
+        setDepositCooldown(Math.ceil(remainingTime / 1000)); // Convert to seconds
+        
+        if (remainingTime <= 0) {
+          localStorage.removeItem('depositCooldownEnd');
+        }
+      }
     };
     
     updateTime();
@@ -163,11 +176,19 @@ export default function WalletPage() {
       setDepositTxHash("");
     },
     onError: (error: Error) => {
-      toast({ 
-        title: "Deposit Failed", 
-        description: error.message, 
-        variant: "destructive" 
-      });
+      // Check if it's a 72-hour cooldown error
+      if (error.message.includes('72 hours')) {
+        // Set 72-hour cooldown (72 * 60 * 60 * 1000 milliseconds)
+        const cooldownEnd = Date.now() + (72 * 60 * 60 * 1000);
+        localStorage.setItem('depositCooldownEnd', cooldownEnd.toString());
+        setDepositCooldown(72 * 60 * 60); // 72 hours in seconds
+      } else {
+        toast({ 
+          title: "Deposit Failed", 
+          description: error.message, 
+          variant: "destructive" 
+        });
+      }
     }
   });
 
@@ -226,6 +247,9 @@ export default function WalletPage() {
   });
 
   const handleDeposit = () => {
+    if (depositCooldown > 0) {
+      return; // Don't submit if cooldown is active
+    }
     if (!depositAmount || !depositTxHash) {
       toast({ 
         title: "Invalid Input", 
@@ -235,6 +259,21 @@ export default function WalletPage() {
       return;
     }
     depositMutation.mutate({ amount: depositAmount, txHash: depositTxHash });
+  };
+  
+  // Format cooldown time for display
+  const formatCooldownTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m ${secs}s`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${secs}s`;
+    } else {
+      return `${secs}s`;
+    }
   };
 
   const handleWithdraw = () => {
@@ -601,14 +640,22 @@ export default function WalletPage() {
               
               <Button
                 onClick={handleDeposit}
-                disabled={depositMutation.isPending}
-                className="w-full bg-[#f7931a] hover:bg-[#e8821a] text-black font-medium py-3"
+                disabled={depositMutation.isPending || depositCooldown > 0}
+                className={`w-full font-medium py-3 ${
+                  depositCooldown > 0 
+                    ? 'bg-gray-600 text-white cursor-not-allowed' 
+                    : 'bg-[#f7931a] hover:bg-[#e8821a] text-black'
+                }`}
                 data-testid="button-confirm-deposit"
               >
                 {depositMutation.isPending ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                     Processing...
+                  </>
+                ) : depositCooldown > 0 ? (
+                  <>
+                    Wait: {formatCooldownTime(depositCooldown)}
                   </>
                 ) : (
                   'Submit Deposit'
