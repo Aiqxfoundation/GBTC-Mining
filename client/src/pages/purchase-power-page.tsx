@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
-import { Loader2, Zap, Calculator, Coins, Activity, TrendingUp, Cpu, Award } from "lucide-react";
-import { motion } from "framer-motion";
+import { Loader2, Zap, Calculator, Coins, Activity, TrendingUp, Cpu, Award, Gauge, Hash } from "lucide-react";
 
 export default function PurchasePowerPage() {
   const { user } = useAuth();
@@ -29,12 +28,12 @@ export default function PurchasePowerPage() {
   
   const selectedAmount = parseFloat(customAmount) || 0;
   
-  // Hashrate display helper with proper units
-  const getHashrateDisplay = (hashrate: number) => {
+  // Memoized hashrate display helper
+  const getHashrateDisplay = useMemo(() => (hashrate: number) => {
     if (hashrate >= 1000000) return `${(hashrate / 1000000).toFixed(2)} PH/s`;
     if (hashrate >= 1000) return `${(hashrate / 1000).toFixed(2)} TH/s`;
     return `${hashrate.toFixed(2)} GH/s`;
-  };
+  }, []);
 
   // Calculate dynamic mining metrics based on network participation
   const calculateDynamicRewards = (userHashrate: number, totalHashrate: number) => {
@@ -69,10 +68,10 @@ export default function PurchasePowerPage() {
     };
   };
 
-  // Calculate rewards after purchase
-  const afterPurchaseHashrate = currentHashrate + selectedAmount;
-  const afterPurchaseTotalHashrate = totalNetworkHashrate + selectedAmount;
-  const afterPurchaseRewards = calculateDynamicRewards(afterPurchaseHashrate, afterPurchaseTotalHashrate);
+  // Memoized calculations for better performance
+  const afterPurchaseHashrate = useMemo(() => currentHashrate + selectedAmount, [currentHashrate, selectedAmount]);
+  const afterPurchaseTotalHashrate = useMemo(() => totalNetworkHashrate + selectedAmount, [totalNetworkHashrate, selectedAmount]);
+  const afterPurchaseRewards = useMemo(() => calculateDynamicRewards(afterPurchaseHashrate, afterPurchaseTotalHashrate), [afterPurchaseHashrate, afterPurchaseTotalHashrate]);
 
   const purchasePowerMutation = useMutation({
     mutationFn: async (amount: number) => {
@@ -119,48 +118,25 @@ export default function PurchasePowerPage() {
 
   return (
     <div className="mobile-page bg-gradient-to-b from-black via-gray-900 to-black relative overflow-hidden">
-      {/* Bitcoin Background Animation */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-10">
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute"
-            initial={{ 
-              x: Math.random() * window.innerWidth,
-              y: -100
-            }}
-            animate={{
-              y: window.innerHeight + 100,
-              rotate: 360
-            }}
-            transition={{
-              duration: 15 + i * 3,
-              repeat: Infinity,
-              delay: i * 2,
-              ease: "linear"
-            }}
-          >
-            <div className="text-6xl font-bold text-orange-500">₿</div>
-          </motion.div>
-        ))}
-      </div>
+      {/* Bitcoin Pattern Background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-orange-950/20 via-black to-orange-950/10 pointer-events-none"></div>
 
-      {/* Header */}
-      <div className="mobile-header bg-black/80 backdrop-blur-lg border-b border-primary/20">
+      {/* Header - Bitcoin Style */}
+      <div className="mobile-header bg-black border-b border-orange-900/30 shadow-lg shadow-orange-500/10">
         <div>
-          <h1 className="text-xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
-            Purchase Hash Power
+          <h1 className="text-xl font-bold text-orange-500 flex items-center">
+            <span className="text-2xl mr-2">₿</span> HASH POWER
           </h1>
-          <p className="text-xs text-muted-foreground font-mono">
+          <p className="text-xs text-orange-500/60 font-mono">
             1 USDT = 1 GH/s
           </p>
         </div>
         <div className="text-right">
           <div className="flex items-center justify-end space-x-1 mb-1">
-            <Activity className="w-3 h-3 text-primary animate-pulse" />
-            <p className="text-xs text-muted-foreground font-mono">Your Hashrate</p>
+            <Gauge className="w-3 h-3 text-orange-500" />
+            <p className="text-xs text-orange-500/60 font-mono">CURRENT</p>
           </div>
-          <p className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
+          <p className="text-lg font-bold text-orange-500">
             {getHashrateDisplay(currentHashrate)}
           </p>
         </div>
@@ -168,76 +144,55 @@ export default function PurchasePowerPage() {
 
       {/* Main Content */}
       <div className="mobile-content">
-        {/* Balance Card with Bitcoin Glow */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="mb-4 bg-gradient-to-br from-primary/10 to-accent/10 border-primary/30 shadow-lg shadow-primary/20 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none"></div>
-            <div className="relative z-10 p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center space-x-2 mb-2">
-                    <div className="p-1.5 rounded-lg bg-success/20">
-                      <Coins className="w-4 h-4 text-success" />
-                    </div>
-                    <p className="text-xs text-muted-foreground font-mono uppercase">Available Balance</p>
-                  </div>
-                  <motion.p 
-                    className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-success to-chart-3"
-                    animate={{ scale: [1, 1.02, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    ${usdtBalance.toFixed(2)}
-                  </motion.p>
-                  <p className="text-xs text-muted-foreground mt-1 font-mono">USDT</p>
+        {/* Bitcoin Style Balance Card */}
+        <Card className="mb-4 bg-gradient-to-r from-gray-900 to-black border-orange-500/20 shadow-xl shadow-orange-500/10">
+          <div className="p-4">
+            <div className="grid grid-cols-2 gap-4">
+              {/* USDT Balance */}
+              <div className="bg-black/50 rounded-lg p-3 border border-green-500/20">
+                <div className="flex items-center justify-between mb-2">
+                  <Coins className="w-4 h-4 text-green-500" />
+                  <span className="text-xs text-green-500/60 font-mono">USDT</span>
                 </div>
-                <div className="text-right">
-                  <div className="flex items-center justify-end space-x-2 mb-2">
-                    <p className="text-xs text-muted-foreground font-mono uppercase">Current Power</p>
-                    <div className="p-1.5 rounded-lg bg-primary/20">
-                      <Zap className="w-4 h-4 text-primary animate-pulse" />
-                    </div>
-                  </div>
-                  <motion.p 
-                    className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent"
-                    animate={{ scale: [1, 1.02, 1] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                  >
-                    {getHashrateDisplay(currentHashrate)}
-                  </motion.p>
+                <p className="text-2xl font-bold text-green-500">
+                  ${usdtBalance.toFixed(2)}
+                </p>
+                <p className="text-xs text-green-500/60 mt-1">Available</p>
+              </div>
+              {/* Current Hashrate */}
+              <div className="bg-black/50 rounded-lg p-3 border border-orange-500/20">
+                <div className="flex items-center justify-between mb-2">
+                  <Hash className="w-4 h-4 text-orange-500" />
+                  <span className="text-xs text-orange-500/60 font-mono">POWER</span>
                 </div>
+                <p className="text-xl font-bold text-orange-500">
+                  {currentHashrate.toFixed(0)}
+                </p>
+                <p className="text-xs text-orange-500/60 mt-1">GH/s</p>
               </div>
             </div>
-          </Card>
-        </motion.div>
+          </div>
+        </Card>
 
         {/* Purchase Card with Bitcoin Theme */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <Card className="bg-gradient-to-br from-black to-gray-900 border-primary/20 shadow-lg shadow-primary/10 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
-            <CardHeader className="pb-4 relative z-10">
+        <div>
+          <Card className="bg-black border-orange-500/20 shadow-xl shadow-orange-500/10">
+            <CardHeader className="pb-4 bg-gradient-to-r from-orange-950/20 to-black">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
+                  <CardTitle className="text-lg font-bold text-orange-500">
                     Buy Hash Power
                   </CardTitle>
-                  <CardDescription className="text-xs text-muted-foreground mt-1">
+                  <CardDescription className="text-xs text-orange-500/60">
                     Invest USDT to increase your mining power
                   </CardDescription>
                 </div>
-                <div className="p-2 rounded-xl bg-primary/10">
-                  <Cpu className="w-6 h-6 text-primary" />
+                <div className="text-3xl text-orange-500">
+                  ₿
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="relative z-10">
+            <CardContent>
             <div className="space-y-4">
               {/* Input Section with Bitcoin Style */}
               <div className="relative">
@@ -274,94 +229,60 @@ export default function PurchasePowerPage() {
 
               {/* Calculation Display with Bitcoin Animation */}
               {selectedAmount > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Card className="bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20 shadow-lg shadow-primary/10">
-                    <CardContent className="p-4">
+                <div>
+                  <Card className="bg-black/50 border-orange-500/30">
+                    <CardContent className="p-3">
                       <div className="space-y-4">
                         {/* Purchase Summary with Icons */}
-                        <div className="grid grid-cols-2 gap-3">
-                          <motion.div 
-                            className="bg-black/50 rounded-lg p-3 border border-destructive/20"
-                            whileHover={{ scale: 1.02 }}
-                          >
-                            <div className="flex items-center justify-between mb-1">
-                              <p className="text-xs text-muted-foreground font-mono">You Pay</p>
-                              <TrendingUp className="w-3 h-3 text-destructive" />
-                            </div>
-                            <p className="text-lg font-bold text-white font-mono">${selectedAmount}</p>
-                            <p className="text-xs text-muted-foreground">USDT</p>
-                          </motion.div>
-                          <motion.div 
-                            className="bg-black/50 rounded-lg p-3 border border-success/20"
-                            whileHover={{ scale: 1.02 }}
-                          >
-                            <div className="flex items-center justify-between mb-1">
-                              <p className="text-xs text-muted-foreground font-mono">You Get</p>
-                              <Award className="w-3 h-3 text-success" />
-                            </div>
-                            <p className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent font-mono">
+                        <div className="grid grid-cols-2 gap-2 text-center">
+                          <div className="bg-red-950/20 border border-red-500/30 rounded p-2">
+                            <p className="text-xs text-red-500/80 mb-1">You Pay</p>
+                            <p className="text-lg font-bold text-red-500">${selectedAmount}</p>
+                            <p className="text-xs text-red-500/60">USDT</p>
+                          </div>
+                          <div className="bg-green-950/20 border border-green-500/30 rounded p-2">
+                            <p className="text-xs text-green-500/80 mb-1">You Get</p>
+                            <p className="text-lg font-bold text-green-500">
                               {getHashrateDisplay(selectedAmount).split(' ')[0]}
                             </p>
-                            <p className="text-xs text-primary">
+                            <p className="text-xs text-green-500/60">
                               {getHashrateDisplay(selectedAmount).split(' ')[1]}
                             </p>
-                          </motion.div>
-                        </div>
-
-                        <div className="relative">
-                          <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="px-2 bg-background text-xs text-muted-foreground">•</span>
                           </div>
                         </div>
 
+                        <div className="h-px bg-orange-500/20"></div>
+
                         {/* After Purchase Stats */}
-                        <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg p-3 border border-primary/20">
-                          <p className="text-xs text-primary font-mono mb-3 uppercase">After Purchase</p>
-                          <div className="space-y-2">
+                        <div className="bg-orange-950/10 border border-orange-500/20 rounded p-3">
+                          <p className="text-xs text-orange-500 font-mono mb-2">AFTER PURCHASE</p>
+                          <div className="space-y-1">
                             <div className="flex justify-between items-center">
-                              <div className="flex items-center space-x-1">
-                                <Cpu className="w-3 h-3 text-primary" />
-                                <span className="text-xs text-muted-foreground font-mono">Total Hashrate</span>
-                              </div>
-                              <span className="text-sm font-bold text-white font-mono">
+                              <span className="text-xs text-orange-500/60">Total Power:</span>
+                              <span className="text-sm font-bold text-orange-500">
                                 {getHashrateDisplay(afterPurchaseHashrate)}
                               </span>
                             </div>
                             <div className="flex justify-between items-center">
-                              <div className="flex items-center space-x-1">
-                                <Activity className="w-3 h-3 text-success animate-pulse" />
-                                <span className="text-xs text-muted-foreground font-mono">Est. Daily GBTC*</span>
-                              </div>
-                              <motion.span 
-                                className="text-sm font-bold text-success font-mono"
-                                animate={{ scale: [1, 1.05, 1] }}
-                                transition={{ duration: 2, repeat: Infinity }}
-                              >
-                                ~{afterPurchaseRewards.dailyReward}
-                              </motion.span>
+                              <span className="text-xs text-orange-500/60">Est. Daily:</span>
+                              <span className="text-sm font-bold text-green-500">
+                                ~{afterPurchaseRewards.dailyReward} GBTC
+                              </span>
                             </div>
                           </div>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
-                </motion.div>
+                </div>
               )}
 
               {/* Purchase Button with Bitcoin Glow */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
+              <div className="hover:scale-[1.02] active:scale-[0.98] transition-transform">
                 <Button
                   onClick={handlePurchase}
                   disabled={purchasePowerMutation.isPending || selectedAmount > usdtBalance || selectedAmount < 1}
-                  className="w-full h-14 font-bold bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-black disabled:opacity-50 shadow-lg shadow-primary/30 transition-all font-mono uppercase"
+                  className="w-full h-12 font-bold bg-orange-500 hover:bg-orange-600 text-black disabled:opacity-50 shadow-lg shadow-orange-500/30"
                   data-testid="button-confirm-purchase"
                 >
                   {purchasePowerMutation.isPending ? (
@@ -378,7 +299,7 @@ export default function PurchasePowerPage() {
                     </>
                   )}
                 </Button>
-              </motion.div>
+              </div>
 
               {selectedAmount > usdtBalance && (
                 <p className="text-xs text-red-500 text-center">
@@ -388,51 +309,37 @@ export default function PurchasePowerPage() {
             </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
 
-        {/* Info Card with Bitcoin Style */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <Card className="mt-4 bg-gradient-to-br from-black to-gray-900 border-primary/20 shadow-lg shadow-primary/5">
-            <CardContent className="p-4">
-              <div className="flex items-start space-x-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Calculator className="w-4 h-4 text-primary" />
-                </div>
-                <div className="space-y-2 text-xs text-muted-foreground">
-                  <p className="flex items-center"><span className="text-primary mr-1">•</span> Hash power starts mining immediately</p>
-                  <p className="flex items-center"><span className="text-primary mr-1">•</span> Rewards distributed every 1 hour</p>
-                  <p className="flex items-center"><span className="text-primary mr-1">•</span> No maintenance fees</p>
-                  <p className="flex items-center"><span className="text-primary mr-1">•</span> Permanent ownership</p>
-                </div>
+        {/* Info Card - Bitcoin Style */}
+        <Card className="mt-4 bg-black border-orange-500/20">
+          <CardContent className="p-3">
+            <div className="flex items-start space-x-2">
+              <Calculator className="w-4 h-4 text-orange-500 mt-0.5" />
+              <div className="space-y-1 text-xs">
+                <p className="text-orange-500/80">• Hash power starts mining immediately</p>
+                <p className="text-orange-500/80">• Rewards distributed every 1 hour</p>
+                <p className="text-orange-500/80">• No maintenance fees</p>
+                <p className="text-orange-500/80">• Permanent ownership</p>
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+            </div>
+          </CardContent>
+        </Card>
         
-        {/* Important Note with Bitcoin Warning Style */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <Card className="mt-3 bg-gradient-to-r from-warning/10 to-warning/5 border-warning/30 shadow-lg shadow-warning/10">
-            <CardContent className="p-3">
-              <div className="text-xs space-y-1">
-                <p className="font-bold text-warning flex items-center">
-                  <Activity className="w-3 h-3 mr-1 animate-pulse" />
-                  * Important Note:
-                </p>
-                <p className="text-muted-foreground leading-relaxed">
-                  Your estimated GBTC rewards are based on the current global hashrate. As more miners join and total network hashrate increases, the difficulty increases and rewards are fairly distributed based on each user's hash contribution to the network.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+        {/* Important Note - Bitcoin Warning */}
+        <Card className="mt-3 bg-yellow-950/20 border-yellow-600/30">
+          <CardContent className="p-3">
+            <div className="text-xs space-y-1">
+              <p className="font-bold text-yellow-500 flex items-center">
+                <Activity className="w-3 h-3 mr-1" />
+                * Important Note:
+              </p>
+              <p className="text-yellow-500/70 leading-relaxed">
+                Your estimated GBTC rewards are based on the current global hashrate. As more miners join and total network hashrate increases, the difficulty increases and rewards are fairly distributed based on each user's hash contribution to the network.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
