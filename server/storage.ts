@@ -675,12 +675,24 @@ export class DatabaseStorage implements IStorage {
   
   async getCirculatingSupply(): Promise<string> {
     try {
-      // Circulating supply = All GBTC in user wallets (not unclaimed)
+      // Circulating supply = All GBTC in user wallets (claimed and in circulation)
       const allUsers = await db.select().from(users);
       const circulatingSupply = allUsers.reduce((sum, user) => {
         return sum + parseFloat(user.gbtcBalance || "0");
       }, 0);
-      return circulatingSupply.toFixed(8);
+      
+      // Also include unclaimed blocks that have been mined but not yet claimed
+      // This represents the true circulation of mined GBTC
+      const unclaimedRewards = await db.select()
+        .from(unclaimedBlocks)
+        .where(sql`${unclaimedBlocks.claimed} = false AND ${unclaimedBlocks.expiresAt} > NOW()`);
+      
+      const unclaimedTotal = unclaimedRewards.reduce((sum, block) => {
+        return sum + parseFloat(block.reward || "0");
+      }, 0);
+      
+      const totalCirculation = circulatingSupply + unclaimedTotal;
+      return totalCirculation.toFixed(8);
     } catch (error) {
       console.error("Error getting circulating supply:", error);
       return "0";

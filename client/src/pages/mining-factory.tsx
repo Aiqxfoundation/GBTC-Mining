@@ -5,7 +5,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Cpu, TrendingUp, Clock, Zap, Award, Hash, Activity, Blocks, Binary, Shield, Sparkles } from "lucide-react";
+import { Loader2, Cpu, TrendingUp, Clock, Zap, Award, Hash, Activity, Blocks, Binary, Shield, Sparkles, Layers } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 
@@ -21,6 +21,7 @@ export default function MiningFactory() {
   const [showNewBlock, setShowNewBlock] = useState(false);
   const [nonce, setNonce] = useState(0);
   const [isBlockForm, setIsBlockForm] = useState(false);
+  const [flyingCoins, setFlyingCoins] = useState<Array<{id: string, amount: number, x: number, y: number}>>([]);
 
   const hashPower = parseFloat(user?.hashPower || '0');
   const gbtcBalance = parseFloat(user?.gbtcBalance || '0');
@@ -165,7 +166,29 @@ export default function MiningFactory() {
       const res = await apiRequest("POST", `/api/claim-block/${blockId}`);
       return res.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data, blockId) => {
+      // Find the block that was claimed to get the reward amount
+      const claimedBlock = unclaimedBlocks?.find((block: any) => block.id === blockId);
+      if (claimedBlock) {
+        // Get the position of the claim button
+        const claimButton = document.querySelector(`[data-testid="button-claim-${blockId}"]`);
+        if (claimButton) {
+          const rect = claimButton.getBoundingClientRect();
+          const gbtcBox = document.getElementById('gbtc-box');
+          const gbtcRect = gbtcBox?.getBoundingClientRect();
+          
+          if (gbtcRect) {
+            // Add flying coin animation
+            setFlyingCoins(prev => [...prev, {
+              id: `coin-${Date.now()}`,
+              amount: parseFloat(claimedBlock.reward),
+              x: rect.left - gbtcRect.left - gbtcRect.width / 2,
+              y: rect.top - gbtcRect.top - gbtcRect.height / 2
+            }]);
+          }
+        }
+      }
+      
       toast({ 
         title: "Block Claimed!", 
         description: `Successfully claimed ${data.reward} GBTC` 
@@ -205,19 +228,26 @@ export default function MiningFactory() {
     }
   });
 
-  // Calculate mining stats
-  const totalSupply = 2100000; // 2.1M max supply from whitepaper
+  // Calculate mining stats based on mathematical distribution
+  const totalSupply = 2100000; // 2.1M max supply
   const blockHeight = globalStats?.blockHeight || 1;
+  const totalBlockHeight = globalStats?.totalBlockHeight || globalStats?.totalBlocksMined || blockHeight;
   const globalHashrate = globalStats?.totalHashrate || 0;
   const circulation = globalStats?.circulation || 0;
-  const currentBlockReward = globalStats?.currentBlockReward || 6.25;
+  const currentBlockReward = globalStats?.currentBlockReward || 50;
   const networkShare = globalHashrate > 0 ? ((hashPower / globalHashrate) * 100) : 0;
-  const estimatedDaily = globalHashrate > 0 ? ((24 * currentBlockReward) * (hashPower / globalHashrate)) : 0; // 24 blocks per day (1 hour block time)
+  const blocksPerDay = 24; // 1 hour per block = 24 blocks/day
+  const estimatedDaily = globalHashrate > 0 ? ((blocksPerDay * currentBlockReward) * (hashPower / globalHashrate)) : 0;
 
   const formatHashrate = (rate: number) => {
     if (rate >= 1000000) return `${(rate / 1000000).toFixed(2)} PH/s`;
     if (rate >= 1000) return `${(rate / 1000).toFixed(2)} TH/s`;
     return `${rate.toFixed(2)} GH/s`;
+  };
+
+  const formatUTCTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toUTCString().replace('GMT', 'UTC');
   };
 
   const getTimeRemaining = (expiresAt: string) => {
@@ -230,7 +260,10 @@ export default function MiningFactory() {
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     
-    return `${hours}h ${minutes}m`;
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes} min`;
   };
 
   const totalUnclaimedReward = unclaimedBlocks?.reduce((sum: number, block: any) => 
@@ -252,412 +285,199 @@ export default function MiningFactory() {
       </div>
 
       <div className="mobile-content">
-        {/* Mining Animation Section */}
-        <Card className="mobile-card bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20 overflow-hidden relative">
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none"></div>
-          
-          <div className="relative z-10 p-4">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <div className={`w-3 h-3 rounded-full ${isMining ? 'bg-success animate-pulse' : 'bg-destructive'}`}></div>
-                <span className="text-sm font-mono text-primary">
-                  {isMining ? 'MINING ACTIVE' : 'MINING INACTIVE'}
-                </span>
-              </div>
-              <span className="text-sm font-mono text-accent">
-                {formatHashrate(hashPower)}
+        {/* Mining Status - Professional Design */}
+        <div className="bg-black/60 backdrop-blur-sm border border-gray-800 rounded-lg p-4 mb-3 relative overflow-hidden">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <div className={`w-2 h-2 rounded-full ${isMining ? 'bg-orange-500 animate-pulse' : 'bg-gray-600'}`}></div>
+              <span className="text-[10px] font-mono text-gray-400 uppercase">
+                {isMining ? 'Mining Active' : 'Inactive'}
               </span>
             </div>
+            <span className="text-xs font-mono text-white">
+              {formatHashrate(hashPower)}
+            </span>
+          </div>
 
-            {/* Energy Core Mining Animation */}
-            <div className="flex justify-center my-6 relative">
-              <div className="relative w-48 h-48 flex items-center justify-center">
-                
-                {/* Static Bitcoin Symbol - Always centered, never rotates */}
-                <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-                  <motion.div
-                    animate={isMining ? {
-                      filter: [
-                        "drop-shadow(0 0 10px #f7931a)",
-                        "drop-shadow(0 0 20px #f7931a)",
-                        "drop-shadow(0 0 30px #f7931a)",
-                        "drop-shadow(0 0 20px #f7931a)",
-                        "drop-shadow(0 0 10px #f7931a)",
-                      ],
-                    } : {}}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  >
-                    <div style={{
-                      position: 'relative',
-                      width: '32px',
-                      height: '32px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      {/* Bitcoin B with vertical lines */}
-                      <span style={{
-                        fontSize: '32px',
-                        fontWeight: '700',
-                        color: isMining ? '#f7931a' : '#6b7280',
-                        fontFamily: 'Arial, sans-serif',
-                        lineHeight: '1',
-                        position: 'relative'
-                      }}>B</span>
-                      {/* Vertical lines through B for Bitcoin style */}
-                      <div style={{
-                        position: 'absolute',
-                        top: '4px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        display: 'flex',
-                        gap: '3px'
-                      }}>
-                        <div style={{
-                          width: '2px',
-                          height: '8px',
-                          backgroundColor: isMining ? '#f7931a' : '#6b7280',
-                        }}></div>
-                        <div style={{
-                          width: '2px',
-                          height: '8px',
-                          backgroundColor: isMining ? '#f7931a' : '#6b7280',
-                        }}></div>
-                      </div>
-                      <div style={{
-                        position: 'absolute',
-                        bottom: '4px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        display: 'flex',
-                        gap: '3px'
-                      }}>
-                        <div style={{
-                          width: '2px',
-                          height: '8px',
-                          backgroundColor: isMining ? '#f7931a' : '#6b7280',
-                        }}></div>
-                        <div style={{
-                          width: '2px',
-                          height: '8px',
-                          backgroundColor: isMining ? '#f7931a' : '#6b7280',
-                        }}></div>
-                      </div>
-                    </div>
-                  </motion.div>
-                </div>
-                
-                {/* Central Energy Core */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  {/* Outer hexagon frame */}
-                  <motion.div
-                    className="absolute w-36 h-36"
-                    animate={isMining ? {
-                      rotate: [0, 360],
-                    } : {}}
-                    transition={{
-                      duration: 10,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                  >
-                    <svg className="w-full h-full" viewBox="0 0 144 144">
-                      <polygon
-                        points="72,12 122,42 122,102 72,132 22,102 22,42"
-                        fill="none"
-                        stroke={isMining ? "#f97316" : "#374151"}
-                        strokeWidth="2"
-                        opacity={isMining ? 1 : 0.3}
-                      />
-                      <polygon
-                        points="72,24 110,48 110,96 72,120 34,96 34,48"
-                        fill="none"
-                        stroke={isMining ? "#fbbf24" : "#374151"}
-                        strokeWidth="1"
-                        opacity={isMining ? 0.8 : 0.2}
-                      />
-                    </svg>
-                  </motion.div>
-
-                  {/* Energy core center - transforms to block */}
-                  <motion.div
-                    className="absolute w-20 h-20"
-                    animate={isBlockForm ? {
-                      rotate: [0, 90, 180, 270, 360],
-                      scale: [1, 0.8, 1],
-                      borderRadius: ["50%", "20%", "10%", "20%", "50%"],
-                    } : isMining ? {
-                      scale: [1, 1.2, 1],
-                    } : {}}
-                    transition={isBlockForm ? {
-                      duration: 1,
-                      ease: "easeInOut",
-                    } : {
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  >
-                    <motion.div 
-                      className={`w-full h-full relative ${isMining ? 'bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-600' : 'bg-gray-800'}`}
+          {/* Simplified Mining Visualization */}
+          <div className="flex justify-center my-6">
+            <div className="relative w-32 h-32 flex items-center justify-center">
+              {/* Minimalist Core */}
+              <motion.div
+                className={`w-20 h-20 rounded-full ${isMining ? 'bg-gradient-to-br from-orange-500 to-orange-600' : 'bg-gray-800'} flex items-center justify-center`}
+                animate={isMining ? { scale: [1, 1.1, 1] } : {}}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <span className="text-2xl font-bold text-white">₿</span>
+              </motion.div>
+              
+              {/* Simple Rings */}
+              {isMining && (
+                <>
+                  {[0, 1].map((ring) => (
+                    <motion.div
+                      key={ring}
+                      className="absolute rounded-full border border-orange-500/30"
+                      initial={{ width: 80, height: 80, opacity: 0 }}
                       animate={{
-                        borderRadius: isBlockForm ? "10%" : "50%",
+                        width: [80, 120],
+                        height: [80, 120],
+                        opacity: [0.5, 0]
                       }}
                       transition={{
-                        duration: 0.5,
+                        duration: 2,
+                        repeat: Infinity,
+                        delay: ring * 1
                       }}
-                    >
-                      {/* Inner core */}
-                      {!isBlockForm && (
-                        <motion.div
-                          className="absolute inset-2 rounded-full bg-gradient-to-br from-white via-yellow-200 to-orange-300"
-                          animate={isMining ? {
-                            opacity: [0.6, 1, 0.6],
-                          } : {}}
-                          transition={{
-                            duration: 1,
-                            repeat: Infinity,
-                          }}
-                        />
-                      )}
-                      
-                      {/* Digital block pattern when transformed */}
-                      {isBlockForm && (
-                        <div className="absolute inset-0 overflow-hidden rounded-sm">
-                          <div className="absolute inset-0 bg-gradient-to-br from-orange-600 to-yellow-600">
-                            <div className="absolute inset-0 opacity-30">
-                              {[...Array(4)].map((_, i) => (
-                                <div key={i} className={`absolute w-full h-0.5 bg-orange-800`} style={{ top: `${25 * (i + 1)}%` }} />
-                              ))}
-                              {[...Array(4)].map((_, i) => (
-                                <div key={i} className={`absolute h-full w-0.5 bg-orange-800`} style={{ left: `${25 * (i + 1)}%` }} />
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </motion.div>
-
-                    {/* Pulsing glow */}
-                    {isMining && (
-                      <motion.div
-                        className="absolute inset-0 rounded-full"
-                        animate={{
-                          boxShadow: [
-                            '0 0 20px rgba(251, 146, 60, 0.5)',
-                            '0 0 40px rgba(251, 146, 60, 0.8)',
-                            '0 0 20px rgba(251, 146, 60, 0.5)',
-                          ],
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                        }}
-                      />
-                    )}
-                  </motion.div>
-
-                  {/* Energy rings */}
-                  {isMining && !isBlockForm && (
-                    <>
-                      {[0, 1, 2].map((ring) => (
-                        <motion.div
-                          key={`ring-${ring}`}
-                          className="absolute rounded-full border-2 border-orange-400"
-                          initial={{
-                            width: 80,
-                            height: 80,
-                            opacity: 1,
-                          }}
-                          animate={{
-                            width: [80, 160, 200],
-                            height: [80, 160, 200],
-                            opacity: [1, 0.5, 0],
-                          }}
-                          transition={{
-                            duration: 3,
-                            repeat: Infinity,
-                            delay: ring * 1,
-                          }}
-                        />
-                      ))}
-                    </>
-                  )}
-
-
-                  {/* Lightning bolts */}
-                  {isMining && !isBlockForm && (
-                    <>
-                      {[0, 1, 2, 3].map((bolt) => (
-                        <motion.div
-                          key={`bolt-${bolt}`}
-                          className="absolute"
-                          style={{
-                            left: '50%',
-                            top: '50%',
-                            transform: `rotate(${bolt * 90}deg)`,
-                          }}
-                          animate={{
-                            opacity: [0, 1, 0],
-                          }}
-                          transition={{
-                            duration: 0.5,
-                            repeat: Infinity,
-                            delay: bolt * 0.5,
-                            repeatDelay: 2,
-                          }}
-                        >
-                          <svg width="80" height="20" viewBox="0 0 80 20" className="-ml-10 -mt-2">
-                            <path
-                              d="M 20 10 L 30 5 L 35 10 L 45 5 L 50 10 L 60 5 L 65 10 L 75 5"
-                              stroke="#fbbf24"
-                              strokeWidth="2"
-                              fill="none"
-                            />
-                          </svg>
-                        </motion.div>
-                      ))}
-                    </>
-                  )}
-
-
-                </div>
-              </div>
-            </div>
-
-            {/* Global Hashrate Display */}
-            {isMining && (
-              <div className="bg-black/50 rounded-lg p-4">
-                <div className="text-center">
-                  <div className="flex items-center justify-center space-x-2 mb-2">
-                    <Activity className="w-5 h-5 text-primary animate-pulse" />
-                    <span className="text-sm font-mono text-primary uppercase">Total Global Hashrate</span>
-                    <Activity className="w-5 h-5 text-primary animate-pulse" />
-                  </div>
-                  <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
-                    {formatHashrate(globalHashrate)}
-                  </div>
-                  <div className="mt-3 w-full bg-black/50 rounded-full h-2 overflow-hidden">
-                    <motion.div 
-                      className="h-full bg-gradient-to-r from-primary to-accent"
-                      style={{ width: `${miningProgress}%` }}
-                      transition={{ duration: 0.1 }}
                     />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Hash Display */}
-            {isMining && (
-              <div className="bg-black/50 rounded-lg p-3 mt-4">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Hash className="w-4 h-4 text-primary animate-pulse" />
-                  <span className="text-xs font-mono text-primary">CALCULATING HASHES</span>
-                  <Activity className="w-3 h-3 text-accent animate-pulse" />
-                </div>
-                <div className="font-mono text-[10px] text-green-400 break-all">
-                  {currentHash}
-                </div>
-                <div className="mt-2 space-y-1">
-                  {hashPool.map((hash, index) => (
-                    <motion.div
-                      key={`${hash}-${index}`}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1 - (index * 0.2), x: 0 }}
-                      className="font-mono text-[9px] text-green-400/60 truncate"
-                    >
-                      {hash}
-                    </motion.div>
                   ))}
-                </div>
-              </div>
-            )}
+                </>
+              )}
+            </div>
           </div>
-        </Card>
-
-        {/* Network Stats Grid */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <Card className="mobile-card bg-black/50 border-primary/20">
-            <div className="p-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] text-muted-foreground uppercase">Total Supply</span>
-                <Award className="w-4 h-4 text-primary/50" />
-              </div>
-              <p className="text-lg font-bold text-primary">{(totalSupply / 1000000).toFixed(1)}M</p>
-              <p className="text-[10px] text-muted-foreground">GBTC</p>
+          
+          {/* Mining Info Grid */}
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[10px] mt-4">
+            <div className="flex justify-between">
+              <span className="text-gray-500">Height:</span>
+              <span className="text-white font-mono">#{blockHeight}</span>
             </div>
-          </Card>
-
-          <Card className="mobile-card bg-black/50 border-accent/20">
-            <div className="p-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] text-muted-foreground uppercase">Circulation</span>
-                <TrendingUp className="w-4 h-4 text-accent/50" />
-              </div>
-              <p className="text-lg font-bold text-accent">{circulation.toFixed(2)}</p>
-              <p className="text-[10px] text-muted-foreground">GBTC</p>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Reward:</span>
+              <span className="text-white font-mono">{currentBlockReward} GBTC</span>
             </div>
-          </Card>
-
-          <Card className="mobile-card bg-black/50 border-chart-3/20">
-            <div className="p-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] text-muted-foreground uppercase">Block Height</span>
-                <Cpu className="w-4 h-4 text-chart-3/50" />
-              </div>
-              <p className="text-lg font-bold text-chart-3">#{blockHeight}</p>
-              <p className="text-[10px] text-muted-foreground">CURRENT</p>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Network:</span>
+              <span className="text-white font-mono">{formatHashrate(globalHashrate)}</span>
             </div>
-          </Card>
-
-          <Card className="mobile-card bg-black/50 border-warning/20">
-            <div className="p-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] text-muted-foreground uppercase">Next Block</span>
-                <Clock className="w-4 h-4 text-warning/50 animate-pulse" />
-              </div>
-              <p className="text-lg font-bold text-warning">{nextBlockTime}</p>
-              <p className="text-[10px] text-muted-foreground">COUNTDOWN</p>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Your Share:</span>
+              <span className="text-orange-500 font-mono">{networkShare.toFixed(2)}%</span>
             </div>
-          </Card>
+          </div>
+        </div>
+
+        {/* Network Stats - Professional Bitcoin Design */}
+        <div className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-3 mb-3">
+          <div className="grid grid-cols-4 gap-3">
+            <div className="text-center">
+              <p className="text-[9px] text-gray-500 uppercase font-mono mb-1">Supply</p>
+              <p className="text-sm font-bold text-white">{(totalSupply / 1000000).toFixed(1)}M</p>
+            </div>
+            <div className="text-center border-l border-gray-800 pl-3">
+              <p className="text-[9px] text-gray-500 uppercase font-mono mb-1">Circulation</p>
+              <p className="text-sm font-bold text-white">{circulation.toFixed(0)}</p>
+            </div>
+            <div className="text-center border-l border-gray-800 pl-3">
+              <p className="text-[9px] text-gray-500 uppercase font-mono mb-1">Height</p>
+              <p className="text-sm font-bold text-white">#{blockHeight}</p>
+            </div>
+            <div className="text-center border-l border-gray-800 pl-3">
+              <p className="text-[9px] text-gray-500 uppercase font-mono mb-1">Next</p>
+              <p className="text-sm font-bold text-white">{nextBlockTime}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* GBTC Balance - Professional Orange Accent */}
+        <div className="bg-black/60 backdrop-blur-sm border border-gray-800 rounded-lg p-4 mb-4 relative" id="gbtc-box">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">₿</span>
+              </div>
+              <div>
+                <p className="text-[10px] text-gray-500 uppercase font-mono">GBTC Balance</p>
+                <motion.p 
+                  className="text-xl font-bold text-orange-500"
+                  key={gbtcBalance}
+                  initial={{ scale: 1.1 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  {gbtcBalance.toFixed(6)}
+                </motion.p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] text-gray-500 uppercase">Value</p>
+              <p className="text-sm font-bold text-white">${(gbtcBalance * 0.001).toFixed(2)}</p>
+            </div>
+          </div>
+          
+          {/* Flying Coins - Minimalist */}
+          <div className="absolute inset-0 pointer-events-none overflow-visible">
+            {flyingCoins.map((coin) => (
+              <motion.div
+                key={coin.id}
+                className="absolute"
+                initial={{ 
+                  x: coin.x, 
+                  y: coin.y, 
+                  scale: 0.5,
+                  opacity: 0
+                }}
+                animate={{
+                  x: [coin.x, 0],
+                  y: [coin.y, -20],
+                  scale: [0.5, 1, 0.8],
+                  opacity: [0, 1, 0]
+                }}
+                transition={{
+                  duration: 1.5,
+                  ease: "easeOut"
+                }}
+                onAnimationComplete={() => {
+                  setFlyingCoins(prev => prev.filter(c => c.id !== coin.id));
+                }}
+                style={{ 
+                  left: '50%', 
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)'
+                }}
+              >
+                <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-xs">₿</span>
+                </div>
+                <div className="absolute -top-1 -right-1 bg-orange-500 text-white text-[9px] font-bold px-1 py-0.5 rounded">
+                  +{coin.amount.toFixed(2)}
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
 
         {/* Personal Mining Stats */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          <Card className="mobile-card bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
-            <div className="p-2 text-center">
-              <Zap className="w-5 h-5 text-primary mx-auto mb-1" />
-              <p className="text-[10px] text-muted-foreground">Network Share</p>
-              <p className="text-sm font-bold text-primary">{networkShare.toFixed(4)}%</p>
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          <Card className="mobile-card bg-gradient-to-br from-yellow-900/20 to-transparent border-yellow-500/30">
+            <div className="p-1.5 text-center">
+              <Zap className="w-4 h-4 text-yellow-400 mx-auto mb-0.5" />
+              <p className="text-[8px] text-yellow-200/70">Share</p>
+              <p className="text-[11px] font-bold text-yellow-400">{networkShare.toFixed(2)}%</p>
             </div>
           </Card>
 
-          <Card className="mobile-card bg-gradient-to-br from-accent/10 to-transparent border-accent/20">
-            <div className="p-2 text-center">
-              <Cpu className="w-5 h-5 text-accent mx-auto mb-1" />
-              <p className="text-[10px] text-muted-foreground">Your Hashrate</p>
-              <p className="text-sm font-bold text-accent">{formatHashrate(hashPower)}</p>
+          <Card className="mobile-card bg-gradient-to-br from-yellow-900/20 to-transparent border-yellow-500/30">
+            <div className="p-1.5 text-center">
+              <Cpu className="w-4 h-4 text-yellow-400 mx-auto mb-0.5" />
+              <p className="text-[8px] text-yellow-200/70">Power</p>
+              <p className="text-[11px] font-bold text-yellow-400">{formatHashrate(hashPower)}</p>
             </div>
           </Card>
 
-          <Card className="mobile-card bg-gradient-to-br from-success/10 to-transparent border-success/20">
-            <div className="p-2 text-center">
-              <TrendingUp className="w-5 h-5 text-success mx-auto mb-1" />
-              <p className="text-[10px] text-muted-foreground">Est. Daily</p>
-              <p className="text-sm font-bold text-success">{estimatedDaily.toFixed(4)}</p>
+          <Card className="mobile-card bg-gradient-to-br from-yellow-900/20 to-transparent border-yellow-500/30">
+            <div className="p-1.5 text-center">
+              <TrendingUp className="w-4 h-4 text-yellow-400 mx-auto mb-0.5" />
+              <p className="text-[8px] text-yellow-200/70">Daily ⃿</p>
+              <p className="text-[11px] font-bold text-yellow-400">{estimatedDaily.toFixed(3)}</p>
             </div>
           </Card>
         </div>
 
-        {/* Unclaimed Blocks Section */}
+        {/* Pending Rewards - Clean List */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-mono text-primary">UNCLAIMED BLOCKS</p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-mono text-gray-400 uppercase">Pending Rewards</p>
             {unclaimedBlocks && unclaimedBlocks.length > 1 && (
               <Button
                 onClick={() => claimAllMutation.mutate()}
@@ -691,79 +511,57 @@ export default function MiningFactory() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <Card className="mobile-card bg-gradient-to-r from-black/50 to-primary/5 border-primary/20 overflow-hidden">
-                    <div className="p-3 relative">
-                      {/* Block pattern background */}
-                      <div className="absolute inset-0 opacity-5">
-                        <div className="grid grid-cols-8 h-full">
-                          {[...Array(8)].map((_, i) => (
-                            <div key={i} className="border-r border-primary/20"></div>
-                          ))}
+                  {/* Clean Line Item Design for Blocks */}
+                  <div className="bg-black/40 backdrop-blur-sm border-l-2 border-orange-500 p-3 mb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-gray-900 border border-gray-700 rounded flex items-center justify-center">
+                          <span className="text-orange-500 font-bold text-xs">₿</span>
+                        </div>
+                        <div>
+                          <p className="text-xs font-mono text-white">Block #{block.blockNumber}</p>
+                          <p className="text-[9px] text-gray-500">
+                            {formatUTCTime(block.createdAt)}
+                          </p>
                         </div>
                       </div>
                       
-                      <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center space-x-2">
-                            <motion.div 
-                              className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center shadow-lg"
-                              animate={{ rotate: [0, 5, -5, 0] }}
-                              transition={{ duration: 2, repeat: Infinity }}
-                            >
-                              <Blocks className="w-5 h-5 text-white" />
-                            </motion.div>
-                            <div>
-                              <p className="text-sm font-bold text-primary">BLOCK #{block.blockNumber}</p>
-                              <p className="text-[9px] font-mono text-muted-foreground truncate max-w-[120px]">
-                                {block.txHash}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <motion.p 
-                              className="text-base font-bold text-accent"
-                              animate={{ scale: [1, 1.05, 1] }}
-                              transition={{ duration: 2, repeat: Infinity }}
-                            >
-                              {parseFloat(block.reward).toFixed(8)}
-                            </motion.p>
-                            <p className="text-[10px] text-primary">GBTC</p>
-                          </div>
+                      <div className="flex items-center space-x-3">
+                        <div className="text-right">
+                          <p className="text-sm font-bold text-orange-500">
+                            {parseFloat(block.reward).toFixed(4)}
+                          </p>
+                          <p className="text-[9px] text-gray-500 uppercase">GBTC</p>
                         </div>
                         
-                        <div className="flex items-center justify-between">
-                          <div className={`text-xs font-mono px-2 py-1 rounded ${
+                        <div className="flex items-center space-x-2">
+                          <div className={`text-[9px] font-mono px-1.5 py-0.5 rounded ${
                             getTimeRemaining(block.expiresAt) === 'EXPIRED' 
-                              ? 'bg-destructive/20 text-destructive' 
-                              : 'bg-warning/20 text-warning'
+                              ? 'bg-red-900/30 text-red-400' 
+                              : 'bg-gray-800 text-gray-400'
                           }`}>
-                            <Clock className="w-3 h-3 inline mr-1" />
                             {getTimeRemaining(block.expiresAt)}
                           </div>
                           
-                          <Button
+                          <button
                             onClick={() => claimBlockMutation.mutate(block.id)}
                             disabled={
                               claimBlockMutation.isPending || 
                               getTimeRemaining(block.expiresAt) === 'EXPIRED'
                             }
-                            className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
-                            size="sm"
+                            className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-800 disabled:text-gray-600 text-white px-3 py-1 rounded text-[10px] font-bold transition-colors"
                             data-testid={`button-claim-${block.id}`}
                           >
                             {claimBlockMutation.isPending ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <Loader2 className="w-3 h-3 animate-spin" />
                             ) : (
-                              <>
-                                <Award className="w-3 h-3 mr-1" />
-                                CLAIM
-                              </>
+                              'CLAIM'
                             )}
-                          </Button>
+                          </button>
                         </div>
                       </div>
                     </div>
-                  </Card>
+                  </div>
                 </motion.div>
               ))}
             </div>
