@@ -628,5 +628,128 @@ export async function registerRoutes(app: Express) {
     }
   });
   
+  // ETH Operations
+  
+  // Get current ETH price
+  app.get("/api/eth/price", async (req, res, next) => {
+    try {
+      const price = await storage.getCurrentEthPrice();
+      res.json({ price });
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // ETH deposit with transaction hash
+  app.post("/api/eth/deposit", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const { txHash, amount } = z.object({
+        txHash: z.string(),
+        amount: z.string()
+      }).parse(req.body);
+      
+      const deposit = await storage.createEthDeposit({
+        txHash,
+        amount,
+        network: "ETH",
+        userId: req.user!.id
+      });
+      
+      res.json({ message: "ETH deposit submitted for approval", deposit });
+    } catch (error: any) {
+      if (error?.message?.includes('duplicate key')) {
+        return res.status(400).json({ message: "Transaction hash already submitted" });
+      }
+      next(error);
+    }
+  });
+  
+  // Convert ETH to USDT
+  app.post("/api/eth/convert", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const { ethAmount } = z.object({
+        ethAmount: z.string().refine(val => parseFloat(val) > 0, "Amount must be positive")
+      }).parse(req.body);
+      
+      const user = req.user!;
+      const ethBalance = parseFloat(user.ethBalance || "0");
+      
+      if (ethBalance < parseFloat(ethAmount)) {
+        return res.status(400).json({ message: "Insufficient ETH balance" });
+      }
+      
+      const ethPrice = await storage.getCurrentEthPrice();
+      const result = await storage.convertEthToUsdt(user.id, ethAmount, ethPrice);
+      
+      res.json({
+        message: "ETH converted to USDT successfully",
+        ethAmount,
+        ethPrice,
+        usdtReceived: result.usdtAmount,
+        fee: result.feeAmount
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // ETH withdrawal
+  app.post("/api/eth/withdraw", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const { amount, address } = z.object({
+        amount: z.string().refine(val => parseFloat(val) > 0, "Amount must be positive"),
+        address: z.string()
+      }).parse(req.body);
+      
+      const user = req.user!;
+      const ethBalance = parseFloat(user.ethBalance || "0");
+      
+      if (ethBalance < parseFloat(amount)) {
+        return res.status(400).json({ message: "Insufficient ETH balance" });
+      }
+      
+      const withdrawal = await storage.createEthWithdrawal({
+        amount,
+        address,
+        network: "ETH",
+        userId: user.id
+      });
+      
+      // Deduct balance immediately
+      const newBalance = (ethBalance - parseFloat(amount)).toFixed(8);
+      await storage.updateUser(user.id, { ethBalance: newBalance });
+      
+      res.json({ message: "ETH withdrawal request submitted", withdrawal });
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Get ETH conversion history
+  app.get("/api/eth/conversions", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const conversions = await storage.getEthConversions(req.user!.id);
+      res.json(conversions);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
   return server;
 }

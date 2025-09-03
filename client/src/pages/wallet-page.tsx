@@ -103,6 +103,7 @@ export default function WalletPage() {
 
   const usdtBalance = parseFloat(user?.usdtBalance || '0');
   const gbtcBalance = parseFloat(user?.gbtcBalance || '0');
+  const ethBalance = parseFloat(user?.ethBalance || '0');
 
   // Generate system deposit addresses
   const systemGBTCAddress = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
@@ -468,6 +469,36 @@ export default function WalletPage() {
               <div>
                 <p className="text-[#26a17b] text-xs"></p>
                 <p className="text-white font-medium"></p>
+              </div>
+            </div>
+          </Card>
+
+          {/* ETH Asset */}
+          <Card 
+            className="p-4 mb-3 bg-[#242424] border-gray-800 cursor-pointer hover:bg-[#2a2a2a] transition-colors"
+            onClick={() => setLocation('/eth-asset')}
+            data-testid="card-asset-eth"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">Ξ</span>
+                </div>
+                <div>
+                  <p className="text-white font-medium">ETH</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-500" />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
+              <div>
+                <p className="text-gray-400 text-xs">Balance</p>
+                <p className="text-white font-medium" data-testid="text-wallet-eth-balance">{ethBalance.toFixed(8)}</p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-xs">Available</p>
+                <p className="text-white font-medium">{ethBalance.toFixed(8)}</p>
               </div>
             </div>
           </Card>

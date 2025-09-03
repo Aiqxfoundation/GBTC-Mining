@@ -15,6 +15,7 @@ import AdminPage from "@/pages/admin-page";
 import TransactionsPage from "@/pages/transactions-page";
 import Whitepaper from "@/pages/whitepaper";
 import GlobalPage from "@/pages/global-page";
+import { EthAssetPage } from "@/pages/eth-asset-page";
 import { ProtectedRoute } from "@/lib/protected-route";
 import LoadingScreen from "./LoadingScreen";
 
@@ -97,6 +98,7 @@ export default function MobileApp() {
           <ProtectedRoute path="/withdraw" component={WithdrawPage} />
           <ProtectedRoute path="/transfer" component={TransferPage} />
           <ProtectedRoute path="/transactions" component={TransactionsPage} />
+          <ProtectedRoute path="/eth-asset" component={EthAssetPage} />
           <Route path="/whitepaper" component={Whitepaper} />
           <Route path="/global" component={GlobalPage} />
           <ProtectedRoute path="/admin" component={AdminPage} />

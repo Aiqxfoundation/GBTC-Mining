@@ -7,6 +7,7 @@ import {
   unclaimedBlocks,
   minerActivity,
   transfers,
+  ethConversions,
   type User, 
   type InsertUser, 
   type Deposit, 
@@ -17,7 +18,8 @@ import {
   type SystemSetting,
   type UnclaimedBlock,
   type Transfer,
-  type MinerActivity
+  type MinerActivity,
+  type EthConversion
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql } from "drizzle-orm";
@@ -104,6 +106,13 @@ export interface IStorage {
     totalBlocks: number;
     halvingProgress: { current: number; nextHalving: number; blocksRemaining: number };
   }>;
+  
+  // ETH operations
+  createEthDeposit(deposit: InsertDeposit & { userId: string }): Promise<Deposit>;
+  createEthWithdrawal(withdrawal: InsertWithdrawal & { userId: string }): Promise<Withdrawal>;
+  convertEthToUsdt(userId: string, ethAmount: string, ethPrice: string): Promise<{ usdtAmount: string; feeAmount: string }>;
+  getEthConversions(userId: string): Promise<EthConversion[]>;
+  getCurrentEthPrice(): Promise<string>;
   
   sessionStore: session.Store;
 }
@@ -747,6 +756,77 @@ export class DatabaseStorage implements IStorage {
         halvingProgress: { current: 0, nextHalving: 4200, blocksRemaining: 4200 }
       };
     }
+  }
+
+  // ETH operations
+  async createEthDeposit(deposit: InsertDeposit & { userId: string }): Promise<Deposit> {
+    const [newDeposit] = await db.insert(deposits).values({
+      ...deposit,
+      currency: "ETH",
+      network: "ETH"
+    }).returning();
+    return newDeposit;
+  }
+
+  async createEthWithdrawal(withdrawal: InsertWithdrawal & { userId: string }): Promise<Withdrawal> {
+    const [newWithdrawal] = await db.insert(withdrawals).values({
+      ...withdrawal,
+      currency: "ETH",
+      network: "ETH"
+    }).returning();
+    return newWithdrawal;
+  }
+
+  async convertEthToUsdt(userId: string, ethAmount: string, ethPrice: string): Promise<{ usdtAmount: string; feeAmount: string }> {
+    const ethAmountNum = parseFloat(ethAmount);
+    const ethPriceNum = parseFloat(ethPrice);
+    
+    // Calculate USDT amount (ETH amount * ETH price)
+    const grossUsdtAmount = ethAmountNum * ethPriceNum;
+    
+    // Calculate fee (0.1% of the conversion)
+    const feeAmount = grossUsdtAmount * 0.001;
+    const netUsdtAmount = grossUsdtAmount - feeAmount;
+    
+    // Create conversion record
+    await db.insert(ethConversions).values({
+      userId,
+      ethAmount: ethAmount,
+      usdtAmount: netUsdtAmount.toFixed(2),
+      ethPrice: ethPrice,
+      feeAmount: feeAmount.toFixed(2)
+    });
+    
+    // Update user balances
+    const user = await this.getUser(userId);
+    if (user) {
+      const newEthBalance = (parseFloat(user.ethBalance || "0") - ethAmountNum).toFixed(8);
+      const newUsdtBalance = (parseFloat(user.usdtBalance || "0") + netUsdtAmount).toFixed(2);
+      
+      await db.update(users)
+        .set({ ethBalance: newEthBalance, usdtBalance: newUsdtBalance })
+        .where(eq(users.id, userId));
+    }
+    
+    return {
+      usdtAmount: netUsdtAmount.toFixed(2),
+      feeAmount: feeAmount.toFixed(2)
+    };
+  }
+
+  async getEthConversions(userId: string): Promise<EthConversion[]> {
+    return await db.select()
+      .from(ethConversions)
+      .where(eq(ethConversions.userId, userId))
+      .orderBy(desc(ethConversions.createdAt));
+  }
+
+  async getCurrentEthPrice(): Promise<string> {
+    // Simulated ETH price - in production, this would fetch from an API
+    // For now, we'll return a realistic but static price
+    const basePrice = 3500;
+    const variation = Math.random() * 200 - 100; // ±$100 variation
+    return (basePrice + variation).toFixed(2);
   }
 }
 
