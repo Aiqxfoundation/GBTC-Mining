@@ -443,7 +443,7 @@ export default function WalletPage() {
             className={`bg-transparent border-2 ${
               selectedAsset === 'GBTC' 
                 ? 'border-gray-600 text-gray-600 cursor-not-allowed opacity-50' 
-                : 'border-gray-400 text-gray-400 hover:bg-gray-700 hover:text-white'
+                : 'border-[#f7931a] text-[#f7931a] hover:bg-[#f7931a] hover:text-black'
             } font-medium`}
             data-testid="button-deposit"
           >
@@ -643,9 +643,11 @@ export default function WalletPage() {
                 <h3 className="text-red-500 font-medium mb-3">Important Rules</h3>
                 <div className="space-y-2 text-xs text-red-400">
                   <p>• Minimum deposit: {selectedAsset === 'GBTC' ? '0.001 GBTC' : '10 USDT'}</p>
-                  <p>• Only send {selectedAsset === 'USDT' ? 'USDT on BSC Network' : 'GBTC'} to this address</p>
-                  <p>• Deposits require network confirmations (usually 10-30 minutes)</p>
-                  <p>• Incorrect deposits cannot be recovered - double check the address</p>
+                  <p>• Only send {selectedAsset === 'USDT' ? 'USDT from BSC/ETH Network' : 'GBTC'} to this address</p>
+                  <p>• System will verify transaction hash. It requires some time, so please be patient</p>
+                  <p>• You can only deposit once within 72 hours</p>
+                  <p>• If you submit wrong TX Hash, your deposit will fail and may result in loss of funds</p>
+                  <p>• Incorrect deposits cannot be recovered - please double-check the address</p>
                   <p>• Contact support if your deposit doesn't appear within 2 hours</p>
                   <p>• Do not send from exchange wallets that require memo/tag</p>
                 </div>
