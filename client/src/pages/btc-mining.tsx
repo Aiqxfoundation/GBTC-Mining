@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Bitcoin, Clock, Lock, TrendingUp, Hash, DollarSign, Calendar, CheckCircle, Zap, Trophy, Gem, Crown } from "lucide-react";
+import { ArrowLeft, Bitcoin, Clock, Lock, TrendingUp, Hash, DollarSign, Calendar, CheckCircle, Zap, Trophy, Gem, Crown, Cpu } from "lucide-react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -68,7 +68,7 @@ const HashSlider = ({ value, onValueChange, min, max, step, className, disabled 
       <SliderPrimitive.Range className="absolute h-full bg-gradient-to-r from-green-500 to-green-600" />
     </SliderPrimitive.Track>
     <SliderPrimitive.Thumb className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-green-500 bg-black shadow-lg ring-offset-background transition-all hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
-      <Zap className="h-4 w-4 text-green-500" />
+      <Cpu className="h-4 w-4 text-green-500" />
     </SliderPrimitive.Thumb>
   </SliderPrimitive.Root>
 );
