@@ -48,6 +48,7 @@ export default function WalletPage() {
   const [selectedTransfer, setSelectedTransfer] = useState<any>(null);
   const [currentUTCTime, setCurrentUTCTime] = useState("");
   const [depositCooldown, setDepositCooldown] = useState<number>(0);
+  const [withdrawalCooldown, setWithdrawalCooldown] = useState<number>(0);
 
   // Update UTC time every second and handle deposit cooldown
   useEffect(() => {
@@ -71,6 +72,25 @@ export default function WalletPage() {
           
           if (remainingTime <= 0) {
             localStorage.removeItem('depositCooldownEnd');
+          }
+        }
+      }
+      
+      // Check and update withdrawal cooldown from localStorage
+      const storedWithdrawalCooldown = localStorage.getItem('withdrawalCooldownEnd');
+      if (storedWithdrawalCooldown) {
+        const cooldownEnd = parseInt(storedWithdrawalCooldown);
+        const remainingTime = Math.max(0, cooldownEnd - Date.now());
+        
+        // Clear old 72-hour cooldowns (anything over 12 hours)
+        if (remainingTime > 12 * 60 * 60 * 1000) {
+          localStorage.removeItem('withdrawalCooldownEnd');
+          setWithdrawalCooldown(0);
+        } else {
+          setWithdrawalCooldown(Math.ceil(remainingTime / 1000)); // Convert to seconds
+          
+          if (remainingTime <= 0) {
+            localStorage.removeItem('withdrawalCooldownEnd');
           }
         }
       }
@@ -215,9 +235,14 @@ export default function WalletPage() {
     },
     onSuccess: () => {
       toast({ 
-        title: "Withdrawal Requested", 
-        description: `Your ${selectedAsset} withdrawal is being processed` 
+        title: "Withdrawal Requested Successfully!", 
+        description: `Your ${selectedAsset} withdrawal is being processed. You can withdraw again after 12 hours.` 
       });
+      // Start 12-hour cooldown immediately
+      const cooldownEnd = Date.now() + (12 * 60 * 60 * 1000);
+      localStorage.setItem('withdrawalCooldownEnd', cooldownEnd.toString());
+      setWithdrawalCooldown(12 * 60 * 60); // 12 hours in seconds
+      
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/transactions"] });
       setShowWithdrawDialog(false);
@@ -225,11 +250,19 @@ export default function WalletPage() {
       setWithdrawAddress("");
     },
     onError: (error: Error) => {
-      toast({ 
-        title: "Withdrawal Failed", 
-        description: error.message, 
-        variant: "destructive" 
-      });
+      // Check if it's a cooldown error
+      if (error.message.includes('hours')) {
+        // Set 12-hour cooldown (12 * 60 * 60 * 1000 milliseconds)
+        const cooldownEnd = Date.now() + (12 * 60 * 60 * 1000);
+        localStorage.setItem('withdrawalCooldownEnd', cooldownEnd.toString());
+        setWithdrawalCooldown(12 * 60 * 60); // 12 hours in seconds
+      } else {
+        toast({ 
+          title: "Withdrawal Failed", 
+          description: error.message, 
+          variant: "destructive" 
+        });
+      }
     }
   });
 
@@ -289,6 +322,9 @@ export default function WalletPage() {
   };
 
   const handleWithdraw = () => {
+    if (withdrawalCooldown > 0) {
+      return; // Don't submit if cooldown is active
+    }
     if (!withdrawAmount || !withdrawAddress) {
       toast({ 
         title: "Invalid Input", 
@@ -716,45 +752,60 @@ export default function WalletPage() {
         </div>
       )}
 
-      {/* Withdraw Dialog */}
-      <Dialog open={showWithdrawDialog} onOpenChange={setShowWithdrawDialog}>
-        <DialogContent className="sm:max-w-md bg-[#242424] border-gray-800">
-          <DialogHeader>
-            <DialogTitle className="text-white font-medium">
-              Withdraw {selectedAsset}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="withdraw-amount" className="text-gray-400 text-sm">Amount</Label>
-              <Input
-                id="withdraw-amount"
-                type="number"
-                value={withdrawAmount}
-                onChange={(e) => setWithdrawAmount(e.target.value)}
-                placeholder={selectedAsset === 'GBTC' ? "0.00000000" : "0.00"}
-                step={selectedAsset === 'GBTC' ? "0.00000001" : "0.01"}
-                max={selectedAsset === 'GBTC' ? gbtcBalance : usdtBalance}
-                className="bg-[#1a1a1a] border-gray-700 text-white placeholder:text-gray-600"
-                data-testid="input-withdraw-amount"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Available: {selectedAsset === 'GBTC' 
-                  ? `${gbtcBalance.toFixed(8)} GBTC` 
-                  : `${usdtBalance.toFixed(2)} USDT`}
-              </p>
+      {/* Withdraw Dialog - Full Page */}
+      {showWithdrawDialog && (
+        <div className="fixed inset-0 z-50 bg-[#1a1a1a] overflow-y-auto">
+          <div className="min-h-screen flex flex-col">
+            <div className="p-4 bg-[#242424] border-b border-gray-800 flex items-center justify-between">
+              <h2 className="text-white font-medium text-lg">
+                Withdraw {selectedAsset}
+              </h2>
+              <Button
+                onClick={() => setShowWithdrawDialog(false)}
+                variant="ghost"
+                size="sm"
+                className="text-gray-400 hover:text-white p-1"
+              >
+                <span className="text-2xl">&times;</span>
+              </Button>
             </div>
-            <div>
-              <Label htmlFor="withdraw-address" className="text-gray-400 text-sm">Wallet Address</Label>
-              <Input
-                id="withdraw-address"
-                value={withdrawAddress}
-                onChange={(e) => setWithdrawAddress(e.target.value)}
-                placeholder={`Enter ${selectedAsset} address`}
-                className="bg-[#1a1a1a] border-gray-700 text-white placeholder:text-gray-600 font-mono text-xs"
-                data-testid="input-withdraw-address"
-              />
-            </div>
+            
+            <div className="flex-1 p-4 space-y-4">
+              {/* Amount Input */}
+              <div className="bg-[#242424] rounded-lg p-4">
+                <Label htmlFor="withdraw-amount" className="text-gray-400 text-sm">Amount</Label>
+                <Input
+                  id="withdraw-amount"
+                  type="number"
+                  value={withdrawAmount}
+                  onChange={(e) => setWithdrawAmount(e.target.value)}
+                  placeholder={selectedAsset === 'GBTC' ? "0.00000000" : "0.00"}
+                  step={selectedAsset === 'GBTC' ? "0.00000001" : "0.01"}
+                  max={selectedAsset === 'GBTC' ? gbtcBalance : usdtBalance}
+                  className="bg-[#1a1a1a] border-gray-700 text-white placeholder:text-gray-600 mt-2"
+                  data-testid="input-withdraw-amount"
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  Available: {selectedAsset === 'GBTC' 
+                    ? `${gbtcBalance.toFixed(8)} GBTC` 
+                    : `${usdtBalance.toFixed(2)} USDT`}
+                </p>
+              </div>
+              
+              {/* Address Input */}
+              <div className="bg-[#242424] rounded-lg p-4">
+                <Label htmlFor="withdraw-address" className="text-gray-400 text-sm">Wallet Address</Label>
+                <Input
+                  id="withdraw-address"
+                  value={withdrawAddress}
+                  onChange={(e) => setWithdrawAddress(e.target.value)}
+                  placeholder={`Enter ${selectedAsset} address`}
+                  className="bg-[#1a1a1a] border-gray-700 text-white placeholder:text-gray-600 font-mono text-xs mt-2"
+                  data-testid="input-withdraw-address"
+                />
+              </div>
+              
+              {/* Submit Button */}
             {selectedAsset === 'GBTC' ? (
               <Button
                 disabled
@@ -766,8 +817,12 @@ export default function WalletPage() {
             ) : (
               <Button
                 onClick={handleWithdraw}
-                disabled={withdrawMutation.isPending}
-                className="w-full bg-[#f7931a] hover:bg-[#e88309] text-black font-medium"
+                disabled={withdrawMutation.isPending || withdrawalCooldown > 0}
+                className={`w-full font-medium ${
+                  withdrawalCooldown > 0 
+                    ? 'bg-gray-600 text-white cursor-not-allowed' 
+                    : 'bg-[#f7931a] hover:bg-[#e88309] text-black'
+                }`}
                 data-testid="button-confirm-withdraw"
               >
                 {withdrawMutation.isPending ? (
@@ -775,14 +830,57 @@ export default function WalletPage() {
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                     Processing...
                   </>
+                ) : withdrawalCooldown > 0 ? (
+                  <>
+                    Wait: {formatCooldownTime(withdrawalCooldown)}
+                  </>
                 ) : (
                   'Submit Withdrawal'
                 )}
               </Button>
             )}
+            
+            {/* Withdrawal Instructions */}
+            <div className="bg-[#242424] rounded-lg p-4 mt-6">
+              <h3 className="text-[#f7931a] font-medium mb-3">Withdrawal Instructions</h3>
+              <div className="space-y-3 text-sm text-gray-400">
+                <div className="flex items-start">
+                  <span className="text-[#f7931a] mr-2">1.</span>
+                  <p>Enter the amount you wish to withdraw in the Amount field.</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-[#f7931a] mr-2">2.</span>
+                  <p>Enter your {selectedAsset === 'USDT' ? 'USDT wallet address (BSC/ETH Network)' : 'GBTC wallet address'}.</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-[#f7931a] mr-2">3.</span>
+                  <p>Click Submit Withdrawal to process your withdrawal request.</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-[#f7931a] mr-2">4.</span>
+                  <p>Your withdrawal will be processed within 24-48 hours.</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Important Withdrawal Rules */}
+            <div className="bg-red-900/20 border border-red-800 rounded-lg p-4">
+              <h3 className="text-red-500 font-medium mb-3">Important Rules</h3>
+              <div className="space-y-2 text-xs text-red-400">
+                <p>• Minimum withdrawal: {selectedAsset === 'GBTC' ? '0.01 GBTC' : '20 USDT'}</p>
+                <p>• Maximum withdrawal: {selectedAsset === 'GBTC' ? '100 GBTC' : '10000 USDT'} per request</p>
+                <p>• System will verify your withdrawal request manually</p>
+                <p>• You can withdraw only once within 12 hours (to prevent multiple attempts)</p>
+                <p>• Wrong address may result in permanent loss of funds</p>
+                <p>• Processing time: 24-48 hours for manual verification</p>
+                <p>• Network fees will be deducted from your withdrawal amount</p>
+                <p>• Contact support if withdrawal not received after 48 hours</p>
+              </div>
+            </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </div>
+    )}
 
       {/* Transfer Dialog (GBTC only) */}
       <Dialog open={showTransferDialog} onOpenChange={setShowTransferDialog}>
