@@ -51,8 +51,8 @@ export default function WalletPage() {
   const [depositCooldown, setDepositCooldown] = useState<number>(0);
   const [withdrawalCooldown, setWithdrawalCooldown] = useState<number>(0);
   const [showConvertDialog, setShowConvertDialog] = useState(false);
-  const [convertFrom, setConvertFrom] = useState<'BTC' | 'USDT' | 'ETH'>('BTC');
-  const [convertTo, setConvertTo] = useState<'BTC' | 'USDT' | 'ETH'>('USDT');
+  const [convertFrom, setConvertFrom] = useState<'BTC' | 'USDT'>('BTC');
+  const [convertTo, setConvertTo] = useState<'BTC' | 'USDT'>('USDT');
   const [convertAmount, setConvertAmount] = useState("");
 
   // Update UTC time every second and handle deposit cooldown
@@ -108,7 +108,6 @@ export default function WalletPage() {
 
   const usdtBalance = parseFloat(user?.usdtBalance || '0');
   const gbtcBalance = parseFloat(user?.gbtcBalance || '0');
-  const ethBalance = parseFloat(user?.ethBalance || '0');
   const btcBalance = parseFloat(user?.btcBalance || '0');
 
   // Fetch BTC price (real-time)
@@ -154,15 +153,6 @@ export default function WalletPage() {
     staleTime: 300000,
     gcTime: 600000
   });
-  
-  // Fetch ETH price
-  const { data: ethPriceData } = useQuery<{ price: string }>({
-    queryKey: ["/api/eth/price"],
-    refetchInterval: 30000,
-    staleTime: 30000
-  });
-  
-  const ethPrice = parseFloat(ethPriceData?.price || '0');
 
   // Combine and sort transactions for display - filter by asset type
   const getTransactionHistory = () => {
@@ -612,39 +602,6 @@ export default function WalletPage() {
             </div>
           </Card>
 
-          {/* ETH Asset */}
-          <Card 
-            className="p-4 mb-3 bg-[#242424] border-gray-800 cursor-pointer hover:bg-[#2a2a2a] transition-colors"
-            onClick={() => setLocation('/eth-asset')}
-            data-testid="card-asset-eth"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-b from-[#627EEA] to-[#3C3C3D] flex items-center justify-center">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-                    <path d="M12 1.75L5.75 12.25L12 16L18.25 12.25L12 1.75Z"/>
-                    <path d="M5.75 13.5L12 22.25V16L5.75 13.5Z" opacity="0.6"/>
-                    <path d="M18.25 13.5L12 16V22.25L18.25 13.5Z" opacity="0.8"/>
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-white font-medium">ETH</p>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-gray-500" />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
-              <div>
-                <p className="text-gray-400 text-xs">Balance</p>
-                <p className="text-white font-medium" data-testid="text-wallet-eth-balance">{ethBalance.toFixed(8)}</p>
-              </div>
-              <div>
-                <p className="text-gray-400 text-xs"></p>
-                <p className="text-white font-medium"></p>
-              </div>
-            </div>
-          </Card>
         </div>
         
         {/* Exchange Dialog */}
@@ -658,12 +615,11 @@ export default function WalletPage() {
             <div className="space-y-4">
               <div>
                 <Label className="text-gray-400 text-sm">From</Label>
-                <Select value={convertFrom} onValueChange={(value: 'BTC' | 'USDT' | 'ETH') => {
-                  setConvertFrom(value);
+                <Select value={convertFrom} onValueChange={(value: 'BTC' | 'USDT') => {
+                  setConvertFrom(value as 'BTC' | 'USDT');
                   // Auto-adjust "To" if same currency selected
                   if (value === convertTo) {
                     if (value === 'BTC') setConvertTo('USDT');
-                    else if (value === 'ETH') setConvertTo('USDT');
                     else if (value === 'USDT') setConvertTo('BTC');
                   }
                 }}>
@@ -672,7 +628,6 @@ export default function WalletPage() {
                   </SelectTrigger>
                   <SelectContent className="bg-[#242424] border-gray-700">
                     <SelectItem value="BTC">BTC</SelectItem>
-                    <SelectItem value="ETH">ETH</SelectItem>
                     <SelectItem value="USDT">USDT</SelectItem>
                   </SelectContent>
                 </Select>
@@ -680,15 +635,14 @@ export default function WalletPage() {
               
               <div>
                 <Label className="text-gray-400 text-sm">To</Label>
-                <Select value={convertTo} onValueChange={(value: 'BTC' | 'USDT' | 'ETH') => {
-                  setConvertTo(value);
+                <Select value={convertTo} onValueChange={(value: 'BTC' | 'USDT') => {
+                  setConvertTo(value as 'BTC' | 'USDT');
                 }}>
                   <SelectTrigger className="bg-[#1a1a1a] border-gray-700 text-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-[#242424] border-gray-700">
                     {convertFrom !== 'BTC' && <SelectItem value="BTC">BTC</SelectItem>}
-                    {convertFrom !== 'ETH' && <SelectItem value="ETH">ETH</SelectItem>}
                     {convertFrom !== 'USDT' && <SelectItem value="USDT">USDT</SelectItem>}
                   </SelectContent>
                 </Select>
@@ -702,17 +656,15 @@ export default function WalletPage() {
                   type="number"
                   value={convertAmount}
                   onChange={(e) => setConvertAmount(e.target.value)}
-                  placeholder={convertFrom === 'BTC' || convertFrom === 'ETH' ? "0.00000000" : "0.00"}
-                  step={convertFrom === 'BTC' || convertFrom === 'ETH' ? "0.00000001" : "0.01"}
-                  max={convertFrom === 'BTC' ? btcBalance : convertFrom === 'ETH' ? ethBalance : usdtBalance}
+                  placeholder={convertFrom === 'BTC' ? "0.00000000" : "0.00"}
+                  step={convertFrom === 'BTC' ? "0.00000001" : "0.01"}
+                  max={convertFrom === 'BTC' ? btcBalance : usdtBalance}
                   className="bg-[#1a1a1a] border-gray-700 text-white placeholder:text-gray-600"
                   data-testid="input-convert-amount"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Available: {convertFrom === 'BTC' 
                     ? `${btcBalance.toFixed(8)} BTC` 
-                    : convertFrom === 'ETH'
-                    ? `${ethBalance.toFixed(8)} ETH`
                     : `${usdtBalance.toFixed(2)} USDT`}
                 </p>
               </div>
@@ -726,8 +678,6 @@ export default function WalletPage() {
                       <span className="text-white">
                         {convertFrom === 'BTC' || convertTo === 'BTC' 
                           ? `1 BTC = $${btcPrice.toLocaleString()}`
-                          : convertFrom === 'ETH' || convertTo === 'ETH'
-                          ? `1 ETH = $${ethPrice.toLocaleString()}`
                           : '1 USDT = $1.00'}
                       </span>
                     </div>
@@ -740,10 +690,6 @@ export default function WalletPage() {
                             return `${(amount * btcPrice * 0.0001).toFixed(2)} USDT`;
                           } else if (convertFrom === 'USDT' && convertTo === 'BTC') {
                             return `${(amount / btcPrice * 0.0001).toFixed(8)} BTC`;
-                          } else if (convertFrom === 'ETH' && convertTo === 'USDT') {
-                            return `${(amount * ethPrice * 0.0001).toFixed(2)} USDT`;
-                          } else if (convertFrom === 'USDT' && convertTo === 'ETH') {
-                            return `${(amount / ethPrice * 0.0001).toFixed(8)} ETH`;
                           }
                           return '0';
                         })()}
@@ -759,10 +705,6 @@ export default function WalletPage() {
                               return `${(amount * btcPrice * 0.9999).toFixed(2)} USDT`;
                             } else if (convertFrom === 'USDT' && convertTo === 'BTC') {
                               return `${(amount / btcPrice * 0.9999).toFixed(8)} BTC`;
-                            } else if (convertFrom === 'ETH' && convertTo === 'USDT') {
-                              return `${(amount * ethPrice * 0.9999).toFixed(2)} USDT`;
-                            } else if (convertFrom === 'USDT' && convertTo === 'ETH') {
-                              return `${(amount / ethPrice * 0.9999).toFixed(8)} ETH`;
                             }
                             return '0';
                           })()}

@@ -11,7 +11,6 @@ export const users = pgTable("users", {
   referralCode: text("referral_code").unique(),
   referredBy: text("referred_by"), // Referral code of the user who referred them
   usdtBalance: decimal("usdt_balance", { precision: 10, scale: 2 }).default("0.00"),
-  ethBalance: decimal("eth_balance", { precision: 18, scale: 8 }).default("0.00000000"), // ETH balance
   btcBalance: decimal("btc_balance", { precision: 18, scale: 8 }).default("0.00000000"), // BTC balance
   hashPower: decimal("hash_power", { precision: 10, scale: 2 }).default("0.00"),
   baseHashPower: decimal("base_hash_power", { precision: 10, scale: 2 }).default("0.00"), // User's own hash power
@@ -48,16 +47,6 @@ export const withdrawals = pgTable("withdrawals", {
   currency: text("currency").notNull().default("USDT"), // "USDT", "ETH", or "GBTC"
   status: text("status").notNull().default("pending"), // "pending", "completed", "rejected"
   txHash: text("tx_hash"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export const ethConversions = pgTable("eth_conversions", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: uuid("user_id").references(() => users.id).notNull(),
-  ethAmount: decimal("eth_amount", { precision: 18, scale: 8 }).notNull(),
-  usdtAmount: decimal("usdt_amount", { precision: 18, scale: 8 }).notNull(),
-  ethPrice: decimal("eth_price", { precision: 10, scale: 2 }).notNull(), // ETH price at conversion
-  feeAmount: decimal("fee_amount", { precision: 18, scale: 8 }).notNull(), // 0.1% fee
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -176,7 +165,6 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   }),
   minerActivity: one(minerActivity),
   miningStats: one(userMiningStats),
-  ethConversions: many(ethConversions),
   btcStakes: many(btcStakes),
   btcStakingRewards: many(btcStakingRewards),
 }));
@@ -229,13 +217,6 @@ export const userMiningStatsRelations = relations(userMiningStats, ({ one }) => 
   }),
 }));
 
-export const ethConversionsRelations = relations(ethConversions, ({ one }) => ({
-  user: one(users, {
-    fields: [ethConversions.userId],
-    references: [users.id],
-  }),
-}));
-
 export const btcStakesRelations = relations(btcStakes, ({ one, many }) => ({
   user: one(users, {
     fields: [btcStakes.userId],
@@ -259,7 +240,6 @@ export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
   usdtBalance: true,
-  ethBalance: true,
   btcBalance: true,
   hashPower: true,
   gbtcBalance: true,
@@ -285,12 +265,6 @@ export const insertWithdrawalSchema = createInsertSchema(withdrawals).omit({
   status: true,
   txHash: true,
   currency: true,
-  createdAt: true,
-});
-
-export const insertEthConversionSchema = createInsertSchema(ethConversions).omit({
-  id: true,
-  userId: true,
   createdAt: true,
 });
 
@@ -339,7 +313,6 @@ export type Withdrawal = typeof withdrawals.$inferSelect;
 export type InsertWithdrawal = z.infer<typeof insertWithdrawalSchema>;
 export type MiningBlock = typeof miningBlocks.$inferSelect;
 export type SystemSetting = typeof systemSettings.$inferSelect;
-export type EthConversion = typeof ethConversions.$inferSelect;
 export type MiningStats = typeof miningStats.$inferSelect;
 export type Transfer = typeof transfers.$inferSelect;
 export type MinerActivity = typeof minerActivity.$inferSelect;

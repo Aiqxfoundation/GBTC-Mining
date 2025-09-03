@@ -7,7 +7,6 @@ import {
   unclaimedBlocks,
   minerActivity,
   transfers,
-  ethConversions,
   btcStakes,
   btcStakingRewards,
   btcPriceHistory,
@@ -22,7 +21,6 @@ import {
   type UnclaimedBlock,
   type Transfer,
   type MinerActivity,
-  type EthConversion,
   type BtcStake,
   type BtcStakingReward,
   type BtcPriceHistory
@@ -52,8 +50,8 @@ export interface IStorage {
   updateUserBalances(userId: string, balances: { usdtBalance?: string; gbtcBalance?: string; hashPower?: string }): Promise<void>;
   
   // Global deposit address methods
-  getGlobalDepositAddress(currency: 'USDT' | 'ETH' | 'BTC'): Promise<string>;
-  setGlobalDepositAddress(currency: 'USDT' | 'ETH' | 'BTC', address: string): Promise<void>;
+  getGlobalDepositAddress(currency: 'USDT' | 'BTC'): Promise<string>;
+  setGlobalDepositAddress(currency: 'USDT' | 'BTC', address: string): Promise<void>;
   
   // Deposit methods
   createDeposit(deposit: InsertDeposit & { userId: string }): Promise<Deposit>;
@@ -118,13 +116,6 @@ export interface IStorage {
     totalBlocks: number;
     halvingProgress: { current: number; nextHalving: number; blocksRemaining: number };
   }>;
-  
-  // ETH operations
-  createEthDeposit(deposit: InsertDeposit & { userId: string }): Promise<Deposit>;
-  createEthWithdrawal(withdrawal: InsertWithdrawal & { userId: string }): Promise<Withdrawal>;
-  convertEthToUsdt(userId: string, ethAmount: string, ethPrice: string): Promise<{ usdtAmount: string; feeAmount: string }>;
-  getEthConversions(userId: string): Promise<EthConversion[]>;
-  getCurrentEthPrice(): Promise<string>;
   
   // Conversion tracking
   createBtcConversion(userId: string, fromCurrency: string, toCurrency: string, fromAmount: string, toAmount: string, fee: string, rate: string): Promise<any>;
@@ -228,16 +219,16 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, userId));
   }
 
-  async getGlobalDepositAddress(currency: 'USDT' | 'ETH' | 'BTC'): Promise<string> {
+  async getGlobalDepositAddress(currency: 'USDT' | 'BTC'): Promise<string> {
     const key = `${currency}_DEPOSIT_ADDRESS`;
     const setting = await this.getSystemSetting(key);
     if (currency === 'BTC') {
       return setting?.value || 'bc1qy8zzqsarhp0s63txsfnn3q3nvuu0g83mv3hwrv';
     }
-    return setting?.value || (currency === 'USDT' ? 'TBGxYmP3tFrbKvJRvQcF9cENKixQeJdfQc' : '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+    return setting?.value || 'TBGxYmP3tFrbKvJRvQcF9cENKixQeJdfQc';
   }
 
-  async setGlobalDepositAddress(currency: 'USDT' | 'ETH' | 'BTC', address: string): Promise<void> {
+  async setGlobalDepositAddress(currency: 'USDT' | 'BTC', address: string): Promise<void> {
     const key = `${currency}_DEPOSIT_ADDRESS`;
     await this.setSystemSetting(key, address);
   }
@@ -831,74 +822,6 @@ export class DatabaseStorage implements IStorage {
       };
     }
   }
-
-  // ETH operations
-  async createEthDeposit(deposit: InsertDeposit & { userId: string }): Promise<Deposit> {
-    const [newDeposit] = await db.insert(deposits).values({
-      ...deposit,
-      currency: "ETH",
-      network: "ETH"
-    }).returning();
-    return newDeposit;
-  }
-
-  async createEthWithdrawal(withdrawal: InsertWithdrawal & { userId: string }): Promise<Withdrawal> {
-    const [newWithdrawal] = await db.insert(withdrawals).values({
-      ...withdrawal,
-      currency: "ETH",
-      network: "ETH"
-    }).returning();
-    return newWithdrawal;
-  }
-
-  async convertEthToUsdt(userId: string, ethAmount: string, ethPrice: string): Promise<{ usdtAmount: string; feeAmount: string }> {
-    const ethAmountNum = parseFloat(ethAmount);
-    const ethPriceNum = parseFloat(ethPrice);
-    
-    // Calculate USDT amount (ETH amount * ETH price)
-    const grossUsdtAmount = ethAmountNum * ethPriceNum;
-    
-    // Calculate fee (0.1% of the conversion)
-    const feeAmount = grossUsdtAmount * 0.001;
-    const netUsdtAmount = grossUsdtAmount - feeAmount;
-    
-    // Create conversion record
-    await db.insert(ethConversions).values({
-      userId,
-      ethAmount: ethAmount,
-      usdtAmount: netUsdtAmount.toFixed(2),
-      ethPrice: ethPrice,
-      feeAmount: feeAmount.toFixed(2)
-    });
-    
-    // Update user balances
-    const user = await this.getUser(userId);
-    if (user) {
-      const newEthBalance = (parseFloat(user.ethBalance || "0") - ethAmountNum).toFixed(8);
-      const newUsdtBalance = (parseFloat(user.usdtBalance || "0") + netUsdtAmount).toFixed(2);
-      
-      await db.update(users)
-        .set({ ethBalance: newEthBalance, usdtBalance: newUsdtBalance })
-        .where(eq(users.id, userId));
-    }
-    
-    return {
-      usdtAmount: netUsdtAmount.toFixed(2),
-      feeAmount: feeAmount.toFixed(2)
-    };
-  }
-
-  async getEthConversions(userId: string): Promise<EthConversion[]> {
-    return await db.select()
-      .from(ethConversions)
-      .where(eq(ethConversions.userId, userId))
-      .orderBy(desc(ethConversions.createdAt));
-  }
-
-  async getCurrentEthPrice(): Promise<string> {
-    // Fetch real-time ETH price from API
-    return await fetchRealEthPrice();
-  }
   
   // Conversion tracking - memory based for now
   private btcConversions = new Map<string, any[]>();
@@ -1044,47 +967,9 @@ export class DatabaseStorage implements IStorage {
 
 import { MemoryStorage } from "./memoryStorage";
 
-// Cache for ETH price to avoid rate limiting
-let ethPriceCache: { price: string; timestamp: number } | null = null;
 // Cache for BTC price to avoid rate limiting
 let btcPriceCache: { price: string; timestamp: number } | null = null;
 const CACHE_DURATION = 30000; // Cache for 30 seconds
-
-// Helper function to fetch real ETH price
-export async function fetchRealEthPrice(): Promise<string> {
-  try {
-    // Check cache first
-    if (ethPriceCache && Date.now() - ethPriceCache.timestamp < CACHE_DURATION) {
-      return ethPriceCache.price;
-    }
-
-    // Fetch from CoinGecko's free API (no API key required)
-    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch ETH price');
-    }
-    
-    const data = await response.json();
-    const price = data.ethereum?.usd;
-    
-    if (!price) {
-      throw new Error('Invalid price data');
-    }
-    
-    // Cache the price
-    ethPriceCache = {
-      price: price.toFixed(2),
-      timestamp: Date.now()
-    };
-    
-    return price.toFixed(2);
-  } catch (error) {
-    console.error('Error fetching ETH price:', error);
-    // Fallback to a reasonable default if API fails
-    return "3500.00";
-  }
-}
 
 // Helper function to fetch real BTC price
 export async function fetchRealBtcPrice(): Promise<string> {

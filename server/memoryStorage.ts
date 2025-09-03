@@ -9,10 +9,9 @@ import {
   type SystemSetting,
   type UnclaimedBlock,
   type Transfer,
-  type MinerActivity,
-  type EthConversion
+  type MinerActivity
 } from "@shared/schema";
-import { IStorage, fetchRealEthPrice } from "./storage";
+import { IStorage } from "./storage";
 import session from "express-session";
 import MemoryStore from "memorystore";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
@@ -35,7 +34,6 @@ export class MemoryStorage implements IStorage {
   private minerActivity: Map<string, MinerActivity> = new Map();
   private lastDepositTime: Map<string, Date> = new Map(); // userId -> last deposit timestamp
   private lastWithdrawalTime: Map<string, Date> = new Map(); // userId -> last withdrawal timestamp
-  private ethConversions: Map<string, EthConversion[]> = new Map(); // userId -> conversions
   private btcConversions: Map<string, any[]> = new Map(); // userId -> BTC/USDT conversions
   
   sessionStore: session.Store;
@@ -63,7 +61,7 @@ export class MemoryStorage implements IStorage {
       referralCode: 'ADM1N0X7',
       referredBy: null,
       usdtBalance: '10000.00',
-      ethBalance: '0.00000000',
+
       btcBalance: '10.00000000',  // Added BTC balance for testing
       hashPower: '1104.50', // 1000 base + 104.5 bonus from referrals (increased for staking)
       baseHashPower: '1000.00',
@@ -93,7 +91,7 @@ export class MemoryStorage implements IStorage {
       referralCode: 'TEMP1234',
       referredBy: null,
       usdtBalance: '1000.00',
-      ethBalance: '0.00000000',
+
       btcBalance: '0.50000000',
       hashPower: '10.00',
       baseHashPower: '10.00',
@@ -133,7 +131,7 @@ export class MemoryStorage implements IStorage {
         referralCode: refCode,
         referredBy: 'ADM1N0X7', // Referred by admin
         usdtBalance: '500.00',
-        ethBalance: '0.00000000',
+  
         btcBalance: '0.00000000',
         hashPower: (20 + i * 5).toFixed(2), // 25, 30, 35 TH/s
         baseHashPower: (20 + i * 5).toFixed(2),
@@ -229,7 +227,7 @@ export class MemoryStorage implements IStorage {
       referralCode,
       referredBy: insertUser.referredBy || null,
       usdtBalance: '0.00',
-      ethBalance: '0.00000000',
+
       btcBalance: '0.00000000',
       hashPower: '0.00',
       baseHashPower: '0.00',
@@ -294,16 +292,16 @@ export class MemoryStorage implements IStorage {
     }
   }
 
-  async getGlobalDepositAddress(currency: 'USDT' | 'ETH' | 'BTC'): Promise<string> {
+  async getGlobalDepositAddress(currency: 'USDT' | 'BTC'): Promise<string> {
     const key = `${currency}_DEPOSIT_ADDRESS`;
     const setting = this.systemSettings.get(key);
     if (currency === 'BTC') {
       return setting?.value || 'bc1qy8zzqsarhp0s63txsfnn3q3nvuu0g83mv3hwrv';
     }
-    return setting?.value || (currency === 'USDT' ? 'TBGxYmP3tFrbKvJRvQcF9cENKixQeJdfQc' : '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+    return setting?.value || 'TBGxYmP3tFrbKvJRvQcF9cENKixQeJdfQc';
   }
 
-  async setGlobalDepositAddress(currency: 'USDT' | 'ETH' | 'BTC', address: string): Promise<void> {
+  async setGlobalDepositAddress(currency: 'USDT' | 'BTC', address: string): Promise<void> {
     const key = `${currency}_DEPOSIT_ADDRESS`;
     const settingId = `${key}-${randomBytes(8).toString('hex')}`;
     this.systemSettings.set(key, {
@@ -393,9 +391,9 @@ export class MemoryStorage implements IStorage {
     const user = this.users.get(deposit.userId);
     if (user) {
       // Check deposit currency
-      if (deposit.currency === 'ETH') {
-        const newBalance = (parseFloat(user.ethBalance || "0") + parseFloat(amountToCredit)).toFixed(8);
-        user.ethBalance = newBalance;
+      if (deposit.currency === 'BTC') {
+        const newBalance = (parseFloat(user.btcBalance || "0") + parseFloat(amountToCredit)).toFixed(8);
+        user.btcBalance = newBalance;
       } else {
         const newBalance = (parseFloat(user.usdtBalance || "0") + parseFloat(amountToCredit)).toFixed(2);
         user.usdtBalance = newBalance;
@@ -458,7 +456,7 @@ export class MemoryStorage implements IStorage {
           username: user.username,
           usdtBalance: user.usdtBalance,
           gbtcBalance: user.gbtcBalance,
-          ethBalance: user.ethBalance
+          btcBalance: user.btcBalance
         } : null
       };
     });
@@ -477,15 +475,15 @@ export class MemoryStorage implements IStorage {
 
     const amount = parseFloat(withdrawal.amount);
     const isUSDT = withdrawal.network === 'ERC20' || withdrawal.network === 'BSC' || withdrawal.network === 'TRC20';
-    const isETH = withdrawal.network === 'ETH';
+    const isBTC = withdrawal.network === 'BTC';
 
     // Check balance and deduct
-    if (isETH) {
-      const ethBalance = parseFloat(user.ethBalance || "0");
-      if (ethBalance < amount) {
-        throw new Error('Insufficient ETH balance');
+    if (isBTC) {
+      const btcBalance = parseFloat(user.btcBalance || "0");
+      if (btcBalance < amount) {
+        throw new Error('Insufficient BTC balance');
       }
-      user.ethBalance = (ethBalance - amount).toFixed(8);
+      user.btcBalance = (btcBalance - amount).toFixed(8);
     } else if (isUSDT) {
       const usdtBalance = parseFloat(user.usdtBalance || "0");
       if (usdtBalance < amount) {
@@ -957,44 +955,6 @@ export class MemoryStorage implements IStorage {
     };
   }
   
-  // ETH operations
-  async createEthDeposit(deposit: InsertDeposit & { userId: string }): Promise<Deposit> {
-    const depositId = 'eth-deposit-' + randomBytes(8).toString('hex');
-    const newDeposit: Deposit = {
-      id: depositId,
-      userId: deposit.userId,
-      amount: deposit.amount,
-      txHash: deposit.txHash,
-      currency: "ETH",
-      network: "ETH",
-      status: "pending",
-      adminNote: null,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    
-    this.deposits.set(depositId, newDeposit);
-    return newDeposit;
-  }
-  
-  async createEthWithdrawal(withdrawal: InsertWithdrawal & { userId: string }): Promise<Withdrawal> {
-    const withdrawalId = 'eth-withdrawal-' + randomBytes(8).toString('hex');
-    const newWithdrawal: Withdrawal = {
-      id: withdrawalId,
-      userId: withdrawal.userId,
-      amount: withdrawal.amount,
-      address: withdrawal.address,
-      currency: "ETH",
-      network: "ETH",
-      status: "pending",
-      txHash: null,
-      createdAt: new Date()
-    };
-    
-    this.withdrawals.set(withdrawalId, newWithdrawal);
-    return newWithdrawal;
-  }
-  
   // Track BTC/USDT conversions
   async createBtcConversion(userId: string, fromCurrency: string, toCurrency: string, fromAmount: string, toAmount: string, fee: string, rate: string): Promise<any> {
     const conversionId = 'btc-conv-' + randomBytes(8).toString('hex');
@@ -1019,59 +979,6 @@ export class MemoryStorage implements IStorage {
 
   async getUserBtcConversions(userId: string): Promise<any[]> {
     return this.btcConversions.get(userId) || [];
-  }
-
-  async convertEthToUsdt(userId: string, ethAmount: string, ethPrice: string): Promise<{ usdtAmount: string; feeAmount: string }> {
-    const ethAmountNum = parseFloat(ethAmount);
-    const ethPriceNum = parseFloat(ethPrice);
-    
-    // Calculate USDT amount (ETH amount * ETH price)
-    const grossUsdtAmount = ethAmountNum * ethPriceNum;
-    
-    // Calculate fee (0.1% of the conversion)
-    const feeAmount = grossUsdtAmount * 0.001;
-    const netUsdtAmount = grossUsdtAmount - feeAmount;
-    
-    // Update user balances
-    const user = this.users.get(userId);
-    if (user) {
-      const newEthBalance = (parseFloat(user.ethBalance || "0") - ethAmountNum).toFixed(8);
-      const newUsdtBalance = (parseFloat(user.usdtBalance || "0") + netUsdtAmount).toFixed(2);
-      
-      user.ethBalance = newEthBalance;
-      user.usdtBalance = newUsdtBalance;
-      this.users.set(userId, user);
-    }
-    
-    // Track conversion history
-    const conversion: EthConversion = {
-      id: 'conv-' + randomBytes(8).toString('hex'),
-      userId,
-      ethAmount,
-      ethPrice,
-      usdtAmount: netUsdtAmount.toFixed(2),
-      feeAmount: feeAmount.toFixed(2),
-      createdAt: new Date()
-    };
-    
-    const userConversions = this.ethConversions.get(userId) || [];
-    userConversions.push(conversion);
-    this.ethConversions.set(userId, userConversions);
-    
-    return {
-      usdtAmount: netUsdtAmount.toFixed(2),
-      feeAmount: feeAmount.toFixed(2)
-    };
-  }
-  
-  async getEthConversions(userId: string): Promise<EthConversion[]> {
-    const conversions = this.ethConversions.get(userId) || [];
-    return conversions.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
-  }
-  
-  async getCurrentEthPrice(): Promise<string> {
-    // Fetch real-time ETH price from API
-    return await fetchRealEthPrice();
   }
 
   // BTC Staking methods
