@@ -8,6 +8,9 @@ import {
   minerActivity,
   transfers,
   ethConversions,
+  btcStakes,
+  btcStakingRewards,
+  btcPriceHistory,
   type User, 
   type InsertUser, 
   type Deposit, 
@@ -19,7 +22,10 @@ import {
   type UnclaimedBlock,
   type Transfer,
   type MinerActivity,
-  type EthConversion
+  type EthConversion,
+  type BtcStake,
+  type BtcStakingReward,
+  type BtcPriceHistory
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql } from "drizzle-orm";
@@ -119,6 +125,17 @@ export interface IStorage {
   convertEthToUsdt(userId: string, ethAmount: string, ethPrice: string): Promise<{ usdtAmount: string; feeAmount: string }>;
   getEthConversions(userId: string): Promise<EthConversion[]>;
   getCurrentEthPrice(): Promise<string>;
+  
+  // BTC Staking operations
+  createBtcStake(userId: string, btcAmount: string, gbtcHashrate: string, btcPrice: string): Promise<any>;
+  getUserBtcStakes(userId: string): Promise<any[]>;
+  getActiveBtcStakes(): Promise<any[]>;
+  processDailyBtcRewards(): Promise<void>;
+  getCurrentBtcPrice(): Promise<string>;
+  updateBtcPrice(price: string, source?: string): Promise<void>;
+  getSystemHashratePrice(): Promise<string>; // Price of 1 GH/s in BTC
+  getUserBtcBalance(userId: string): Promise<string>;
+  updateUserBtcBalance(userId: string, btcBalance: string): Promise<void>;
   
   sessionStore: session.Store;
 }
@@ -878,12 +895,127 @@ export class DatabaseStorage implements IStorage {
     // Fetch real-time ETH price from API
     return await fetchRealEthPrice();
   }
+
+  // BTC Staking methods
+  async createBtcStake(userId: string, btcAmount: string, gbtcHashrate: string, btcPrice: string): Promise<any> {
+    const dailyReward = (parseFloat(btcAmount) * 0.20 / 365).toFixed(8); // 20% APR daily
+    const unlockAt = new Date();
+    unlockAt.setFullYear(unlockAt.getFullYear() + 1); // 1 year lock
+
+    const [stake] = await db.insert(btcStakes).values({
+      userId,
+      btcAmount,
+      gbtcHashrate,
+      btcPriceAtStake: btcPrice,
+      dailyReward,
+      unlockAt,
+    }).returning();
+
+    return stake;
+  }
+
+  async getUserBtcStakes(userId: string): Promise<any[]> {
+    const stakes = await db
+      .select()
+      .from(btcStakes)
+      .where(eq(btcStakes.userId, userId))
+      .orderBy(desc(btcStakes.stakedAt));
+
+    return stakes;
+  }
+
+  async getActiveBtcStakes(): Promise<any[]> {
+    const stakes = await db
+      .select()
+      .from(btcStakes)
+      .where(eq(btcStakes.status, 'active'));
+
+    return stakes;
+  }
+
+  async processDailyBtcRewards(): Promise<void> {
+    const activeStakes = await this.getActiveBtcStakes();
+    const currentBtcPrice = await this.getCurrentBtcPrice();
+
+    for (const stake of activeStakes) {
+      // Pay daily reward
+      await db.insert(btcStakingRewards).values({
+        stakeId: stake.id,
+        userId: stake.userId,
+        rewardAmount: stake.dailyReward,
+        btcPrice: currentBtcPrice,
+      });
+
+      // Update user BTC balance
+      const user = await this.getUser(stake.userId);
+      if (user) {
+        const newBtcBalance = (parseFloat(user.btcBalance || '0') + parseFloat(stake.dailyReward)).toFixed(8);
+        await this.updateUserBtcBalance(stake.userId, newBtcBalance);
+      }
+
+      // Update stake's total rewards paid and last reward time
+      await db
+        .update(btcStakes)
+        .set({
+          totalRewardsPaid: (parseFloat(stake.totalRewardsPaid) + parseFloat(stake.dailyReward)).toFixed(8),
+          lastRewardAt: new Date(),
+        })
+        .where(eq(btcStakes.id, stake.id));
+    }
+  }
+
+  async getCurrentBtcPrice(): Promise<string> {
+    // Get latest BTC price from history
+    const [latestPrice] = await db
+      .select()
+      .from(btcPriceHistory)
+      .orderBy(desc(btcPriceHistory.timestamp))
+      .limit(1);
+
+    if (latestPrice) {
+      return latestPrice.price;
+    }
+
+    // If no price history, fetch from API
+    const price = await fetchRealBtcPrice();
+    await this.updateBtcPrice(price, 'api');
+    return price;
+  }
+
+  async updateBtcPrice(price: string, source: string = 'system'): Promise<void> {
+    await db.insert(btcPriceHistory).values({
+      price,
+      source,
+    });
+  }
+
+  async getSystemHashratePrice(): Promise<string> {
+    // Calculate price of 1 GH/s based on BTC price
+    const btcPrice = await this.getCurrentBtcPrice();
+    // 1 BTC worth of hashrate = btcPrice / 1000 (assuming 1000 GH/s = 1 BTC equivalent)
+    const pricePerGH = (parseFloat(btcPrice) / 1000).toFixed(8);
+    return pricePerGH;
+  }
+
+  async getUserBtcBalance(userId: string): Promise<string> {
+    const user = await this.getUser(userId);
+    return user?.btcBalance || '0.00000000';
+  }
+
+  async updateUserBtcBalance(userId: string, btcBalance: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ btcBalance })
+      .where(eq(users.id, userId));
+  }
 }
 
 import { MemoryStorage } from "./memoryStorage";
 
 // Cache for ETH price to avoid rate limiting
 let ethPriceCache: { price: string; timestamp: number } | null = null;
+// Cache for BTC price to avoid rate limiting
+let btcPriceCache: { price: string; timestamp: number } | null = null;
 const CACHE_DURATION = 30000; // Cache for 30 seconds
 
 // Helper function to fetch real ETH price
@@ -919,6 +1051,42 @@ export async function fetchRealEthPrice(): Promise<string> {
     console.error('Error fetching ETH price:', error);
     // Fallback to a reasonable default if API fails
     return "3500.00";
+  }
+}
+
+// Helper function to fetch real BTC price
+export async function fetchRealBtcPrice(): Promise<string> {
+  try {
+    // Check cache first
+    if (btcPriceCache && Date.now() - btcPriceCache.timestamp < CACHE_DURATION) {
+      return btcPriceCache.price;
+    }
+
+    // Fetch from CoinGecko's free API (no API key required)
+    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch BTC price');
+    }
+    
+    const data = await response.json();
+    const price = data.bitcoin?.usd;
+    
+    if (!price) {
+      throw new Error('Invalid price data');
+    }
+    
+    // Cache the price
+    btcPriceCache = {
+      price: price.toFixed(2),
+      timestamp: Date.now()
+    };
+    
+    return price.toFixed(2);
+  } catch (error) {
+    console.error('Error fetching BTC price:', error);
+    // Fallback to a reasonable default if API fails
+    return "98000.00";
   }
 }
 

@@ -12,6 +12,7 @@ export const users = pgTable("users", {
   referredBy: text("referred_by"), // Referral code of the user who referred them
   usdtBalance: decimal("usdt_balance", { precision: 10, scale: 2 }).default("0.00"),
   ethBalance: decimal("eth_balance", { precision: 18, scale: 8 }).default("0.00000000"), // ETH balance
+  btcBalance: decimal("btc_balance", { precision: 18, scale: 8 }).default("0.00000000"), // BTC balance
   hashPower: decimal("hash_power", { precision: 10, scale: 2 }).default("0.00"),
   baseHashPower: decimal("base_hash_power", { precision: 10, scale: 2 }).default("0.00"), // User's own hash power
   referralHashBonus: decimal("referral_hash_bonus", { precision: 10, scale: 2 }).default("0.00"), // 5% from active referrals
@@ -130,6 +131,39 @@ export const systemSettings = pgTable("system_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// BTC Staking Tables
+export const btcStakes = pgTable("btc_stakes", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: uuid("user_id").references(() => users.id).notNull(),
+  btcAmount: decimal("btc_amount", { precision: 18, scale: 8 }).notNull(), // Amount of BTC staked
+  gbtcHashrate: decimal("gbtc_hashrate", { precision: 10, scale: 2 }).notNull(), // Equivalent GBTC hashrate locked
+  btcPriceAtStake: decimal("btc_price_at_stake", { precision: 10, scale: 2 }).notNull(), // BTC price when staked
+  aprRate: decimal("apr_rate", { precision: 5, scale: 2 }).default("20.00"), // 20% APR
+  dailyReward: decimal("daily_reward", { precision: 18, scale: 8 }).notNull(), // Daily BTC reward
+  totalRewardsPaid: decimal("total_rewards_paid", { precision: 18, scale: 8 }).default("0.00000000"),
+  stakedAt: timestamp("staked_at").defaultNow(),
+  unlockAt: timestamp("unlock_at").notNull(), // 1 year from stake date
+  status: text("status").notNull().default("active"), // "active", "completed", "cancelled"
+  lastRewardAt: timestamp("last_reward_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const btcStakingRewards = pgTable("btc_staking_rewards", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  stakeId: uuid("stake_id").references(() => btcStakes.id).notNull(),
+  userId: uuid("user_id").references(() => users.id).notNull(),
+  rewardAmount: decimal("reward_amount", { precision: 18, scale: 8 }).notNull(),
+  btcPrice: decimal("btc_price", { precision: 10, scale: 2 }).notNull(),
+  paidAt: timestamp("paid_at").defaultNow(),
+});
+
+export const btcPriceHistory = pgTable("btc_price_history", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  source: text("source").default("system"), // "system", "manual", "api"
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
 export const usersRelations = relations(users, ({ many, one }) => ({
   deposits: many(deposits),
   withdrawals: many(withdrawals),
@@ -143,6 +177,8 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   minerActivity: one(minerActivity),
   miningStats: one(userMiningStats),
   ethConversions: many(ethConversions),
+  btcStakes: many(btcStakes),
+  btcStakingRewards: many(btcStakingRewards),
 }));
 
 export const depositsRelations = relations(deposits, ({ one }) => ({
@@ -200,11 +236,31 @@ export const ethConversionsRelations = relations(ethConversions, ({ one }) => ({
   }),
 }));
 
+export const btcStakesRelations = relations(btcStakes, ({ one, many }) => ({
+  user: one(users, {
+    fields: [btcStakes.userId],
+    references: [users.id],
+  }),
+  rewards: many(btcStakingRewards),
+}));
+
+export const btcStakingRewardsRelations = relations(btcStakingRewards, ({ one }) => ({
+  user: one(users, {
+    fields: [btcStakingRewards.userId],
+    references: [users.id],
+  }),
+  stake: one(btcStakes, {
+    fields: [btcStakingRewards.stakeId],
+    references: [btcStakes.id],
+  }),
+}));
+
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
   usdtBalance: true,
   ethBalance: true,
+  btcBalance: true,
   hashPower: true,
   gbtcBalance: true,
   unclaimedBalance: true,
@@ -253,6 +309,28 @@ export const insertUnclaimedBlockSchema = createInsertSchema(unclaimedBlocks).om
   createdAt: true,
 });
 
+export const insertBtcStakeSchema = createInsertSchema(btcStakes).omit({
+  id: true,
+  userId: true,
+  totalRewardsPaid: true,
+  status: true,
+  lastRewardAt: true,
+  createdAt: true,
+  stakedAt: true,
+});
+
+export const insertBtcStakingRewardSchema = createInsertSchema(btcStakingRewards).omit({
+  id: true,
+  userId: true,
+  paidAt: true,
+});
+
+export const insertBtcPriceHistorySchema = createInsertSchema(btcPriceHistory).omit({
+  id: true,
+  source: true,
+  timestamp: true,
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Deposit = typeof deposits.$inferSelect;
@@ -269,3 +347,9 @@ export type UserMiningStats = typeof userMiningStats.$inferSelect;
 export type UnclaimedBlock = typeof unclaimedBlocks.$inferSelect;
 export type InsertUnclaimedBlock = z.infer<typeof insertUnclaimedBlockSchema>;
 export type InsertTransfer = z.infer<typeof insertTransferSchema>;
+export type BtcStake = typeof btcStakes.$inferSelect;
+export type InsertBtcStake = z.infer<typeof insertBtcStakeSchema>;
+export type BtcStakingReward = typeof btcStakingRewards.$inferSelect;
+export type InsertBtcStakingReward = z.infer<typeof insertBtcStakingRewardSchema>;
+export type BtcPriceHistory = typeof btcPriceHistory.$inferSelect;
+export type InsertBtcPriceHistory = z.infer<typeof insertBtcPriceHistorySchema>;

@@ -825,6 +825,188 @@ export async function registerRoutes(app: Express) {
       next(error);
     }
   });
+
+  // BTC Staking endpoints
+  
+  // Get current BTC price and hashrate price
+  app.get("/api/btc/prices", async (req, res, next) => {
+    try {
+      const btcPrice = await storage.getCurrentBtcPrice();
+      const hashratePrice = await storage.getSystemHashratePrice();
+      
+      res.json({
+        btcPrice,
+        hashratePrice,
+        btcPerHashrate: (parseFloat(hashratePrice) / parseFloat(btcPrice)).toFixed(8),
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Create BTC stake
+  app.post("/api/btc/stake", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const { btcAmount, useHashrate } = z.object({
+        btcAmount: z.string().refine(val => parseFloat(val) >= 1, "Minimum stake is 1 BTC"),
+        useHashrate: z.boolean().default(true)
+      }).parse(req.body);
+
+      const user = req.user!;
+      const btcBalance = parseFloat(user.btcBalance || "0");
+      const userHashPower = parseFloat(user.hashPower || "0");
+      const btcPrice = await storage.getCurrentBtcPrice();
+      
+      // Check BTC balance
+      if (btcBalance < parseFloat(btcAmount)) {
+        return res.status(400).json({ message: "Insufficient BTC balance" });
+      }
+
+      // Calculate required hashrate (1 BTC worth)
+      const requiredHashrate = parseFloat(btcAmount) * 1000; // 1000 GH/s per BTC
+      
+      if (useHashrate && userHashPower < requiredHashrate) {
+        return res.status(400).json({ 
+          message: `Insufficient hashrate. Need ${requiredHashrate} GH/s but you have ${userHashPower} GH/s` 
+        });
+      }
+
+      // Create stake
+      const stake = await storage.createBtcStake(
+        user.id,
+        btcAmount,
+        requiredHashrate.toString(),
+        btcPrice
+      );
+
+      // Deduct BTC balance and hashrate
+      const newBtcBalance = (btcBalance - parseFloat(btcAmount)).toFixed(8);
+      await storage.updateUserBtcBalance(user.id, newBtcBalance);
+      
+      if (useHashrate) {
+        const newHashPower = (userHashPower - requiredHashrate).toFixed(2);
+        await storage.updateUser(user.id, { hashPower: newHashPower });
+      }
+
+      res.json({
+        message: "BTC stake created successfully",
+        stake,
+        lockDuration: "1 year",
+        aprRate: "20%",
+        dailyReward: stake.dailyReward
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Get user's BTC stakes
+  app.get("/api/btc/stakes", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const stakes = await storage.getUserBtcStakes(req.user!.id);
+      const btcPrice = await storage.getCurrentBtcPrice();
+
+      res.json({
+        stakes,
+        currentBtcPrice: btcPrice,
+        totalStaked: stakes.reduce((sum, s) => sum + parseFloat(s.btcAmount), 0).toFixed(8),
+        totalDailyRewards: stakes.filter(s => s.status === 'active')
+          .reduce((sum, s) => sum + parseFloat(s.dailyReward), 0).toFixed(8)
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Get user's BTC balance
+  app.get("/api/btc/balance", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const btcBalance = await storage.getUserBtcBalance(req.user!.id);
+      res.json({ btcBalance });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // BTC deposit
+  app.post("/api/btc/deposit", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const { txHash, amount } = z.object({
+        txHash: z.string(),
+        amount: z.string().refine(val => parseFloat(val) >= 0.0001, "Minimum deposit is 0.0001 BTC")
+      }).parse(req.body);
+      
+      const deposit = await storage.createDeposit({
+        txHash,
+        amount,
+        network: "BTC",
+        userId: req.user!.id
+      });
+      
+      res.json({ message: "BTC deposit submitted for approval", deposit });
+    } catch (error: any) {
+      if (error?.message?.includes('duplicate key')) {
+        return res.status(400).json({ message: "Transaction hash already submitted" });
+      }
+      next(error);
+    }
+  });
+
+  // BTC withdrawal
+  app.post("/api/btc/withdraw", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const { amount, address } = z.object({
+        amount: z.string().refine(val => {
+          const amt = parseFloat(val);
+          return amt >= 0.001 && amt <= 10;
+        }, "Amount must be between 0.001 and 10 BTC"),
+        address: z.string()
+      }).parse(req.body);
+      
+      const user = req.user!;
+      const btcBalance = parseFloat(user.btcBalance || "0");
+      
+      if (btcBalance < parseFloat(amount)) {
+        return res.status(400).json({ message: "Insufficient BTC balance" });
+      }
+      
+      const withdrawal = await storage.createWithdrawal({
+        amount,
+        address,
+        network: "BTC",
+        userId: user.id
+      });
+      
+      // Deduct balance immediately
+      const newBalance = (btcBalance - parseFloat(amount)).toFixed(8);
+      await storage.updateUserBtcBalance(user.id, newBalance);
+      
+      res.json({ message: "BTC withdrawal request submitted", withdrawal });
+    } catch (error) {
+      next(error);
+    }
+  });
   
   return server;
 }

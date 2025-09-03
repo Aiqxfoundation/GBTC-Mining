@@ -25,6 +25,7 @@ export function setupMining() {
   // Daily reset at 00:00 UTC
   cron.schedule("0 0 * * *", async () => {
     await dailyReset();
+    await distributeBtcStakingRewards();
   });
   
   // Check for reset on startup
@@ -284,5 +285,19 @@ export async function halveBlockReward() {
   } catch (error) {
     console.error("Error halving block reward:", error);
     throw error;
+  }
+}
+
+// BTC Staking Daily Rewards Distribution
+async function distributeBtcStakingRewards() {
+  try {
+    console.log("Processing daily BTC staking rewards at 00:00 UTC");
+    
+    // Process all active BTC stakes and pay daily rewards
+    await storage.processDailyBtcRewards();
+    
+    console.log("Daily BTC staking rewards distributed successfully");
+  } catch (error) {
+    console.error("Error distributing BTC staking rewards:", error);
   }
 }
