@@ -277,12 +277,12 @@ export default function MiningFactory() {
                 <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
                   <motion.div
                     animate={isMining ? {
-                      textShadow: [
-                        "0 0 10px rgba(251, 191, 36, 0.8)",
-                        "0 0 20px rgba(251, 191, 36, 1)",
-                        "0 0 30px rgba(251, 191, 36, 0.8)",
-                        "0 0 20px rgba(251, 191, 36, 1)",
-                        "0 0 10px rgba(251, 191, 36, 0.8)",
+                      filter: [
+                        "drop-shadow(0 0 10px #f7931a)",
+                        "drop-shadow(0 0 20px #f7931a)",
+                        "drop-shadow(0 0 30px #f7931a)",
+                        "drop-shadow(0 0 20px #f7931a)",
+                        "drop-shadow(0 0 10px #f7931a)",
                       ],
                     } : {}}
                     transition={{
@@ -291,13 +291,63 @@ export default function MiningFactory() {
                       ease: "easeInOut",
                     }}
                   >
-                    <span style={{
-                      fontSize: '28px',
-                      fontWeight: '900',
-                      color: isMining ? '#fbbf24' : '#6b7280',
-                      fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                      letterSpacing: '-1px'
-                    }}>B</span>
+                    <div style={{
+                      position: 'relative',
+                      width: '32px',
+                      height: '32px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      {/* Bitcoin B with vertical lines */}
+                      <span style={{
+                        fontSize: '32px',
+                        fontWeight: '700',
+                        color: isMining ? '#f7931a' : '#6b7280',
+                        fontFamily: 'Arial, sans-serif',
+                        lineHeight: '1',
+                        position: 'relative'
+                      }}>B</span>
+                      {/* Vertical lines through B for Bitcoin style */}
+                      <div style={{
+                        position: 'absolute',
+                        top: '4px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        display: 'flex',
+                        gap: '3px'
+                      }}>
+                        <div style={{
+                          width: '2px',
+                          height: '8px',
+                          backgroundColor: isMining ? '#f7931a' : '#6b7280',
+                        }}></div>
+                        <div style={{
+                          width: '2px',
+                          height: '8px',
+                          backgroundColor: isMining ? '#f7931a' : '#6b7280',
+                        }}></div>
+                      </div>
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '4px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        display: 'flex',
+                        gap: '3px'
+                      }}>
+                        <div style={{
+                          width: '2px',
+                          height: '8px',
+                          backgroundColor: isMining ? '#f7931a' : '#6b7280',
+                        }}></div>
+                        <div style={{
+                          width: '2px',
+                          height: '8px',
+                          backgroundColor: isMining ? '#f7931a' : '#6b7280',
+                        }}></div>
+                      </div>
+                    </div>
                   </motion.div>
                 </div>
                 
