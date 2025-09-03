@@ -75,9 +75,9 @@ const HashSlider = ({ value, onValueChange, min, max, step, className, disabled 
 
 // Function to calculate APR based on lock time (months)
 const calculateAPR = (months: number): number => {
-  // Linear interpolation: 2% at 1 month to 20% at 60 months (5 years)
+  // Linear interpolation: 2% at 1 month to 20% at 24 months (2 years)
   const minMonths = 1;
-  const maxMonths = 60;
+  const maxMonths = 24;
   const minAPR = 2;
   const maxAPR = 20;
   
@@ -314,14 +314,14 @@ export default function BtcStakingEnhanced() {
                   value={lockMonths}
                   onValueChange={setLockMonths}
                   min={1}
-                  max={60}
+                  max={24}
                   step={1}
                   className="mb-2"
                   data-testid="slider-lock-time"
                 />
                 <div className="flex justify-between text-xs text-gray-400">
                   <span>1 Month</span>
-                  <span>5 Years</span>
+                  <span>2 Years</span>
                 </div>
               </div>
 
@@ -625,19 +625,23 @@ export default function BtcStakingEnhanced() {
                   <span className="text-green-400">2% APR</span>
                 </div>
                 <div className="flex justify-between">
+                  <span>3 Months</span>
+                  <span className="text-green-400">5% APR</span>
+                </div>
+                <div className="flex justify-between">
                   <span>6 Months</span>
-                  <span className="text-green-400">4% APR</span>
+                  <span className="text-green-400">8% APR</span>
                 </div>
                 <div className="flex justify-between">
                   <span>1 Year</span>
-                  <span className="text-green-400">6% APR</span>
+                  <span className="text-green-400">11% APR</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>18 Months</span>
+                  <span className="text-green-400">15.5% APR</span>
                 </div>
                 <div className="flex justify-between">
                   <span>2 Years</span>
-                  <span className="text-green-400">10% APR</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>5 Years</span>
                   <span className="text-green-400">20% APR</span>
                 </div>
               </div>
