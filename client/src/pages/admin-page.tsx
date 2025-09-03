@@ -2,12 +2,12 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Copy, Check, Shield, Users, Settings, DollarSign, Activity, ArrowDown, ArrowUp, User, Ban, CheckCircle, XCircle, Wallet, Hash, Edit2, AlertCircle, TrendingUp } from "lucide-react";
-import { Link } from "wouter";
+import { Loader2, Copy, Check, Shield, Users, Settings, DollarSign, Activity, ArrowDown, ArrowUp, User, Ban, CheckCircle, XCircle, Wallet, Hash, Edit2, AlertCircle, TrendingUp, ArrowLeft, ChevronRight } from "lucide-react";
+import { Link, useLocation } from "wouter";
 import { 
   Dialog,
   DialogContent,
@@ -18,16 +18,14 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SiEthereum } from "react-icons/si";
+import { SiEthereum, SiTether } from "react-icons/si";
 
 export default function AdminPage() {
   const { user, logoutMutation } = useAuth();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  const [activeTab, setActiveTab] = useState<'overview' | 'deposits' | 'withdrawals' | 'users' | 'mining' | 'addresses'>('overview');
   const [copiedHash, setCopiedHash] = useState<string | null>(null);
-  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
   const [editingDeposit, setEditingDeposit] = useState<any>(null);
   const [editingWithdrawal, setEditingWithdrawal] = useState<any>(null);
   const [actualAmount, setActualAmount] = useState("");
@@ -43,14 +41,7 @@ export default function AdminPage() {
     navigator.clipboard.writeText(hash);
     setCopiedHash(depositId);
     setTimeout(() => setCopiedHash(null), 500);
-    toast({ title: "Copied!", description: "Transaction hash copied to clipboard" });
-  };
-  
-  const handleCopyAddress = (address: string, withdrawalId: string) => {
-    navigator.clipboard.writeText(address);
-    setCopiedAddress(withdrawalId);
-    setTimeout(() => setCopiedAddress(null), 500);
-    toast({ title: "Copied!", description: "Withdrawal address copied to clipboard" });
+    toast({ title: "Copied!", description: "Transaction hash copied" });
   };
 
   const { data: pendingDeposits = [], isLoading: depositsLoading } = useQuery<any[]>({
@@ -91,11 +82,6 @@ export default function AdminPage() {
   // Separate deposits by currency
   const usdtDeposits = pendingDeposits.filter(d => d.currency === 'USDT');
   const ethDeposits = pendingDeposits.filter(d => d.currency === 'ETH');
-  
-  // Separate withdrawals by currency
-  const usdtWithdrawals = pendingWithdrawals.filter(w => w.currency === 'USDT');
-  const ethWithdrawals = pendingWithdrawals.filter(w => w.currency === 'ETH');
-  const gbtcWithdrawals = pendingWithdrawals.filter(w => w.currency === 'GBTC');
 
   const approveDepositMutation = useMutation({
     mutationFn: async ({ id, actualAmount }: { id: string; actualAmount: string }) => {
@@ -103,15 +89,14 @@ export default function AdminPage() {
       return res.json();
     },
     onSuccess: () => {
-      toast({ title: "Deposit approved", description: "The deposit has been approved with verified amount." });
+      toast({ title: "Approved", description: "Deposit approved successfully" });
       queryClient.invalidateQueries({ queryKey: ["/api/deposits/pending"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       setEditingDeposit(null);
       setActualAmount("");
     },
     onError: (error: Error) => {
-      toast({ title: "Approval failed", description: error.message, variant: "destructive" });
+      toast({ title: "Failed", description: error.message, variant: "destructive" });
     }
   });
 
@@ -121,12 +106,12 @@ export default function AdminPage() {
       return res.json();
     },
     onSuccess: () => {
-      toast({ title: "Deposit rejected", description: "The deposit has been rejected." });
+      toast({ title: "Rejected", description: "Deposit rejected" });
       queryClient.invalidateQueries({ queryKey: ["/api/deposits/pending"] });
       setEditingDeposit(null);
     },
     onError: (error: Error) => {
-      toast({ title: "Rejection failed", description: error.message, variant: "destructive" });
+      toast({ title: "Failed", description: error.message, variant: "destructive" });
     }
   });
 
@@ -136,17 +121,8 @@ export default function AdminPage() {
       return res.json();
     },
     onSuccess: () => {
-      toast({ 
-        title: "User Frozen", 
-        description: "The user account has been frozen. They cannot perform any operations.",
-        variant: "destructive" 
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/deposits/pending"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+      toast({ title: "User Frozen", variant: "destructive" });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Failed to freeze user", description: error.message, variant: "destructive" });
     }
   });
 
@@ -156,15 +132,8 @@ export default function AdminPage() {
       return res.json();
     },
     onSuccess: () => {
-      toast({ 
-        title: "User Unfrozen", 
-        description: "The user account has been unfrozen and can now perform operations." 
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+      toast({ title: "User Unfrozen" });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Failed to unfreeze user", description: error.message, variant: "destructive" });
     }
   });
 
@@ -174,15 +143,8 @@ export default function AdminPage() {
       return res.json();
     },
     onSuccess: () => {
-      toast({ 
-        title: "User Banned", 
-        description: "The user has been permanently banned. All functions are disabled.",
-        variant: "destructive" 
-      });
+      toast({ title: "User Banned", variant: "destructive" });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Failed to ban user", description: error.message, variant: "destructive" });
     }
   });
 
@@ -192,14 +154,8 @@ export default function AdminPage() {
       return res.json();
     },
     onSuccess: () => {
-      toast({ 
-        title: "User Unbanned", 
-        description: "The user ban has been lifted." 
-      });
+      toast({ title: "User Unbanned" });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Failed to unban user", description: error.message, variant: "destructive" });
     }
   });
 
@@ -209,14 +165,10 @@ export default function AdminPage() {
       return res.json();
     },
     onSuccess: () => {
-      toast({ title: "User balances updated", description: "The user's balances have been updated successfully." });
+      toast({ title: "Updated", description: "Balances updated" });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
       setSelectedUser(null);
       setUserBalanceEdit({ usdt: "", eth: "", gbtc: "", hashPower: "" });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Update failed", description: error.message, variant: "destructive" });
     }
   });
 
@@ -226,15 +178,11 @@ export default function AdminPage() {
       return res.json();
     },
     onSuccess: () => {
-      toast({ title: "Withdrawal approved", description: "The withdrawal has been processed successfully." });
+      toast({ title: "Approved", description: "Withdrawal processed" });
       queryClient.invalidateQueries({ queryKey: ["/api/withdrawals/pending"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       setEditingWithdrawal(null);
       setTxHashInput("");
-    },
-    onError: (error: Error) => {
-      toast({ title: "Approval failed", description: error.message, variant: "destructive" });
     }
   });
 
@@ -244,13 +192,9 @@ export default function AdminPage() {
       return res.json();
     },
     onSuccess: () => {
-      toast({ title: "Withdrawal rejected", description: "The withdrawal request has been rejected." });
+      toast({ title: "Rejected", description: "Withdrawal rejected" });
       queryClient.invalidateQueries({ queryKey: ["/api/withdrawals/pending"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
       setEditingWithdrawal(null);
-    },
-    onError: (error: Error) => {
-      toast({ title: "Rejection failed", description: error.message, variant: "destructive" });
     }
   });
 
@@ -260,28 +204,22 @@ export default function AdminPage() {
       return res.json();
     },
     onSuccess: () => {
-      toast({ title: "Block reward updated", description: "The block reward has been updated successfully." });
+      toast({ title: "Updated", description: "Block reward updated" });
       queryClient.invalidateQueries({ queryKey: ["/api/settings/blockReward"] });
       setBlockRewardInput("");
-    },
-    onError: (error: Error) => {
-      toast({ title: "Update failed", description: error.message, variant: "destructive" });
     }
   });
 
   const halveRewardMutation = useMutation({
     mutationFn: async () => {
-      const currentReward = blockRewardSetting?.value ? parseFloat(blockRewardSetting.value) : 50;
+      const currentReward = parseFloat(blockRewardSetting?.value || "50");
       const newReward = (currentReward / 2).toString();
       const res = await apiRequest("POST", "/api/settings", { key: "blockReward", value: newReward });
       return res.json();
     },
     onSuccess: () => {
-      toast({ title: "Block reward halved", description: "The block reward has been successfully halved." });
+      toast({ title: "Halved", description: "Block reward halved" });
       queryClient.invalidateQueries({ queryKey: ["/api/settings/blockReward"] });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Halving failed", description: error.message, variant: "destructive" });
     }
   });
 
@@ -291,659 +229,669 @@ export default function AdminPage() {
       return res.json();
     },
     onSuccess: (_, variables) => {
-      toast({ 
-        title: "Address Updated", 
-        description: `Global ${variables.currency} deposit address has been updated for all users.` 
-      });
+      toast({ title: "Updated", description: `${variables.currency} address updated` });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/deposit-addresses"] });
       setAddressEditMode(null);
       setUsdtAddress("");
       setEthAddress("");
-    },
-    onError: (error: Error) => {
-      toast({ title: "Update failed", description: error.message, variant: "destructive" });
     }
   });
 
   if (!user?.isAdmin) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6 text-center">
-            <Shield className="w-16 h-16 text-destructive mx-auto mb-4" />
-            <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-            <p className="text-muted-foreground mb-4">
-              You don't have admin privileges to access this page.
-            </p>
+      <div className="mobile-page bg-background">
+        <div className="flex items-center justify-center min-h-screen px-4">
+          <Card className="w-full max-w-sm p-6 text-center">
+            <Shield className="w-12 h-12 text-destructive mx-auto mb-3" />
+            <h2 className="text-lg font-semibold mb-2">Access Denied</h2>
+            <p className="text-sm text-muted-foreground mb-4">Admin privileges required</p>
             <Link href="/dashboard">
-              <Button>Return to Dashboard</Button>
+              <Button size="sm" className="w-full">Return to Dashboard</Button>
             </Link>
-          </CardContent>
-        </Card>
+          </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+    <div className="mobile-page bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <Shield className="w-8 h-8 text-primary" />
-              <h1 className="text-2xl font-bold font-display bg-gradient-to-r from-primary to-orange-500 bg-clip-text text-transparent">
-                ADMIN CONTROL CENTER
-              </h1>
+      <div className="mobile-header">
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => setLocation("/dashboard")}
+            size="sm"
+            variant="ghost"
+            className="p-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <h1 className="text-lg font-semibold">Admin Panel</h1>
+        </div>
+        <Button
+          onClick={() => logoutMutation.mutate()}
+          size="sm"
+          variant="destructive"
+          data-testid="button-logout"
+        >
+          Logout
+        </Button>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="px-4 py-3">
+        <div className="grid grid-cols-2 gap-2">
+          <Card className="p-3 bg-gradient-to-br from-primary/5 to-primary/10">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Users</p>
+                <p className="text-lg font-bold">{adminStats.userCount}</p>
+              </div>
+              <Users className="w-5 h-5 text-primary opacity-50" />
             </div>
-            <Button
-              onClick={() => logoutMutation.mutate()}
-              variant="destructive"
-              data-testid="button-logout"
-            >
-              Logout
-            </Button>
-          </div>
+          </Card>
+          
+          <Card className="p-3 bg-gradient-to-br from-green-500/5 to-green-500/10">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Deposits</p>
+                <p className="text-lg font-bold text-green-500">
+                  ${parseFloat(adminStats.totalDeposits).toFixed(0)}
+                </p>
+              </div>
+              <ArrowDown className="w-5 h-5 text-green-500 opacity-50" />
+            </div>
+          </Card>
+          
+          <Card className="p-3 bg-gradient-to-br from-orange-500/5 to-orange-500/10">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Hash Power</p>
+                <p className="text-lg font-bold text-orange-500">
+                  {parseFloat(adminStats.totalHashPower).toFixed(0)} TH/s
+                </p>
+              </div>
+              <Activity className="w-5 h-5 text-orange-500 opacity-50" />
+            </div>
+          </Card>
+          
+          <Card className="p-3 bg-gradient-to-br from-red-500/5 to-red-500/10">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Withdrawals</p>
+                <p className="text-lg font-bold text-red-500">
+                  ${parseFloat(adminStats.totalWithdrawals).toFixed(0)}
+                </p>
+              </div>
+              <ArrowUp className="w-5 h-5 text-red-500 opacity-50" />
+            </div>
+          </Card>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-6">
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card className="border-primary/50 bg-gradient-to-br from-primary/10 to-primary/5">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Users</p>
-                  <p className="text-2xl font-bold">{adminStats?.userCount || 0}</p>
-                </div>
-                <Users className="w-8 h-8 text-primary opacity-50" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-green-500/50 bg-gradient-to-br from-green-500/10 to-green-500/5">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Deposits</p>
-                  <p className="text-2xl font-bold text-green-500">
-                    ${parseFloat(adminStats?.totalDeposits || "0").toFixed(0)}
-                  </p>
-                </div>
-                <ArrowDown className="w-8 h-8 text-green-500 opacity-50" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-red-500/50 bg-gradient-to-br from-red-500/10 to-red-500/5">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Withdrawals</p>
-                  <p className="text-2xl font-bold text-red-500">
-                    ${parseFloat(adminStats?.totalWithdrawals || "0").toFixed(0)}
-                  </p>
-                </div>
-                <ArrowUp className="w-8 h-8 text-red-500 opacity-50" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-orange-500/50 bg-gradient-to-br from-orange-500/10 to-orange-500/5">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Hash Power</p>
-                  <p className="text-2xl font-bold text-orange-500">
-                    {parseFloat(adminStats?.totalHashPower || "0").toFixed(0)} TH/s
-                  </p>
-                </div>
-                <Activity className="w-8 h-8 text-orange-500 opacity-50" />
-              </div>
-            </CardContent>
-          </Card>
+      {/* Navigation Tabs */}
+      <div className="px-4 pb-2">
+        <div className="flex gap-1 overflow-x-auto pb-2">
+          {[
+            { id: 'overview', label: 'Overview', icon: Activity },
+            { id: 'deposits', label: 'Deposits', icon: ArrowDown, count: pendingDeposits.length },
+            { id: 'withdrawals', label: 'Withdrawals', icon: ArrowUp, count: pendingWithdrawals.length },
+            { id: 'users', label: 'Users', icon: Users },
+            { id: 'mining', label: 'Mining', icon: Hash },
+            { id: 'addresses', label: 'Addresses', icon: Wallet }
+          ].map((tab) => (
+            <Button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              variant={activeTab === tab.id ? 'default' : 'ghost'}
+              size="sm"
+              className="whitespace-nowrap flex-shrink-0 relative"
+            >
+              <tab.icon className="w-3 h-3 mr-1" />
+              {tab.label}
+              {tab.count && tab.count > 0 && (
+                <Badge className="ml-1 px-1 min-w-[18px] h-[18px] text-[10px]" variant="secondary">
+                  {tab.count}
+                </Badge>
+              )}
+            </Button>
+          ))}
         </div>
+      </div>
 
-        {/* Management Panels Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {/* USDT Deposits Management */}
-          <Card className="border-green-500/30">
-            <CardHeader className="bg-gradient-to-r from-green-500/10 to-green-500/5">
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-green-500" />
-                USDT Deposits
-                {usdtDeposits.length > 0 && (
-                  <Badge className="ml-auto bg-green-500">{usdtDeposits.length}</Badge>
-                )}
-              </CardTitle>
-              <CardDescription>Manage pending USDT deposit requests</CardDescription>
-            </CardHeader>
-            <CardContent className="p-4">
-              <ScrollArea className="h-[400px] pr-4">
-                {depositsLoading ? (
-                  <div className="flex items-center justify-center h-32">
-                    <Loader2 className="w-8 h-8 animate-spin" />
+      {/* Content */}
+      <div className="mobile-content">
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+          <Card className="mobile-card">
+            <div className="space-y-4">
+              <div className="text-center py-4">
+                <h2 className="text-2xl font-bold text-primary">Admin Dashboard</h2>
+                <p className="text-sm text-muted-foreground mt-1">System Overview</p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-muted/30 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground">Pending Deposits</p>
+                  <p className="text-xl font-bold text-yellow-500">{pendingDeposits.length}</p>
+                </div>
+                <div className="bg-muted/30 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground">Pending Withdrawals</p>
+                  <p className="text-xl font-bold text-orange-500">{pendingWithdrawals.length}</p>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-r from-orange-500/10 to-orange-500/5 rounded-lg p-3">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Current Block Reward</p>
+                    <p className="text-xl font-bold text-orange-500">
+                      {parseFloat(blockRewardSetting?.value || "50").toFixed(2)} GBTC
+                    </p>
                   </div>
-                ) : usdtDeposits.length > 0 ? (
-                  <div className="space-y-3">
-                    {usdtDeposits.map((deposit: any) => (
-                      <div key={deposit.id} className="border rounded-lg p-3 space-y-2">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-semibold">{deposit.user.username}</p>
-                            <p className="text-xs text-muted-foreground">{deposit.network}</p>
-                          </div>
-                          <Badge variant="outline" className="bg-yellow-500/10">
-                            ${parseFloat(deposit.amount).toFixed(2)}
-                          </Badge>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button 
-                            onClick={() => {
-                              setEditingDeposit(deposit);
-                              setActualAmount("");
-                            }}
-                            size="sm"
-                            className="flex-1 bg-green-500 hover:bg-green-600"
-                          >
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            Verify
-                          </Button>
-                          <Button 
-                            onClick={() => rejectDepositMutation.mutate({ id: deposit.id })}
-                            variant="destructive"
-                            size="sm"
-                          >
-                            <XCircle className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Wallet className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                    <p>No pending USDT deposits</p>
-                  </div>
-                )}
-              </ScrollArea>
-            </CardContent>
+                  <Hash className="w-8 h-8 text-orange-500 opacity-30" />
+                </div>
+              </div>
+            </div>
           </Card>
+        )}
 
-          {/* ETH Deposits Management */}
-          <Card className="border-blue-500/30">
-            <CardHeader className="bg-gradient-to-r from-blue-500/10 to-blue-500/5">
-              <CardTitle className="flex items-center gap-2">
-                <SiEthereum className="w-5 h-5 text-blue-500" />
-                ETH Deposits
-                {ethDeposits.length > 0 && (
-                  <Badge className="ml-auto bg-blue-500">{ethDeposits.length}</Badge>
-                )}
-              </CardTitle>
-              <CardDescription>Manage pending ETH deposit requests</CardDescription>
-            </CardHeader>
-            <CardContent className="p-4">
-              <ScrollArea className="h-[400px] pr-4">
-                {depositsLoading ? (
-                  <div className="flex items-center justify-center h-32">
-                    <Loader2 className="w-8 h-8 animate-spin" />
-                  </div>
-                ) : ethDeposits.length > 0 ? (
-                  <div className="space-y-3">
-                    {ethDeposits.map((deposit: any) => (
-                      <div key={deposit.id} className="border rounded-lg p-3 space-y-2">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-semibold">{deposit.user.username}</p>
-                            <p className="text-xs text-muted-foreground">ETH Network</p>
-                          </div>
-                          <Badge variant="outline" className="bg-blue-500/10">
-                            {parseFloat(deposit.amount).toFixed(8)} ETH
-                          </Badge>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button 
-                            onClick={() => {
-                              setEditingDeposit(deposit);
-                              setActualAmount("");
-                            }}
-                            size="sm"
-                            className="flex-1 bg-blue-500 hover:bg-blue-600"
-                          >
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            Verify
-                          </Button>
-                          <Button 
-                            onClick={() => rejectDepositMutation.mutate({ id: deposit.id })}
-                            variant="destructive"
-                            size="sm"
-                          >
-                            <XCircle className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <SiEthereum className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                    <p>No pending ETH deposits</p>
-                  </div>
-                )}
-              </ScrollArea>
-            </CardContent>
-          </Card>
-
-          {/* Withdrawals Management */}
-          <Card className="border-red-500/30">
-            <CardHeader className="bg-gradient-to-r from-red-500/10 to-red-500/5">
-              <CardTitle className="flex items-center gap-2">
-                <ArrowUp className="w-5 h-5 text-red-500" />
-                All Withdrawals
-                {pendingWithdrawals.length > 0 && (
-                  <Badge className="ml-auto bg-red-500">{pendingWithdrawals.length}</Badge>
-                )}
-              </CardTitle>
-              <CardDescription>Process withdrawal requests</CardDescription>
-            </CardHeader>
-            <CardContent className="p-4">
-              <ScrollArea className="h-[400px] pr-4">
-                {withdrawalsLoading ? (
-                  <div className="flex items-center justify-center h-32">
-                    <Loader2 className="w-8 h-8 animate-spin" />
-                  </div>
-                ) : pendingWithdrawals.length > 0 ? (
-                  <div className="space-y-3">
-                    {pendingWithdrawals.map((withdrawal: any) => (
-                      <div key={withdrawal.id} className="border rounded-lg p-3 space-y-2">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-semibold">{withdrawal.user?.username}</p>
-                            <p className="text-xs text-muted-foreground">{withdrawal.network}</p>
-                          </div>
-                          <Badge variant="outline" className="bg-red-500/10">
-                            {withdrawal.currency === 'ETH' ? 
-                              `${parseFloat(withdrawal.amount).toFixed(8)} ETH` :
-                              withdrawal.currency === 'GBTC' ?
-                              `${parseFloat(withdrawal.amount).toFixed(8)} GBTC` :
-                              `${parseFloat(withdrawal.amount).toFixed(2)} USDT`
-                            }
-                          </Badge>
-                        </div>
-                        <div className="text-xs bg-muted p-2 rounded break-all">
-                          {withdrawal.address}
-                        </div>
-                        <div className="flex gap-2">
-                          <Button 
-                            onClick={() => {
-                              setEditingWithdrawal(withdrawal);
-                              setTxHashInput("");
-                            }}
-                            size="sm"
-                            className="flex-1 bg-green-500 hover:bg-green-600"
-                          >
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            Process
-                          </Button>
-                          <Button 
-                            onClick={() => rejectWithdrawalMutation.mutate(withdrawal.id)}
-                            variant="destructive"
-                            size="sm"
-                          >
-                            <XCircle className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <ArrowUp className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                    <p>No pending withdrawals</p>
-                  </div>
-                )}
-              </ScrollArea>
-            </CardContent>
-          </Card>
-
-          {/* Users Management */}
-          <Card className="border-purple-500/30">
-            <CardHeader className="bg-gradient-to-r from-purple-500/10 to-purple-500/5">
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-purple-500" />
-                Users Management
-              </CardTitle>
-              <CardDescription>Manage user accounts and permissions</CardDescription>
-            </CardHeader>
-            <CardContent className="p-4">
-              <ScrollArea className="h-[400px] pr-4">
+        {/* Deposits Tab */}
+        {activeTab === 'deposits' && (
+          <div className="space-y-3">
+            {/* USDT Deposits */}
+            <Card className="mobile-card">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <SiTether className="w-4 h-4 text-green-500" />
+                  <span className="text-sm font-semibold">USDT Deposits</span>
+                </div>
+                <Badge className="bg-green-500/10 text-green-500">
+                  {usdtDeposits.length}
+                </Badge>
+              </div>
+              
+              {depositsLoading ? (
+                <div className="flex justify-center py-4">
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                </div>
+              ) : usdtDeposits.length > 0 ? (
                 <div className="space-y-2">
-                  {allUsers.map((u: any) => (
-                    <div key={u.id} className="border rounded-lg p-3">
+                  {usdtDeposits.map((deposit: any) => (
+                    <div key={deposit.id} className="bg-muted/30 rounded-lg p-3">
                       <div className="flex justify-between items-start mb-2">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <p className="font-semibold">{u.username}</p>
-                            {u.isAdmin && <Badge className="bg-purple-500">Admin</Badge>}
-                            {u.isFrozen && <Badge variant="outline" className="text-yellow-500 border-yellow-500">Frozen</Badge>}
-                            {u.isBanned && <Badge variant="destructive">Banned</Badge>}
-                          </div>
-                          <div className="grid grid-cols-2 gap-1 mt-1 text-xs">
-                            <span>USDT: ${parseFloat(u.usdtBalance || "0").toFixed(2)}</span>
-                            <span>ETH: {parseFloat(u.ethBalance || "0").toFixed(4)}</span>
-                            <span>GBTC: {parseFloat(u.gbtcBalance || "0").toFixed(4)}</span>
-                            <span>Hash: {parseFloat(u.hashPower || "0").toFixed(2)} TH/s</span>
-                          </div>
+                        <div>
+                          <p className="font-semibold text-sm">{deposit.user.username}</p>
+                          <p className="text-xs text-muted-foreground">{deposit.network}</p>
                         </div>
+                        <Badge variant="outline" className="text-xs">
+                          ${parseFloat(deposit.amount).toFixed(2)}
+                        </Badge>
                       </div>
-                      <div className="flex gap-1">
+                      <div className="flex gap-2">
                         <Button
                           onClick={() => {
-                            setSelectedUser(u);
-                            setUserBalanceEdit({
-                              usdt: u.usdtBalance || "",
-                              eth: u.ethBalance || "",
-                              gbtc: u.gbtcBalance || "",
-                              hashPower: u.hashPower || ""
-                            });
+                            setEditingDeposit(deposit);
+                            setActualAmount("");
                           }}
                           size="sm"
-                          variant="outline"
-                          className="flex-1"
+                          className="flex-1 h-7 text-xs"
                         >
-                          <Edit2 className="w-3 h-3" />
+                          Verify
                         </Button>
-                        {!u.isBanned ? (
-                          <>
-                            {u.isFrozen ? (
-                              <Button
-                                onClick={() => unfreezeUserMutation.mutate(u.id)}
-                                size="sm"
-                                variant="outline"
-                                className="flex-1 text-green-500 border-green-500"
-                              >
-                                Unfreeze
-                              </Button>
-                            ) : (
-                              <Button
-                                onClick={() => freezeUserMutation.mutate(u.id)}
-                                size="sm"
-                                variant="outline"
-                                className="flex-1 text-yellow-500 border-yellow-500"
-                              >
-                                Freeze
-                              </Button>
-                            )}
-                            <Button
-                              onClick={() => banUserMutation.mutate(u.id)}
-                              size="sm"
-                              variant="destructive"
-                              className="flex-1"
-                            >
-                              <Ban className="w-3 h-3" />
-                            </Button>
-                          </>
-                        ) : (
-                          <Button
-                            onClick={() => unbanUserMutation.mutate(u.id)}
-                            size="sm"
-                            variant="outline"
-                            className="flex-1 text-green-500 border-green-500"
-                          >
-                            Unban
-                          </Button>
-                        )}
+                        <Button
+                          onClick={() => rejectDepositMutation.mutate({ id: deposit.id })}
+                          size="sm"
+                          variant="destructive"
+                          className="h-7 px-2"
+                        >
+                          <XCircle className="w-3 h-3" />
+                        </Button>
                       </div>
                     </div>
                   ))}
                 </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
+              ) : (
+                <p className="text-center text-sm text-muted-foreground py-4">
+                  No pending USDT deposits
+                </p>
+              )}
+            </Card>
 
-          {/* Mining Management */}
-          <Card className="border-orange-500/30">
-            <CardHeader className="bg-gradient-to-r from-orange-500/10 to-orange-500/5">
-              <CardTitle className="flex items-center gap-2">
-                <Hash className="w-5 h-5 text-orange-500" />
-                Mining Management
-              </CardTitle>
-              <CardDescription>Control mining rewards and halving</CardDescription>
-            </CardHeader>
-            <CardContent className="p-4 space-y-4">
-              <div className="bg-muted rounded-lg p-4">
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-sm font-semibold">Current Block Reward</span>
-                  <Badge className="bg-orange-500 text-lg px-3 py-1">
-                    {parseFloat(blockRewardSetting?.value || "50").toFixed(2)} GBTC
-                  </Badge>
+            {/* ETH Deposits */}
+            <Card className="mobile-card">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <SiEthereum className="w-4 h-4 text-blue-500" />
+                  <span className="text-sm font-semibold">ETH Deposits</span>
                 </div>
-                
-                <div className="space-y-3">
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Set Custom Reward</Label>
-                    <div className="flex gap-2 mt-1">
-                      <Input
-                        type="number"
-                        placeholder="Enter new reward"
-                        value={blockRewardInput}
-                        onChange={(e) => setBlockRewardInput(e.target.value)}
-                        className="flex-1"
-                      />
+                <Badge className="bg-blue-500/10 text-blue-500">
+                  {ethDeposits.length}
+                </Badge>
+              </div>
+              
+              {depositsLoading ? (
+                <div className="flex justify-center py-4">
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                </div>
+              ) : ethDeposits.length > 0 ? (
+                <div className="space-y-2">
+                  {ethDeposits.map((deposit: any) => (
+                    <div key={deposit.id} className="bg-muted/30 rounded-lg p-3">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="font-semibold text-sm">{deposit.user.username}</p>
+                          <p className="text-xs text-muted-foreground">ETH Network</p>
+                        </div>
+                        <Badge variant="outline" className="text-xs">
+                          {parseFloat(deposit.amount).toFixed(6)} ETH
+                        </Badge>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => {
+                            setEditingDeposit(deposit);
+                            setActualAmount("");
+                          }}
+                          size="sm"
+                          className="flex-1 h-7 text-xs"
+                        >
+                          Verify
+                        </Button>
+                        <Button
+                          onClick={() => rejectDepositMutation.mutate({ id: deposit.id })}
+                          size="sm"
+                          variant="destructive"
+                          className="h-7 px-2"
+                        >
+                          <XCircle className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-sm text-muted-foreground py-4">
+                  No pending ETH deposits
+                </p>
+              )}
+            </Card>
+          </div>
+        )}
+
+        {/* Withdrawals Tab */}
+        {activeTab === 'withdrawals' && (
+          <Card className="mobile-card">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-semibold">Pending Withdrawals</span>
+              <Badge className="bg-red-500/10 text-red-500">
+                {pendingWithdrawals.length}
+              </Badge>
+            </div>
+            
+            {withdrawalsLoading ? (
+              <div className="flex justify-center py-4">
+                <Loader2 className="w-6 h-6 animate-spin" />
+              </div>
+            ) : pendingWithdrawals.length > 0 ? (
+              <div className="space-y-2">
+                {pendingWithdrawals.map((withdrawal: any) => (
+                  <div key={withdrawal.id} className="bg-muted/30 rounded-lg p-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <p className="font-semibold text-sm">{withdrawal.user?.username}</p>
+                        <p className="text-xs text-muted-foreground">{withdrawal.network}</p>
+                      </div>
+                      <Badge variant="outline" className="text-xs">
+                        {withdrawal.currency === 'ETH' ? 
+                          `${parseFloat(withdrawal.amount).toFixed(6)} ETH` :
+                          withdrawal.currency === 'GBTC' ?
+                          `${parseFloat(withdrawal.amount).toFixed(6)} GBTC` :
+                          `${parseFloat(withdrawal.amount).toFixed(2)} USDT`
+                        }
+                      </Badge>
+                    </div>
+                    <div className="bg-background/50 rounded p-1 mb-2">
+                      <p className="text-xs font-mono truncate">{withdrawal.address}</p>
+                    </div>
+                    <div className="flex gap-2">
                       <Button
                         onClick={() => {
-                          if (blockRewardInput) {
-                            updateBlockRewardMutation.mutate(blockRewardInput);
+                          setEditingWithdrawal(withdrawal);
+                          setTxHashInput("");
+                        }}
+                        size="sm"
+                        className="flex-1 h-7 text-xs"
+                      >
+                        Process
+                      </Button>
+                      <Button
+                        onClick={() => rejectWithdrawalMutation.mutate(withdrawal.id)}
+                        size="sm"
+                        variant="destructive"
+                        className="h-7 px-2"
+                      >
+                        <XCircle className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-sm text-muted-foreground py-4">
+                No pending withdrawals
+              </p>
+            )}
+          </Card>
+        )}
+
+        {/* Users Tab */}
+        {activeTab === 'users' && (
+          <Card className="mobile-card">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-semibold">User Management</span>
+              <Badge>{allUsers.length}</Badge>
+            </div>
+            
+            <div className="space-y-2">
+              {allUsers.map((u: any) => (
+                <div key={u.id} className="bg-muted/30 rounded-lg p-3">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-sm">{u.username}</p>
+                        {u.isAdmin && <Badge className="text-xs h-4">Admin</Badge>}
+                        {u.isFrozen && <Badge variant="outline" className="text-xs h-4 text-yellow-500">Frozen</Badge>}
+                        {u.isBanned && <Badge variant="destructive" className="text-xs h-4">Banned</Badge>}
+                      </div>
+                      <div className="grid grid-cols-2 gap-x-3 mt-1">
+                        <p className="text-xs text-muted-foreground">
+                          USDT: ${parseFloat(u.usdtBalance || "0").toFixed(2)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          ETH: {parseFloat(u.ethBalance || "0").toFixed(4)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          GBTC: {parseFloat(u.gbtcBalance || "0").toFixed(4)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Hash: {parseFloat(u.hashPower || "0").toFixed(1)} TH/s
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button
+                      onClick={() => {
+                        setSelectedUser(u);
+                        setUserBalanceEdit({
+                          usdt: u.usdtBalance || "",
+                          eth: u.ethBalance || "",
+                          gbtc: u.gbtcBalance || "",
+                          hashPower: u.hashPower || ""
+                        });
+                      }}
+                      size="sm"
+                      variant="outline"
+                      className="flex-1 h-7 text-xs"
+                    >
+                      Edit
+                    </Button>
+                    {!u.isBanned ? (
+                      <>
+                        {u.isFrozen ? (
+                          <Button
+                            onClick={() => unfreezeUserMutation.mutate(u.id)}
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 h-7 text-xs text-green-500"
+                          >
+                            Unfreeze
+                          </Button>
+                        ) : (
+                          <Button
+                            onClick={() => freezeUserMutation.mutate(u.id)}
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 h-7 text-xs text-yellow-500"
+                          >
+                            Freeze
+                          </Button>
+                        )}
+                        <Button
+                          onClick={() => banUserMutation.mutate(u.id)}
+                          size="sm"
+                          variant="destructive"
+                          className="h-7 px-2"
+                        >
+                          <Ban className="w-3 h-3" />
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        onClick={() => unbanUserMutation.mutate(u.id)}
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 h-7 text-xs text-green-500"
+                      >
+                        Unban
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
+        {/* Mining Tab */}
+        {activeTab === 'mining' && (
+          <Card className="mobile-card">
+            <div className="space-y-3">
+              <div className="text-center py-3">
+                <p className="text-xs text-muted-foreground">Current Block Reward</p>
+                <p className="text-2xl font-bold text-orange-500">
+                  {parseFloat(blockRewardSetting?.value || "50").toFixed(2)} GBTC
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-xs">Custom Reward</Label>
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    placeholder="New reward"
+                    value={blockRewardInput}
+                    onChange={(e) => setBlockRewardInput(e.target.value)}
+                    className="h-8 text-sm"
+                  />
+                  <Button
+                    onClick={() => {
+                      if (blockRewardInput) {
+                        updateBlockRewardMutation.mutate(blockRewardInput);
+                      }
+                    }}
+                    size="sm"
+                    disabled={!blockRewardInput || updateBlockRewardMutation.isPending}
+                    className="h-8"
+                  >
+                    Update
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="border-t pt-3">
+                <Button
+                  onClick={() => halveRewardMutation.mutate()}
+                  className="w-full"
+                  variant="destructive"
+                  disabled={halveRewardMutation.isPending}
+                >
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Execute Halving (50% Reduction)
+                </Button>
+                <p className="text-xs text-destructive/70 mt-2 text-center">
+                  Warning: This permanently reduces mining rewards
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Addresses Tab */}
+        {activeTab === 'addresses' && (
+          <Card className="mobile-card">
+            <div className="space-y-3">
+              {/* USDT Address */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label className="text-sm font-semibold">USDT Deposit Address</Label>
+                  <Button
+                    onClick={() => setAddressEditMode(addressEditMode === 'usdt' ? null : 'usdt')}
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 px-2"
+                  >
+                    <Edit2 className="w-3 h-3" />
+                  </Button>
+                </div>
+                {addressEditMode === 'usdt' ? (
+                  <div className="space-y-2">
+                    <Input
+                      placeholder="New USDT address"
+                      value={usdtAddress}
+                      onChange={(e) => setUsdtAddress(e.target.value)}
+                      className="h-8 text-sm"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => {
+                          if (usdtAddress) {
+                            updateGlobalAddressMutation.mutate({ 
+                              currency: 'USDT', 
+                              address: usdtAddress 
+                            });
                           }
                         }}
                         size="sm"
-                        disabled={!blockRewardInput || updateBlockRewardMutation.isPending}
+                        className="flex-1 h-7 text-xs"
+                        disabled={!usdtAddress}
                       >
-                        {updateBlockRewardMutation.isPending ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          "Update"
-                        )}
+                        Save
                       </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="border-t pt-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <div>
-                        <p className="font-semibold">Execute Halving</p>
-                        <p className="text-xs text-muted-foreground">
-                          Reduce block reward by 50%
-                        </p>
-                      </div>
                       <Button
-                        onClick={() => halveRewardMutation.mutate()}
-                        variant="destructive"
-                        disabled={halveRewardMutation.isPending}
+                        onClick={() => {
+                          setAddressEditMode(null);
+                          setUsdtAddress("");
+                        }}
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs"
                       >
-                        {halveRewardMutation.isPending ? (
-                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                        ) : (
-                          <TrendingUp className="w-4 h-4 mr-2" />
-                        )}
-                        Execute Halving
+                        Cancel
                       </Button>
                     </div>
-                    <div className="bg-destructive/10 border border-destructive/30 rounded p-2">
-                      <div className="flex items-center gap-2">
-                        <AlertCircle className="w-4 h-4 text-destructive" />
-                        <p className="text-xs text-destructive">
-                          Warning: This will permanently halve mining rewards
-                        </p>
-                      </div>
-                    </div>
                   </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Global Deposit Addresses */}
-          <Card className="border-blue-500/30">
-            <CardHeader className="bg-gradient-to-r from-blue-500/10 to-blue-500/5">
-              <CardTitle className="flex items-center gap-2">
-                <Wallet className="w-5 h-5 text-blue-500" />
-                Global Deposit Addresses
-              </CardTitle>
-              <CardDescription>Update deposit addresses for all users</CardDescription>
-            </CardHeader>
-            <CardContent className="p-4 space-y-4">
-              <div className="space-y-3">
-                {/* USDT Address */}
-                <div className="bg-muted rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <Label className="text-sm font-semibold">USDT Deposit Address</Label>
-                    <Button
-                      onClick={() => setAddressEditMode(addressEditMode === 'usdt' ? null : 'usdt')}
-                      size="sm"
-                      variant="ghost"
-                    >
-                      <Edit2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                  {addressEditMode === 'usdt' ? (
-                    <div className="space-y-2">
-                      <Input
-                        placeholder="Enter new USDT address"
-                        value={usdtAddress}
-                        onChange={(e) => setUsdtAddress(e.target.value)}
-                      />
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => {
-                            if (usdtAddress) {
-                              updateGlobalAddressMutation.mutate({ 
-                                currency: 'USDT', 
-                                address: usdtAddress 
-                              });
-                            }
-                          }}
-                          size="sm"
-                          className="flex-1"
-                          disabled={!usdtAddress || updateGlobalAddressMutation.isPending}
-                        >
-                          Save
-                        </Button>
-                        <Button
-                          onClick={() => {
-                            setAddressEditMode(null);
-                            setUsdtAddress("");
-                          }}
-                          size="sm"
-                          variant="outline"
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <code className="text-xs bg-background p-2 rounded block break-all">
+                ) : (
+                  <div className="bg-muted/50 rounded p-2">
+                    <p className="text-xs font-mono break-all">
                       {globalAddresses?.usdt || 'TBGxYmP3tFrbKvJRvQcF9cENKixQeJdfQc'}
-                    </code>
-                  )}
-                </div>
-
-                {/* ETH Address */}
-                <div className="bg-muted rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <Label className="text-sm font-semibold">ETH Deposit Address</Label>
-                    <Button
-                      onClick={() => setAddressEditMode(addressEditMode === 'eth' ? null : 'eth')}
-                      size="sm"
-                      variant="ghost"
-                    >
-                      <Edit2 className="w-3 h-3" />
-                    </Button>
+                    </p>
                   </div>
-                  {addressEditMode === 'eth' ? (
-                    <div className="space-y-2">
-                      <Input
-                        placeholder="Enter new ETH address"
-                        value={ethAddress}
-                        onChange={(e) => setEthAddress(e.target.value)}
-                      />
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => {
-                            if (ethAddress) {
-                              updateGlobalAddressMutation.mutate({ 
-                                currency: 'ETH', 
-                                address: ethAddress 
-                              });
-                            }
-                          }}
-                          size="sm"
-                          className="flex-1"
-                          disabled={!ethAddress || updateGlobalAddressMutation.isPending}
-                        >
-                          Save
-                        </Button>
-                        <Button
-                          onClick={() => {
-                            setAddressEditMode(null);
-                            setEthAddress("");
-                          }}
-                          size="sm"
-                          variant="outline"
-                        >
-                          Cancel
-                        </Button>
-                      </div>
+                )}
+              </div>
+
+              {/* ETH Address */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label className="text-sm font-semibold">ETH Deposit Address</Label>
+                  <Button
+                    onClick={() => setAddressEditMode(addressEditMode === 'eth' ? null : 'eth')}
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 px-2"
+                  >
+                    <Edit2 className="w-3 h-3" />
+                  </Button>
+                </div>
+                {addressEditMode === 'eth' ? (
+                  <div className="space-y-2">
+                    <Input
+                      placeholder="New ETH address"
+                      value={ethAddress}
+                      onChange={(e) => setEthAddress(e.target.value)}
+                      className="h-8 text-sm"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => {
+                          if (ethAddress) {
+                            updateGlobalAddressMutation.mutate({ 
+                              currency: 'ETH', 
+                              address: ethAddress 
+                            });
+                          }
+                        }}
+                        size="sm"
+                        className="flex-1 h-7 text-xs"
+                        disabled={!ethAddress}
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setAddressEditMode(null);
+                          setEthAddress("");
+                        }}
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs"
+                      >
+                        Cancel
+                      </Button>
                     </div>
-                  ) : (
-                    <code className="text-xs bg-background p-2 rounded block break-all">
+                  </div>
+                ) : (
+                  <div className="bg-muted/50 rounded p-2">
+                    <p className="text-xs font-mono break-all">
                       {globalAddresses?.eth || '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb'}
-                    </code>
-                  )}
-                </div>
+                    </p>
+                  </div>
+                )}
               </div>
 
-              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded p-3">
+              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded p-2">
                 <div className="flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-yellow-500 mt-0.5" />
-                  <div className="text-xs text-yellow-500">
-                    <p className="font-semibold mb-1">Important:</p>
-                    <p>Changing deposit addresses will affect all users immediately. Make sure the new addresses are correct before updating.</p>
-                  </div>
+                  <AlertCircle className="w-3 h-3 text-yellow-500 mt-0.5" />
+                  <p className="text-xs text-yellow-500">
+                    Changing addresses affects all users immediately
+                  </p>
                 </div>
               </div>
-            </CardContent>
+            </div>
           </Card>
-        </div>
+        )}
       </div>
 
       {/* Deposit Verification Dialog */}
       <Dialog open={!!editingDeposit} onOpenChange={() => setEditingDeposit(null)}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Verify Deposit</DialogTitle>
-            <DialogDescription>
-              Review and verify the deposit amount
-            </DialogDescription>
+            <DialogTitle className="text-base">Verify Deposit</DialogTitle>
           </DialogHeader>
           {editingDeposit && (
-            <div className="space-y-4">
-              <div className="bg-muted rounded-lg p-3 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">User:</span>
-                  <span className="font-semibold">{editingDeposit.user?.username}</span>
+            <div className="space-y-3">
+              <div className="bg-muted rounded p-2 space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">User:</span>
+                  <span>{editingDeposit.user?.username}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Network:</span>
-                  <span>{editingDeposit.network}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Claimed Amount:</span>
-                  <span className="font-bold text-destructive">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Claimed:</span>
+                  <span className="font-semibold text-destructive">
                     {editingDeposit.currency === 'ETH' ? 
-                      `${parseFloat(editingDeposit.amount).toFixed(8)} ETH` : 
+                      `${parseFloat(editingDeposit.amount).toFixed(6)} ETH` : 
                       `$${parseFloat(editingDeposit.amount).toFixed(2)}`
                     }
                   </span>
@@ -951,31 +899,40 @@ export default function AdminPage() {
               </div>
               
               <div>
-                <Label>Transaction Hash</Label>
-                <div className="bg-muted p-2 rounded text-xs font-mono break-all">
-                  {editingDeposit.txHash}
+                <Label className="text-xs">TX Hash</Label>
+                <div className="bg-muted p-2 rounded mt-1">
+                  <div className="flex items-center gap-1">
+                    <p className="text-xs font-mono truncate flex-1">{editingDeposit.txHash}</p>
+                    <Button
+                      onClick={() => handleCopyHash(editingDeposit.txHash, editingDeposit.id)}
+                      size="sm"
+                      variant="ghost"
+                      className="h-6 w-6 p-0"
+                    >
+                      {copiedHash === editingDeposit.id ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                    </Button>
+                  </div>
                 </div>
               </div>
               
               <div>
-                <Label>Verified Amount</Label>
+                <Label className="text-xs">Verified Amount</Label>
                 <Input
                   type="number"
                   step="0.01"
-                  placeholder={editingDeposit.currency === 'ETH' ? "Enter verified ETH amount" : "Enter verified amount in USD"}
+                  placeholder={editingDeposit.currency === 'ETH' ? "ETH amount" : "USD amount"}
                   value={actualAmount}
                   onChange={(e) => setActualAmount(e.target.value)}
-                  className="mt-1"
+                  className="h-8 text-sm mt-1"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Enter the actual amount confirmed on blockchain
-                </p>
               </div>
               
-              <DialogFooter>
+              <DialogFooter className="gap-2">
                 <Button
                   onClick={() => setEditingDeposit(null)}
                   variant="outline"
+                  size="sm"
+                  className="flex-1"
                 >
                   Cancel
                 </Button>
@@ -989,11 +946,10 @@ export default function AdminPage() {
                     }
                   }}
                   disabled={!actualAmount || approveDepositMutation.isPending}
+                  size="sm"
+                  className="flex-1"
                 >
-                  {approveDepositMutation.isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  ) : null}
-                  Approve Deposit
+                  Approve
                 </Button>
               </DialogFooter>
             </div>
@@ -1003,31 +959,24 @@ export default function AdminPage() {
 
       {/* Withdrawal Processing Dialog */}
       <Dialog open={!!editingWithdrawal} onOpenChange={() => setEditingWithdrawal(null)}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Process Withdrawal</DialogTitle>
-            <DialogDescription>
-              Complete the withdrawal transaction
-            </DialogDescription>
+            <DialogTitle className="text-base">Process Withdrawal</DialogTitle>
           </DialogHeader>
           {editingWithdrawal && (
-            <div className="space-y-4">
-              <div className="bg-muted rounded-lg p-3 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">User:</span>
-                  <span className="font-semibold">{editingWithdrawal.user?.username}</span>
+            <div className="space-y-3">
+              <div className="bg-muted rounded p-2 space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">User:</span>
+                  <span>{editingWithdrawal.user?.username}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Network:</span>
-                  <span>{editingWithdrawal.network}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Amount:</span>
-                  <span className="font-bold">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Amount:</span>
+                  <span className="font-semibold">
                     {editingWithdrawal.currency === 'ETH' ? 
-                      `${parseFloat(editingWithdrawal.amount).toFixed(8)} ETH` :
+                      `${parseFloat(editingWithdrawal.amount).toFixed(6)} ETH` :
                       editingWithdrawal.currency === 'GBTC' ?
-                      `${parseFloat(editingWithdrawal.amount).toFixed(8)} GBTC` :
+                      `${parseFloat(editingWithdrawal.amount).toFixed(6)} GBTC` :
                       `${parseFloat(editingWithdrawal.amount).toFixed(2)} USDT`
                     }
                   </span>
@@ -1035,29 +984,28 @@ export default function AdminPage() {
               </div>
               
               <div>
-                <Label>Destination Address</Label>
-                <div className="bg-muted p-2 rounded text-xs font-mono break-all">
+                <Label className="text-xs">Destination Address</Label>
+                <div className="bg-muted p-2 rounded mt-1 text-xs font-mono break-all">
                   {editingWithdrawal.address}
                 </div>
               </div>
               
               <div>
-                <Label>Transaction Hash (Optional)</Label>
+                <Label className="text-xs">TX Hash (Optional)</Label>
                 <Input
-                  placeholder="Enter blockchain transaction hash"
+                  placeholder="Transaction hash"
                   value={txHashInput}
                   onChange={(e) => setTxHashInput(e.target.value)}
-                  className="mt-1"
+                  className="h-8 text-sm mt-1"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Enter the transaction hash after sending funds
-                </p>
               </div>
               
-              <DialogFooter>
+              <DialogFooter className="gap-2">
                 <Button
                   onClick={() => setEditingWithdrawal(null)}
                   variant="outline"
+                  size="sm"
+                  className="flex-1"
                 >
                   Cancel
                 </Button>
@@ -1069,11 +1017,10 @@ export default function AdminPage() {
                     });
                   }}
                   disabled={approveWithdrawalMutation.isPending}
+                  size="sm"
+                  className="flex-1"
                 >
-                  {approveWithdrawalMutation.isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  ) : null}
-                  Complete Withdrawal
+                  Complete
                 </Button>
               </DialogFooter>
             </div>
@@ -1083,63 +1030,62 @@ export default function AdminPage() {
 
       {/* User Balance Edit Dialog */}
       <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Edit User Balances</DialogTitle>
-            <DialogDescription>
-              Update {selectedUser?.username}'s account balances
-            </DialogDescription>
+            <DialogTitle className="text-base">Edit {selectedUser?.username} Balances</DialogTitle>
           </DialogHeader>
           {selectedUser && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <Label>USDT Balance</Label>
+                <Label className="text-xs">USDT Balance</Label>
                 <Input
                   type="number"
                   step="0.01"
                   value={userBalanceEdit.usdt}
                   onChange={(e) => setUserBalanceEdit(prev => ({ ...prev, usdt: e.target.value }))}
-                  className="mt-1"
+                  className="h-8 text-sm mt-1"
                 />
               </div>
               
               <div>
-                <Label>ETH Balance</Label>
+                <Label className="text-xs">ETH Balance</Label>
                 <Input
                   type="number"
                   step="0.00000001"
                   value={userBalanceEdit.eth}
                   onChange={(e) => setUserBalanceEdit(prev => ({ ...prev, eth: e.target.value }))}
-                  className="mt-1"
+                  className="h-8 text-sm mt-1"
                 />
               </div>
               
               <div>
-                <Label>GBTC Balance</Label>
+                <Label className="text-xs">GBTC Balance</Label>
                 <Input
                   type="number"
                   step="0.00000001"
                   value={userBalanceEdit.gbtc}
                   onChange={(e) => setUserBalanceEdit(prev => ({ ...prev, gbtc: e.target.value }))}
-                  className="mt-1"
+                  className="h-8 text-sm mt-1"
                 />
               </div>
               
               <div>
-                <Label>Hash Power (TH/s)</Label>
+                <Label className="text-xs">Hash Power (TH/s)</Label>
                 <Input
                   type="number"
                   step="0.01"
                   value={userBalanceEdit.hashPower}
                   onChange={(e) => setUserBalanceEdit(prev => ({ ...prev, hashPower: e.target.value }))}
-                  className="mt-1"
+                  className="h-8 text-sm mt-1"
                 />
               </div>
               
-              <DialogFooter>
+              <DialogFooter className="gap-2">
                 <Button
                   onClick={() => setSelectedUser(null)}
                   variant="outline"
+                  size="sm"
+                  className="flex-1"
                 >
                   Cancel
                 </Button>
@@ -1156,11 +1102,10 @@ export default function AdminPage() {
                     });
                   }}
                   disabled={updateUserBalanceMutation.isPending}
+                  size="sm"
+                  className="flex-1"
                 >
-                  {updateUserBalanceMutation.isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  ) : null}
-                  Update Balances
+                  Update
                 </Button>
               </DialogFooter>
             </div>
