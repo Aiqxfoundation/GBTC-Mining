@@ -31,7 +31,7 @@ export default function DepositPage() {
       const res = await apiRequest('GET', '/api/deposits/cooldown');
       return res.json();
     },
-    refetchInterval: 60000 // Refresh every minute
+    staleTime: 60000 // Consider data fresh for 1 minute
   });
 
   // Update countdown timer

@@ -8,7 +8,8 @@ export default function MyMiners() {
   // Fetch miners data
   const { data: minersData, isLoading } = useQuery({
     queryKey: ["/api/my-miners"],
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 60000, // Refresh every minute
+    staleTime: 30000 // Consider data fresh for 30 seconds
   });
 
   const activeMiners = minersData?.miners?.filter((m: any) => m.isActive) || [];

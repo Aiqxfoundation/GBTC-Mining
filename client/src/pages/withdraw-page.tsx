@@ -35,7 +35,7 @@ export default function WithdrawPage() {
       }
       return data;
     },
-    refetchInterval: 60000 // Refresh every minute
+    staleTime: 60000 // Consider data fresh for 1 minute
   });
 
   // Update countdown timer with seconds precision

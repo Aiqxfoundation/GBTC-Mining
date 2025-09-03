@@ -25,7 +25,8 @@ export default function GlobalPage() {
   // Fetch real global statistics
   const { data: stats, isLoading } = useQuery<GlobalStats>({
     queryKey: ["/api/global-stats"],
-    refetchInterval: 5000, // Refresh every 5 seconds for live updates
+    refetchInterval: 60000, // Refresh every minute for updates
+    staleTime: 30000 // Consider data fresh for 30 seconds
   });
 
   if (isLoading) {
