@@ -117,26 +117,26 @@ export default function PurchasePowerPage() {
   };
 
   return (
-    <div className="mobile-page bg-gradient-to-b from-black via-gray-900 to-black relative overflow-hidden">
+    <div className="mobile-page bg-white relative overflow-hidden">
       {/* Bitcoin Pattern Background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-orange-950/20 via-black to-orange-950/10 pointer-events-none"></div>
+      <div className="fixed inset-0 bg-gradient-to-br from-orange-50 via-white to-orange-50 pointer-events-none"></div>
 
       {/* Header - Bitcoin Style */}
-      <div className="mobile-header bg-black border-b border-orange-900/30 shadow-lg shadow-orange-500/10">
+      <div className="mobile-header bg-gradient-to-r from-orange-500 to-orange-600 border-b-2 border-orange-600 shadow-lg">
         <div>
-          <h1 className="text-xl font-bold text-orange-500 flex items-center">
+          <h1 className="text-xl font-bold text-white flex items-center">
             <span className="text-2xl mr-2">₿</span> HASH POWER
           </h1>
-          <p className="text-xs text-orange-500/60 font-mono">
+          <p className="text-xs text-white/80 font-mono">
             1 USDT = 1 GH/s
           </p>
         </div>
         <div className="text-right">
           <div className="flex items-center justify-end space-x-1 mb-1">
-            <Gauge className="w-3 h-3 text-orange-500" />
-            <p className="text-xs text-orange-500/60 font-mono">CURRENT</p>
+            <Gauge className="w-3 h-3 text-white" />
+            <p className="text-xs text-white/80 font-mono">CURRENT</p>
           </div>
-          <p className="text-lg font-bold text-orange-500">
+          <p className="text-lg font-bold text-white">
             {getHashrateDisplay(currentHashrate)}
           </p>
         </div>
@@ -145,30 +145,30 @@ export default function PurchasePowerPage() {
       {/* Main Content */}
       <div className="mobile-content">
         {/* Bitcoin Style Balance Card */}
-        <Card className="mb-4 bg-gradient-to-r from-gray-900 to-black border-orange-500/20 shadow-xl shadow-orange-500/10">
+        <Card className="mb-4 bg-white border-2 border-orange-200 shadow-lg">
           <div className="p-4">
             <div className="grid grid-cols-2 gap-4">
               {/* USDT Balance */}
-              <div className="bg-black/50 rounded-lg p-3 border border-green-500/20">
+              <div className="bg-green-50 rounded-lg p-3 border-2 border-green-300">
                 <div className="flex items-center justify-between mb-2">
-                  <Coins className="w-4 h-4 text-green-500" />
-                  <span className="text-xs text-green-500/60 font-mono">USDT</span>
+                  <Coins className="w-4 h-4 text-green-600" />
+                  <span className="text-xs text-green-700 font-mono font-bold">USDT</span>
                 </div>
-                <p className="text-2xl font-bold text-green-500">
+                <p className="text-2xl font-bold text-green-600">
                   ${usdtBalance.toFixed(2)}
                 </p>
-                <p className="text-xs text-green-500/60 mt-1">Available</p>
+                <p className="text-xs text-green-600 mt-1">Available</p>
               </div>
               {/* Current Hashrate */}
-              <div className="bg-black/50 rounded-lg p-3 border border-orange-500/20">
+              <div className="bg-orange-50 rounded-lg p-3 border-2 border-orange-300">
                 <div className="flex items-center justify-between mb-2">
-                  <Hash className="w-4 h-4 text-orange-500" />
-                  <span className="text-xs text-orange-500/60 font-mono">POWER</span>
+                  <Hash className="w-4 h-4 text-orange-600" />
+                  <span className="text-xs text-orange-700 font-mono font-bold">POWER</span>
                 </div>
-                <p className="text-xl font-bold text-orange-500">
+                <p className="text-xl font-bold text-orange-600">
                   {currentHashrate.toFixed(0)}
                 </p>
-                <p className="text-xs text-orange-500/60 mt-1">GH/s</p>
+                <p className="text-xs text-orange-600 mt-1">GH/s</p>
               </div>
             </div>
           </div>
@@ -176,14 +176,14 @@ export default function PurchasePowerPage() {
 
         {/* Purchase Card with Bitcoin Theme */}
         <div>
-          <Card className="bg-black border-orange-500/20 shadow-xl shadow-orange-500/10">
-            <CardHeader className="pb-4 bg-gradient-to-r from-orange-950/20 to-black">
+          <Card className="bg-white border-2 border-orange-200 shadow-lg">
+            <CardHeader className="pb-4 bg-gradient-to-r from-orange-100 to-orange-50">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-lg font-bold text-orange-500">
+                  <CardTitle className="text-lg font-bold text-gray-800">
                     Buy Hash Power
                   </CardTitle>
-                  <CardDescription className="text-xs text-orange-500/60">
+                  <CardDescription className="text-xs text-gray-600">
                     Invest USDT to increase your mining power
                   </CardDescription>
                 </div>
@@ -196,7 +196,7 @@ export default function PurchasePowerPage() {
             <div className="space-y-4">
               {/* Input Section with Bitcoin Style */}
               <div className="relative">
-                <label className="text-xs text-muted-foreground mb-2 block font-mono uppercase">Amount (USDT)</label>
+                <label className="text-sm text-gray-700 mb-2 block font-bold">AMOUNT (USDT)</label>
                 <div className="relative">
                   <div className="flex gap-2">
                     <div className="relative flex-1">
@@ -205,24 +205,24 @@ export default function PurchasePowerPage() {
                         value={customAmount}
                         onChange={(e) => setCustomAmount(e.target.value)}
                         placeholder="Enter amount..."
-                        className="bg-black/50 border-primary/30 text-white pl-8 font-mono focus:border-primary focus:ring-2 focus:ring-primary/20"
+                        className="bg-white border-2 border-orange-300 text-gray-800 pl-8 font-mono text-lg font-bold focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
                         min={1}
                         max={Math.floor(usdtBalance)}
                         data-testid="input-custom-amount"
                       />
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary text-sm">$</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-orange-500 text-lg font-bold">$</span>
                     </div>
                     <Button 
                       variant="outline" 
-                      className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary font-mono"
+                      className="border-2 border-orange-500 text-orange-500 hover:bg-orange-50 font-bold"
                       onClick={() => setCustomAmount(Math.floor(usdtBalance).toString())}
                     >
                       MAX
                     </Button>
                   </div>
                   <div className="flex justify-between mt-2">
-                    <p className="text-xs text-muted-foreground font-mono">Min: 1 USDT</p>
-                    <p className="text-xs text-muted-foreground font-mono">Max: ${Math.floor(usdtBalance)} USDT</p>
+                    <p className="text-xs text-gray-600 font-semibold">Min: 1 USDT</p>
+                    <p className="text-xs text-gray-600 font-semibold">Max: ${Math.floor(usdtBalance)} USDT</p>
                   </div>
                 </div>
               </div>
@@ -230,42 +230,42 @@ export default function PurchasePowerPage() {
               {/* Calculation Display with Bitcoin Animation */}
               {selectedAmount > 0 && (
                 <div>
-                  <Card className="bg-black/50 border-orange-500/30">
+                  <Card className="bg-orange-50 border-2 border-orange-300">
                     <CardContent className="p-3">
                       <div className="space-y-4">
                         {/* Purchase Summary with Icons */}
                         <div className="grid grid-cols-2 gap-2 text-center">
-                          <div className="bg-red-950/20 border border-red-500/30 rounded p-2">
-                            <p className="text-xs text-red-500/80 mb-1">You Pay</p>
-                            <p className="text-lg font-bold text-red-500">${selectedAmount}</p>
-                            <p className="text-xs text-red-500/60">USDT</p>
+                          <div className="bg-red-100 border-2 border-red-400 rounded p-2">
+                            <p className="text-xs text-red-700 font-bold mb-1">You Pay</p>
+                            <p className="text-lg font-bold text-red-600">${selectedAmount}</p>
+                            <p className="text-xs text-red-600 font-semibold">USDT</p>
                           </div>
-                          <div className="bg-green-950/20 border border-green-500/30 rounded p-2">
-                            <p className="text-xs text-green-500/80 mb-1">You Get</p>
-                            <p className="text-lg font-bold text-green-500">
+                          <div className="bg-green-100 border-2 border-green-400 rounded p-2">
+                            <p className="text-xs text-green-700 font-bold mb-1">You Get</p>
+                            <p className="text-lg font-bold text-green-600">
                               {getHashrateDisplay(selectedAmount).split(' ')[0]}
                             </p>
-                            <p className="text-xs text-green-500/60">
+                            <p className="text-xs text-green-600 font-semibold">
                               {getHashrateDisplay(selectedAmount).split(' ')[1]}
                             </p>
                           </div>
                         </div>
 
-                        <div className="h-px bg-orange-500/20"></div>
+                        <div className="h-px bg-orange-300"></div>
 
                         {/* After Purchase Stats */}
-                        <div className="bg-orange-950/10 border border-orange-500/20 rounded p-3">
-                          <p className="text-xs text-orange-500 font-mono mb-2">AFTER PURCHASE</p>
+                        <div className="bg-white border-2 border-orange-400 rounded p-3">
+                          <p className="text-sm text-orange-600 font-bold mb-2">AFTER PURCHASE</p>
                           <div className="space-y-1">
                             <div className="flex justify-between items-center">
-                              <span className="text-xs text-orange-500/60">Total Power:</span>
-                              <span className="text-sm font-bold text-orange-500">
+                              <span className="text-sm text-gray-600">Total Power:</span>
+                              <span className="text-sm font-bold text-orange-600">
                                 {getHashrateDisplay(afterPurchaseHashrate)}
                               </span>
                             </div>
                             <div className="flex justify-between items-center">
-                              <span className="text-xs text-orange-500/60">Est. Daily:</span>
-                              <span className="text-sm font-bold text-green-500">
+                              <span className="text-sm text-gray-600">Est. Daily:</span>
+                              <span className="text-sm font-bold text-green-600">
                                 ~{afterPurchaseRewards.dailyReward} GBTC
                               </span>
                             </div>
@@ -282,7 +282,7 @@ export default function PurchasePowerPage() {
                 <Button
                   onClick={handlePurchase}
                   disabled={purchasePowerMutation.isPending || selectedAmount > usdtBalance || selectedAmount < 1}
-                  className="w-full h-12 font-bold bg-orange-500 hover:bg-orange-600 text-black disabled:opacity-50 shadow-lg shadow-orange-500/30"
+                  className="w-full h-12 font-bold bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white disabled:opacity-50 shadow-lg"
                   data-testid="button-confirm-purchase"
                 >
                   {purchasePowerMutation.isPending ? (
@@ -302,9 +302,11 @@ export default function PurchasePowerPage() {
               </div>
 
               {selectedAmount > usdtBalance && (
-                <p className="text-xs text-red-500 text-center">
-                  Insufficient balance. You need ${(selectedAmount - usdtBalance).toFixed(2)} more USDT.
-                </p>
+                <div className="bg-red-100 border-2 border-red-400 rounded p-2 mt-2">
+                  <p className="text-sm text-red-600 font-semibold text-center">
+                    Insufficient balance. You need ${(selectedAmount - usdtBalance).toFixed(2)} more USDT.
+                  </p>
+                </div>
               )}
             </div>
             </CardContent>
@@ -312,29 +314,29 @@ export default function PurchasePowerPage() {
         </div>
 
         {/* Info Card - Bitcoin Style */}
-        <Card className="mt-4 bg-black border-orange-500/20">
+        <Card className="mt-4 bg-orange-50 border-2 border-orange-200">
           <CardContent className="p-3">
             <div className="flex items-start space-x-2">
-              <Calculator className="w-4 h-4 text-orange-500 mt-0.5" />
-              <div className="space-y-1 text-xs">
-                <p className="text-orange-500/80">• Hash power starts mining immediately</p>
-                <p className="text-orange-500/80">• Rewards distributed every 1 hour</p>
-                <p className="text-orange-500/80">• No maintenance fees</p>
-                <p className="text-orange-500/80">• Permanent ownership</p>
+              <Calculator className="w-4 h-4 text-orange-600 mt-0.5" />
+              <div className="space-y-1 text-sm">
+                <p className="text-gray-700">• Hash power starts mining immediately</p>
+                <p className="text-gray-700">• Rewards distributed every 1 hour</p>
+                <p className="text-gray-700">• No maintenance fees</p>
+                <p className="text-gray-700">• Permanent ownership</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
         {/* Important Note - Bitcoin Warning */}
-        <Card className="mt-3 bg-yellow-950/20 border-yellow-600/30">
+        <Card className="mt-3 bg-yellow-50 border-2 border-yellow-400">
           <CardContent className="p-3">
             <div className="text-xs space-y-1">
-              <p className="font-bold text-yellow-500 flex items-center">
+              <p className="font-bold text-yellow-700 flex items-center">
                 <Activity className="w-3 h-3 mr-1" />
                 * Important Note:
               </p>
-              <p className="text-yellow-500/70 leading-relaxed">
+              <p className="text-gray-600 leading-relaxed">
                 Your estimated GBTC rewards are based on the current global hashrate. As more miners join and total network hashrate increases, the difficulty increases and rewards are fairly distributed based on each user's hash contribution to the network.
               </p>
             </div>
