@@ -47,8 +47,8 @@ const BtcSlider = ({ value, onValueChange, min, max, step, className }: any) => 
     <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-gray-700">
       <SliderPrimitive.Range className="absolute h-full bg-gradient-to-r from-[#f7931a] to-[#ffb347]" />
     </SliderPrimitive.Track>
-    <SliderPrimitive.Thumb className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[#f7931a] bg-black shadow-lg ring-offset-background transition-all hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
-      <Bitcoin className="h-4 w-4 text-[#f7931a]" />
+    <SliderPrimitive.Thumb className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f7931a] shadow-lg ring-offset-background transition-all hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+      <span className="text-black font-bold text-lg">₿</span>
     </SliderPrimitive.Thumb>
   </SliderPrimitive.Root>
 );
