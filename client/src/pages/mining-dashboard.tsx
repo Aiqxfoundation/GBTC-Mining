@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useLocation } from "wouter";
-import bitcoinLogo from "@assets/file_00000000221c61fab63936953b889556_1756633909848.png";
 
 interface SupplyMetrics {
   totalMined: string;
@@ -38,7 +37,7 @@ export default function MiningDashboard() {
   // Fetch supply metrics
   const { data: supplyMetrics } = useQuery<SupplyMetrics>({
     queryKey: ['/api/supply-metrics'],
-    refetchInterval: 60000 // Refresh every minute
+    refetchInterval: 120000 // Optimized refresh rate
   });
 
   // Calculate hours since last claim

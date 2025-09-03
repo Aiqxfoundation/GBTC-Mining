@@ -774,14 +774,11 @@ async function initializeStorage() {
   const dbAvailable = await testDatabaseConnection();
   
   if (dbAvailable) {
-    console.log('Using PostgreSQL database storage');
+    // Using PostgreSQL database
     storage = new DatabaseStorage();
     isUsingMemoryStorage = false;
   } else {
-    console.log('Database unavailable - using in-memory storage (data will be lost on restart)');
-    console.log('Note: Default accounts created:');
-    console.log('- Admin: username: admin, PIN: 123456, GBTC: 50, USDT: 10000');
-    console.log('- Test User: username: tempuser, PIN: 123456, GBTC: 5, USDT: 1000');
+    // Using in-memory storage - default accounts created
     storage = new MemoryStorage();
     isUsingMemoryStorage = true;
   }
@@ -796,14 +793,11 @@ export async function initStorage() {
   const dbAvailable = await testDatabaseConnection();
   
   if (dbAvailable) {
-    console.log('Using PostgreSQL database storage');
+    // Using PostgreSQL database
     storage = new DatabaseStorage();
     isUsingMemoryStorage = false;
   } else {
-    console.log('Database unavailable - using in-memory storage (data will be lost on restart)');
-    console.log('Note: Default accounts created:');
-    console.log('- Admin: username: admin, PIN: 123456, GBTC: 50, USDT: 10000');
-    console.log('- Test User: username: tempuser, PIN: 123456, GBTC: 5, USDT: 1000');
+    // Using in-memory storage - default accounts created
     storage = new MemoryStorage();
     isUsingMemoryStorage = true;
   }

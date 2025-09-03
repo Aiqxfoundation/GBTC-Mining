@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "wouter";
-import bitcoinLogo from "@assets/file_00000000221c61fab63936953b889556_1756633909848.png";
 
 export default function MiningPage() {
   const { user, logoutMutation } = useAuth();
@@ -36,7 +35,7 @@ export default function MiningPage() {
     const interval = setInterval(() => {
       setGlobalHashRate(prev => prev + (Math.random() - 0.5) * 10);
       setNetworkDifficulty(prev => Math.max(1, prev + (Math.random() - 0.5) * 0.01));
-    }, 5000);
+    }, 15000); // Optimized update interval
 
     return () => clearInterval(interval);
   }, []);
@@ -73,7 +72,9 @@ export default function MiningPage() {
             <div className="flex items-center space-x-4">
               <div className="relative">
                 <div className="w-12 h-12 cyber-border rounded-xl flex items-center justify-center glow-bitcoin">
-                  <img src={bitcoinLogo} alt="GBTC" className="w-8 h-8 mining-pulse" />
+                  <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center mining-pulse">
+                    <span className="text-white font-bold text-xs">₿</span>
+                  </div>
                 </div>
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full mining-pulse"></div>
               </div>
@@ -229,7 +230,9 @@ export default function MiningPage() {
                 <div className="relative">
                   {/* Main mining block */}
                   <div className="w-32 h-32 block-3d cyber-border rounded-xl bg-gradient-to-br from-primary/20 to-chart-4/20 flex items-center justify-center relative">
-                    <img src={bitcoinLogo} alt="Mining Block" className="w-16 h-16 mining-float" />
+                    <div className="w-16 h-16 bg-orange-500 rounded-lg flex items-center justify-center mining-float">
+                      <span className="text-white font-bold text-2xl">₿</span>
+                    </div>
                     
                     {/* Mining particles around the block */}
                     <div className="absolute -top-2 -left-2 w-4 h-4 bg-primary rounded-full mining-pulse"></div>
@@ -276,7 +279,9 @@ export default function MiningPage() {
                       <div key={i} className="flex items-center justify-between p-4 bg-background/50 rounded-lg border border-primary/20">
                         <div className="flex items-center space-x-4">
                           <div className="w-10 h-10 cyber-border rounded-lg flex items-center justify-center">
-                            <img src={bitcoinLogo} alt="Block" className="w-6 h-6" />
+                            <div className="w-6 h-6 bg-orange-500 rounded flex items-center justify-center">
+                              <span className="text-white font-bold text-xs">₿</span>
+                            </div>
                           </div>
                           <div>
                             <p className="font-display font-bold text-foreground">Block #{blockNum}</p>

@@ -11,13 +11,13 @@ let lastResetDate: string | null = null;
 export function setupMining() {
   // Initialize block reward from database (non-blocking)
   initializeSettings().catch(err => {
-    console.log('Mining initialization will retry automatically');
+    // Silent retry
   });
   
   // Generate a new block AND distribute rewards every 5 minutes for testing
   // Change back to "0 * * * *" for production (hourly)
   cron.schedule("*/5 * * * *", async () => {
-    console.log('Running scheduled block generation and reward distribution...');
+    // Block generation running
     await generateBlock();
     await distributeRewards();
   });
@@ -32,7 +32,7 @@ export function setupMining() {
   
   // Generate an initial block after 10 seconds to kickstart the system
   setTimeout(async () => {
-    console.log('Generating initial block to kickstart mining system...');
+    // Initial block generation
     await generateBlock();
     await distributeRewards();
   }, 10000);
@@ -58,7 +58,7 @@ async function dailyReset() {
   try {
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     
-    console.log(`Performing daily block reset at ${new Date().toISOString()}`);
+    // Daily reset
     
     // Reset daily block number to 1
     dailyBlockNumber = 1;
@@ -68,7 +68,7 @@ async function dailyReset() {
     await storage.setSystemSetting("lastResetDate", today);
     lastResetDate = today;
     
-    console.log(`Daily reset complete. Block counter reset to 1. Total blocks: ${totalBlockHeight}`);
+    // Reset complete
   } catch (error) {
     console.error("Error during daily reset:", error);
   }
@@ -137,7 +137,7 @@ async function generateBlock() {
     const totalMinedNum = parseFloat(totalMined);
     
     if (totalMinedNum >= MAX_SUPPLY) {
-      console.log(`Max supply of ${MAX_SUPPLY} GBTC reached. Mining has ended.`);
+      // Max supply reached
       return;
     }
     
@@ -146,7 +146,7 @@ async function generateBlock() {
       // Adjust the final block reward to exactly reach max supply
       currentBlockReward = MAX_SUPPLY - totalMinedNum;
       await storage.setSystemSetting("blockReward", currentBlockReward.toString());
-      console.log(`Final block reward adjusted to ${currentBlockReward} GBTC to reach exact max supply`);
+      // Final block adjustment
     }
     
     const totalHashPower = await storage.getTotalHashPower();
@@ -166,8 +166,7 @@ async function generateBlock() {
       await storage.setSystemSetting("blockNumber", dailyBlockNumber.toString());
       await storage.setSystemSetting("totalBlockHeight", totalBlockHeight.toString());
       
-      console.log(`Block #${dailyBlockNumber - 1} (Total: ${totalBlockHeight}) mined with reward ${currentBlockReward} GBTC`);
-      console.log(`Total mined: ${(totalMinedNum + currentBlockReward).toFixed(8)}/${MAX_SUPPLY} GBTC (${((totalMinedNum + currentBlockReward) / MAX_SUPPLY * 100).toFixed(2)}%)`);
+      // Block mined successfully
       
       // Check for halving every 6 months (4,200 blocks at 1 hour per block)
       if (totalBlockHeight % HALVING_INTERVAL === 0 && currentBlockReward > 0) {
@@ -176,7 +175,7 @@ async function generateBlock() {
     }
   } catch (error: any) {
     if (error?.message?.includes('endpoint has been disabled') || error?.code === 'XX000') {
-      console.log('Database temporarily unavailable for block generation, will retry next cycle');
+      // Database temporarily unavailable
     } else {
       console.error("Error generating block:", error);
     }
@@ -197,7 +196,7 @@ async function distributeRewards() {
     }
     
     const currentBlock = dailyBlockNumber - 1;
-    console.log(`Block ${currentBlock} distributing ${currentBlockReward} GBTC across ${totalHashPowerNum} TH/s`);
+    // Distributing block rewards
     
     // Get all users from storage interface (works with both memory and database)
     const allUsers = await storage.getAllUsers();
@@ -214,11 +213,11 @@ async function distributeRewards() {
     const eligibleHashPower = eligibleUsers.reduce((sum, u) => sum + parseFloat(u.hashPower || "0"), 0);
     
     if (eligibleHashPower === 0) {
-      console.log(`No eligible miners for block ${currentBlock} - no users have hash power`);
+      // No eligible miners
       return;
     }
     
-    console.log(`Found ${eligibleUsers.length} eligible miners with total hash power: ${eligibleHashPower} GH/s`);
+    // Processing eligible miners
     
     // Create unclaimed blocks for each eligible user based on their hash power share
     for (const user of eligibleUsers) {
@@ -238,7 +237,7 @@ async function distributeRewards() {
           userReward
         );
         
-        console.log(`Reward created for user ${user.username}: ${userReward} GBTC (${userHashPower} GH/s)`);
+        // Reward created
       }
     }
     
@@ -248,7 +247,7 @@ async function distributeRewards() {
     await storage.expireOldBlocks();
   } catch (error: any) {
     if (error?.message?.includes('endpoint has been disabled') || error?.code === 'XX000') {
-      console.log('Database temporarily unavailable for reward distribution, will retry next cycle');
+      // Database temporarily unavailable
     } else {
       console.error("Error distributing rewards:", error);
     }
@@ -266,7 +265,7 @@ export async function halveBlockReward() {
     if (totalMinedNum >= MAX_SUPPLY) {
       currentBlockReward = 0;
       await storage.setSystemSetting("blockReward", "0");
-      console.log(`Max supply reached. Block reward set to 0.`);
+      // Max supply reached
       return 0;
     }
     

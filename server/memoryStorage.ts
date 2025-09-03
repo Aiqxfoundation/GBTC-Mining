@@ -56,7 +56,7 @@ export class MemoryStorage implements IStorage {
       username: 'admin',
       password: hashedPassword,
       referralCode: 'ADM1N0X7',
-      referredBy: undefined,
+      referredBy: null,
       usdtBalance: '10000.00',
       hashPower: '104.50', // 100 base + 4.5 bonus from referrals
       baseHashPower: '100.00',
@@ -83,7 +83,7 @@ export class MemoryStorage implements IStorage {
       username: 'tempuser',
       password: tempHashedPassword,
       referralCode: 'TEMP1234',
-      referredBy: undefined,
+      referredBy: null,
       usdtBalance: '1000.00',
       hashPower: '10.00',
       baseHashPower: '10.00',
@@ -100,7 +100,7 @@ export class MemoryStorage implements IStorage {
     this.users.set(tempUserId, tempUser);
     this.usersByUsername.set('tempuser', tempUserId);
     
-    console.log('Test user created: username: tempuser, PIN: 123456');
+    // Test user created
     
     // Create test referral users for admin
     for (let i = 1; i <= 3; i++) {
@@ -136,7 +136,7 @@ export class MemoryStorage implements IStorage {
       
       this.users.set(refUserId, refUser);
       this.usersByUsername.set('refuser' + i, refUserId);
-      console.log(`Test referral user ${i} created: username: refuser${i}, PIN: 123456, referred by admin`);
+      // Referral user created
     }
     
     // Initialize system settings
@@ -154,10 +154,7 @@ export class MemoryStorage implements IStorage {
       updatedAt: new Date()
     });
     
-    console.log('Memory storage initialized with default users:');
-    console.log('- Admin: username: admin, PIN: 123456, GBTC: 50, USDT: 10000');
-    console.log('- Test User: username: tempuser, PIN: 123456, GBTC: 5, USDT: 1000');
-    console.log('- Referral Users (3): refuser1, refuser2, refuser3 - PIN: 123456, referred by admin');
+    // Memory storage initialized with default users
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -172,7 +169,7 @@ export class MemoryStorage implements IStorage {
 
   async getUsersByReferralCode(referralCode: string): Promise<User[]> {
     const referredUsers: User[] = [];
-    for (const user of this.users.values()) {
+    for (const user of Array.from(this.users.values())) {
       if (user.referredBy === referralCode) {
         referredUsers.push(user);
       }
@@ -181,7 +178,7 @@ export class MemoryStorage implements IStorage {
   }
 
   async findUserByOwnReferralCode(referralCode: string): Promise<User | null> {
-    for (const user of this.users.values()) {
+    for (const user of Array.from(this.users.values())) {
       if (user.referralCode === referralCode) {
         return user;
       }
@@ -216,7 +213,7 @@ export class MemoryStorage implements IStorage {
       username: insertUser.username,
       password: insertUser.password,
       referralCode,
-      referredBy: insertUser.referredBy || undefined,
+      referredBy: insertUser.referredBy || null,
       usdtBalance: '0.00',
       hashPower: '0.00',
       baseHashPower: '0.00',
@@ -224,7 +221,7 @@ export class MemoryStorage implements IStorage {
       gbtcBalance: '0.00000000',
       unclaimedBalance: '0.00000000',
       totalReferralEarnings: '0.00',
-      lastActiveBlock: undefined,
+      lastActiveBlock: null,
       isAdmin: false,
       isFrozen: false,
       createdAt: new Date()

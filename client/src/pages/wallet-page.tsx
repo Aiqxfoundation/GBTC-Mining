@@ -112,7 +112,7 @@ export default function WalletPage() {
   const { data: transactions } = useQuery<TransactionData>({
     queryKey: ["/api/transactions"],
     enabled: !!user && !!selectedAsset,
-    refetchInterval: 10000
+    refetchInterval: 30000 // Optimized for performance
   });
 
   // Combine and sort transactions for display - filter by asset type

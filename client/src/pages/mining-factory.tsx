@@ -35,7 +35,7 @@ export default function MiningFactory() {
     activeMiners: number;
   }>({
     queryKey: ["/api/global-stats"],
-    refetchInterval: 5000,
+    refetchInterval: 20000, // Optimized for performance
   });
 
   // Fetch unclaimed blocks
@@ -48,7 +48,7 @@ export default function MiningFactory() {
     claimed: boolean;
   }>>({
     queryKey: ["/api/unclaimed-blocks"],
-    refetchInterval: 30000, // Check every 30 seconds instead of 10
+    refetchInterval: 60000, // Optimized check interval
     enabled: !!user,
   });
 
