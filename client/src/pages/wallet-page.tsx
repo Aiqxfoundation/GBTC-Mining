@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, ChevronRight, Copy, CheckCircle } from "lucide-react";
+import { Loader2, ArrowLeft, ChevronRight, Copy, CheckCircle, RefreshCw, Bitcoin, TrendingUp } from "lucide-react";
 import { useLocation } from "wouter";
 
 interface Transaction {
@@ -49,6 +50,10 @@ export default function WalletPage() {
   const [currentUTCTime, setCurrentUTCTime] = useState("");
   const [depositCooldown, setDepositCooldown] = useState<number>(0);
   const [withdrawalCooldown, setWithdrawalCooldown] = useState<number>(0);
+  const [showConvertDialog, setShowConvertDialog] = useState(false);
+  const [convertFrom, setConvertFrom] = useState<'BTC' | 'USDT'>('BTC');
+  const [convertTo, setConvertTo] = useState<'BTC' | 'USDT'>('USDT');
+  const [convertAmount, setConvertAmount] = useState("");
 
   // Update UTC time every second and handle deposit cooldown
   useEffect(() => {
@@ -104,6 +109,21 @@ export default function WalletPage() {
   const usdtBalance = parseFloat(user?.usdtBalance || '0');
   const gbtcBalance = parseFloat(user?.gbtcBalance || '0');
   const ethBalance = parseFloat(user?.ethBalance || '0');
+  const btcBalance = parseFloat(user?.btcBalance || '0');
+
+  // Fetch BTC price (real-time)
+  const { data: btcPriceData } = useQuery<{
+    btcPrice: string;
+    hashratePrice: string;
+    requiredHashratePerBTC: string;
+    timestamp: string;
+  }>({
+    queryKey: ['/api/btc/prices'],
+    refetchInterval: 30000, // Refresh every 30 seconds
+    enabled: !!user,
+  });
+
+  const btcPrice = parseFloat(btcPriceData?.btcPrice || '111000');
 
   // Fetch global deposit addresses from API
   const { data: globalAddresses } = useQuery<{ usdt: string; eth: string; btc: string }>({
@@ -279,6 +299,34 @@ export default function WalletPage() {
     }
   });
 
+  // Conversion mutation
+  const convertMutation = useMutation({
+    mutationFn: async (data: { fromCurrency: string; toCurrency: string; amount: string }) => {
+      return apiRequest('/api/convert', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+      toast({
+        title: "Conversion Successful",
+        description: `Your ${convertFrom} has been converted to ${convertTo}`,
+        className: "bg-green-800 text-white",
+      });
+      setShowConvertDialog(false);
+      setConvertAmount("");
+      setSelectedAsset(null); // Go back to main view
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Conversion Failed",
+        description: error.message || "Failed to convert",
+        variant: "destructive",
+      });
+    },
+  });
+
   const transferMutation = useMutation({
     mutationFn: async (data: { toUsername: string; amount: string }) => {
       const res = await apiRequest("POST", "/api/transfer", data);
@@ -447,11 +495,11 @@ export default function WalletPage() {
             <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
               <div>
                 <p className="text-[#f7931a] text-xs">Balance</p>
-                <p className="text-white font-medium">0.00000000</p>
+                <p className="text-white font-medium">{btcBalance.toFixed(8)}</p>
               </div>
               <div>
-                <p className="text-[#f7931a] text-xs"></p>
-                <p className="text-white font-medium"></p>
+                <p className="text-[#f7931a] text-xs">Value (USD)</p>
+                <p className="text-white font-medium">${(btcBalance * btcPrice).toFixed(2)}</p>
               </div>
             </div>
           </Card>
@@ -593,22 +641,40 @@ export default function WalletPage() {
           </div>
         </div>
 
+        {/* Real-time Price Ticker for BTC */}
+        {selectedAsset === 'BTC' && (
+          <Card className="p-3 mb-4 bg-gradient-to-r from-[#f7931a]/20 to-[#f7931a]/10 border-[#f7931a]/30">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-[#f7931a]" />
+                <p className="text-xs text-gray-400">Live Price</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <p className="text-lg font-bold text-white">${btcPrice.toLocaleString()}</p>
+                <RefreshCw className="w-3 h-3 text-gray-500 animate-spin" />
+              </div>
+            </div>
+          </Card>
+        )}
+
         {/* Balance Info */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
             <p className="text-gray-500 text-xs mb-1">Balance</p>
             <p className="text-white font-medium">
-              {selectedAsset === 'BTC' ? '0.00000000' : selectedAsset === 'GBTC' ? gbtcBalance.toFixed(8) : usdtBalance.toFixed(2)}
+              {selectedAsset === 'BTC' ? btcBalance.toFixed(8) : selectedAsset === 'GBTC' ? gbtcBalance.toFixed(8) : usdtBalance.toFixed(2)}
             </p>
           </div>
           <div>
-            <p className="text-gray-500 text-xs mb-1"></p>
-            <p className="text-white font-medium"></p>
+            <p className="text-gray-500 text-xs mb-1">{selectedAsset === 'BTC' ? 'USD Value' : ''}</p>
+            <p className="text-white font-medium">
+              {selectedAsset === 'BTC' ? `$${(btcBalance * btcPrice).toFixed(2)}` : ''}
+            </p>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className={`grid ${selectedAsset === 'BTC' || selectedAsset === 'USDT' ? 'grid-cols-4' : 'grid-cols-3'} gap-3 mb-6`}>
           <Button
             onClick={() => selectedAsset === 'GBTC' ? null : setShowDepositDialog(true)}
             disabled={selectedAsset === 'GBTC'}
@@ -616,18 +682,36 @@ export default function WalletPage() {
               selectedAsset === 'GBTC' 
                 ? 'border-gray-600 text-gray-600 cursor-not-allowed opacity-50' 
                 : 'border-[#f7931a] text-[#f7931a] hover:bg-[#f7931a] hover:text-black'
-            } font-medium`}
+            } font-medium text-sm`}
             data-testid="button-deposit"
           >
             Deposit
           </Button>
           <Button
             onClick={() => setShowWithdrawDialog(true)}
-            className="bg-transparent border-2 border-[#f7931a] text-[#f7931a] hover:bg-[#f7931a] hover:text-black font-medium"
+            className="bg-transparent border-2 border-[#f7931a] text-[#f7931a] hover:bg-[#f7931a] hover:text-black font-medium text-sm"
             data-testid="button-withdraw"
           >
             Withdraw
           </Button>
+          {(selectedAsset === 'BTC' || selectedAsset === 'USDT') && (
+            <Button
+              onClick={() => {
+                if (selectedAsset === 'USDT') {
+                  setConvertFrom('USDT');
+                  setConvertTo('BTC');
+                } else {
+                  setConvertFrom('BTC');
+                  setConvertTo('USDT');
+                }
+                setShowConvertDialog(true);
+              }}
+              className="bg-transparent border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-black font-medium text-sm"
+              data-testid="button-convert"
+            >
+              Convert
+            </Button>
+          )}
           <Button
             onClick={() => selectedAsset === 'BTC' ? setLocation('/btc-mining') : setShowTransferDialog(true)}
             disabled={selectedAsset === 'USDT'}
@@ -635,7 +719,7 @@ export default function WalletPage() {
               selectedAsset === 'USDT' 
                 ? 'border-gray-600 text-gray-600 cursor-not-allowed' 
                 : 'border-[#f7931a] text-[#f7931a] hover:bg-[#f7931a] hover:text-black'
-            } font-medium`}
+            } font-medium text-sm`}
             data-testid={selectedAsset === 'BTC' ? "button-mine" : "button-transfer"}
           >
             {selectedAsset === 'BTC' ? 'Mine' : 'Transfer'}
@@ -1072,6 +1156,123 @@ export default function WalletPage() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Conversion Dialog */}
+      <Dialog open={showConvertDialog} onOpenChange={setShowConvertDialog}>
+        <DialogContent className="sm:max-w-md bg-[#242424] border-gray-800">
+          <DialogHeader>
+            <DialogTitle className="text-white font-medium">
+              Convert Currency
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-gray-400 text-sm">From</Label>
+              <Select value={convertFrom} onValueChange={(value: 'BTC' | 'USDT') => {
+                setConvertFrom(value);
+                setConvertTo(value === 'BTC' ? 'USDT' : 'BTC');
+              }}>
+                <SelectTrigger className="bg-[#1a1a1a] border-gray-700 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#242424] border-gray-700">
+                  <SelectItem value="BTC">BTC</SelectItem>
+                  <SelectItem value="USDT">USDT</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label className="text-gray-400 text-sm">To</Label>
+              <Select value={convertTo} onValueChange={(value: 'BTC' | 'USDT') => {
+                setConvertTo(value);
+                setConvertFrom(value === 'BTC' ? 'USDT' : 'BTC');
+              }}>
+                <SelectTrigger className="bg-[#1a1a1a] border-gray-700 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#242424] border-gray-700">
+                  <SelectItem value="BTC">BTC</SelectItem>
+                  <SelectItem value="USDT">USDT</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label className="text-gray-400 text-sm">
+                Amount ({convertFrom})
+              </Label>
+              <Input
+                type="number"
+                value={convertAmount}
+                onChange={(e) => setConvertAmount(e.target.value)}
+                placeholder={convertFrom === 'BTC' ? "0.00000000" : "0.00"}
+                step={convertFrom === 'BTC' ? "0.00000001" : "0.01"}
+                max={convertFrom === 'BTC' ? btcBalance : usdtBalance}
+                className="bg-[#1a1a1a] border-gray-700 text-white placeholder:text-gray-600"
+                data-testid="input-convert-amount"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Available: {convertFrom === 'BTC' 
+                  ? `${btcBalance.toFixed(8)} BTC` 
+                  : `${usdtBalance.toFixed(2)} USDT`}
+              </p>
+            </div>
+            
+            {/* Conversion Preview */}
+            {convertAmount && parseFloat(convertAmount) > 0 && (
+              <Card className="p-3 bg-gradient-to-r from-green-900/20 to-green-800/10 border-green-600/30">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">Exchange Rate</span>
+                    <span className="text-white">1 BTC = ${btcPrice.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">Fee (0.01%)</span>
+                    <span className="text-white">
+                      {convertFrom === 'BTC' 
+                        ? `${(parseFloat(convertAmount) * btcPrice * 0.0001).toFixed(2)} USDT`
+                        : `${(parseFloat(convertAmount) / btcPrice * 0.0001).toFixed(8)} BTC`}
+                    </span>
+                  </div>
+                  <div className="border-t border-gray-700 pt-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">You'll Receive</span>
+                      <span className="text-green-400 font-bold">
+                        {convertFrom === 'BTC' 
+                          ? `${(parseFloat(convertAmount) * btcPrice * 0.9999).toFixed(2)} USDT`
+                          : `${(parseFloat(convertAmount) / btcPrice * 0.9999).toFixed(8)} BTC`}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            )}
+            
+            <Button
+              onClick={() => {
+                convertMutation.mutate({
+                  fromCurrency: convertFrom,
+                  toCurrency: convertTo,
+                  amount: convertAmount
+                });
+              }}
+              disabled={convertMutation.isPending || !convertAmount || parseFloat(convertAmount) <= 0}
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-medium"
+              data-testid="button-confirm-convert"
+            >
+              {convertMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Converting...
+                </>
+              ) : (
+                `Convert ${convertFrom} to ${convertTo}`
+              )}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -1010,6 +1010,96 @@ export async function registerRoutes(app: Express) {
       next(error);
     }
   });
+
+  // BTC/USDT Conversion endpoint
+  app.post("/api/convert", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const user = await storage.getUser(req.user!.id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const { fromCurrency, toCurrency, amount } = z.object({
+        fromCurrency: z.enum(["BTC", "USDT"]),
+        toCurrency: z.enum(["BTC", "USDT"]),
+        amount: z.string().refine(val => parseFloat(val) > 0, "Amount must be positive")
+      }).parse(req.body);
+
+      const convertAmount = parseFloat(amount);
+      const conversionFee = 0.0001; // 0.01% fee
+      const btcPrice = parseFloat(await storage.getCurrentBtcPrice());
+
+      let result = { 
+        convertedAmount: "0", 
+        fee: "0", 
+        rate: btcPrice.toString() 
+      };
+
+      if (fromCurrency === "BTC" && toCurrency === "USDT") {
+        // Convert BTC to USDT
+        const btcBalance = parseFloat(user.btcBalance || "0");
+        if (btcBalance < convertAmount) {
+          return res.status(400).json({ message: "Insufficient BTC balance" });
+        }
+
+        const usdtValue = convertAmount * btcPrice;
+        const fee = usdtValue * conversionFee;
+        const finalAmount = usdtValue - fee;
+
+        // Update balances
+        const newBtcBalance = (btcBalance - convertAmount).toFixed(8);
+        const newUsdtBalance = (parseFloat(user.usdtBalance || "0") + finalAmount).toFixed(2);
+        
+        await storage.updateUserBtcBalance(user.id, newBtcBalance);
+        await storage.updateUser(user.id, { usdtBalance: newUsdtBalance });
+
+        result = {
+          convertedAmount: finalAmount.toFixed(2),
+          fee: fee.toFixed(2),
+          rate: btcPrice.toString()
+        };
+      } else if (fromCurrency === "USDT" && toCurrency === "BTC") {
+        // Convert USDT to BTC
+        const usdtBalance = parseFloat(user.usdtBalance || "0");
+        if (usdtBalance < convertAmount) {
+          return res.status(400).json({ message: "Insufficient USDT balance" });
+        }
+
+        const btcValue = convertAmount / btcPrice;
+        const fee = btcValue * conversionFee;
+        const finalAmount = btcValue - fee;
+
+        // Update balances
+        const newUsdtBalance = (usdtBalance - convertAmount).toFixed(2);
+        const newBtcBalance = (parseFloat(user.btcBalance || "0") + finalAmount).toFixed(8);
+        
+        await storage.updateUser(user.id, { usdtBalance: newUsdtBalance });
+        await storage.updateUserBtcBalance(user.id, newBtcBalance);
+
+        result = {
+          convertedAmount: finalAmount.toFixed(8),
+          fee: fee.toFixed(8),
+          rate: btcPrice.toString()
+        };
+      } else {
+        return res.status(400).json({ message: "Invalid conversion pair" });
+      }
+
+      res.json({
+        message: "Conversion successful",
+        from: fromCurrency,
+        to: toCurrency,
+        amount: amount,
+        ...result
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
   
   return server;
 }
