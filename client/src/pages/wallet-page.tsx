@@ -622,7 +622,9 @@ export default function WalletPage() {
                     <div className="flex items-center justify-center space-x-2">
                       {convertFrom === 'BTC' ? (
                         <>
-                          <Bitcoin className="w-5 h-5 text-[#f7931a]" />
+                          <div className="w-5 h-5 bg-[#f7931a] rounded-full flex items-center justify-center">
+                            <span className="text-black font-bold text-xs">₿</span>
+                          </div>
                           <span className="text-white font-medium">BTC</span>
                         </>
                       ) : (
@@ -656,7 +658,9 @@ export default function WalletPage() {
                     <div className="flex items-center justify-center space-x-2">
                       {convertTo === 'BTC' ? (
                         <>
-                          <Bitcoin className="w-5 h-5 text-[#f7931a]" />
+                          <div className="w-5 h-5 bg-[#f7931a] rounded-full flex items-center justify-center">
+                            <span className="text-black font-bold text-xs">₿</span>
+                          </div>
                           <span className="text-white font-medium">BTC</span>
                         </>
                       ) : (
