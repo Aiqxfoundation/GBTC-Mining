@@ -240,12 +240,12 @@ export default function MiningFactory() {
   return (
     <div className="mobile-page bg-gradient-to-b from-black via-gray-900 to-black">
       {/* Header */}
-      <div className="mobile-header bg-black/80 backdrop-blur-lg border-b border-primary/20">
+      <div className="mobile-header bg-black/90 backdrop-blur-lg border-b border-orange-500/20">
         <div>
-          <h1 className="text-xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
+          <h1 className="text-lg font-display font-black text-orange-500">
             MINING FACTORY
           </h1>
-          <p className="text-xs text-muted-foreground font-mono">
+          <p className="text-[10px] text-gray-500 font-mono">
             GBTC BLOCKCHAIN NETWORK
           </p>
         </div>
@@ -253,18 +253,18 @@ export default function MiningFactory() {
 
       <div className="mobile-content">
         {/* Mining Animation Section */}
-        <Card className="mobile-card bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20 overflow-hidden relative">
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none"></div>
+        <Card className="mobile-card bg-black/90 border-orange-500/30 overflow-hidden relative p-3">
+          <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent pointer-events-none"></div>
           
-          <div className="relative z-10 p-4">
+          <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
-                <div className={`w-3 h-3 rounded-full ${isMining ? 'bg-success animate-pulse' : 'bg-destructive'}`}></div>
-                <span className="text-sm font-mono text-primary">
+                <div className={`w-2 h-2 rounded-full ${isMining ? 'bg-orange-500 animate-pulse' : 'bg-gray-600'}`}></div>
+                <span className="text-[10px] font-mono text-orange-500">
                   {isMining ? 'MINING ACTIVE' : 'MINING INACTIVE'}
                 </span>
               </div>
-              <span className="text-sm font-mono text-accent">
+              <span className="text-[10px] font-mono text-orange-400">
                 {formatHashrate(hashPower)}
               </span>
             </div>
@@ -480,22 +480,22 @@ export default function MiningFactory() {
 
             {/* Hash Display */}
             {isMining && (
-              <div className="bg-black/50 rounded-lg p-3 mt-4">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Hash className="w-4 h-4 text-primary animate-pulse" />
-                  <span className="text-xs font-mono text-primary">CALCULATING HASHES</span>
-                  <Activity className="w-3 h-3 text-accent animate-pulse" />
+              <div className="bg-black/60 rounded-lg p-2 mt-3">
+                <div className="flex items-center space-x-1.5 mb-1.5">
+                  <Hash className="w-3 h-3 text-orange-500 animate-pulse" />
+                  <span className="text-[10px] font-mono text-orange-500">CALCULATING HASHES</span>
+                  <Activity className="w-2.5 h-2.5 text-orange-400 animate-pulse" />
                 </div>
-                <div className="font-mono text-[10px] text-green-400 break-all">
+                <div className="font-mono text-[9px] text-orange-400 break-all">
                   {currentHash}
                 </div>
-                <div className="mt-2 space-y-1">
+                <div className="mt-1.5 space-y-0.5">
                   {hashPool.map((hash, index) => (
                     <motion.div
                       key={`${hash}-${index}`}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1 - (index * 0.2), x: 0 }}
-                      className="font-mono text-[9px] text-green-400/60 truncate"
+                      className="font-mono text-[8px] text-orange-400/40 truncate"
                     >
                       {hash}
                     </motion.div>
@@ -507,75 +507,75 @@ export default function MiningFactory() {
         </Card>
 
         {/* Network Stats Grid */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <Card className="mobile-card bg-black/50 border-primary/20">
-            <div className="p-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] text-muted-foreground uppercase">Total Supply</span>
-                <Award className="w-4 h-4 text-primary/50" />
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          <Card className="bg-black/80 border-orange-500/20">
+            <div className="p-2">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[9px] text-gray-400 uppercase">Total Supply</span>
+                <Award className="w-3 h-3 text-orange-500/50" />
               </div>
-              <p className="text-lg font-bold text-primary">{(totalSupply / 1000000).toFixed(1)}M</p>
-              <p className="text-[10px] text-muted-foreground">GBTC</p>
+              <p className="text-sm font-bold text-orange-500">{(totalSupply / 1000000).toFixed(1)}M</p>
+              <p className="text-[9px] text-gray-500">GBTC</p>
             </div>
           </Card>
 
-          <Card className="mobile-card bg-black/50 border-accent/20">
-            <div className="p-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] text-muted-foreground uppercase">Circulation</span>
-                <TrendingUp className="w-4 h-4 text-accent/50" />
+          <Card className="bg-black/80 border-orange-500/20">
+            <div className="p-2">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[9px] text-gray-400 uppercase">Circulation</span>
+                <TrendingUp className="w-3 h-3 text-orange-500/50" />
               </div>
-              <p className="text-lg font-bold text-accent">{circulation.toFixed(2)}</p>
-              <p className="text-[10px] text-muted-foreground">GBTC</p>
+              <p className="text-sm font-bold text-orange-500">{circulation.toFixed(2)}</p>
+              <p className="text-[9px] text-gray-500">GBTC</p>
             </div>
           </Card>
 
-          <Card className="mobile-card bg-black/50 border-chart-3/20">
-            <div className="p-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] text-muted-foreground uppercase">Block Height</span>
-                <Cpu className="w-4 h-4 text-chart-3/50" />
+          <Card className="bg-black/80 border-orange-500/20">
+            <div className="p-2">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[9px] text-gray-400 uppercase">Block Height</span>
+                <Cpu className="w-3 h-3 text-orange-500/50" />
               </div>
-              <p className="text-lg font-bold text-chart-3">#{blockHeight}</p>
-              <p className="text-[10px] text-muted-foreground">CURRENT</p>
+              <p className="text-sm font-bold text-orange-500">#{blockHeight}</p>
+              <p className="text-[9px] text-gray-500">CURRENT</p>
             </div>
           </Card>
 
-          <Card className="mobile-card bg-black/50 border-warning/20">
-            <div className="p-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] text-muted-foreground uppercase">Next Block</span>
-                <Clock className="w-4 h-4 text-warning/50 animate-pulse" />
+          <Card className="bg-black/80 border-orange-500/20">
+            <div className="p-2">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[9px] text-gray-400 uppercase">Next Block</span>
+                <Clock className="w-3 h-3 text-orange-500/50 animate-pulse" />
               </div>
-              <p className="text-lg font-bold text-warning">{nextBlockTime}</p>
-              <p className="text-[10px] text-muted-foreground">COUNTDOWN</p>
+              <p className="text-sm font-bold text-orange-500">{nextBlockTime}</p>
+              <p className="text-[9px] text-gray-500">COUNTDOWN</p>
             </div>
           </Card>
         </div>
 
         {/* Personal Mining Stats */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          <Card className="mobile-card bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
-            <div className="p-2 text-center">
-              <Zap className="w-5 h-5 text-primary mx-auto mb-1" />
-              <p className="text-[10px] text-muted-foreground">Network Share</p>
-              <p className="text-sm font-bold text-primary">{networkShare.toFixed(4)}%</p>
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          <Card className="bg-black/80 border-orange-500/20">
+            <div className="p-1.5 text-center">
+              <Zap className="w-3 h-3 text-orange-500 mx-auto mb-0.5" />
+              <p className="text-[8px] text-gray-400">Network Share</p>
+              <p className="text-xs font-bold text-orange-500">{networkShare.toFixed(2)}%</p>
             </div>
           </Card>
 
-          <Card className="mobile-card bg-gradient-to-br from-accent/10 to-transparent border-accent/20">
-            <div className="p-2 text-center">
-              <Cpu className="w-5 h-5 text-accent mx-auto mb-1" />
-              <p className="text-[10px] text-muted-foreground">Your Hashrate</p>
-              <p className="text-sm font-bold text-accent">{formatHashrate(hashPower)}</p>
+          <Card className="bg-black/80 border-orange-500/20">
+            <div className="p-1.5 text-center">
+              <Cpu className="w-3 h-3 text-orange-500 mx-auto mb-0.5" />
+              <p className="text-[8px] text-gray-400">Your Hashrate</p>
+              <p className="text-xs font-bold text-orange-500">{formatHashrate(hashPower)}</p>
             </div>
           </Card>
 
-          <Card className="mobile-card bg-gradient-to-br from-success/10 to-transparent border-success/20">
-            <div className="p-2 text-center">
-              <TrendingUp className="w-5 h-5 text-success mx-auto mb-1" />
-              <p className="text-[10px] text-muted-foreground">Est. Daily</p>
-              <p className="text-sm font-bold text-success">{estimatedDaily.toFixed(4)}</p>
+          <Card className="bg-black/80 border-orange-500/20">
+            <div className="p-1.5 text-center">
+              <TrendingUp className="w-3 h-3 text-orange-500 mx-auto mb-0.5" />
+              <p className="text-[8px] text-gray-400">Est. Daily</p>
+              <p className="text-xs font-bold text-orange-500">{estimatedDaily.toFixed(4)}</p>
             </div>
           </Card>
         </div>
@@ -583,33 +583,33 @@ export default function MiningFactory() {
         {/* Unclaimed Blocks Section */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-mono text-primary">UNCLAIMED BLOCKS</p>
+            <p className="text-xs font-mono text-orange-500">UNCLAIMED BLOCKS</p>
             {unclaimedBlocks && unclaimedBlocks.length > 1 && (
               <Button
                 onClick={() => claimAllMutation.mutate()}
                 disabled={claimAllMutation.isPending}
                 size="sm"
-                className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
+                className="bg-orange-500 text-black hover:bg-orange-400 text-xs px-2 py-1"
                 data-testid="button-claim-all"
               >
                 {claimAllMutation.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  <Loader2 className="w-3 h-3 animate-spin mr-1" />
                 ) : (
-                  <Award className="w-4 h-4 mr-2" />
+                  <Award className="w-3 h-3 mr-1" />
                 )}
-                CLAIM ALL ({totalUnclaimedReward.toFixed(8)} GBTC)
+                CLAIM ALL ({totalUnclaimedReward.toFixed(4)} GBTC)
               </Button>
             )}
           </div>
 
           {blocksLoading ? (
-            <Card className="mobile-card bg-black/50 border-primary/20">
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            <Card className="bg-black/80 border-orange-500/20">
+              <div className="flex items-center justify-center py-6">
+                <Loader2 className="w-5 h-5 animate-spin text-orange-500" />
               </div>
             </Card>
           ) : unclaimedBlocks && unclaimedBlocks.length > 0 ? (
-            <div className="space-y-2 max-h-64 overflow-y-auto">
+            <div className="space-y-1.5 max-h-56 overflow-y-auto">
               {unclaimedBlocks.map((block: any, index: number) => (
                 <motion.div
                   key={block.id}
@@ -617,8 +617,8 @@ export default function MiningFactory() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <Card className="mobile-card bg-gradient-to-r from-black/50 to-primary/5 border-primary/20 overflow-hidden">
-                    <div className="p-3 relative">
+                  <Card className="bg-black/80 border-orange-500/20 overflow-hidden">
+                    <div className="p-2 relative">
                       {/* Block pattern background */}
                       <div className="absolute inset-0 opacity-5">
                         <div className="grid grid-cols-8 h-full">
@@ -629,41 +629,41 @@ export default function MiningFactory() {
                       </div>
                       
                       <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center space-x-2">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <div className="flex items-center space-x-1.5">
                             <motion.div 
-                              className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center shadow-lg"
+                              className="w-8 h-8 bg-orange-500/20 rounded flex items-center justify-center"
                               animate={{ rotate: [0, 5, -5, 0] }}
                               transition={{ duration: 2, repeat: Infinity }}
                             >
-                              <Blocks className="w-5 h-5 text-white" />
+                              <Blocks className="w-4 h-4 text-orange-500" />
                             </motion.div>
                             <div>
-                              <p className="text-sm font-bold text-primary">BLOCK #{block.blockNumber}</p>
-                              <p className="text-[9px] font-mono text-muted-foreground truncate max-w-[120px]">
+                              <p className="text-xs font-bold text-orange-500">BLOCK #{block.blockNumber}</p>
+                              <p className="text-[8px] font-mono text-gray-500 truncate max-w-[100px]">
                                 {block.txHash}
                               </p>
                             </div>
                           </div>
                           <div className="text-right">
                             <motion.p 
-                              className="text-base font-bold text-accent"
+                              className="text-sm font-bold text-orange-500"
                               animate={{ scale: [1, 1.05, 1] }}
                               transition={{ duration: 2, repeat: Infinity }}
                             >
-                              {parseFloat(block.reward).toFixed(8)}
+                              {parseFloat(block.reward).toFixed(6)}
                             </motion.p>
-                            <p className="text-[10px] text-primary">GBTC</p>
+                            <p className="text-[9px] text-orange-400">GBTC</p>
                           </div>
                         </div>
                         
                         <div className="flex items-center justify-between">
-                          <div className={`text-xs font-mono px-2 py-1 rounded ${
+                          <div className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
                             getTimeRemaining(block.expiresAt) === 'EXPIRED' 
-                              ? 'bg-destructive/20 text-destructive' 
-                              : 'bg-warning/20 text-warning'
+                              ? 'bg-red-900/50 text-red-400' 
+                              : 'bg-orange-900/30 text-orange-400'
                           }`}>
-                            <Clock className="w-3 h-3 inline mr-1" />
+                            <Clock className="w-2 h-2 inline mr-0.5" />
                             {getTimeRemaining(block.expiresAt)}
                           </div>
                           
@@ -673,15 +673,15 @@ export default function MiningFactory() {
                               claimBlockMutation.isPending || 
                               getTimeRemaining(block.expiresAt) === 'EXPIRED'
                             }
-                            className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
+                            className="bg-orange-500 text-black hover:bg-orange-400 px-2 py-0.5 h-6 text-[10px]"
                             size="sm"
                             data-testid={`button-claim-${block.id}`}
                           >
                             {claimBlockMutation.isPending ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <Loader2 className="w-3 h-3 animate-spin" />
                             ) : (
                               <>
-                                <Award className="w-3 h-3 mr-1" />
+                                <Award className="w-2.5 h-2.5 mr-0.5" />
                                 CLAIM
                               </>
                             )}
@@ -694,17 +694,17 @@ export default function MiningFactory() {
               ))}
             </div>
           ) : (
-            <Card className="mobile-card bg-black/50 border-primary/20">
-              <div className="text-center py-8">
+            <Card className="bg-black/80 border-orange-500/20">
+              <div className="text-center py-6">
                 <motion.div
                   animate={{ rotate: [0, 10, -10, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}
                   className="inline-block"
                 >
-                  <Blocks className="w-10 h-10 text-muted-foreground mb-3 mx-auto" />
+                  <Blocks className="w-8 h-8 text-gray-600 mb-2 mx-auto" />
                 </motion.div>
-                <p className="text-sm text-muted-foreground">No blocks to claim</p>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-gray-400">No blocks to claim</p>
+                <p className="text-[10px] text-gray-500 mt-1">
                   {hashPower > 0 
                     ? "New blocks appear every 1 hour" 
                     : "Purchase hashrate to start mining"}
@@ -716,12 +716,12 @@ export default function MiningFactory() {
 
         {/* No Hashrate Warning */}
         {hashPower <= 0 && (
-          <Card className="mobile-card bg-gradient-to-r from-destructive/10 to-destructive/5 border-destructive/30 mt-4">
-            <div className="flex items-center space-x-3 p-3">
-              <Zap className="w-6 h-6 text-destructive" />
+          <Card className="bg-black/80 border-orange-500/30 mt-3">
+            <div className="flex items-center space-x-2 p-2">
+              <Zap className="w-5 h-5 text-orange-500" />
               <div>
-                <p className="text-sm font-semibold text-destructive">Mining Power Required</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs font-semibold text-orange-500">Mining Power Required</p>
+                <p className="text-[10px] text-gray-400">
                   Purchase hashrate to start mining and earning GBTC rewards
                 </p>
               </div>
