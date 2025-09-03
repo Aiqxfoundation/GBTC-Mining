@@ -608,77 +608,100 @@ export default function MiningFactory() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <Card className="mobile-card bg-gradient-to-r from-yellow-900/30 to-yellow-600/20 border-yellow-500/40 overflow-hidden shadow-lg shadow-yellow-500/20">
-                    <div className="p-3 relative">
-                      {/* Golden block pattern background */}
-                      <div className="absolute inset-0 opacity-10">
-                        <div className="grid grid-cols-8 h-full">
-                          {[...Array(8)].map((_, i) => (
-                            <div key={i} className="border-r border-yellow-500/20"></div>
-                          ))}
+                  <Card className="mobile-card bg-gradient-to-br from-yellow-500 via-yellow-600 to-orange-500 border-2 border-yellow-400 overflow-hidden shadow-xl shadow-yellow-500/40 relative">
+                    {/* 3D Block effect with gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-white/10"></div>
+                    
+                    {/* Bitcoin circuit pattern */}
+                    <div className="absolute inset-0 opacity-20">
+                      <svg className="w-full h-full">
+                        <pattern id={`bitcoin-pattern-${block.id}`} x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+                          <rect width="30" height="30" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="0.5"/>
+                          <circle cx="15" cy="15" r="6" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="0.5"/>
+                          <text x="15" y="18" textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.2)" fontWeight="bold">₿</text>
+                        </pattern>
+                        <rect width="100%" height="100%" fill={`url(#bitcoin-pattern-${block.id})`} />
+                      </svg>
+                    </div>
+                    
+                    <div className="p-3 relative z-10">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-2">
+                          {/* Animated golden Bitcoin logo */}
+                          <motion.div 
+                            className="w-10 h-10 bg-gradient-to-br from-yellow-300 via-yellow-400 to-orange-400 rounded-lg flex items-center justify-center shadow-lg border border-yellow-300"
+                            animate={{ 
+                              boxShadow: [
+                                "0 0 20px rgba(250, 204, 21, 0.5)",
+                                "0 0 30px rgba(250, 204, 21, 0.8)",
+                                "0 0 20px rgba(250, 204, 21, 0.5)"
+                              ]
+                            }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                          >
+                            <span className="text-lg font-black text-yellow-900 drop-shadow-md">₿</span>
+                          </motion.div>
+                          <div>
+                            <p className="text-xs font-black text-white drop-shadow-md">BLOCK #{block.blockNumber}</p>
+                            <p className="text-[9px] font-mono text-yellow-100/90">
+                              {formatUTCTime(block.createdAt)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <motion.div 
+                            animate={{ scale: [1, 1.1, 1] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                          >
+                            <p className="text-sm font-black text-white drop-shadow-lg">
+                              {parseFloat(block.reward).toFixed(6)}
+                            </p>
+                            <p className="text-[10px] font-bold text-yellow-200">GBTC</p>
+                          </motion.div>
                         </div>
                       </div>
                       
-                      <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center space-x-2">
-                            <motion.div 
-                              className="w-9 h-9 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-md flex items-center justify-center shadow-lg shadow-yellow-500/30"
-                              animate={{ rotate: [0, 5, -5, 0] }}
-                              transition={{ duration: 2, repeat: Infinity }}
-                            >
-                              <span className="text-base font-bold text-yellow-900">₿</span>
-                            </motion.div>
-                            <div>
-                              <p className="text-xs font-bold text-yellow-400">BLOCK #{block.blockNumber}</p>
-                              <p className="text-[9px] font-mono text-yellow-200/50">
-                                {formatUTCTime(block.createdAt)}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <motion.p 
-                              className="text-sm font-bold text-yellow-400"
-                              animate={{ scale: [1, 1.05, 1] }}
-                              transition={{ duration: 2, repeat: Infinity }}
-                            >
-                              {parseFloat(block.reward).toFixed(6)}
-                            </motion.p>
-                            <p className="text-[9px] text-yellow-300">⃿</p>
-                          </div>
+                      {/* Golden separator line */}
+                      <div className="h-px bg-gradient-to-r from-transparent via-yellow-300 to-transparent my-2"></div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className={`text-[10px] font-mono px-2 py-1 rounded-md backdrop-blur-sm ${
+                          getTimeRemaining(block.expiresAt) === 'EXPIRED' 
+                            ? 'bg-red-500/30 text-red-200 border border-red-400/50' 
+                            : 'bg-yellow-400/20 text-yellow-100 border border-yellow-400/50'
+                        }`}>
+                          <Clock className="w-3 h-3 inline mr-1" />
+                          {getTimeRemaining(block.expiresAt)}
                         </div>
                         
-                        <div className="flex items-center justify-between">
-                          <div className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
-                            getTimeRemaining(block.expiresAt) === 'EXPIRED' 
-                              ? 'bg-destructive/20 text-destructive' 
-                              : 'bg-warning/20 text-warning'
-                          }`}>
-                            <Clock className="w-3 h-3 inline mr-1" />
-                            {getTimeRemaining(block.expiresAt)}
-                          </div>
-                          
-                          <Button
-                            onClick={() => claimBlockMutation.mutate(block.id)}
-                            disabled={
-                              claimBlockMutation.isPending || 
-                              getTimeRemaining(block.expiresAt) === 'EXPIRED'
-                            }
-                            className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black"
-                            size="sm"
-                            data-testid={`button-claim-${block.id}`}
-                          >
-                            {claimBlockMutation.isPending ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <>
-                                <Award className="w-3 h-3 mr-0.5" />
-                                <span className="text-[10px] font-bold">CLAIM</span>
-                              </>
-                            )}
-                          </Button>
-                        </div>
+                        <Button
+                          onClick={() => claimBlockMutation.mutate(block.id)}
+                          disabled={
+                            claimBlockMutation.isPending || 
+                            getTimeRemaining(block.expiresAt) === 'EXPIRED'
+                          }
+                          className="bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white shadow-lg border border-green-400/50"
+                          size="sm"
+                          data-testid={`button-claim-${block.id}`}
+                        >
+                          {claimBlockMutation.isPending ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <>
+                              <Award className="w-3 h-3 mr-1" />
+                              <span className="text-[10px] font-black">CLAIM</span>
+                            </>
+                          )}
+                        </Button>
                       </div>
+                      
+                      {/* Shimmer effect */}
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-10 pointer-events-none"
+                        animate={{ x: [-200, 200] }}
+                        transition={{ duration: 3, repeat: Infinity, repeatDelay: 3 }}
+                        style={{ transform: 'skewX(-20deg)' }}
+                      />
                     </div>
                   </Card>
                 </motion.div>
