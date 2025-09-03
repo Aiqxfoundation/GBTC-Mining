@@ -280,14 +280,14 @@ export default function MiningFactory() {
             </div>
 
             {/* Energy Core Mining Animation */}
-            <div className="flex justify-center my-3 relative">
-              <div className="relative w-36 h-36 flex items-center justify-center">
+            <div className="flex justify-center my-6 relative">
+              <div className="relative w-48 h-48 flex items-center justify-center">
                 
                 {/* Central Energy Core */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   {/* Outer hexagon frame */}
                   <motion.div
-                    className="absolute w-28 h-28"
+                    className="absolute w-36 h-36"
                     animate={isMining ? {
                       rotate: [0, 360],
                     } : {}}
@@ -317,7 +317,7 @@ export default function MiningFactory() {
 
                   {/* Energy core center - transforms to block */}
                   <motion.div
-                    className="absolute w-16 h-16"
+                    className="absolute w-20 h-20"
                     animate={isBlockForm ? {
                       rotate: [0, 90, 180, 270, 360],
                       scale: [1, 0.8, 1],
@@ -375,7 +375,7 @@ export default function MiningFactory() {
                       
                       {/* Bitcoin symbol */}
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-lg font-bold text-orange-900">₿</span>
+                        <Blocks className="w-5 h-5 text-white" />
                       </div>
                     </motion.div>
 
@@ -466,54 +466,34 @@ export default function MiningFactory() {
               </div>
             </div>
 
-            {/* Global Hashrate Display */}
-            {isMining && (
-              <div className="bg-black/50 rounded-lg p-4">
-                <div className="text-center">
-                  <div className="flex items-center justify-center space-x-2 mb-2">
-                    <Activity className="w-5 h-5 text-primary animate-pulse" />
-                    <span className="text-sm font-mono text-primary uppercase">Total Global Hashrate</span>
-                    <Activity className="w-5 h-5 text-primary animate-pulse" />
-                  </div>
-                  <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
-                    {formatHashrate(globalHashrate)}
-                  </div>
-                  <div className="mt-3 w-full bg-black/50 rounded-full h-2 overflow-hidden">
-                    <motion.div 
-                      className="h-full bg-gradient-to-r from-primary to-accent"
-                      style={{ width: `${miningProgress}%` }}
-                      transition={{ duration: 0.1 }}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* Mining Progress */}
+            <div className="mt-3 w-full bg-black/50 rounded-full h-1.5 overflow-hidden">
+              <motion.div 
+                className="h-full bg-gradient-to-r from-yellow-500 to-yellow-600"
+                style={{ width: `${miningProgress}%` }}
+                transition={{ duration: 0.1 }}
+              />
+            </div>
 
-            {/* Hash Display */}
-            {isMining && (
-              <div className="bg-black/50 rounded-lg p-3 mt-4">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Hash className="w-4 h-4 text-primary animate-pulse" />
-                  <span className="text-xs font-mono text-primary">CALCULATING HASHES</span>
-                  <Activity className="w-3 h-3 text-accent animate-pulse" />
-                </div>
-                <div className="font-mono text-[10px] text-green-400 break-all">
-                  {currentHash}
-                </div>
-                <div className="mt-2 space-y-1">
-                  {hashPool.map((hash, index) => (
-                    <motion.div
-                      key={`${hash}-${index}`}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1 - (index * 0.2), x: 0 }}
-                      className="font-mono text-[9px] text-green-400/60 truncate"
-                    >
-                      {hash}
-                    </motion.div>
-                  ))}
-                </div>
+            {/* Current Block Info */}
+            <div className="grid grid-cols-2 gap-2 text-[9px] font-mono mt-3">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Height:</span>
+                <span className="text-yellow-500 font-bold">#{totalBlockHeight}</span>
               </div>
-            )}
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Next:</span>
+                <span className="text-yellow-400 font-bold">{nextBlockTime}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Network:</span>
+                <span className="text-yellow-500 font-bold">{formatHashrate(globalHashrate)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Reward:</span>
+                <span className="text-yellow-400 font-bold">{currentBlockReward} ₿</span>
+              </div>
+            </div>
           </div>
         </Card>
 
