@@ -75,12 +75,11 @@ const HashSlider = ({ value, onValueChange, min, max, step, className, disabled 
 
 // Function to calculate APR based on lock time (months)
 const calculateAPR = (months: number): number => {
-  // Linear interpolation: 5% at 3 months to 65% at 120 months (10 years)
-  // APR = 5 + (months - 3) * (65 - 5) / (120 - 3)
-  const minMonths = 3;
-  const maxMonths = 120;
-  const minAPR = 5;
-  const maxAPR = 65;
+  // Linear interpolation: 2% at 1 month to 20% at 60 months (5 years)
+  const minMonths = 1;
+  const maxMonths = 60;
+  const minAPR = 2;
+  const maxAPR = 20;
   
   const clampedMonths = Math.max(minMonths, Math.min(maxMonths, months));
   const apr = minAPR + ((clampedMonths - minMonths) * (maxAPR - minAPR)) / (maxMonths - minMonths);
@@ -314,15 +313,15 @@ export default function BtcStakingEnhanced() {
                 <TimerSlider
                   value={lockMonths}
                   onValueChange={setLockMonths}
-                  min={3}
-                  max={120}
+                  min={1}
+                  max={60}
                   step={1}
                   className="mb-2"
                   data-testid="slider-lock-time"
                 />
                 <div className="flex justify-between text-xs text-gray-400">
-                  <span>3 Months</span>
-                  <span>10 Years</span>
+                  <span>1 Month</span>
+                  <span>5 Years</span>
                 </div>
               </div>
 
@@ -414,34 +413,34 @@ export default function BtcStakingEnhanced() {
                 </h3>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-400">Daily Rewards</span>
+                    <span className="text-sm text-gray-400">Daily USDT Rewards</span>
                     <span className="text-sm font-medium text-white">
-                      {dailyReward.toFixed(8)} BTC
+                      ${(dailyReward * btcPrice).toFixed(2)} USDT
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-400">Total Return</span>
+                    <span className="text-sm text-gray-400">Total USDT Return</span>
                     <span className="text-sm font-medium text-green-400">
-                      +{totalReturn.toFixed(8)} BTC
+                      +${(totalReturn * btcPrice).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} USDT
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-400">Total After {formatDuration(months)}</span>
                     <span className="text-sm font-bold text-[#f7931a]">
-                      {totalWithPrincipal.toFixed(8)} BTC
+                      ${(totalWithPrincipal * btcPrice).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} USDT
                     </span>
                   </div>
                   <Separator className="bg-gray-700 my-2" />
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-400">Dollar Value</span>
+                    <span className="text-sm text-gray-400">Staked BTC Value</span>
                     <span className="text-sm font-medium text-white">
-                      ${dollarValue.toLocaleString()}
+                      {btcAmount.toFixed(8)} BTC
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-400">Dollar Return</span>
-                    <span className="text-sm font-medium text-green-400">
-                      +${dollarReturn.toLocaleString()}
+                    <span className="text-sm text-gray-400">Current BTC Price</span>
+                    <span className="text-sm font-medium text-gray-400">
+                      ${btcPrice.toLocaleString()} USD
                     </span>
                   </div>
                 </div>
@@ -537,15 +536,15 @@ export default function BtcStakingEnhanced() {
                         
                         <div className="grid grid-cols-2 gap-3 text-xs">
                           <div>
-                            <p className="text-gray-400">Daily Reward</p>
+                            <p className="text-gray-400">Daily USDT Reward</p>
                             <p className="text-[#f7931a] font-medium">
-                              {parseFloat(stake.dailyReward).toFixed(8)} BTC
+                              ${(parseFloat(stake.dailyReward) * parseFloat(stakesData.currentBtcPrice)).toFixed(2)} USDT
                             </p>
                           </div>
                           <div>
-                            <p className="text-gray-400">Total Earned</p>
+                            <p className="text-gray-400">Total USDT Earned</p>
                             <p className="text-green-400 font-medium">
-                              {parseFloat(stake.totalRewardsPaid).toFixed(8)} BTC
+                              ${(parseFloat(stake.totalRewardsPaid) * parseFloat(stakesData.currentBtcPrice)).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} USDT
                             </p>
                           </div>
                           <div>
@@ -593,7 +592,7 @@ export default function BtcStakingEnhanced() {
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-blue-400" />
                       <p className="text-xs text-blue-400">
-                        Daily rewards are paid at 00:00 UTC
+                        Daily USDT rewards are paid at 00:00 UTC based on current Bitcoin price
                       </p>
                     </div>
                   </div>
@@ -603,7 +602,7 @@ export default function BtcStakingEnhanced() {
                   <Bitcoin className="w-12 h-12 text-gray-600 mx-auto mb-3" />
                   <p className="text-gray-400">No active stakes</p>
                   <p className="text-xs text-gray-500 mt-1">
-                    Create your first stake to start earning up to 65% APR
+                    Create your first stake to start earning up to 20% APR
                   </p>
                 </div>
               )}
@@ -622,20 +621,24 @@ export default function BtcStakingEnhanced() {
               <p className="text-gray-400 mb-2">APR increases with lock duration:</p>
               <div className="space-y-1 text-gray-500">
                 <div className="flex justify-between">
-                  <span>3 Months</span>
-                  <span className="text-green-400">5% APR</span>
+                  <span>1 Month</span>
+                  <span className="text-green-400">2% APR</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>6 Months</span>
+                  <span className="text-green-400">4% APR</span>
                 </div>
                 <div className="flex justify-between">
                   <span>1 Year</span>
-                  <span className="text-green-400">12% APR</span>
+                  <span className="text-green-400">6% APR</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>2 Years</span>
+                  <span className="text-green-400">10% APR</span>
                 </div>
                 <div className="flex justify-between">
                   <span>5 Years</span>
-                  <span className="text-green-400">40% APR</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>10 Years</span>
-                  <span className="text-green-400">65% APR</span>
+                  <span className="text-green-400">20% APR</span>
                 </div>
               </div>
             </div>
