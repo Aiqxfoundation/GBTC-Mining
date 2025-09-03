@@ -273,6 +273,34 @@ export default function MiningFactory() {
             <div className="flex justify-center my-6 relative">
               <div className="relative w-48 h-48 flex items-center justify-center">
                 
+                {/* Static Bitcoin Symbol - Always centered, never rotates */}
+                <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                  <motion.div
+                    animate={isMining ? {
+                      textShadow: [
+                        "0 0 10px rgba(251, 191, 36, 0.8)",
+                        "0 0 20px rgba(251, 191, 36, 1)",
+                        "0 0 30px rgba(251, 191, 36, 0.8)",
+                        "0 0 20px rgba(251, 191, 36, 1)",
+                        "0 0 10px rgba(251, 191, 36, 0.8)",
+                      ],
+                    } : {}}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  >
+                    <span style={{
+                      fontSize: '28px',
+                      fontWeight: '900',
+                      color: isMining ? '#fbbf24' : '#6b7280',
+                      fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      letterSpacing: '-1px'
+                    }}>B</span>
+                  </motion.div>
+                </div>
+                
                 {/* Central Energy Core */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   {/* Outer hexagon frame */}
@@ -362,25 +390,6 @@ export default function MiningFactory() {
                           </div>
                         </div>
                       )}
-                      
-                      {/* Bitcoin symbol - hidden during transformation */}
-                      <motion.div 
-                        className="absolute inset-0 flex items-center justify-center"
-                        animate={{
-                          opacity: isBlockForm ? 0 : 1,
-                          scale: isBlockForm ? 0.5 : 1,
-                        }}
-                        transition={{
-                          duration: 0.3,
-                        }}
-                      >
-                        <span style={{
-                          fontSize: '24px',
-                          fontWeight: '700',
-                          color: '#7c2d12',
-                          fontFamily: 'Arial, Helvetica, sans-serif'
-                        }}>B</span>
-                      </motion.div>
                     </motion.div>
 
                     {/* Pulsing glow */}
