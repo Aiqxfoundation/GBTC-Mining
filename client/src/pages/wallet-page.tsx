@@ -34,7 +34,7 @@ export default function WalletPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const [selectedAsset, setSelectedAsset] = useState<'GBTC' | 'USDT' | null>(null);
+  const [selectedAsset, setSelectedAsset] = useState<'BTC' | 'GBTC' | 'USDT' | null>(null);
   const [showDepositDialog, setShowDepositDialog] = useState(false);
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
   const [showTransferDialog, setShowTransferDialog] = useState(false);
@@ -422,6 +422,39 @@ export default function WalletPage() {
 
         {/* Assets List */}
         <div className="mobile-content">
+          {/* BTC Asset - Real Bitcoin */}
+          <Card 
+            className="p-4 mb-3 bg-[#242424] border-gray-800 cursor-pointer hover:bg-[#2a2a2a] transition-colors"
+            onClick={() => setSelectedAsset('BTC')}
+            data-testid="card-asset-btc"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-[#f7931a] flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
+                    <path d="M11.414 0v2.697c1.337 0.059 2.678 0.197 3.681 0.475v-2.722c-1.052-0.265-2.334-0.403-3.681-0.45zm4.783 0.666v2.55c1.582 0.523 2.638 1.396 3.195 2.67l2.057-0.823c-0.885-1.945-2.555-3.435-5.252-4.397zm-5.595-0.025c-4.011 0.838-6.076 3.283-5.576 7.361 0.358 2.92 1.978 4.863 4.774 5.328v5.877h1.222v-5.823c1.364-0.119 2.679-0.413 3.681-0.803v5.626h1.221v-6.146c0.902-0.426 1.622-0.978 2.082-1.67 0.741-1.116 0.812-2.604 0.265-3.975-0.651-1.631-2.324-2.638-4.987-3.127v-5.221c0.788 0.095 1.514 0.259 2.043 0.489l0.655-2.114c-0.821-0.336-1.778-0.546-2.698-0.659v-2.667h-1.222v2.604c-1.208-0.058-2.434 0.003-3.681 0.167v-2.771h-1.222v2.886c-1.143 0.225-2.326 0.531-3.557 0.939l0.669 2.095c0.842-0.303 1.677-0.535 2.331-0.684zm1.262 4.854c1.365 0 2.434 0.108 3.264 0.359 1.566 0.474 2.338 1.299 2.338 2.521 0 1.323-1.161 2.18-3.264 2.495-0.66 0.099-1.385 0.144-2.338 0.136v-5.511zm0 7.752c0.857 0.005 1.596 0.043 2.24 0.124 2.373 0.299 3.62 1.182 3.62 2.758 0 1.682-1.496 2.649-3.86 2.963-0.73 0.097-1.466 0.133-2.24 0.121v-5.966h0.24z"/>
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-white font-medium">BTC</p>
+                  <p className="text-gray-400 text-xs">Bitcoin</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-500" />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
+              <div>
+                <p className="text-[#f7931a] text-xs">Balance</p>
+                <p className="text-white font-medium">0.00000000</p>
+              </div>
+              <div>
+                <p className="text-[#f7931a] text-xs">Value</p>
+                <p className="text-white font-medium">$0.00</p>
+              </div>
+            </div>
+          </Card>
+
           {/* GBTC Asset */}
           <Card 
             className="p-4 mb-3 bg-[#242424] border-gray-800 cursor-pointer hover:bg-[#2a2a2a] transition-colors"
@@ -543,13 +576,20 @@ export default function WalletPage() {
       <div className="mobile-content">
         {/* Asset Info */}
         <div className="flex items-center space-x-3 mb-6">
-          <div className={`w-12 h-12 rounded-full ${selectedAsset === 'GBTC' ? 'bg-[#f7931a]' : 'bg-[#26a17b]'} flex items-center justify-center`}>
-            <span className={`${selectedAsset === 'GBTC' ? 'text-black' : 'text-white'} font-bold text-xl`}>
-              {selectedAsset === 'GBTC' ? '₿' : '₮'}
-            </span>
+          <div className={`w-12 h-12 rounded-full ${selectedAsset === 'BTC' || selectedAsset === 'GBTC' ? 'bg-[#f7931a]' : 'bg-[#26a17b]'} flex items-center justify-center`}>
+            {selectedAsset === 'BTC' ? (
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="white">
+                <path d="M11.414 0v2.697c1.337 0.059 2.678 0.197 3.681 0.475v-2.722c-1.052-0.265-2.334-0.403-3.681-0.45zm4.783 0.666v2.55c1.582 0.523 2.638 1.396 3.195 2.67l2.057-0.823c-0.885-1.945-2.555-3.435-5.252-4.397zm-5.595-0.025c-4.011 0.838-6.076 3.283-5.576 7.361 0.358 2.92 1.978 4.863 4.774 5.328v5.877h1.222v-5.823c1.364-0.119 2.679-0.413 3.681-0.803v5.626h1.221v-6.146c0.902-0.426 1.622-0.978 2.082-1.67 0.741-1.116 0.812-2.604 0.265-3.975-0.651-1.631-2.324-2.638-4.987-3.127v-5.221c0.788 0.095 1.514 0.259 2.043 0.489l0.655-2.114c-0.821-0.336-1.778-0.546-2.698-0.659v-2.667h-1.222v2.604c-1.208-0.058-2.434 0.003-3.681 0.167v-2.771h-1.222v2.886c-1.143 0.225-2.326 0.531-3.557 0.939l0.669 2.095c0.842-0.303 1.677-0.535 2.331-0.684zm1.262 4.854c1.365 0 2.434 0.108 3.264 0.359 1.566 0.474 2.338 1.299 2.338 2.521 0 1.323-1.161 2.18-3.264 2.495-0.66 0.099-1.385 0.144-2.338 0.136v-5.511zm0 7.752c0.857 0.005 1.596 0.043 2.24 0.124 2.373 0.299 3.62 1.182 3.62 2.758 0 1.682-1.496 2.649-3.86 2.963-0.73 0.097-1.466 0.133-2.24 0.121v-5.966h0.24z"/>
+              </svg>
+            ) : (
+              <span className={`${selectedAsset === 'GBTC' ? 'text-black' : 'text-white'} font-bold text-xl`}>
+                {selectedAsset === 'GBTC' ? '₿' : '₮'}
+              </span>
+            )}
           </div>
           <div>
             <p className="text-white font-medium text-lg">{selectedAsset}</p>
+            {selectedAsset === 'BTC' && <p className="text-gray-400 text-xs">Bitcoin</p>}
           </div>
         </div>
 
@@ -558,7 +598,7 @@ export default function WalletPage() {
           <div>
             <p className="text-gray-500 text-xs mb-1">Balance</p>
             <p className="text-white font-medium">
-              {selectedAsset === 'GBTC' ? gbtcBalance.toFixed(8) : usdtBalance.toFixed(2)}
+              {selectedAsset === 'BTC' ? '0.00000000' : selectedAsset === 'GBTC' ? gbtcBalance.toFixed(8) : usdtBalance.toFixed(2)}
             </p>
           </div>
           <div>
@@ -568,9 +608,9 @@ export default function WalletPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className={`grid ${selectedAsset === 'BTC' ? 'grid-cols-2' : 'grid-cols-3'} gap-3 mb-6`}>
           <Button
-            onClick={() => selectedAsset === 'GBTC' ? null : setShowDepositDialog(true)}
+            onClick={() => (selectedAsset === 'GBTC' || selectedAsset === 'BTC') ? null : setShowDepositDialog(true)}
             disabled={selectedAsset === 'GBTC'}
             className={`bg-transparent border-2 ${
               selectedAsset === 'GBTC' 
@@ -588,19 +628,34 @@ export default function WalletPage() {
           >
             Withdraw
           </Button>
-          <Button
-            onClick={() => setShowTransferDialog(true)}
-            disabled={selectedAsset === 'USDT'}
-            className={`bg-transparent border-2 ${
-              selectedAsset === 'GBTC' 
-                ? 'border-[#f7931a] text-[#f7931a] hover:bg-[#f7931a] hover:text-black' 
-                : 'border-gray-600 text-gray-600 cursor-not-allowed'
-            } font-medium`}
-            data-testid="button-transfer"
-          >
-            Transfer
-          </Button>
+          {selectedAsset !== 'BTC' && (
+            <Button
+              onClick={() => setShowTransferDialog(true)}
+              disabled={selectedAsset === 'USDT'}
+              className={`bg-transparent border-2 ${
+                selectedAsset === 'GBTC' 
+                  ? 'border-[#f7931a] text-[#f7931a] hover:bg-[#f7931a] hover:text-black' 
+                  : 'border-gray-600 text-gray-600 cursor-not-allowed'
+              } font-medium`}
+              data-testid="button-transfer"
+            >
+              Transfer
+            </Button>
+          )}
         </div>
+        
+        {/* Mysterious Button - Only for BTC */}
+        {selectedAsset === 'BTC' && (
+          <div className="mb-6">
+            <Button
+              onClick={() => setLocation('/mysterious-btc')}
+              className="w-full bg-gradient-to-r from-purple-600 to-purple-900 text-white hover:from-purple-700 hover:to-purple-950 font-medium py-6 text-lg shadow-lg"
+              data-testid="button-mysterious"
+            >
+              🚪 Mysterious Door 🚪
+            </Button>
+          </div>
+        )}
 
         {/* Financial Records */}
         <div>
