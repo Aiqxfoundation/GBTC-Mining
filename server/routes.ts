@@ -399,7 +399,19 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  // Global deposit addresses management
+  // Get global deposit addresses (public endpoint for all users)
+  app.get("/api/deposit-addresses", async (req, res, next) => {
+    try {
+      const usdtAddress = await storage.getGlobalDepositAddress('USDT');
+      const ethAddress = await storage.getGlobalDepositAddress('ETH');
+      
+      res.json({ usdt: usdtAddress, eth: ethAddress });
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  // Admin-only endpoint to manage deposit addresses (for backwards compatibility)
   app.get("/api/admin/deposit-addresses", async (req, res, next) => {
     try {
       if (!req.isAuthenticated() || !req.user!.isAdmin) {

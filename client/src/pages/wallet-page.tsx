@@ -105,9 +105,15 @@ export default function WalletPage() {
   const gbtcBalance = parseFloat(user?.gbtcBalance || '0');
   const ethBalance = parseFloat(user?.ethBalance || '0');
 
-  // Generate system deposit addresses
+  // Fetch global deposit addresses from API
+  const { data: globalAddresses } = useQuery<{ usdt: string; eth: string }>({
+    queryKey: ["/api/deposit-addresses"],
+    enabled: !!user
+  });
+
+  // Use global addresses or fallback to defaults
   const systemGBTCAddress = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
-  const systemUSDTAddress = "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb";
+  const systemUSDTAddress = globalAddresses?.usdt || "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb";
 
   // Fetch transactions
   const { data: transactions } = useQuery<TransactionData>({

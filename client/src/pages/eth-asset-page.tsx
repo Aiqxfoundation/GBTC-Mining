@@ -50,8 +50,13 @@ export function EthAssetPage() {
   const ethPrice = parseFloat(ethPriceData?.price || "0");
   const convertUsdValue = convertAmount ? (parseFloat(convertAmount) * ethPrice * 0.999).toFixed(2) : "0.00";
   
-  // ETH deposit address
-  const systemETHAddress = "0x1234567890abcdef1234567890abcdef12345678";
+  // Fetch global deposit address from API
+  const { data: globalAddresses } = useQuery<{ usdt: string; eth: string }>({
+    queryKey: ["/api/deposit-addresses"],
+    enabled: !!user
+  });
+  
+  const systemETHAddress = globalAddresses?.eth || "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb";
   
   // Deposit mutation
   const depositMutation = useMutation({
