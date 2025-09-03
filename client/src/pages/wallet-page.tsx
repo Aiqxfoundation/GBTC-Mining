@@ -302,10 +302,8 @@ export default function WalletPage() {
   // Conversion mutation
   const convertMutation = useMutation({
     mutationFn: async (data: { fromCurrency: string; toCurrency: string; amount: string }) => {
-      return apiRequest('/api/convert', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
+      const res = await apiRequest("POST", "/api/convert", data);
+      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
@@ -706,7 +704,7 @@ export default function WalletPage() {
                 }
                 setShowConvertDialog(true);
               }}
-              className="bg-transparent border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-black font-medium text-sm"
+              className="bg-transparent border-2 border-[#f7931a] text-[#f7931a] hover:bg-[#f7931a] hover:text-black font-medium text-sm"
               data-testid="button-convert"
             >
               Convert
