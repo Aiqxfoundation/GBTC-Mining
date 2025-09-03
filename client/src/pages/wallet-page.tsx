@@ -481,8 +481,12 @@ export default function WalletPage() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">Ξ</span>
+                <div className="w-10 h-10 rounded-full bg-gradient-to-b from-[#627EEA] to-[#3C3C3D] flex items-center justify-center">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                    <path d="M12 1.75L5.75 12.25L12 16L18.25 12.25L12 1.75Z"/>
+                    <path d="M5.75 13.5L12 22.25V16L5.75 13.5Z" opacity="0.6"/>
+                    <path d="M18.25 13.5L12 16V22.25L18.25 13.5Z" opacity="0.8"/>
+                  </svg>
                 </div>
                 <div>
                   <p className="text-white font-medium">ETH</p>

@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
-import { Loader2, ArrowDownCircle, ArrowUpCircle, RefreshCw } from 'lucide-react';
+import { Loader2, ArrowLeft, Copy, CheckCircle } from 'lucide-react';
 import { useLocation } from 'wouter';
 import {
   Dialog,
@@ -30,6 +30,7 @@ export function EthAssetPage() {
   const [withdrawAddress, setWithdrawAddress] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [convertAmount, setConvertAmount] = useState("");
+  const [copiedAddress, setCopiedAddress] = useState(false);
   
   // Get user data
   const { data: user } = useQuery<any>({ queryKey: ['/api/user'] });
@@ -48,6 +49,9 @@ export function EthAssetPage() {
   const ethBalance = parseFloat(user?.ethBalance || "0");
   const ethPrice = parseFloat(ethPriceData?.price || "0");
   const convertUsdValue = convertAmount ? (parseFloat(convertAmount) * ethPrice * 0.999).toFixed(2) : "0.00";
+  
+  // ETH deposit address
+  const systemETHAddress = "0x1234567890abcdef1234567890abcdef12345678";
   
   // Deposit mutation
   const depositMutation = useMutation({
@@ -132,300 +136,321 @@ export function EthAssetPage() {
     }
   });
 
+  const copyAddress = (address: string) => {
+    navigator.clipboard.writeText(address);
+    setCopiedAddress(true);
+    toast({ 
+      title: "Copied", 
+      description: "Address copied to clipboard" 
+    });
+    setTimeout(() => setCopiedAddress(false), 2000);
+  };
+  
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    // Convert to UTC and format as YYYY-MM-DD HH:MM:SS
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
   return (
-    <div className="mobile-page bg-gradient-to-b from-black via-gray-900 to-black">
+    <div className="mobile-page bg-[#1a1a1a]">
       {/* Header */}
-      <div className="mobile-header bg-black/90 backdrop-blur-lg border-b border-orange-500/20">
+      <div className="mobile-header bg-[#1a1a1a] border-b border-gray-800">
         <div className="flex items-center">
-          <button 
+          <Button
             onClick={() => setLocation('/wallet')}
-            className="mr-3 text-orange-500"
+            variant="ghost"
+            size="sm"
+            className="p-0 mr-3"
             data-testid="button-back"
           >
-            ←
-          </button>
-          <h1 className="text-lg font-display font-black text-orange-500">
-            Asset Detail
-          </h1>
+            <ArrowLeft className="w-5 h-5 text-white" />
+          </Button>
+          <h1 className="text-lg font-medium text-white">Asset Detail</h1>
         </div>
       </div>
-
+      
+      {/* Content */}
       <div className="mobile-content">
-        {/* ETH Balance Card */}
-        <Card className="bg-black/80 border-orange-500/20 p-6 mb-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-700 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">Ξ</span>
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-white">ETH</h2>
-                <p className="text-sm text-gray-400">Ethereum</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-gray-400">Current Price</p>
-              <p className="text-sm font-bold text-orange-500">${ethPrice.toFixed(2)}</p>
-            </div>
+        {/* Asset Info */}
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-b from-[#627EEA] to-[#3C3C3D] flex items-center justify-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+              <path d="M12 1.75L5.75 12.25L12 16L18.25 12.25L12 1.75Z"/>
+              <path d="M5.75 13.5L12 22.25V16L5.75 13.5Z" opacity="0.6"/>
+              <path d="M18.25 13.5L12 16V22.25L18.25 13.5Z" opacity="0.8"/>
+            </svg>
           </div>
-          
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <div>
-              <p className="text-xs text-gray-400">Balance</p>
-              <p className="text-sm font-mono text-white" data-testid="text-eth-balance">
-                {ethBalance.toFixed(8)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-400">Available</p>
-              <p className="text-sm font-mono text-white">
-                {ethBalance.toFixed(8)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-400">Frozen</p>
-              <p className="text-sm font-mono text-white">
-                0.00000000
-              </p>
-            </div>
+          <div>
+            <p className="text-white font-medium text-lg">ETH</p>
           </div>
-        </Card>
-
+        </div>
+        
+        {/* Balance Info */}
+        <div className="mb-6">
+          <p className="text-gray-500 text-xs mb-1">Balance</p>
+          <p className="text-white font-medium text-lg" data-testid="text-eth-balance">
+            {ethBalance.toFixed(8)}
+          </p>
+        </div>
+        
         {/* Action Buttons */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           <Button
             onClick={() => setDepositOpen(true)}
-            className="bg-orange-500 text-black hover:bg-orange-400 flex flex-col items-center py-4"
+            className="bg-[#f7931a] text-black hover:bg-[#f7931a]/90 font-medium"
             data-testid="button-eth-deposit"
           >
-            <ArrowDownCircle className="w-6 h-6 mb-1" />
-            <span className="text-xs">Deposit</span>
+            Deposit
           </Button>
-          
           <Button
             onClick={() => setWithdrawOpen(true)}
-            className="bg-black border border-orange-500 text-orange-500 hover:bg-orange-500/10 flex flex-col items-center py-4"
-            disabled={ethBalance <= 0}
+            className="bg-transparent border-2 border-gray-600 text-gray-300 hover:bg-gray-800 font-medium"
             data-testid="button-eth-withdraw"
           >
-            <ArrowUpCircle className="w-6 h-6 mb-1" />
-            <span className="text-xs">Withdraw</span>
+            Withdraw
           </Button>
-          
           <Button
             onClick={() => setConvertOpen(true)}
-            className="bg-black border border-orange-500 text-orange-500 hover:bg-orange-500/10 flex flex-col items-center py-4"
-            disabled={ethBalance <= 0}
+            className="bg-transparent border-2 border-gray-600 text-gray-300 hover:bg-gray-800 font-medium"
             data-testid="button-eth-convert"
           >
-            <RefreshCw className="w-6 h-6 mb-1" />
-            <span className="text-xs">Convert</span>
+            Convert
           </Button>
         </div>
-
-        {/* Conversion History */}
+        
+        {/* Financial Records */}
         <div>
-          <h3 className="text-sm font-semibold text-gray-400 mb-3">Financial Records</h3>
-          {conversions && conversions.length > 0 ? (
-            <div className="space-y-2">
-              {conversions.map((conversion: any) => (
-                <Card key={conversion.id} className="bg-black/50 border-gray-800 p-3">
-                  <div className="flex justify-between items-center">
+          <h3 className="text-gray-400 text-sm font-medium mb-3">Financial Records</h3>
+          <div className="space-y-2">
+            {conversions && conversions.length > 0 ? (
+              conversions.map((conversion) => (
+                <Card 
+                  key={conversion.id} 
+                  className="p-3 bg-[#242424] border-gray-800"
+                  data-testid={`conversion-${conversion.id}`}
+                >
+                  <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-gray-400">
-                        Converted {parseFloat(conversion.ethAmount).toFixed(8)} ETH
-                      </p>
-                      <p className="text-sm text-white">
-                        → {parseFloat(conversion.usdtAmount).toFixed(2)} USDT
-                      </p>
+                      <p className="text-white text-sm font-medium">ETH to USDT</p>
+                      <div className="flex items-center space-x-3 mt-1">
+                        <div>
+                          <p className="text-gray-500 text-xs">Amount</p>
+                          <p className="text-white text-sm">{conversion.ethAmount} ETH</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-500 text-xs">Received</p>
+                          <p className="text-white text-sm">{conversion.usdtAmount} USDT</p>
+                        </div>
+                      </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-gray-500">
-                        @${parseFloat(conversion.ethPrice).toFixed(2)}
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        Fee: ${parseFloat(conversion.feeAmount).toFixed(2)}
-                      </p>
+                      <p className="text-gray-500 text-xs">Time</p>
+                      <p className="text-gray-400 text-xs">{formatDate(conversion.createdAt)}</p>
                     </div>
                   </div>
                 </Card>
-              ))}
-            </div>
-          ) : (
-            <Card className="bg-black/50 border-gray-800 p-6 text-center">
-              <p className="text-sm text-gray-500">No conversion history</p>
-            </Card>
-          )}
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500 text-sm">No transactions yet</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-
+      
       {/* Deposit Dialog */}
       <Dialog open={depositOpen} onOpenChange={setDepositOpen}>
-        <DialogContent className="bg-black border-orange-500/20">
+        <DialogContent className="bg-[#242424] border-gray-800">
           <DialogHeader>
-            <DialogTitle className="text-orange-500">Deposit ETH</DialogTitle>
+            <DialogTitle className="text-white">Deposit ETH</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-gray-400">Deposit Address</Label>
-              <div className="bg-gray-900 p-3 rounded font-mono text-xs text-gray-500">
-                0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb3
+              <Label className="text-gray-400">ETH Deposit Address</Label>
+              <div className="flex items-center space-x-2 mt-1">
+                <Input 
+                  value={systemETHAddress}
+                  readOnly
+                  className="bg-[#1a1a1a] border-gray-700 text-gray-400 text-xs"
+                />
+                <Button 
+                  onClick={() => copyAddress(systemETHAddress)}
+                  size="icon"
+                  variant="ghost"
+                  className="text-gray-400 hover:text-white"
+                  data-testid="button-copy-address"
+                >
+                  {copiedAddress ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                </Button>
               </div>
-              <p className="text-xs text-gray-600 mt-1">Send ETH only to this address</p>
             </div>
             
             <div>
-              <Label htmlFor="txHash" className="text-gray-400">Transaction Hash</Label>
+              <Label className="text-gray-400">Amount</Label>
               <Input
-                id="txHash"
-                placeholder="0x..."
-                value={depositTxHash}
-                onChange={(e) => setDepositTxHash(e.target.value)}
-                className="bg-gray-900 border-gray-700"
-                data-testid="input-eth-tx-hash"
+                type="number"
+                step="0.00000001"
+                placeholder="Enter ETH amount"
+                value={depositAmount}
+                onChange={(e) => setDepositAmount(e.target.value)}
+                className="bg-[#1a1a1a] border-gray-700 text-white"
+                data-testid="input-eth-deposit-amount"
               />
             </div>
             
             <div>
-              <Label htmlFor="amount" className="text-gray-400">Amount (ETH)</Label>
+              <Label className="text-gray-400">Transaction Hash</Label>
               <Input
-                id="amount"
-                type="number"
-                step="0.00000001"
-                placeholder="0.00000000"
-                value={depositAmount}
-                onChange={(e) => setDepositAmount(e.target.value)}
-                className="bg-gray-900 border-gray-700"
-                data-testid="input-eth-deposit-amount"
+                placeholder="Enter transaction hash"
+                value={depositTxHash}
+                onChange={(e) => setDepositTxHash(e.target.value)}
+                className="bg-[#1a1a1a] border-gray-700 text-white"
+                data-testid="input-eth-tx-hash"
               />
             </div>
             
             <Button
               onClick={() => depositMutation.mutate()}
               disabled={!depositTxHash || !depositAmount || depositMutation.isPending}
-              className="w-full bg-orange-500 text-black hover:bg-orange-400"
+              className="w-full bg-[#f7931a] text-black hover:bg-[#f7931a]/90"
               data-testid="button-confirm-eth-deposit"
             >
               {depositMutation.isPending ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : null}
-              Submit Deposit
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                'Submit Deposit'
+              )}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Convert Dialog */}
-      <Dialog open={convertOpen} onOpenChange={setConvertOpen}>
-        <DialogContent className="bg-black border-orange-500/20">
-          <DialogHeader>
-            <DialogTitle className="text-orange-500">Convert ETH to USDT</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="bg-gray-900 p-3 rounded">
-              <div className="flex justify-between mb-2">
-                <span className="text-xs text-gray-400">Current ETH Price</span>
-                <button 
-                  onClick={() => refetchPrice()}
-                  className="text-xs text-orange-500"
-                  data-testid="button-refresh-price"
-                >
-                  <RefreshCw className="w-3 h-3 inline mr-1" />
-                  Refresh
-                </button>
-              </div>
-              <p className="text-lg font-bold text-white">${ethPrice.toFixed(2)}</p>
-              <p className="text-xs text-gray-500 mt-1">Conversion Fee: 0.1%</p>
-            </div>
-            
-            <div>
-              <Label htmlFor="convertAmount" className="text-gray-400">Amount to Convert (ETH)</Label>
-              <Input
-                id="convertAmount"
-                type="number"
-                step="0.00000001"
-                placeholder="0.00000000"
-                value={convertAmount}
-                onChange={(e) => setConvertAmount(e.target.value)}
-                max={ethBalance}
-                className="bg-gray-900 border-gray-700"
-                data-testid="input-eth-convert-amount"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Available: {ethBalance.toFixed(8)} ETH
-              </p>
-            </div>
-            
-            <div className="bg-gray-900 p-3 rounded">
-              <p className="text-xs text-gray-400">You will receive</p>
-              <p className="text-lg font-bold text-orange-500">
-                {convertUsdValue} USDT
-              </p>
-              <p className="text-xs text-gray-500">After 0.1% fee</p>
-            </div>
-            
-            <Button
-              onClick={() => convertMutation.mutate()}
-              disabled={!convertAmount || parseFloat(convertAmount) <= 0 || parseFloat(convertAmount) > ethBalance || convertMutation.isPending}
-              className="w-full bg-orange-500 text-black hover:bg-orange-400"
-              data-testid="button-confirm-eth-convert"
-            >
-              {convertMutation.isPending ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : null}
-              Convert to USDT
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
+      
       {/* Withdraw Dialog */}
       <Dialog open={withdrawOpen} onOpenChange={setWithdrawOpen}>
-        <DialogContent className="bg-black border-orange-500/20">
+        <DialogContent className="bg-[#242424] border-gray-800">
           <DialogHeader>
-            <DialogTitle className="text-orange-500">Withdraw ETH</DialogTitle>
+            <DialogTitle className="text-white">Withdraw ETH</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="withdrawAddress" className="text-gray-400">Withdrawal Address</Label>
+              <Label className="text-gray-400">Available Balance</Label>
+              <p className="text-white text-lg font-medium">{ethBalance.toFixed(8)} ETH</p>
+            </div>
+            
+            <div>
+              <Label className="text-gray-400">Withdrawal Address</Label>
               <Input
-                id="withdrawAddress"
-                placeholder="0x..."
+                placeholder="Enter ETH address"
                 value={withdrawAddress}
                 onChange={(e) => setWithdrawAddress(e.target.value)}
-                className="bg-gray-900 border-gray-700"
+                className="bg-[#1a1a1a] border-gray-700 text-white"
                 data-testid="input-eth-withdraw-address"
               />
             </div>
             
             <div>
-              <Label htmlFor="withdrawAmount" className="text-gray-400">Amount (ETH)</Label>
+              <Label className="text-gray-400">Amount</Label>
               <Input
-                id="withdrawAmount"
                 type="number"
                 step="0.00000001"
-                placeholder="0.00000000"
+                placeholder="Enter amount to withdraw"
                 value={withdrawAmount}
                 onChange={(e) => setWithdrawAmount(e.target.value)}
-                max={ethBalance}
-                className="bg-gray-900 border-gray-700"
+                className="bg-[#1a1a1a] border-gray-700 text-white"
                 data-testid="input-eth-withdraw-amount"
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Available: {ethBalance.toFixed(8)} ETH
-              </p>
             </div>
             
             <Button
               onClick={() => withdrawMutation.mutate()}
-              disabled={!withdrawAddress || !withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > ethBalance || withdrawMutation.isPending}
-              className="w-full bg-orange-500 text-black hover:bg-orange-400"
+              disabled={!withdrawAddress || !withdrawAmount || withdrawMutation.isPending}
+              className="w-full bg-[#f7931a] text-black hover:bg-[#f7931a]/90"
               data-testid="button-confirm-eth-withdraw"
             >
               {withdrawMutation.isPending ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : null}
-              Submit Withdrawal
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                'Withdraw'
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Convert Dialog */}
+      <Dialog open={convertOpen} onOpenChange={setConvertOpen}>
+        <DialogContent className="bg-[#242424] border-gray-800">
+          <DialogHeader>
+            <DialogTitle className="text-white">Convert ETH to USDT</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-gray-400">Available ETH</Label>
+              <p className="text-white text-lg font-medium">{ethBalance.toFixed(8)} ETH</p>
+            </div>
+            
+            <div>
+              <Label className="text-gray-400">Current ETH Price</Label>
+              <div className="flex items-center space-x-2">
+                <p className="text-white text-lg font-medium">${ethPrice.toFixed(2)}</p>
+                <Button 
+                  onClick={() => refetchPrice()}
+                  size="icon"
+                  variant="ghost"
+                  className="h-6 w-6"
+                  data-testid="button-refresh-price"
+                >
+                  <Loader2 className="h-4 w-4 text-gray-400" />
+                </Button>
+              </div>
+            </div>
+            
+            <div>
+              <Label className="text-gray-400">Amount to Convert</Label>
+              <Input
+                type="number"
+                step="0.00000001"
+                placeholder="Enter ETH amount"
+                value={convertAmount}
+                onChange={(e) => setConvertAmount(e.target.value)}
+                className="bg-[#1a1a1a] border-gray-700 text-white"
+                data-testid="input-eth-convert-amount"
+              />
+            </div>
+            
+            <div>
+              <Label className="text-gray-400">You Will Receive (after 0.1% fee)</Label>
+              <p className="text-white text-lg font-medium">{convertUsdValue} USDT</p>
+            </div>
+            
+            <Button
+              onClick={() => convertMutation.mutate()}
+              disabled={!convertAmount || parseFloat(convertAmount) > ethBalance || convertMutation.isPending}
+              className="w-full bg-[#f7931a] text-black hover:bg-[#f7931a]/90"
+              data-testid="button-confirm-eth-convert"
+            >
+              {convertMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Converting...
+                </>
+              ) : (
+                'Convert to USDT'
+              )}
             </Button>
           </div>
         </DialogContent>
