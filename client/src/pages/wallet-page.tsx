@@ -510,6 +510,16 @@ export default function WalletPage() {
 
         {/* Assets List */}
         <div className="mobile-content">
+          {/* Exchange Button */}
+          <Button
+            onClick={() => setShowConvertDialog(true)}
+            className="w-full mb-4 bg-gradient-to-r from-[#f7931a] to-[#e68a00] hover:from-[#e68a00] hover:to-[#d17a00] text-white font-medium"
+            data-testid="button-exchange"
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Exchange
+          </Button>
+          
           {/* BTC Asset - Real Bitcoin */}
           <Card 
             className="p-4 mb-3 bg-[#242424] border-gray-800 cursor-pointer hover:bg-[#2a2a2a] transition-colors"
@@ -712,7 +722,7 @@ export default function WalletPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className={`grid ${selectedAsset === 'BTC' || selectedAsset === 'USDT' ? 'grid-cols-4' : 'grid-cols-3'} gap-3 mb-6`}>
+        <div className="grid grid-cols-3 gap-3 mb-6">
           <Button
             onClick={() => selectedAsset === 'GBTC' ? null : setShowDepositDialog(true)}
             disabled={selectedAsset === 'GBTC'}
@@ -732,24 +742,6 @@ export default function WalletPage() {
           >
             Withdraw
           </Button>
-          {(selectedAsset === 'BTC' || selectedAsset === 'USDT') && (
-            <Button
-              onClick={() => {
-                if (selectedAsset === 'USDT') {
-                  setConvertFrom('USDT');
-                  setConvertTo('BTC');
-                } else {
-                  setConvertFrom('BTC');
-                  setConvertTo('USDT');
-                }
-                setShowConvertDialog(true);
-              }}
-              className="bg-transparent border-2 border-[#f7931a] text-[#f7931a] hover:bg-[#f7931a] hover:text-black font-medium text-sm"
-              data-testid="button-convert"
-            >
-              Convert
-            </Button>
-          )}
           <Button
             onClick={() => selectedAsset === 'BTC' ? setLocation('/btc-mining') : setShowTransferDialog(true)}
             disabled={selectedAsset === 'USDT'}
@@ -1197,12 +1189,12 @@ export default function WalletPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Conversion Dialog */}
+      {/* Exchange Dialog */}
       <Dialog open={showConvertDialog} onOpenChange={setShowConvertDialog}>
         <DialogContent className="sm:max-w-md bg-[#242424] border-gray-800">
           <DialogHeader>
             <DialogTitle className="text-white font-medium">
-              Convert Currency
+              Exchange
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
@@ -1210,17 +1202,20 @@ export default function WalletPage() {
               <Label className="text-gray-400 text-sm">From</Label>
               <Select value={convertFrom} onValueChange={(value: 'BTC' | 'USDT' | 'ETH') => {
                 setConvertFrom(value);
-                if (value === 'BTC') setConvertTo('USDT');
-                else if (value === 'USDT') setConvertTo('BTC');
-                else if (value === 'ETH') setConvertTo('USDT');
+                // Auto-adjust "To" if same currency selected
+                if (value === convertTo) {
+                  if (value === 'BTC') setConvertTo('USDT');
+                  else if (value === 'ETH') setConvertTo('USDT');
+                  else if (value === 'USDT') setConvertTo('BTC');
+                }
               }}>
                 <SelectTrigger className="bg-[#1a1a1a] border-gray-700 text-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-[#242424] border-gray-700">
                   <SelectItem value="BTC">BTC</SelectItem>
-                  <SelectItem value="USDT">USDT</SelectItem>
                   <SelectItem value="ETH">ETH</SelectItem>
+                  <SelectItem value="USDT">USDT</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -1229,17 +1224,14 @@ export default function WalletPage() {
               <Label className="text-gray-400 text-sm">To</Label>
               <Select value={convertTo} onValueChange={(value: 'BTC' | 'USDT' | 'ETH') => {
                 setConvertTo(value);
-                if (value === 'BTC') setConvertFrom('USDT');
-                else if (value === 'USDT') setConvertFrom(convertFrom === 'USDT' ? 'BTC' : convertFrom);
-                else if (value === 'ETH') setConvertFrom('USDT');
               }}>
                 <SelectTrigger className="bg-[#1a1a1a] border-gray-700 text-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-[#242424] border-gray-700">
                   {convertFrom !== 'BTC' && <SelectItem value="BTC">BTC</SelectItem>}
-                  {convertFrom !== 'USDT' && <SelectItem value="USDT">USDT</SelectItem>}
                   {convertFrom !== 'ETH' && <SelectItem value="ETH">ETH</SelectItem>}
+                  {convertFrom !== 'USDT' && <SelectItem value="USDT">USDT</SelectItem>}
                 </SelectContent>
               </Select>
             </div>
@@ -1338,10 +1330,10 @@ export default function WalletPage() {
               {convertMutation.isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Converting...
+                  Exchanging...
                 </>
               ) : (
-                `Convert ${convertFrom} to ${convertTo}`
+                `Exchange ${convertFrom} to ${convertTo}`
               )}
             </Button>
           </div>
