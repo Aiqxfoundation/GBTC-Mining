@@ -374,7 +374,7 @@ export default function MiningFactory() {
                           duration: 0.3,
                         }}
                       >
-                        <span className="text-2xl font-bold text-orange-900">₿</span>
+                        <span className="text-2xl font-bold text-orange-900">B</span>
                       </motion.div>
                     </motion.div>
 
