@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, ChevronRight, Copy, CheckCircle, RefreshCw, Bitcoin, TrendingUp } from "lucide-react";
+import { Loader2, ArrowLeft, ChevronRight, Copy, CheckCircle, RefreshCw, Bitcoin, TrendingUp, ArrowUpDown } from "lucide-react";
 import { useLocation } from "wouter";
 
 interface Transaction {
@@ -613,39 +613,59 @@ export default function WalletPage() {
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <div>
-                <Label className="text-gray-400 text-sm">From</Label>
-                <Select value={convertFrom} onValueChange={(value: 'BTC' | 'USDT') => {
-                  setConvertFrom(value as 'BTC' | 'USDT');
-                  // Auto-adjust "To" if same currency selected
-                  if (value === convertTo) {
-                    if (value === 'BTC') setConvertTo('USDT');
-                    else if (value === 'USDT') setConvertTo('BTC');
-                  }
-                }}>
-                  <SelectTrigger className="bg-[#1a1a1a] border-gray-700 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#242424] border-gray-700">
-                    <SelectItem value="BTC">BTC</SelectItem>
-                    <SelectItem value="USDT">USDT</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label className="text-gray-400 text-sm">To</Label>
-                <Select value={convertTo} onValueChange={(value: 'BTC' | 'USDT') => {
-                  setConvertTo(value as 'BTC' | 'USDT');
-                }}>
-                  <SelectTrigger className="bg-[#1a1a1a] border-gray-700 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#242424] border-gray-700">
-                    {convertFrom !== 'BTC' && <SelectItem value="BTC">BTC</SelectItem>}
-                    {convertFrom !== 'USDT' && <SelectItem value="USDT">USDT</SelectItem>}
-                  </SelectContent>
-                </Select>
+              {/* From-To Section with Switch Button */}
+              <div className="relative">
+                <div className="grid grid-cols-[1fr,auto,1fr] gap-2 items-center">
+                  {/* From Currency */}
+                  <div className="bg-[#1a1a1a] rounded-lg p-3 border border-gray-700">
+                    <p className="text-xs text-gray-400 mb-1">From</p>
+                    <div className="flex items-center justify-center space-x-2">
+                      {convertFrom === 'BTC' ? (
+                        <>
+                          <Bitcoin className="w-5 h-5 text-[#f7931a]" />
+                          <span className="text-white font-medium">BTC</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-[#26a17b] font-bold text-lg">₮</span>
+                          <span className="text-white font-medium">USDT</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Switch Button */}
+                  <Button
+                    onClick={() => {
+                      const temp = convertFrom;
+                      setConvertFrom(convertTo);
+                      setConvertTo(temp);
+                    }}
+                    className="rounded-full p-2 bg-[#1a1a1a] hover:bg-[#2a2a2a] border border-gray-700"
+                    variant="ghost"
+                    size="icon"
+                  >
+                    <ArrowUpDown className="w-4 h-4 text-white" />
+                  </Button>
+                  
+                  {/* To Currency */}
+                  <div className="bg-[#1a1a1a] rounded-lg p-3 border border-gray-700">
+                    <p className="text-xs text-gray-400 mb-1">To</p>
+                    <div className="flex items-center justify-center space-x-2">
+                      {convertTo === 'BTC' ? (
+                        <>
+                          <Bitcoin className="w-5 h-5 text-[#f7931a]" />
+                          <span className="text-white font-medium">BTC</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-[#26a17b] font-bold text-lg">₮</span>
+                          <span className="text-white font-medium">USDT</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
               
               <div>
