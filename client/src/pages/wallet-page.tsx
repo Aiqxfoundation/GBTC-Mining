@@ -61,10 +61,17 @@ export default function WalletPage() {
       if (storedCooldown) {
         const cooldownEnd = parseInt(storedCooldown);
         const remainingTime = Math.max(0, cooldownEnd - Date.now());
-        setDepositCooldown(Math.ceil(remainingTime / 1000)); // Convert to seconds
         
-        if (remainingTime <= 0) {
+        // Clear old 72-hour cooldowns (anything over 12 hours)
+        if (remainingTime > 12 * 60 * 60 * 1000) {
           localStorage.removeItem('depositCooldownEnd');
+          setDepositCooldown(0);
+        } else {
+          setDepositCooldown(Math.ceil(remainingTime / 1000)); // Convert to seconds
+          
+          if (remainingTime <= 0) {
+            localStorage.removeItem('depositCooldownEnd');
+          }
         }
       }
     };
@@ -166,8 +173,8 @@ export default function WalletPage() {
     },
     onSuccess: () => {
       toast({ 
-        title: "Deposit Submitted", 
-        description: "Your deposit is being processed" 
+        title: "Deposit Submitted Successfully!", 
+        description: "Your deposit is being processed. You can deposit again after 12 hours." 
       });
       // Start 12-hour cooldown immediately
       const cooldownEnd = Date.now() + (12 * 60 * 60 * 1000);
@@ -697,7 +704,7 @@ export default function WalletPage() {
                   <p>• Minimum deposit: {selectedAsset === 'GBTC' ? '0.001 GBTC' : '10 USDT'}</p>
                   <p>• Only send {selectedAsset === 'USDT' ? 'USDT from BSC/ETH Network' : 'GBTC'} to this address</p>
                   <p>• System will verify transaction hash. It requires some time, so please be patient</p>
-                  <p>• You can only deposit once within 12 hours</p>
+                  <p>• You can deposit only once within 12 hours (to prevent multiple attempts)</p>
                   <p>• If you submit wrong TX Hash, your deposit will fail and may result in loss of funds</p>
                   <p>• Incorrect deposits cannot be recovered - please double-check the address</p>
                   <p>• Contact support if your deposit doesn't appear within 2 hours</p>
