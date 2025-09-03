@@ -837,7 +837,7 @@ export async function registerRoutes(app: Express) {
       res.json({
         btcPrice,
         hashratePrice,
-        btcPerHashrate: (parseFloat(hashratePrice) / parseFloat(btcPrice)).toFixed(8),
+        requiredHashratePerBTC: btcPrice, // 1 BTC requires btcPrice amount of GH/s (since 1 GH/s = 1 USD)
         timestamp: new Date().toISOString()
       });
     } catch (error) {
@@ -869,8 +869,8 @@ export async function registerRoutes(app: Express) {
         return res.status(400).json({ message: "Insufficient BTC balance" });
       }
 
-      // Calculate required hashrate (1 BTC worth)
-      const requiredHashrate = parseFloat(btcAmount) * 1000; // 1000 GH/s per BTC
+      // Calculate required hashrate (1 GH/s = 1 USD, so GH/s needed = BTC amount * BTC price)
+      const requiredHashrate = parseFloat(btcAmount) * parseFloat(btcPrice);
       
       if (useHashrate && userHashPower < requiredHashrate) {
         return res.status(400).json({ 

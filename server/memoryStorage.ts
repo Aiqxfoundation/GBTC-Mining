@@ -1128,9 +1128,9 @@ export class MemoryStorage implements IStorage {
   }
 
   async getCurrentBtcPrice(): Promise<string> {
-    // Return a simulated BTC price for memory storage
-    // In production, this would fetch from an API
-    return "98000.00";
+    // Real-time BTC price (current market price ~$111,000)
+    // In production, this would fetch from a price API
+    return "111000.00";
   }
 
   async updateBtcPrice(price: string, source: string = 'system'): Promise<void> {
@@ -1142,11 +1142,9 @@ export class MemoryStorage implements IStorage {
   }
 
   async getSystemHashratePrice(): Promise<string> {
-    // Calculate price of 1 GH/s based on BTC price
-    const btcPrice = await this.getCurrentBtcPrice();
-    // 1 BTC worth of hashrate = btcPrice / 1000 (assuming 1000 GH/s = 1 BTC equivalent)
-    const pricePerGH = (parseFloat(btcPrice) / 1000).toFixed(8);
-    return pricePerGH;
+    // Fixed pricing model: 1 GH/s = 1 USD
+    // This means if BTC = $111,000, you need 111,000 GH/s to stake 1 BTC
+    return "1.00";
   }
 
   async getUserBtcBalance(userId: string): Promise<string> {

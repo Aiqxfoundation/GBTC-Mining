@@ -13,12 +13,17 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-// Time periods with corresponding APR rates
+// Time periods with corresponding APR rates (3 months to 10 years)
 const TIME_PERIODS = [
-  { months: 3, label: "3 Months", apr: 10, color: "bg-blue-600", icon: Zap },
-  { months: 6, label: "6 Months", apr: 15, color: "bg-purple-600", icon: Trophy },
-  { months: 12, label: "1 Year", apr: 20, color: "bg-orange-600", icon: Gem },
-  { months: 24, label: "2 Years", apr: 30, color: "bg-red-600", icon: Crown },
+  { months: 3, label: "3 Months", apr: 5, color: "bg-gray-600", icon: Zap },
+  { months: 6, label: "6 Months", apr: 8, color: "bg-blue-600", icon: Trophy },
+  { months: 12, label: "1 Year", apr: 12, color: "bg-green-600", icon: Gem },
+  { months: 24, label: "2 Years", apr: 18, color: "bg-purple-600", icon: Crown },
+  { months: 36, label: "3 Years", apr: 25, color: "bg-orange-600", icon: Trophy },
+  { months: 48, label: "4 Years", apr: 32, color: "bg-pink-600", icon: Gem },
+  { months: 60, label: "5 Years", apr: 40, color: "bg-red-600", icon: Crown },
+  { months: 84, label: "7 Years", apr: 50, color: "bg-indigo-600", icon: Trophy },
+  { months: 120, label: "10 Years", apr: 65, color: "bg-yellow-600", icon: Crown },
 ];
 
 export default function BtcStakingEnhanced() {
@@ -28,7 +33,7 @@ export default function BtcStakingEnhanced() {
   const queryClient = useQueryClient();
   
   const [btcSliderValue, setBtcSliderValue] = useState([1]);
-  const [hashrateSliderValue, setHashrateSliderValue] = useState([1000]);
+  const [hashrateSliderValue, setHashrateSliderValue] = useState([111000]); // Default for 1 BTC at $111k
   const [selectedPeriod, setSelectedPeriod] = useState(TIME_PERIODS[2]); // Default to 1 year
   const [useHashrate, setUseHashrate] = useState(true);
 
@@ -36,7 +41,7 @@ export default function BtcStakingEnhanced() {
   const { data: priceData } = useQuery<{
     btcPrice: string;
     hashratePrice: string;
-    btcPerHashrate: string;
+    requiredHashratePerBTC: string;
     timestamp: string;
   }>({
     queryKey: ['/api/btc/prices'],
@@ -112,11 +117,13 @@ export default function BtcStakingEnhanced() {
   const dollarReturn = totalReturn * btcPrice;
 
   // Update hashrate slider when BTC slider changes
+  // Using 1 GH/s = 1 USD model, so required GH/s = BTC amount * BTC price
   useEffect(() => {
-    if (useHashrate) {
-      setHashrateSliderValue([btcAmount * 1000]);
+    if (useHashrate && btcPrice > 0) {
+      const requiredHashrate = btcAmount * btcPrice;
+      setHashrateSliderValue([requiredHashrate]);
     }
-  }, [btcAmount, useHashrate]);
+  }, [btcAmount, btcPrice, useHashrate]);
 
   const handleStake = () => {
     stakeMutation.mutate({
@@ -188,7 +195,7 @@ export default function BtcStakingEnhanced() {
               {/* Time Period Selector */}
               <div className="mb-6">
                 <Label className="text-white mb-3 block">Select Lock Period</Label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   {TIME_PERIODS.map((period) => {
                     const Icon = period.icon;
                     return (
@@ -263,7 +270,7 @@ export default function BtcStakingEnhanced() {
                       {useHashrate ? hashrateAmount.toFixed(0) : '0'} GH/s
                     </p>
                     <p className="text-xs text-gray-400">
-                      {useHashrate ? `Required: ${(btcAmount * 1000).toFixed(0)} GH/s` : 'Not used'}
+                      {useHashrate ? `Required: ${(btcAmount * btcPrice).toFixed(0)} GH/s` : 'Not used'}
                     </p>
                   </div>
                 </div>
@@ -272,16 +279,16 @@ export default function BtcStakingEnhanced() {
                     <Slider
                       value={hashrateSliderValue}
                       onValueChange={setHashrateSliderValue}
-                      min={100}
-                      max={Math.max(10000, userHashPower)}
-                      step={100}
+                      min={1000}
+                      max={Math.max(500000, btcPrice * 10)}
+                      step={1000}
                       className="mb-2"
                       disabled={!useHashrate}
                       data-testid="slider-hashrate-amount"
                     />
                     <div className="flex justify-between text-xs text-gray-400">
-                      <span>100 GH/s</span>
-                      <span>{Math.max(10000, userHashPower).toFixed(0)} GH/s</span>
+                      <span>1,000 GH/s</span>
+                      <span>{Math.max(500000, btcPrice * 10).toLocaleString()} GH/s</span>
                     </div>
                   </>
                 )}
