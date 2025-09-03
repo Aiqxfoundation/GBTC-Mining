@@ -208,7 +208,7 @@ export default function MiningFactory() {
   // Calculate mining stats based on mathematical distribution
   const totalSupply = 2100000; // 2.1M max supply
   const blockHeight = globalStats?.blockHeight || 1;
-  const totalBlockHeight = globalStats?.totalBlockHeight || blockHeight;
+  const totalBlockHeight = globalStats?.totalBlockHeight || globalStats?.totalBlocksMined || blockHeight;
   const globalHashrate = globalStats?.totalHashrate || 0;
   const circulation = globalStats?.circulation || 0;
   const currentBlockReward = globalStats?.currentBlockReward || 50;
@@ -263,15 +263,15 @@ export default function MiningFactory() {
 
       <div className="mobile-content">
         {/* Mining Animation Section */}
-        <Card className="mobile-card bg-gradient-to-br from-yellow-900/20 to-yellow-600/10 border-yellow-500/30 overflow-hidden relative">
+        <Card className="mobile-card bg-gradient-to-br from-black/60 to-yellow-900/20 border-yellow-500/20 overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none"></div>
           
-          <div className="relative z-10 p-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center space-x-2">
+          <div className="relative z-10 p-3">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-1.5">
                 <div className={`w-2 h-2 rounded-full ${isMining ? 'bg-yellow-400 animate-pulse' : 'bg-red-500'}`}></div>
                 <span className="text-[10px] font-mono text-yellow-400">
-                  {isMining ? 'MINING' : 'OFFLINE'}
+                  {isMining ? 'MINING ACTIVE' : 'OFFLINE'}
                 </span>
               </div>
               <span className="text-[10px] font-mono text-yellow-500">
@@ -280,14 +280,14 @@ export default function MiningFactory() {
             </div>
 
             {/* Energy Core Mining Animation */}
-            <div className="flex justify-center my-6 relative">
-              <div className="relative w-48 h-48 flex items-center justify-center">
+            <div className="flex justify-center my-4 relative">
+              <div className="relative w-40 h-40 flex items-center justify-center">
                 
                 {/* Central Energy Core */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   {/* Outer hexagon frame */}
                   <motion.div
-                    className="absolute w-36 h-36"
+                    className="absolute w-32 h-32"
                     animate={isMining ? {
                       rotate: [0, 360],
                     } : {}}
@@ -317,7 +317,7 @@ export default function MiningFactory() {
 
                   {/* Energy core center - transforms to block */}
                   <motion.div
-                    className="absolute w-20 h-20"
+                    className="absolute w-16 h-16"
                     animate={isBlockForm ? {
                       rotate: [0, 90, 180, 270, 360],
                       scale: [1, 0.8, 1],
@@ -375,7 +375,7 @@ export default function MiningFactory() {
                       
                       {/* Bitcoin symbol */}
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-2xl font-bold text-white" style={{ transform: 'scaleX(-1)' }}>₿</span>
+                        <span className="text-lg font-bold text-white">₿</span>
                       </div>
                     </motion.div>
 
@@ -467,7 +467,7 @@ export default function MiningFactory() {
             </div>
 
             {/* Mining Progress */}
-            <div className="mt-3 w-full bg-black/50 rounded-full h-1.5 overflow-hidden">
+            <div className="mt-2 w-full bg-black/50 rounded-full h-1 overflow-hidden">
               <motion.div 
                 className="h-full bg-gradient-to-r from-yellow-500 to-yellow-600"
                 style={{ width: `${miningProgress}%` }}
@@ -476,22 +476,22 @@ export default function MiningFactory() {
             </div>
 
             {/* Current Block Info */}
-            <div className="grid grid-cols-2 gap-2 text-[9px] font-mono mt-3">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[8px] font-mono mt-2 bg-black/30 rounded p-2">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Height:</span>
-                <span className="text-yellow-500 font-bold">#{totalBlockHeight}</span>
+                <span className="text-yellow-200/60">Height:</span>
+                <span className="text-yellow-400 font-semibold">#{totalBlockHeight}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Next:</span>
-                <span className="text-yellow-400 font-bold">{nextBlockTime}</span>
+                <span className="text-yellow-200/60">Next:</span>
+                <span className="text-yellow-400 font-semibold">{nextBlockTime}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Network:</span>
-                <span className="text-yellow-500 font-bold">{formatHashrate(globalHashrate)}</span>
+                <span className="text-yellow-200/60">Network:</span>
+                <span className="text-yellow-400 font-semibold">{formatHashrate(globalHashrate)}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Reward:</span>
-                <span className="text-yellow-400 font-bold">{currentBlockReward} ₿</span>
+                <span className="text-yellow-200/60">Reward:</span>
+                <span className="text-yellow-400 font-semibold">{currentBlockReward} ₿</span>
               </div>
             </div>
           </div>
