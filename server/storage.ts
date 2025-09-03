@@ -40,8 +40,14 @@ export interface IStorage {
   updateUser(userId: string, updates: Partial<User>): Promise<void>;
   freezeUser(userId: string): Promise<void>;
   unfreezeUser(userId: string): Promise<void>;
+  banUser(userId: string): Promise<void>;
+  unbanUser(userId: string): Promise<void>;
   getAllUsers(): Promise<User[]>;
   updateUserBalances(userId: string, balances: { usdtBalance?: string; gbtcBalance?: string; hashPower?: string }): Promise<void>;
+  
+  // Global deposit address methods
+  getGlobalDepositAddress(currency: 'USDT' | 'ETH'): Promise<string>;
+  setGlobalDepositAddress(currency: 'USDT' | 'ETH', address: string): Promise<void>;
   
   // Deposit methods
   createDeposit(deposit: InsertDeposit & { userId: string }): Promise<Deposit>;
@@ -185,6 +191,31 @@ export class DatabaseStorage implements IStorage {
       .update(users)
       .set({ isFrozen: false })
       .where(eq(users.id, userId));
+  }
+
+  async banUser(userId: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ isBanned: true })
+      .where(eq(users.id, userId));
+  }
+
+  async unbanUser(userId: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ isBanned: false })
+      .where(eq(users.id, userId));
+  }
+
+  async getGlobalDepositAddress(currency: 'USDT' | 'ETH'): Promise<string> {
+    const key = `${currency}_DEPOSIT_ADDRESS`;
+    const setting = await this.getSystemSetting(key);
+    return setting?.value || (currency === 'USDT' ? 'TBGxYmP3tFrbKvJRvQcF9cENKixQeJdfQc' : '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+  }
+
+  async setGlobalDepositAddress(currency: 'USDT' | 'ETH', address: string): Promise<void> {
+    const key = `${currency}_DEPOSIT_ADDRESS`;
+    await this.setSystemSetting(key, address);
   }
 
   async getAllUsers(): Promise<User[]> {

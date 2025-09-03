@@ -21,6 +21,7 @@ export const users = pgTable("users", {
   lastActiveBlock: integer("last_active_block"), // Last block user was active in
   isAdmin: boolean("is_admin").default(false),
   isFrozen: boolean("is_frozen").default(false),
+  isBanned: boolean("is_banned").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -209,6 +210,7 @@ export const insertUserSchema = createInsertSchema(users).omit({
   unclaimedBalance: true,
   isAdmin: true,
   isFrozen: true,
+  isBanned: true,
 });
 
 export const insertDepositSchema = createInsertSchema(deposits).omit({

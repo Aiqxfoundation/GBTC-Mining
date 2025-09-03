@@ -371,6 +371,67 @@ export async function registerRoutes(app: Express) {
       next(error);
     }
   });
+
+  // Ban/unban user endpoints
+  app.patch("/api/users/:userId/ban", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated() || !req.user!.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      await storage.banUser(req.params.userId);
+      res.json({ message: "User banned successfully" });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.patch("/api/users/:userId/unban", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated() || !req.user!.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      await storage.unbanUser(req.params.userId);
+      res.json({ message: "User unbanned successfully" });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Global deposit addresses management
+  app.get("/api/admin/deposit-addresses", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated() || !req.user!.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const usdtAddress = await storage.getGlobalDepositAddress('USDT');
+      const ethAddress = await storage.getGlobalDepositAddress('ETH');
+      
+      res.json({ usdt: usdtAddress, eth: ethAddress });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post("/api/admin/deposit-address", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated() || !req.user!.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { currency, address } = z.object({
+        currency: z.enum(['USDT', 'ETH']),
+        address: z.string()
+      }).parse(req.body);
+
+      await storage.setGlobalDepositAddress(currency, address);
+      res.json({ message: `${currency} deposit address updated successfully` });
+    } catch (error) {
+      next(error);
+    }
+  });
   
   // Get supply metrics
   app.get("/api/supply-metrics", async (req, res, next) => {

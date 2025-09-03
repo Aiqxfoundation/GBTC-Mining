@@ -69,6 +69,7 @@ export class MemoryStorage implements IStorage {
       lastActiveBlock: 0,
       isAdmin: true,
       isFrozen: false,
+      isBanned: false,
       createdAt: new Date()
     };
     
@@ -97,6 +98,7 @@ export class MemoryStorage implements IStorage {
       lastActiveBlock: 0,
       isAdmin: false,
       isFrozen: false,
+      isBanned: false,
       createdAt: new Date()
     };
     
@@ -135,6 +137,7 @@ export class MemoryStorage implements IStorage {
         lastActiveBlock: 0,
         isAdmin: false,
         isFrozen: false,
+        isBanned: false,
         createdAt: new Date()
       };
       
@@ -229,6 +232,7 @@ export class MemoryStorage implements IStorage {
       lastActiveBlock: null,
       isAdmin: false,
       isFrozen: false,
+      isBanned: false,
       createdAt: new Date()
     };
     
@@ -266,6 +270,37 @@ export class MemoryStorage implements IStorage {
     if (user) {
       user.isFrozen = false;
     }
+  }
+
+  async banUser(userId: string): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      user.isBanned = true;
+    }
+  }
+
+  async unbanUser(userId: string): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      user.isBanned = false;
+    }
+  }
+
+  async getGlobalDepositAddress(currency: 'USDT' | 'ETH'): Promise<string> {
+    const key = `${currency}_DEPOSIT_ADDRESS`;
+    const setting = this.systemSettings.get(key);
+    return setting?.value || (currency === 'USDT' ? 'TBGxYmP3tFrbKvJRvQcF9cENKixQeJdfQc' : '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
+  }
+
+  async setGlobalDepositAddress(currency: 'USDT' | 'ETH', address: string): Promise<void> {
+    const key = `${currency}_DEPOSIT_ADDRESS`;
+    const settingId = `${key}-${randomBytes(8).toString('hex')}`;
+    this.systemSettings.set(key, {
+      id: settingId,
+      key: key,
+      value: address,
+      updatedAt: new Date()
+    });
   }
 
   async getAllUsers(): Promise<User[]> {
