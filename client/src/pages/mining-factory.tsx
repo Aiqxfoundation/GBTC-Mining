@@ -363,10 +363,19 @@ export default function MiningFactory() {
                         </div>
                       )}
                       
-                      {/* Bitcoin symbol */}
-                      <div className="absolute inset-0 flex items-center justify-center">
+                      {/* Bitcoin symbol - hidden during transformation */}
+                      <motion.div 
+                        className="absolute inset-0 flex items-center justify-center"
+                        animate={{
+                          opacity: isBlockForm ? 0 : 1,
+                          scale: isBlockForm ? 0.5 : 1,
+                        }}
+                        transition={{
+                          duration: 0.3,
+                        }}
+                      >
                         <span className="text-2xl font-bold text-orange-900">₿</span>
-                      </div>
+                      </motion.div>
                     </motion.div>
 
                     {/* Pulsing glow */}
