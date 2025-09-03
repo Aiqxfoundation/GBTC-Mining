@@ -373,9 +373,9 @@ export default function MiningFactory() {
                         </div>
                       )}
                       
-                      {/* Bitcoin symbol */}
+                      {/* Mining block icon */}
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-lg font-bold text-white">₿</span>
+                        <Blocks className="w-5 h-5 text-white" />
                       </div>
                     </motion.div>
 
