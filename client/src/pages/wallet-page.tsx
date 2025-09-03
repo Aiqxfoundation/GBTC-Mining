@@ -106,7 +106,7 @@ export default function WalletPage() {
   const ethBalance = parseFloat(user?.ethBalance || '0');
 
   // Fetch global deposit addresses from API
-  const { data: globalAddresses } = useQuery<{ usdt: string; eth: string }>({
+  const { data: globalAddresses } = useQuery<{ usdt: string; eth: string; btc: string }>({
     queryKey: ["/api/deposit-addresses"],
     enabled: !!user,
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
@@ -116,6 +116,7 @@ export default function WalletPage() {
 
   // Use global addresses or fallback to defaults
   const systemGBTCAddress = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
+  const systemBTCAddress = globalAddresses?.btc || "bc1qy8zzqsarhp0s63txsfnn3q3nvuu0g83mv3hwrv";
   const systemUSDTAddress = globalAddresses?.usdt || "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb";
 
   // Fetch transactions
@@ -197,8 +198,9 @@ export default function WalletPage() {
     mutationFn: async (data: { amount: string; txHash: string }) => {
       const res = await apiRequest("POST", "/api/deposits", {
         amount: data.amount,
-        network: selectedAsset === 'USDT' ? 'BSC' : 'GBTC',
-        txHash: data.txHash
+        network: selectedAsset === 'USDT' ? 'BSC' : selectedAsset === 'BTC' ? 'BTC' : 'GBTC',
+        txHash: data.txHash,
+        currency: selectedAsset === 'BTC' ? 'BTC' : selectedAsset === 'USDT' ? 'USDT' : 'GBTC'
       });
       return res.json();
     },
@@ -437,7 +439,6 @@ export default function WalletPage() {
                 </div>
                 <div>
                   <p className="text-white font-medium">BTC</p>
-                  <p className="text-gray-400 text-xs">Bitcoin</p>
                 </div>
               </div>
               <ChevronRight className="w-5 h-5 text-gray-500" />
@@ -449,8 +450,8 @@ export default function WalletPage() {
                 <p className="text-white font-medium">0.00000000</p>
               </div>
               <div>
-                <p className="text-[#f7931a] text-xs">Value</p>
-                <p className="text-white font-medium">$0.00</p>
+                <p className="text-[#f7931a] text-xs"></p>
+                <p className="text-white font-medium"></p>
               </div>
             </div>
           </Card>
@@ -543,8 +544,8 @@ export default function WalletPage() {
                 <p className="text-white font-medium" data-testid="text-wallet-eth-balance">{ethBalance.toFixed(8)}</p>
               </div>
               <div>
-                <p className="text-gray-400 text-xs">Available</p>
-                <p className="text-white font-medium">{ethBalance.toFixed(8)}</p>
+                <p className="text-gray-400 text-xs"></p>
+                <p className="text-white font-medium"></p>
               </div>
             </div>
           </Card>
@@ -589,7 +590,6 @@ export default function WalletPage() {
           </div>
           <div>
             <p className="text-white font-medium text-lg">{selectedAsset}</p>
-            {selectedAsset === 'BTC' && <p className="text-gray-400 text-xs">Bitcoin</p>}
           </div>
         </div>
 
@@ -610,7 +610,7 @@ export default function WalletPage() {
         {/* Action Buttons */}
         <div className={`grid ${selectedAsset === 'BTC' ? 'grid-cols-2' : 'grid-cols-3'} gap-3 mb-6`}>
           <Button
-            onClick={() => (selectedAsset === 'GBTC' || selectedAsset === 'BTC') ? null : setShowDepositDialog(true)}
+            onClick={() => selectedAsset === 'GBTC' ? null : setShowDepositDialog(true)}
             disabled={selectedAsset === 'GBTC'}
             className={`bg-transparent border-2 ${
               selectedAsset === 'GBTC' 
@@ -737,12 +737,12 @@ export default function WalletPage() {
                 <Label className="text-gray-400 text-sm">Deposit Address</Label>
                 <div className="flex items-center gap-2 mt-2">
                   <Input
-                    value={selectedAsset === 'GBTC' ? systemGBTCAddress : systemUSDTAddress}
+                    value={selectedAsset === 'GBTC' ? systemGBTCAddress : selectedAsset === 'BTC' ? systemBTCAddress : systemUSDTAddress}
                     readOnly
                     className="bg-[#1a1a1a] border-gray-700 text-white font-mono text-xs"
                   />
                   <Button
-                    onClick={() => copyAddress(selectedAsset === 'GBTC' ? systemGBTCAddress : systemUSDTAddress)}
+                    onClick={() => copyAddress(selectedAsset === 'GBTC' ? systemGBTCAddress : selectedAsset === 'BTC' ? systemBTCAddress : systemUSDTAddress)}
                     variant="ghost"
                     size="sm"
                     className="px-2"

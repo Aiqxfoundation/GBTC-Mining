@@ -404,8 +404,9 @@ export async function registerRoutes(app: Express) {
     try {
       const usdtAddress = await storage.getGlobalDepositAddress('USDT');
       const ethAddress = await storage.getGlobalDepositAddress('ETH');
+      const btcAddress = await storage.getGlobalDepositAddress('BTC');
       
-      res.json({ usdt: usdtAddress, eth: ethAddress });
+      res.json({ usdt: usdtAddress, eth: ethAddress, btc: btcAddress });
     } catch (error) {
       next(error);
     }
@@ -420,8 +421,9 @@ export async function registerRoutes(app: Express) {
 
       const usdtAddress = await storage.getGlobalDepositAddress('USDT');
       const ethAddress = await storage.getGlobalDepositAddress('ETH');
+      const btcAddress = await storage.getGlobalDepositAddress('BTC');
       
-      res.json({ usdt: usdtAddress, eth: ethAddress });
+      res.json({ usdt: usdtAddress, eth: ethAddress, btc: btcAddress });
     } catch (error) {
       next(error);
     }
@@ -434,7 +436,7 @@ export async function registerRoutes(app: Express) {
       }
 
       const { currency, address } = z.object({
-        currency: z.enum(['USDT', 'ETH']),
+        currency: z.enum(['USDT', 'ETH', 'BTC']),
         address: z.string()
       }).parse(req.body);
 

@@ -287,13 +287,16 @@ export class MemoryStorage implements IStorage {
     }
   }
 
-  async getGlobalDepositAddress(currency: 'USDT' | 'ETH'): Promise<string> {
+  async getGlobalDepositAddress(currency: 'USDT' | 'ETH' | 'BTC'): Promise<string> {
     const key = `${currency}_DEPOSIT_ADDRESS`;
     const setting = this.systemSettings.get(key);
+    if (currency === 'BTC') {
+      return setting?.value || 'bc1qy8zzqsarhp0s63txsfnn3q3nvuu0g83mv3hwrv';
+    }
     return setting?.value || (currency === 'USDT' ? 'TBGxYmP3tFrbKvJRvQcF9cENKixQeJdfQc' : '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
   }
 
-  async setGlobalDepositAddress(currency: 'USDT' | 'ETH', address: string): Promise<void> {
+  async setGlobalDepositAddress(currency: 'USDT' | 'ETH' | 'BTC', address: string): Promise<void> {
     const key = `${currency}_DEPOSIT_ADDRESS`;
     const settingId = `${key}-${randomBytes(8).toString('hex')}`;
     this.systemSettings.set(key, {

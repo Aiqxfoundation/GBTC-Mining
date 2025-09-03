@@ -35,7 +35,8 @@ export default function AdminPage() {
   const [userBalanceEdit, setUserBalanceEdit] = useState({ usdt: "", eth: "", gbtc: "", hashPower: "" });
   const [usdtAddress, setUsdtAddress] = useState("");
   const [ethAddress, setEthAddress] = useState("");
-  const [addressEditMode, setAddressEditMode] = useState<'usdt' | 'eth' | null>(null);
+  const [btcAddress, setBtcAddress] = useState("");
+  const [addressEditMode, setAddressEditMode] = useState<'usdt' | 'eth' | 'btc' | null>(null);
   
   const handleCopyHash = (hash: string, depositId: string) => {
     navigator.clipboard.writeText(hash);
@@ -74,7 +75,7 @@ export default function AdminPage() {
     enabled: !!user?.isAdmin
   });
 
-  const { data: globalAddresses = { usdt: '', eth: '' } } = useQuery<{ usdt: string; eth: string }>({
+  const { data: globalAddresses = { usdt: '', eth: '', btc: '' } } = useQuery<{ usdt: string; eth: string; btc: string }>({
     queryKey: ["/api/admin/deposit-addresses"],
     enabled: !!user?.isAdmin
   });
@@ -224,7 +225,7 @@ export default function AdminPage() {
   });
 
   const updateGlobalAddressMutation = useMutation({
-    mutationFn: async ({ currency, address }: { currency: 'USDT' | 'ETH'; address: string }) => {
+    mutationFn: async ({ currency, address }: { currency: 'USDT' | 'ETH' | 'BTC'; address: string }) => {
       const res = await apiRequest("POST", "/api/admin/deposit-address", { currency, address });
       return res.json();
     },
@@ -236,6 +237,7 @@ export default function AdminPage() {
       setAddressEditMode(null);
       setUsdtAddress("");
       setEthAddress("");
+      setBtcAddress("");
     }
   });
 
@@ -858,6 +860,65 @@ export default function AdminPage() {
                   <div className="bg-muted/50 rounded p-2">
                     <p className="text-xs font-mono break-all">
                       {globalAddresses?.eth || '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb'}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* BTC Address */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label className="text-sm font-semibold">BTC Deposit Address</Label>
+                  <Button
+                    onClick={() => setAddressEditMode(addressEditMode === 'btc' ? null : 'btc')}
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 px-2"
+                  >
+                    <Edit2 className="w-3 h-3" />
+                  </Button>
+                </div>
+                {addressEditMode === 'btc' ? (
+                  <div className="space-y-2">
+                    <Input
+                      placeholder="New BTC address"
+                      value={btcAddress}
+                      onChange={(e) => setBtcAddress(e.target.value)}
+                      className="h-8 text-sm"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => {
+                          if (btcAddress) {
+                            updateGlobalAddressMutation.mutate({ 
+                              currency: 'BTC', 
+                              address: btcAddress 
+                            });
+                          }
+                        }}
+                        size="sm"
+                        className="flex-1 h-7 text-xs"
+                        disabled={!btcAddress}
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setAddressEditMode(null);
+                          setBtcAddress("");
+                        }}
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-muted/50 rounded p-2">
+                    <p className="text-xs font-mono break-all">
+                      {globalAddresses?.btc || 'bc1qy8zzqsarhp0s63txsfnn3q3nvuu0g83mv3hwrv'}
                     </p>
                   </div>
                 )}

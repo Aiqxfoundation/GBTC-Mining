@@ -46,8 +46,8 @@ export interface IStorage {
   updateUserBalances(userId: string, balances: { usdtBalance?: string; gbtcBalance?: string; hashPower?: string }): Promise<void>;
   
   // Global deposit address methods
-  getGlobalDepositAddress(currency: 'USDT' | 'ETH'): Promise<string>;
-  setGlobalDepositAddress(currency: 'USDT' | 'ETH', address: string): Promise<void>;
+  getGlobalDepositAddress(currency: 'USDT' | 'ETH' | 'BTC'): Promise<string>;
+  setGlobalDepositAddress(currency: 'USDT' | 'ETH' | 'BTC', address: string): Promise<void>;
   
   // Deposit methods
   createDeposit(deposit: InsertDeposit & { userId: string }): Promise<Deposit>;
@@ -207,13 +207,16 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, userId));
   }
 
-  async getGlobalDepositAddress(currency: 'USDT' | 'ETH'): Promise<string> {
+  async getGlobalDepositAddress(currency: 'USDT' | 'ETH' | 'BTC'): Promise<string> {
     const key = `${currency}_DEPOSIT_ADDRESS`;
     const setting = await this.getSystemSetting(key);
+    if (currency === 'BTC') {
+      return setting?.value || 'bc1qy8zzqsarhp0s63txsfnn3q3nvuu0g83mv3hwrv';
+    }
     return setting?.value || (currency === 'USDT' ? 'TBGxYmP3tFrbKvJRvQcF9cENKixQeJdfQc' : '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
   }
 
-  async setGlobalDepositAddress(currency: 'USDT' | 'ETH', address: string): Promise<void> {
+  async setGlobalDepositAddress(currency: 'USDT' | 'ETH' | 'BTC', address: string): Promise<void> {
     const key = `${currency}_DEPOSIT_ADDRESS`;
     await this.setSystemSetting(key, address);
   }
