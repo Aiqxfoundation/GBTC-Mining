@@ -646,6 +646,157 @@ export default function WalletPage() {
             </div>
           </Card>
         </div>
+        
+        {/* Exchange Dialog */}
+        <Dialog open={showConvertDialog} onOpenChange={setShowConvertDialog}>
+          <DialogContent className="sm:max-w-md bg-[#242424] border-gray-800">
+            <DialogHeader>
+              <DialogTitle className="text-white font-medium">
+                Exchange
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label className="text-gray-400 text-sm">From</Label>
+                <Select value={convertFrom} onValueChange={(value: 'BTC' | 'USDT' | 'ETH') => {
+                  setConvertFrom(value);
+                  // Auto-adjust "To" if same currency selected
+                  if (value === convertTo) {
+                    if (value === 'BTC') setConvertTo('USDT');
+                    else if (value === 'ETH') setConvertTo('USDT');
+                    else if (value === 'USDT') setConvertTo('BTC');
+                  }
+                }}>
+                  <SelectTrigger className="bg-[#1a1a1a] border-gray-700 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#242424] border-gray-700">
+                    <SelectItem value="BTC">BTC</SelectItem>
+                    <SelectItem value="ETH">ETH</SelectItem>
+                    <SelectItem value="USDT">USDT</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-gray-400 text-sm">To</Label>
+                <Select value={convertTo} onValueChange={(value: 'BTC' | 'USDT' | 'ETH') => {
+                  setConvertTo(value);
+                }}>
+                  <SelectTrigger className="bg-[#1a1a1a] border-gray-700 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#242424] border-gray-700">
+                    {convertFrom !== 'BTC' && <SelectItem value="BTC">BTC</SelectItem>}
+                    {convertFrom !== 'ETH' && <SelectItem value="ETH">ETH</SelectItem>}
+                    {convertFrom !== 'USDT' && <SelectItem value="USDT">USDT</SelectItem>}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-gray-400 text-sm">
+                  Amount ({convertFrom})
+                </Label>
+                <Input
+                  type="number"
+                  value={convertAmount}
+                  onChange={(e) => setConvertAmount(e.target.value)}
+                  placeholder={convertFrom === 'BTC' || convertFrom === 'ETH' ? "0.00000000" : "0.00"}
+                  step={convertFrom === 'BTC' || convertFrom === 'ETH' ? "0.00000001" : "0.01"}
+                  max={convertFrom === 'BTC' ? btcBalance : convertFrom === 'ETH' ? ethBalance : usdtBalance}
+                  className="bg-[#1a1a1a] border-gray-700 text-white placeholder:text-gray-600"
+                  data-testid="input-convert-amount"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Available: {convertFrom === 'BTC' 
+                    ? `${btcBalance.toFixed(8)} BTC` 
+                    : convertFrom === 'ETH'
+                    ? `${ethBalance.toFixed(8)} ETH`
+                    : `${usdtBalance.toFixed(2)} USDT`}
+                </p>
+              </div>
+              
+              {/* Conversion Preview */}
+              {convertAmount && parseFloat(convertAmount) > 0 && (
+                <Card className="p-3 bg-gradient-to-r from-green-900/20 to-green-800/10 border-green-600/30">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Exchange Rate</span>
+                      <span className="text-white">
+                        {convertFrom === 'BTC' || convertTo === 'BTC' 
+                          ? `1 BTC = $${btcPrice.toLocaleString()}`
+                          : convertFrom === 'ETH' || convertTo === 'ETH'
+                          ? `1 ETH = $${ethPrice.toLocaleString()}`
+                          : '1 USDT = $1.00'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Fee (0.01%)</span>
+                      <span className="text-white">
+                        {(() => {
+                          const amount = parseFloat(convertAmount);
+                          if (convertFrom === 'BTC' && convertTo === 'USDT') {
+                            return `${(amount * btcPrice * 0.0001).toFixed(2)} USDT`;
+                          } else if (convertFrom === 'USDT' && convertTo === 'BTC') {
+                            return `${(amount / btcPrice * 0.0001).toFixed(8)} BTC`;
+                          } else if (convertFrom === 'ETH' && convertTo === 'USDT') {
+                            return `${(amount * ethPrice * 0.0001).toFixed(2)} USDT`;
+                          } else if (convertFrom === 'USDT' && convertTo === 'ETH') {
+                            return `${(amount / ethPrice * 0.0001).toFixed(8)} ETH`;
+                          }
+                          return '0';
+                        })()}
+                      </span>
+                    </div>
+                    <div className="border-t border-gray-700 pt-2">
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">You'll Receive</span>
+                        <span className="text-green-400 font-bold">
+                          {(() => {
+                            const amount = parseFloat(convertAmount);
+                            if (convertFrom === 'BTC' && convertTo === 'USDT') {
+                              return `${(amount * btcPrice * 0.9999).toFixed(2)} USDT`;
+                            } else if (convertFrom === 'USDT' && convertTo === 'BTC') {
+                              return `${(amount / btcPrice * 0.9999).toFixed(8)} BTC`;
+                            } else if (convertFrom === 'ETH' && convertTo === 'USDT') {
+                              return `${(amount * ethPrice * 0.9999).toFixed(2)} USDT`;
+                            } else if (convertFrom === 'USDT' && convertTo === 'ETH') {
+                              return `${(amount / ethPrice * 0.9999).toFixed(8)} ETH`;
+                            }
+                            return '0';
+                          })()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              )}
+              
+              <Button
+                onClick={() => {
+                  convertMutation.mutate({
+                    fromCurrency: convertFrom,
+                    toCurrency: convertTo,
+                    amount: convertAmount
+                  });
+                }}
+                disabled={convertMutation.isPending || !convertAmount || parseFloat(convertAmount) <= 0}
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-medium"
+                data-testid="button-confirm-convert"
+              >
+                {convertMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Exchanging...
+                  </>
+                ) : (
+                  `Exchange ${convertFrom} to ${convertTo}`
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -1186,157 +1337,6 @@ export default function WalletPage() {
               </div>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Exchange Dialog */}
-      <Dialog open={showConvertDialog} onOpenChange={setShowConvertDialog}>
-        <DialogContent className="sm:max-w-md bg-[#242424] border-gray-800">
-          <DialogHeader>
-            <DialogTitle className="text-white font-medium">
-              Exchange
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label className="text-gray-400 text-sm">From</Label>
-              <Select value={convertFrom} onValueChange={(value: 'BTC' | 'USDT' | 'ETH') => {
-                setConvertFrom(value);
-                // Auto-adjust "To" if same currency selected
-                if (value === convertTo) {
-                  if (value === 'BTC') setConvertTo('USDT');
-                  else if (value === 'ETH') setConvertTo('USDT');
-                  else if (value === 'USDT') setConvertTo('BTC');
-                }
-              }}>
-                <SelectTrigger className="bg-[#1a1a1a] border-gray-700 text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-[#242424] border-gray-700">
-                  <SelectItem value="BTC">BTC</SelectItem>
-                  <SelectItem value="ETH">ETH</SelectItem>
-                  <SelectItem value="USDT">USDT</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label className="text-gray-400 text-sm">To</Label>
-              <Select value={convertTo} onValueChange={(value: 'BTC' | 'USDT' | 'ETH') => {
-                setConvertTo(value);
-              }}>
-                <SelectTrigger className="bg-[#1a1a1a] border-gray-700 text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-[#242424] border-gray-700">
-                  {convertFrom !== 'BTC' && <SelectItem value="BTC">BTC</SelectItem>}
-                  {convertFrom !== 'ETH' && <SelectItem value="ETH">ETH</SelectItem>}
-                  {convertFrom !== 'USDT' && <SelectItem value="USDT">USDT</SelectItem>}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label className="text-gray-400 text-sm">
-                Amount ({convertFrom})
-              </Label>
-              <Input
-                type="number"
-                value={convertAmount}
-                onChange={(e) => setConvertAmount(e.target.value)}
-                placeholder={convertFrom === 'BTC' || convertFrom === 'ETH' ? "0.00000000" : "0.00"}
-                step={convertFrom === 'BTC' || convertFrom === 'ETH' ? "0.00000001" : "0.01"}
-                max={convertFrom === 'BTC' ? btcBalance : convertFrom === 'ETH' ? ethBalance : usdtBalance}
-                className="bg-[#1a1a1a] border-gray-700 text-white placeholder:text-gray-600"
-                data-testid="input-convert-amount"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Available: {convertFrom === 'BTC' 
-                  ? `${btcBalance.toFixed(8)} BTC` 
-                  : convertFrom === 'ETH'
-                  ? `${ethBalance.toFixed(8)} ETH`
-                  : `${usdtBalance.toFixed(2)} USDT`}
-              </p>
-            </div>
-            
-            {/* Conversion Preview */}
-            {convertAmount && parseFloat(convertAmount) > 0 && (
-              <Card className="p-3 bg-gradient-to-r from-green-900/20 to-green-800/10 border-green-600/30">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Exchange Rate</span>
-                    <span className="text-white">
-                      {convertFrom === 'BTC' || convertTo === 'BTC' 
-                        ? `1 BTC = $${btcPrice.toLocaleString()}`
-                        : convertFrom === 'ETH' || convertTo === 'ETH'
-                        ? `1 ETH = $${ethPrice.toLocaleString()}`
-                        : '1 USDT = $1.00'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Fee (0.01%)</span>
-                    <span className="text-white">
-                      {(() => {
-                        const amount = parseFloat(convertAmount);
-                        if (convertFrom === 'BTC' && convertTo === 'USDT') {
-                          return `${(amount * btcPrice * 0.0001).toFixed(2)} USDT`;
-                        } else if (convertFrom === 'USDT' && convertTo === 'BTC') {
-                          return `${(amount / btcPrice * 0.0001).toFixed(8)} BTC`;
-                        } else if (convertFrom === 'ETH' && convertTo === 'USDT') {
-                          return `${(amount * ethPrice * 0.0001).toFixed(2)} USDT`;
-                        } else if (convertFrom === 'USDT' && convertTo === 'ETH') {
-                          return `${(amount / ethPrice * 0.0001).toFixed(8)} ETH`;
-                        }
-                        return '0';
-                      })()}
-                    </span>
-                  </div>
-                  <div className="border-t border-gray-700 pt-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">You'll Receive</span>
-                      <span className="text-green-400 font-bold">
-                        {(() => {
-                          const amount = parseFloat(convertAmount);
-                          if (convertFrom === 'BTC' && convertTo === 'USDT') {
-                            return `${(amount * btcPrice * 0.9999).toFixed(2)} USDT`;
-                          } else if (convertFrom === 'USDT' && convertTo === 'BTC') {
-                            return `${(amount / btcPrice * 0.9999).toFixed(8)} BTC`;
-                          } else if (convertFrom === 'ETH' && convertTo === 'USDT') {
-                            return `${(amount * ethPrice * 0.9999).toFixed(2)} USDT`;
-                          } else if (convertFrom === 'USDT' && convertTo === 'ETH') {
-                            return `${(amount / ethPrice * 0.9999).toFixed(8)} ETH`;
-                          }
-                          return '0';
-                        })()}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            )}
-            
-            <Button
-              onClick={() => {
-                convertMutation.mutate({
-                  fromCurrency: convertFrom,
-                  toCurrency: convertTo,
-                  amount: convertAmount
-                });
-              }}
-              disabled={convertMutation.isPending || !convertAmount || parseFloat(convertAmount) <= 0}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-medium"
-              data-testid="button-confirm-convert"
-            >
-              {convertMutation.isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Exchanging...
-                </>
-              ) : (
-                `Exchange ${convertFrom} to ${convertTo}`
-              )}
-            </Button>
-          </div>
         </DialogContent>
       </Dialog>
     </div>
