@@ -162,7 +162,7 @@ export default function MiningFactory() {
   // Claim single block mutation
   const claimBlockMutation = useMutation({
     mutationFn: async (blockId: string) => {
-      const res = await apiRequest("POST", "/api/claim-block", { blockId });
+      const res = await apiRequest("POST", `/api/claim-block/${blockId}`);
       return res.json();
     },
     onSuccess: (data) => {
