@@ -110,7 +110,6 @@ export default function WalletPage() {
   const gbtcBalance = parseFloat(user?.gbtcBalance || '0');
   const ethBalance = parseFloat(user?.ethBalance || '0');
   const btcBalance = parseFloat(user?.btcBalance || '0');
-  const ethPrice = parseFloat(ethPriceData?.price || '0');
 
   // Fetch BTC price (real-time)
   const { data: btcPriceData } = useQuery<{
@@ -157,11 +156,13 @@ export default function WalletPage() {
   });
   
   // Fetch ETH price
-  const { data: ethPriceData } = useQuery({
+  const { data: ethPriceData } = useQuery<{ price: string }>({
     queryKey: ["/api/eth/price"],
     refetchInterval: 30000,
     staleTime: 30000
   });
+  
+  const ethPrice = parseFloat(ethPriceData?.price || '0');
 
   // Combine and sort transactions for display - filter by asset type
   const getTransactionHistory = () => {
