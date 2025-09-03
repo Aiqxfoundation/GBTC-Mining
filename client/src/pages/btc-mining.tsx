@@ -231,139 +231,84 @@ export default function BtcStakingEnhanced() {
   };
 
   return (
-    <div className="mobile-page bg-black relative overflow-hidden">
-      {/* Animated Bitcoin Background */}
-      <div className="absolute inset-0">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#f7931a]/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-[#ffb347]/10 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-r from-[#f7931a]/5 to-[#ffb347]/5 rounded-full blur-2xl animate-spin-slow" />
-      </div>
-      {/* Premium Bitcoin Header */}
-      <div className="mobile-header backdrop-blur-md bg-black/50 border-b-2 border-[#f7931a]/50 shadow-2xl relative z-10">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#f7931a]/10 via-transparent to-[#ffb347]/10" />
-        <div className="flex items-center justify-between relative">
+    <div className="mobile-page bg-gradient-to-b from-gray-900 to-black">
+      {/* Simple Header */}
+      <div className="mobile-header bg-gray-900 border-b border-[#f7931a]/30">
+        <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Button
               onClick={() => setLocation('/wallet')}
               variant="ghost"
               size="sm"
-              className="p-0 mr-3 hover:bg-[#f7931a]/20 transition-all duration-300 hover:scale-110"
+              className="p-0 mr-3 hover:bg-[#f7931a]/10"
               data-testid="button-back"
             >
-              <ArrowLeft className="w-5 h-5 text-[#f7931a] drop-shadow-glow" />
+              <ArrowLeft className="w-5 h-5 text-[#f7931a]" />
             </Button>
             <div className="flex items-center gap-2">
-              <div className="relative">
-                <span className="text-3xl animate-bounce-slow">₿</span>
-                <div className="absolute inset-0 text-3xl blur-md opacity-50">₿</div>
-              </div>
-              <h1 className="text-lg font-black tracking-wider">
-                <span className="text-[#f7931a]">BTC</span>
-                <span className="text-white ml-1">STAKING</span>
-                <span className="text-[#ffb347] ml-1 text-xs align-super">PRO</span>
+              <span className="text-2xl">₿</span>
+              <h1 className="text-lg font-semibold">
+                <span className="text-white">Bitcoin Staking</span>
               </h1>
             </div>
           </div>
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#f7931a] to-[#ffb347] blur-md" />
-            <Badge className="relative bg-gradient-to-r from-[#f7931a] to-[#ffb347] text-black font-black px-3 py-1 shadow-glow">
-              <span className="text-lg">{apr}%</span>
-              <span className="text-xs ml-1">APR</span>
-            </Badge>
-          </div>
+          <Badge className="bg-[#f7931a] text-black font-semibold px-3 py-1">
+            {apr}% APR
+          </Badge>
         </div>
       </div>
 
-      {/* Premium Content */}
-      <div className="mobile-content relative z-10">
-        {/* Floating Stats Cards */}
-        <div className="relative mb-4">
-          <Card className="p-5 backdrop-blur-xl bg-gradient-to-br from-black/80 via-[#1a0e00]/50 to-black/80 border-2 border-[#f7931a]/40 shadow-2xl relative overflow-hidden group hover:border-[#f7931a]/60 transition-all duration-500">
-            {/* Animated Background Pattern */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute inset-0" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #f7931a 0, #f7931a 1px, transparent 1px, transparent 15px)', backgroundSize: '20px 20px' }} />
-            </div>
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#f7931a]/20 rounded-full blur-3xl group-hover:bg-[#f7931a]/30 transition-all duration-500" />
-            
-            <div className="flex items-center justify-between relative">
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className="p-3 bg-gradient-to-br from-[#f7931a] to-[#ffb347] rounded-2xl shadow-glow animate-pulse-slow">
-                    <span className="text-3xl text-black font-black">₿</span>
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse border-2 border-black" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs text-[#f7931a]/70 font-semibold uppercase tracking-wider">Live Price</p>
-                    <div className="flex gap-1">
-                      <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-ping" />
-                      <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-ping delay-100" />
-                      <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-ping delay-200" />
-                    </div>
-                  </div>
-                  <p className="text-2xl font-black text-white">
-                    <span className="text-[#f7931a]">$</span>{priceData?.btcPrice ? Number(priceData.btcPrice).toLocaleString() : '0'}
-                  </p>
-                </div>
-              </div>
-              <div className="text-right bg-black/50 backdrop-blur-sm rounded-xl px-3 py-2 border border-[#f7931a]/20">
-                <div className="flex items-center gap-2 justify-end mb-1">
-                  <p className="text-xs text-[#f7931a]/70 font-semibold uppercase tracking-wider">Your Balance</p>
-                  <div className="relative">
-                    <div className="w-2 h-2 bg-green-400 rounded-full" />
-                    <div className="absolute inset-0 w-2 h-2 bg-green-400 rounded-full animate-ping" />
-                  </div>
-                </div>
-                <p className="text-xl font-black">
-                  <span className="text-[#f7931a]">₿</span>
-                  <span className="text-white ml-1">{btcBalance.toFixed(8)}</span>
+      {/* Content */}
+      <div className="mobile-content">
+        {/* Clean Stats Display */}
+        <Card className="p-4 bg-gray-900 border border-gray-800 mb-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-gray-400 mb-1">BTC Price</p>
+              <div className="flex items-center gap-1">
+                <p className="text-xl font-bold text-white">
+                  ${priceData?.btcPrice ? Number(priceData.btcPrice).toLocaleString() : '0'}
                 </p>
-                <p className="text-xs text-[#ffb347] font-medium">
-                  ≈ ${(btcBalance * btcPrice).toLocaleString()}
-                </p>
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
               </div>
             </div>
-          </Card>
-        </div>
+            <div className="text-right">
+              <p className="text-xs text-gray-400 mb-1">Your Balance</p>
+              <p className="text-xl font-bold text-[#f7931a]">
+                {btcBalance.toFixed(8)} ₿
+              </p>
+              <p className="text-xs text-gray-500">
+                ≈ ${(btcBalance * btcPrice).toLocaleString()}
+              </p>
+            </div>
+          </div>
+        </Card>
 
-        <Tabs defaultValue="stake" className="mt-6">
-          <TabsList className="grid w-full grid-cols-2 bg-black/50 backdrop-blur-md border-2 border-[#f7931a]/30 p-1 rounded-2xl shadow-glow">
+        <Tabs defaultValue="stake" className="mt-4">
+          <TabsList className="grid w-full grid-cols-2 bg-gray-900 border border-gray-800">
             <TabsTrigger 
               value="stake" 
-              className="rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#f7931a] data-[state=active]:to-[#ffb347] data-[state=active]:text-black data-[state=active]:font-black data-[state=active]:shadow-glow data-[state=inactive]:text-gray-400"
+              className="data-[state=active]:bg-[#f7931a] data-[state=active]:text-black data-[state=active]:font-semibold"
             >
-              <span className="flex items-center gap-2">
-                <span className="text-lg">⚡</span>
-                <span>CREATE</span>
-              </span>
+              Create Stake
             </TabsTrigger>
             <TabsTrigger 
               value="active" 
-              className="rounded-xl transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#f7931a] data-[state=active]:to-[#ffb347] data-[state=active]:text-black data-[state=active]:font-black data-[state=active]:shadow-glow data-[state=inactive]:text-gray-400"
+              className="data-[state=active]:bg-[#f7931a] data-[state=active]:text-black data-[state=active]:font-semibold"
             >
-              <span className="flex items-center gap-2">
-                <span className="text-lg">📊</span>
-                <span>ACTIVE</span>
-              </span>
+              Active Stakes
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="stake" className="mt-4">
-            <Card className="p-4 bg-gradient-to-br from-[#1a1a1a] to-black border-[#f7931a]/30 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-24 h-24 bg-[#f7931a]/10 rounded-full blur-2xl" />
+            <Card className="p-4 bg-gray-900 border border-gray-800">
               {/* Lock Time Slider */}
-              <div className="mb-6 relative">
+              <div className="mb-6">
                 <div className="flex justify-between items-center mb-3">
-                  <Label className="text-[#f7931a] font-semibold flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    Lock Duration
-                  </Label>
-                  <div className="text-right bg-[#f7931a]/10 px-3 py-1 rounded-lg border border-[#f7931a]/30">
-                    <p className="text-lg font-bold text-[#f7931a]">{formatDuration(months)}</p>
-                    <p className="text-xs text-green-400">
-                      APR: {apr}%
-                    </p>
+                  <Label className="text-white font-medium">Lock Duration</Label>
+                  <div className="text-right">
+                    <p className="text-lg font-semibold text-white">{formatDuration(months)}</p>
+                    <p className="text-xs text-green-400">APR: {apr}%</p>
                   </div>
                 </div>
                 <TimerSlider
@@ -386,18 +331,10 @@ export default function BtcStakingEnhanced() {
               {/* BTC Amount Slider */}
               <div className="mb-6">
                 <div className="flex justify-between items-center mb-3">
-                  <Label className="text-[#f7931a] font-semibold flex items-center gap-2">
-                    <span className="text-lg">₿</span>
-                    BTC Amount
-                  </Label>
-                  <div className="text-right bg-[#f7931a]/10 px-3 py-1 rounded-lg border border-[#f7931a]/30">
-                    <p className="text-lg font-bold text-[#f7931a]">
+                  <Label className="text-white font-medium">BTC Amount</Label>
+                  <div className="text-right">
+                    <p className="text-lg font-semibold text-[#f7931a]">
                       {btcAmount.toFixed(8)} BTC
-                      {maxBtcAllowed > 0 && (
-                        <span className="text-xs text-green-400 ml-1">
-                          ({(btcAmount / maxBtcAllowed * 100).toFixed(0)}%)
-                        </span>
-                      )}
                     </p>
                     <p className="text-xs text-gray-400">
                       ≈ ${(btcAmount * btcPrice).toLocaleString()}
@@ -436,18 +373,10 @@ export default function BtcStakingEnhanced() {
               {/* Hashrate Amount Slider */}
               <div className="mb-6">
                 <div className="flex justify-between items-center mb-3">
-                  <Label className="text-green-400 font-semibold flex items-center gap-2">
-                    <Cpu className="w-4 h-4" />
-                    GBTC Hashrate Required
-                  </Label>
-                  <div className="text-right bg-green-500/10 px-3 py-1 rounded-lg border border-green-500/30">
-                    <p className="text-lg font-bold text-green-400">
+                  <Label className="text-white font-medium">Hashrate Required</Label>
+                  <div className="text-right">
+                    <p className="text-lg font-semibold text-green-400">
                       {hashrateAmount.toFixed(0)} GH/s
-                      {userHashPower > 0 && (
-                        <span className="text-xs text-green-300 ml-1">
-                          ({(hashrateAmount / userHashPower * 100).toFixed(0)}%)
-                        </span>
-                      )}
                     </p>
                     <p className="text-xs text-gray-400">
                       {userHashPower >= hashrateAmount ? '✓ Ready' : `Need ${(hashrateAmount - userHashPower).toFixed(0)} more`}
@@ -478,9 +407,8 @@ export default function BtcStakingEnhanced() {
               <Separator className="mb-6 bg-gray-700" />
 
               {/* Returns Calculator */}
-              <div className="bg-gradient-to-br from-[#1a1a1a] via-[#0d0d0d] to-black rounded-xl p-4 mb-6 border border-[#f7931a]/20 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full blur-2xl" />
-                <h3 className="text-[#f7931a] font-bold mb-3 flex items-center gap-2 relative">
+              <div className="bg-black rounded-lg p-4 mb-6 border border-gray-800">
+                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-green-400" />
                   Projected Returns
                 </h3>
@@ -520,11 +448,8 @@ export default function BtcStakingEnhanced() {
               </div>
 
               {/* Requirements Check */}
-              <div className="bg-gradient-to-r from-[#f7931a]/10 to-[#f7931a]/5 border border-[#f7931a]/30 rounded-xl p-4 mb-6">
-                <p className="text-sm font-bold text-[#f7931a] mb-3 flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4" />
-                  Auto-Balance Status (100% Optimized)
-                </p>
+              <div className="bg-gray-800 rounded-lg p-3 mb-6">
+                <p className="text-sm font-medium text-white mb-2">Requirements Check:</p>
                 <ul className="text-xs text-gray-400 space-y-1">
                   <li className="flex items-center gap-1">
                     <CheckCircle className={`w-3 h-3 ${btcBalance >= btcAmount ? 'text-green-400' : 'text-gray-600'}`} />
@@ -547,7 +472,7 @@ export default function BtcStakingEnhanced() {
 
               <Button
                 onClick={handleStake}
-                className="w-full bg-gradient-to-r from-[#f7931a] to-[#ffb347] hover:from-[#ffb347] hover:to-[#f7931a] text-black font-bold text-lg py-6 rounded-xl shadow-lg shadow-[#f7931a]/30 transition-all duration-300 transform hover:scale-[1.02]"
+                className="w-full bg-[#f7931a] hover:bg-[#f7931a]/90 text-black font-semibold py-3 rounded-lg"
                 disabled={
                   btcBalance < btcAmount ||
                   userHashPower < hashrateAmount ||
@@ -575,8 +500,7 @@ export default function BtcStakingEnhanced() {
           </TabsContent>
 
           <TabsContent value="active" className="mt-4">
-            <Card className="p-4 bg-gradient-to-br from-[#1a1a1a] to-black border-[#f7931a]/30 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-24 h-24 bg-green-500/10 rounded-full blur-2xl" />
+            <Card className="p-4 bg-gray-900 border border-gray-800">
               {stakesData?.stakes && stakesData.stakes.length > 0 ? (
                 <div className="space-y-3">
                   <div className="flex justify-between items-center mb-4">
