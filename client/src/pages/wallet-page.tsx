@@ -169,6 +169,11 @@ export default function WalletPage() {
         title: "Deposit Submitted", 
         description: "Your deposit is being processed" 
       });
+      // Start 12-hour cooldown immediately
+      const cooldownEnd = Date.now() + (12 * 60 * 60 * 1000);
+      localStorage.setItem('depositCooldownEnd', cooldownEnd.toString());
+      setDepositCooldown(12 * 60 * 60); // 12 hours in seconds
+      
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/transactions"] });
       setShowDepositDialog(false);
@@ -176,12 +181,12 @@ export default function WalletPage() {
       setDepositTxHash("");
     },
     onError: (error: Error) => {
-      // Check if it's a 72-hour cooldown error
-      if (error.message.includes('72 hours')) {
-        // Set 72-hour cooldown (72 * 60 * 60 * 1000 milliseconds)
-        const cooldownEnd = Date.now() + (72 * 60 * 60 * 1000);
+      // Check if it's a cooldown error
+      if (error.message.includes('hours')) {
+        // Set 12-hour cooldown (12 * 60 * 60 * 1000 milliseconds)
+        const cooldownEnd = Date.now() + (12 * 60 * 60 * 1000);
         localStorage.setItem('depositCooldownEnd', cooldownEnd.toString());
-        setDepositCooldown(72 * 60 * 60); // 72 hours in seconds
+        setDepositCooldown(12 * 60 * 60); // 12 hours in seconds
       } else {
         toast({ 
           title: "Deposit Failed", 
@@ -692,7 +697,7 @@ export default function WalletPage() {
                   <p>• Minimum deposit: {selectedAsset === 'GBTC' ? '0.001 GBTC' : '10 USDT'}</p>
                   <p>• Only send {selectedAsset === 'USDT' ? 'USDT from BSC/ETH Network' : 'GBTC'} to this address</p>
                   <p>• System will verify transaction hash. It requires some time, so please be patient</p>
-                  <p>• You can only deposit once within 72 hours</p>
+                  <p>• You can only deposit once within 12 hours</p>
                   <p>• If you submit wrong TX Hash, your deposit will fail and may result in loss of funds</p>
                   <p>• Incorrect deposits cannot be recovered - please double-check the address</p>
                   <p>• Contact support if your deposit doesn't appear within 2 hours</p>

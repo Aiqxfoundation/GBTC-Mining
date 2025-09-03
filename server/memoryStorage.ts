@@ -282,11 +282,11 @@ export class MemoryStorage implements IStorage {
   }
 
   async createDeposit(deposit: InsertDeposit & { userId: string }): Promise<Deposit> {
-    // Check cooldown (72 hours = 259200000 ms)
+    // Check cooldown (12 hours = 43200000 ms)
     const lastRequest = this.lastDepositTime.get(deposit.userId);
     if (lastRequest) {
       const timePassed = Date.now() - lastRequest.getTime();
-      const cooldownRemaining = 259200000 - timePassed; // 72 hours in ms
+      const cooldownRemaining = 43200000 - timePassed; // 12 hours in ms
       if (cooldownRemaining > 0) {
         const hoursRemaining = Math.ceil(cooldownRemaining / (1000 * 60 * 60));
         throw new Error(`Please wait ${hoursRemaining} hours before making another deposit request`);
@@ -358,11 +358,11 @@ export class MemoryStorage implements IStorage {
   }
 
   async createWithdrawal(withdrawal: InsertWithdrawal & { userId: string }): Promise<Withdrawal> {
-    // Check cooldown (72 hours = 259200000 ms)
+    // Check cooldown (12 hours = 43200000 ms)
     const lastRequest = this.lastWithdrawalTime.get(withdrawal.userId);
     if (lastRequest) {
       const timePassed = Date.now() - lastRequest.getTime();
-      const cooldownRemaining = 259200000 - timePassed; // 72 hours in ms
+      const cooldownRemaining = 43200000 - timePassed; // 12 hours in ms
       if (cooldownRemaining > 0) {
         const hoursRemaining = Math.ceil(cooldownRemaining / (1000 * 60 * 60));
         throw new Error(`Please wait ${hoursRemaining} hours before making another withdrawal request`);
@@ -796,7 +796,7 @@ export class MemoryStorage implements IStorage {
     }
     
     const timePassed = Date.now() - lastRequest.getTime();
-    const cooldownRemaining = 259200000 - timePassed; // 72 hours in ms
+    const cooldownRemaining = 43200000 - timePassed; // 12 hours in ms
     
     if (cooldownRemaining > 0) {
       // Return precise hours remaining (with decimal) for accurate countdown
@@ -814,7 +814,7 @@ export class MemoryStorage implements IStorage {
     }
     
     const timePassed = Date.now() - lastRequest.getTime();
-    const cooldownRemaining = 259200000 - timePassed; // 72 hours in ms
+    const cooldownRemaining = 43200000 - timePassed; // 12 hours in ms
     
     if (cooldownRemaining > 0) {
       // Return precise hours remaining (with decimal) for accurate countdown
