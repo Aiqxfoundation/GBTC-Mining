@@ -12,6 +12,66 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import * as SliderPrimitive from "@radix-ui/react-slider";
+import { cn } from "@/lib/utils";
+
+// Custom Slider with Timer Icon Handle
+const TimerSlider = ({ value, onValueChange, min, max, step, className }: any) => (
+  <SliderPrimitive.Root
+    className={cn("relative flex w-full touch-none select-none items-center", className)}
+    value={value}
+    onValueChange={onValueChange}
+    min={min}
+    max={max}
+    step={step}
+  >
+    <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-gray-700">
+      <SliderPrimitive.Range className="absolute h-full bg-gradient-to-r from-yellow-500 to-yellow-600" />
+    </SliderPrimitive.Track>
+    <SliderPrimitive.Thumb className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-yellow-500 bg-black shadow-lg ring-offset-background transition-all hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+      <Clock className="h-4 w-4 text-yellow-500" />
+    </SliderPrimitive.Thumb>
+  </SliderPrimitive.Root>
+);
+
+// Custom Slider with BTC Icon Handle
+const BtcSlider = ({ value, onValueChange, min, max, step, className }: any) => (
+  <SliderPrimitive.Root
+    className={cn("relative flex w-full touch-none select-none items-center", className)}
+    value={value}
+    onValueChange={onValueChange}
+    min={min}
+    max={max}
+    step={step}
+  >
+    <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-gray-700">
+      <SliderPrimitive.Range className="absolute h-full bg-gradient-to-r from-[#f7931a] to-[#ffb347]" />
+    </SliderPrimitive.Track>
+    <SliderPrimitive.Thumb className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[#f7931a] bg-black shadow-lg ring-offset-background transition-all hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+      <Bitcoin className="h-4 w-4 text-[#f7931a]" />
+    </SliderPrimitive.Thumb>
+  </SliderPrimitive.Root>
+);
+
+// Custom Slider with Hash Icon Handle
+const HashSlider = ({ value, onValueChange, min, max, step, className, disabled }: any) => (
+  <SliderPrimitive.Root
+    className={cn("relative flex w-full touch-none select-none items-center", className)}
+    value={value}
+    onValueChange={onValueChange}
+    min={min}
+    max={max}
+    step={step}
+    disabled={disabled}
+  >
+    <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-gray-700">
+      <SliderPrimitive.Range className="absolute h-full bg-gradient-to-r from-green-500 to-green-600" />
+    </SliderPrimitive.Track>
+    <SliderPrimitive.Thumb className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-green-500 bg-black shadow-lg ring-offset-background transition-all hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+      <Hash className="h-4 w-4 text-green-500" />
+    </SliderPrimitive.Thumb>
+  </SliderPrimitive.Root>
+);
 
 // Function to calculate APR based on lock time (months)
 const calculateAPR = (months: number): number => {
@@ -218,7 +278,7 @@ export default function BtcStakingEnhanced() {
                     </p>
                   </div>
                 </div>
-                <Slider
+                <TimerSlider
                   value={lockMonths}
                   onValueChange={setLockMonths}
                   min={3}
@@ -246,7 +306,7 @@ export default function BtcStakingEnhanced() {
                     </p>
                   </div>
                 </div>
-                <Slider
+                <BtcSlider
                   value={btcSliderValue}
                   onValueChange={setBtcSliderValue}
                   min={0.1}
@@ -274,7 +334,7 @@ export default function BtcStakingEnhanced() {
                     </p>
                   </div>
                 </div>
-                <Slider
+                <HashSlider
                   value={hashrateSliderValue}
                   onValueChange={setHashrateSliderValue}
                   min={1000}
