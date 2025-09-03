@@ -572,10 +572,10 @@ export default function WalletPage() {
           <Button
             onClick={() => selectedAsset === 'GBTC' ? null : setShowDepositDialog(true)}
             disabled={selectedAsset === 'GBTC'}
-            className={`bg-transparent border-2 ${
+            className={`${
               selectedAsset === 'GBTC' 
-                ? 'border-gray-600 text-gray-600 cursor-not-allowed opacity-50' 
-                : 'border-[#f7931a] text-[#f7931a] hover:bg-[#f7931a] hover:text-black'
+                ? 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-50' 
+                : 'bg-[#f7931a] text-black hover:bg-[#f7931a]/90'
             } font-medium`}
             data-testid="button-deposit"
           >
@@ -583,7 +583,7 @@ export default function WalletPage() {
           </Button>
           <Button
             onClick={() => setShowWithdrawDialog(true)}
-            className="bg-transparent border-2 border-[#f7931a] text-[#f7931a] hover:bg-[#f7931a] hover:text-black font-medium"
+            className="bg-[#f7931a] text-black hover:bg-[#f7931a]/90 font-medium"
             data-testid="button-withdraw"
           >
             Withdraw
@@ -591,10 +591,10 @@ export default function WalletPage() {
           <Button
             onClick={() => setShowTransferDialog(true)}
             disabled={selectedAsset === 'USDT'}
-            className={`bg-transparent border-2 ${
+            className={`${
               selectedAsset === 'GBTC' 
-                ? 'border-[#f7931a] text-[#f7931a] hover:bg-[#f7931a] hover:text-black' 
-                : 'border-gray-600 text-gray-600 cursor-not-allowed'
+                ? 'bg-[#f7931a] text-black hover:bg-[#f7931a]/90' 
+                : 'bg-gray-600 text-gray-400 cursor-not-allowed'
             } font-medium`}
             data-testid="button-transfer"
           >
