@@ -527,24 +527,22 @@ export default function WalletPage() {
       </div>
 
       {/* Deposit Dialog - Full Page */}
-      <Dialog open={showDepositDialog} onOpenChange={setShowDepositDialog}>
-        <DialogContent className="fixed inset-0 w-full h-full max-w-none m-0 p-0 bg-[#1a1a1a] border-0 rounded-none overflow-y-auto">
-          <div className="min-h-full flex flex-col">
-            <DialogHeader className="p-4 bg-[#242424] border-b border-gray-800">
-              <div className="flex items-center justify-between">
-                <DialogTitle className="text-white font-medium text-lg">
-                  Deposit {selectedAsset}
-                </DialogTitle>
-                <Button
-                  onClick={() => setShowDepositDialog(false)}
-                  variant="ghost"
-                  size="sm"
-                  className="text-gray-400 hover:text-white"
-                >
-                  <span className="text-2xl">&times;</span>
-                </Button>
-              </div>
-            </DialogHeader>
+      {showDepositDialog && (
+        <div className="fixed inset-0 z-50 bg-[#1a1a1a] overflow-y-auto">
+          <div className="min-h-screen flex flex-col">
+            <div className="p-4 bg-[#242424] border-b border-gray-800 flex items-center justify-between">
+              <h2 className="text-white font-medium text-lg">
+                Deposit {selectedAsset}
+              </h2>
+              <Button
+                onClick={() => setShowDepositDialog(false)}
+                variant="ghost"
+                size="sm"
+                className="text-gray-400 hover:text-white p-1"
+              >
+                <span className="text-2xl">&times;</span>
+              </Button>
+            </div>
             
             <div className="flex-1 p-4 space-y-4">
               {/* System Deposit Address */}
@@ -654,8 +652,8 @@ export default function WalletPage() {
               </div>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
 
       {/* Withdraw Dialog */}
       <Dialog open={showWithdrawDialog} onOpenChange={setShowWithdrawDialog}>
