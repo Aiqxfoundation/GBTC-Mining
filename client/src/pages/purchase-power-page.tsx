@@ -130,7 +130,6 @@ export default function PurchasePowerPage() {
           </p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-gray-400 mb-1">Your Power</p>
           <p className="text-lg font-bold text-orange-400">
             {getHashrateDisplay(currentHashrate)}
           </p>
@@ -156,7 +155,7 @@ export default function PurchasePowerPage() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <Cpu className="w-5 h-5 text-orange-600" />
-                <span className="text-xs text-gray-500 font-medium">MINING</span>
+                <span className="text-xs text-gray-500 font-medium">CURRENT HASHPOWER</span>
               </div>
               <p className="text-2xl font-bold text-gray-900">{currentHashrate.toFixed(0)}</p>
               <p className="text-xs text-gray-500 mt-1">GH/s Power</p>
@@ -196,7 +195,7 @@ export default function PurchasePowerPage() {
                     value={customAmount}
                     onChange={(e) => setCustomAmount(e.target.value)}
                     placeholder="Enter amount..."
-                    className="pl-8 pr-4 h-12 text-lg font-semibold bg-gray-50 border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
+                    className="pl-8 pr-4 h-12 text-lg font-semibold bg-white text-gray-900 border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
                     min={1}
                     max={Math.floor(usdtBalance)}
                     data-testid="input-custom-amount"
