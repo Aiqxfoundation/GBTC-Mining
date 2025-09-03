@@ -30,12 +30,12 @@ export function setupMining() {
   // Check for reset on startup
   checkAndPerformDailyReset();
   
-  // Generate an initial block after 10 seconds to kickstart the system
+  // Generate an initial block after 2 seconds to kickstart the system
   setTimeout(async () => {
     // Initial block generation
     await generateBlock();
     await distributeRewards();
-  }, 10000);
+  }, 2000); // Faster startup
 }
 
 async function checkAndPerformDailyReset() {

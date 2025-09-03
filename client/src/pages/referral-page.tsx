@@ -34,7 +34,7 @@ export default function ReferralPage() {
   const handleCopyLink = () => {
     navigator.clipboard.writeText(referralLink);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 500);
     toast({ 
       title: "Link Copied!", 
       description: "Referral link copied to clipboard" 

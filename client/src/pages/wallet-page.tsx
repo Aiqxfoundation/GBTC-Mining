@@ -112,7 +112,8 @@ export default function WalletPage() {
   const { data: transactions } = useQuery<TransactionData>({
     queryKey: ["/api/transactions"],
     enabled: !!user && !!selectedAsset,
-    refetchInterval: 30000 // Optimized for performance
+    staleTime: 300000,
+    gcTime: 600000 // Cache for 5 minutes
   });
 
   // Combine and sort transactions for display - filter by asset type
@@ -397,7 +398,7 @@ export default function WalletPage() {
       title: "Copied", 
       description: "Address copied to clipboard" 
     });
-    setTimeout(() => setCopiedAddress(false), 2000);
+    setTimeout(() => setCopiedAddress(false), 500); // Faster feedback
   };
 
   // Main wallet view
@@ -943,7 +944,7 @@ export default function WalletPage() {
         open={!!selectedTransfer} 
         onOpenChange={(open) => {
           if (!open) {
-            setTimeout(() => setSelectedTransfer(null), 100);
+            setTimeout(() => setSelectedTransfer(null), 50); // Instant close
           }
         }}
       >

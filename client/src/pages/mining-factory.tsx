@@ -35,7 +35,8 @@ export default function MiningFactory() {
     activeMiners: number;
   }>({
     queryKey: ["/api/global-stats"],
-    refetchInterval: 20000, // Optimized for performance
+    staleTime: Infinity,
+    gcTime: Infinity // Cache permanently
   });
 
   // Fetch unclaimed blocks
@@ -48,7 +49,8 @@ export default function MiningFactory() {
     claimed: boolean;
   }>>({
     queryKey: ["/api/unclaimed-blocks"],
-    refetchInterval: 60000, // Optimized check interval
+    staleTime: 300000, // Cache for 5 minutes
+    gcTime: 600000,
     enabled: !!user,
   });
 
@@ -69,8 +71,8 @@ export default function MiningFactory() {
       setIsBlockForm(true);
       setTimeout(() => {
         setIsBlockForm(false);
-      }, 1000); // Show block form for 1 second
-    }, 4000); // Transform every 4 seconds
+      }, 500); // Faster transform animation
+    }, 2000); // More frequent transforms
     
     return () => clearInterval(interval);
   }, [isMining]);
@@ -87,19 +89,19 @@ export default function MiningFactory() {
         if (prev >= 100) {
           // Show block found animation
           setShowNewBlock(true);
-          setTimeout(() => setShowNewBlock(false), 2000);
+          setTimeout(() => setShowNewBlock(false), 500); // Faster block animation
           
           // Add new block animation
           setBlockAnimations(prev => [...prev, Date.now()]);
           setTimeout(() => {
             setBlockAnimations(prev => prev.slice(1));
-          }, 3000);
+          }, 1000); // Faster block removal
           
           return 0;
         }
         return prev + (hashPower / 1000); // Progress based on hash power
       });
-    }, 100);
+    }, 50); // Faster progress updates
 
     return () => clearInterval(interval);
   }, [isMining, hashPower]);

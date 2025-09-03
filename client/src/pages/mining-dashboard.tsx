@@ -37,7 +37,8 @@ export default function MiningDashboard() {
   // Fetch supply metrics
   const { data: supplyMetrics } = useQuery<SupplyMetrics>({
     queryKey: ['/api/supply-metrics'],
-    refetchInterval: 120000 // Optimized refresh rate
+    staleTime: Infinity,
+    gcTime: Infinity // Cache permanently
   });
 
   // Calculate hours since last claim
@@ -67,7 +68,7 @@ export default function MiningDashboard() {
           if (myHashrate > 0) {
             setCoins(c => [...c, Date.now()]);
             setIsBlockAnimating(true);
-            setTimeout(() => setIsBlockAnimating(false), 500);
+            setTimeout(() => setIsBlockAnimating(false), 100); // Faster animation
           }
           return 3600; // Reset to 1 hour
         }

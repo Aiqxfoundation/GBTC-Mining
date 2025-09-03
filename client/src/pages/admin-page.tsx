@@ -37,14 +37,14 @@ export default function AdminPage() {
   const handleCopyHash = (hash: string, depositId: string) => {
     navigator.clipboard.writeText(hash);
     setCopiedHash(depositId);
-    setTimeout(() => setCopiedHash(null), 2000);
+    setTimeout(() => setCopiedHash(null), 500);
     toast({ title: "Copied!", description: "Transaction hash copied to clipboard" });
   };
   
   const handleCopyAddress = (address: string, withdrawalId: string) => {
     navigator.clipboard.writeText(address);
     setCopiedAddress(withdrawalId);
-    setTimeout(() => setCopiedAddress(null), 2000);
+    setTimeout(() => setCopiedAddress(null), 500);
     toast({ title: "Copied!", description: "Withdrawal address copied to clipboard" });
   };
 

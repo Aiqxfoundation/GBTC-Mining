@@ -20,7 +20,9 @@ export default function PurchasePowerPage() {
 
   // Fetch global stats for fair calculation
   const { data: globalStats } = useQuery<{ totalHashrate: number; blockHeight: number; activeMiners: number }>({
-    queryKey: ["/api/global-stats"]
+    queryKey: ["/api/global-stats"],
+    staleTime: Infinity,
+    gcTime: Infinity
   });
   
   const totalNetworkHashrate = globalStats?.totalHashrate || 10000;
