@@ -5,7 +5,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Cpu, TrendingUp, Clock, Zap, Award, Hash, Activity, Blocks, Binary, Shield, Sparkles } from "lucide-react";
+import { Loader2, Cpu, TrendingUp, Clock, Zap, Award, Hash, Activity, Blocks, Binary, Shield, Sparkles, Layers } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 
@@ -21,6 +21,7 @@ export default function MiningFactory() {
   const [showNewBlock, setShowNewBlock] = useState(false);
   const [nonce, setNonce] = useState(0);
   const [isBlockForm, setIsBlockForm] = useState(false);
+  const [flyingCoins, setFlyingCoins] = useState<Array<{id: string, amount: number, x: number, y: number}>>([]);
 
   const hashPower = parseFloat(user?.hashPower || '0');
   const gbtcBalance = parseFloat(user?.gbtcBalance || '0');
@@ -165,7 +166,29 @@ export default function MiningFactory() {
       const res = await apiRequest("POST", `/api/claim-block/${blockId}`);
       return res.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data, blockId) => {
+      // Find the block that was claimed to get the reward amount
+      const claimedBlock = unclaimedBlocks?.find((block: any) => block.id === blockId);
+      if (claimedBlock) {
+        // Get the position of the claim button
+        const claimButton = document.querySelector(`[data-testid="button-claim-${blockId}"]`);
+        if (claimButton) {
+          const rect = claimButton.getBoundingClientRect();
+          const gbtcBox = document.getElementById('gbtc-box');
+          const gbtcRect = gbtcBox?.getBoundingClientRect();
+          
+          if (gbtcRect) {
+            // Add flying coin animation
+            setFlyingCoins(prev => [...prev, {
+              id: `coin-${Date.now()}`,
+              amount: parseFloat(claimedBlock.reward),
+              x: rect.left - gbtcRect.left - gbtcRect.width / 2,
+              y: rect.top - gbtcRect.top - gbtcRect.height / 2
+            }]);
+          }
+        }
+      }
+      
       toast({ 
         title: "Block Claimed!", 
         description: `Successfully claimed ${data.reward} GBTC` 
@@ -497,52 +520,204 @@ export default function MiningFactory() {
           </div>
         </Card>
 
-        {/* Network Stats Grid */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <Card className="mobile-card bg-black/50 border-primary/20">
-            <div className="p-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] text-muted-foreground uppercase">Total Supply</span>
-                <Award className="w-4 h-4 text-primary/50" />
+        {/* Network Stats Grid - Properly Fitted 4 Boxes */}
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          {/* Total Supply Box */}
+          <Card className="mobile-card bg-gradient-to-br from-yellow-900/30 to-yellow-600/20 border-yellow-500/30">
+            <div className="p-2.5">
+              <div className="flex items-center space-x-2">
+                <div className="w-7 h-7 bg-yellow-500/20 rounded flex items-center justify-center">
+                  <span className="text-xs font-bold text-yellow-400">Σ</span>
+                </div>
+                <div className="flex-1">
+                  <p className="text-[8px] text-yellow-400/70 uppercase font-mono">Total Supply</p>
+                  <p className="text-sm font-black text-yellow-400">
+                    {(totalSupply / 1000000).toFixed(1)}M
+                  </p>
+                </div>
               </div>
-              <p className="text-lg font-bold text-primary">{(totalSupply / 1000000).toFixed(1)}M</p>
-              <p className="text-[10px] text-muted-foreground">GBTC</p>
             </div>
           </Card>
 
-          <Card className="mobile-card bg-black/50 border-accent/20">
-            <div className="p-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] text-muted-foreground uppercase">Circulation</span>
-                <TrendingUp className="w-4 h-4 text-accent/50" />
+          {/* Circulation Box */}
+          <Card className="mobile-card bg-gradient-to-br from-green-900/30 to-green-600/20 border-green-500/30">
+            <div className="p-2.5">
+              <div className="flex items-center space-x-2">
+                <div className="w-7 h-7 bg-green-500/20 rounded flex items-center justify-center">
+                  <TrendingUp className="w-3.5 h-3.5 text-green-400" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-[8px] text-green-400/70 uppercase font-mono">Circulation</p>
+                  <p className="text-sm font-black text-green-400">
+                    {circulation.toFixed(2)}
+                  </p>
+                </div>
               </div>
-              <p className="text-lg font-bold text-accent">{circulation.toFixed(2)}</p>
-              <p className="text-[10px] text-muted-foreground">GBTC</p>
             </div>
           </Card>
 
-          <Card className="mobile-card bg-black/50 border-chart-3/20">
-            <div className="p-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] text-muted-foreground uppercase">Block Height</span>
-                <Cpu className="w-4 h-4 text-chart-3/50" />
+          {/* Block Height Box */}
+          <Card className="mobile-card bg-gradient-to-br from-blue-900/30 to-blue-600/20 border-blue-500/30">
+            <div className="p-2.5">
+              <div className="flex items-center space-x-2">
+                <div className="w-7 h-7 bg-blue-500/20 rounded flex items-center justify-center">
+                  <Layers className="w-3.5 h-3.5 text-blue-400" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-[8px] text-blue-400/70 uppercase font-mono">Block Height</p>
+                  <p className="text-sm font-black text-blue-400">
+                    #{blockHeight}
+                  </p>
+                </div>
               </div>
-              <p className="text-lg font-bold text-chart-3">#{blockHeight}</p>
-              <p className="text-[10px] text-muted-foreground">CURRENT</p>
             </div>
           </Card>
 
-          <Card className="mobile-card bg-black/50 border-warning/20">
-            <div className="p-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] text-muted-foreground uppercase">Next Block</span>
-                <Clock className="w-4 h-4 text-warning/50 animate-pulse" />
+          {/* Next Block Timer Box */}
+          <Card className="mobile-card bg-gradient-to-br from-purple-900/30 to-purple-600/20 border-purple-500/30">
+            <div className="p-2.5">
+              <div className="flex items-center space-x-2">
+                <div className="w-7 h-7 bg-purple-500/20 rounded flex items-center justify-center">
+                  <Clock className="w-3.5 h-3.5 text-purple-400" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-[8px] text-purple-400/70 uppercase font-mono">Next Block</p>
+                  <p className="text-sm font-black text-purple-400">
+                    {nextBlockTime}
+                  </p>
+                </div>
               </div>
-              <p className="text-lg font-bold text-warning">{nextBlockTime}</p>
-              <p className="text-[10px] text-muted-foreground">COUNTDOWN</p>
             </div>
           </Card>
         </div>
+
+        {/* GBTC Balance Box - Main Feature Box */}
+        <Card className="mobile-card bg-gradient-to-br from-yellow-500 via-yellow-600 to-orange-500 border-2 border-yellow-400 relative overflow-hidden mb-4" id="gbtc-box">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+          
+          {/* Bitcoin pattern background */}
+          <div className="absolute inset-0 opacity-10">
+            <svg className="w-full h-full">
+              <pattern id="gbtc-pattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                <text x="20" y="25" textAnchor="middle" fontSize="20" fill="rgba(255,255,255,0.1)" fontWeight="bold">₿</text>
+              </pattern>
+              <rect width="100%" height="100%" fill="url(#gbtc-pattern)" />
+            </svg>
+          </div>
+          
+          <div className="relative z-10 p-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <motion.div 
+                  className="w-12 h-12 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-xl flex items-center justify-center shadow-xl border-2 border-yellow-300"
+                  animate={{ 
+                    rotateY: [0, 360],
+                    boxShadow: [
+                      "0 0 20px rgba(250, 204, 21, 0.5)",
+                      "0 0 40px rgba(250, 204, 21, 0.8)",
+                      "0 0 20px rgba(250, 204, 21, 0.5)"
+                    ]
+                  }}
+                  transition={{ 
+                    rotateY: { duration: 4, repeat: Infinity, ease: "linear" },
+                    boxShadow: { duration: 2, repeat: Infinity }
+                  }}
+                  style={{ transformStyle: 'preserve-3d' }}
+                >
+                  <span className="text-xl font-black text-yellow-900">₿</span>
+                </motion.div>
+                <div>
+                  <p className="text-xs text-yellow-100/80 font-mono uppercase">Your GBTC</p>
+                  <motion.p 
+                    className="text-2xl font-black text-white drop-shadow-lg"
+                    key={gbtcBalance}
+                    initial={{ scale: 1.2 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    {gbtcBalance.toFixed(6)}
+                  </motion.p>
+                  <p className="text-[9px] text-yellow-200/70">Bitcoin Gold Token</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-[9px] text-yellow-200/70">USD Value</p>
+                <p className="text-sm font-bold text-white">${(gbtcBalance * 0.001).toFixed(2)}</p>
+              </div>
+            </div>
+            
+            {/* Flying Coins Container - 3D Animation */}
+            <div className="absolute inset-0 pointer-events-none overflow-visible">
+              {flyingCoins.map((coin) => (
+                <motion.div
+                  key={coin.id}
+                  className="absolute"
+                  initial={{ 
+                    x: coin.x, 
+                    y: coin.y, 
+                    scale: 0.3,
+                    opacity: 0,
+                    rotateX: 0,
+                    rotateY: 0,
+                    z: 100
+                  }}
+                  animate={{
+                    x: [coin.x, coin.x/2, 0],
+                    y: [coin.y, coin.y/2 - 50, -30],
+                    scale: [0.3, 1, 0.8],
+                    opacity: [0, 1, 1, 0],
+                    rotateY: [0, 720, 1080],
+                    rotateX: [0, 360, 720],
+                    z: [100, 50, 0]
+                  }}
+                  transition={{
+                    duration: 2,
+                    ease: "easeInOut",
+                    times: [0, 0.5, 0.8, 1]
+                  }}
+                  onAnimationComplete={() => {
+                    setFlyingCoins(prev => prev.filter(c => c.id !== coin.id));
+                  }}
+                  style={{ 
+                    transformStyle: 'preserve-3d',
+                    left: '50%', 
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)'
+                  }}
+                >
+                  <motion.div 
+                    className="w-10 h-10 relative"
+                    animate={{
+                      filter: [
+                        'brightness(1)',
+                        'brightness(1.5)',
+                        'brightness(1)'
+                      ]
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-yellow-300 via-yellow-400 to-orange-400 rounded-full flex items-center justify-center shadow-2xl border-2 border-yellow-300">
+                      <span className="text-sm font-black text-yellow-900">₿</span>
+                    </div>
+                    {/* 3D coin thickness effect */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full transform translateZ-2 opacity-50"></div>
+                  </motion.div>
+                  <motion.div
+                    className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-lg"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: [0, 1.3, 1] }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    +{coin.amount.toFixed(2)}
+                  </motion.div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </Card>
 
         {/* Personal Mining Stats */}
         <div className="grid grid-cols-3 gap-2 mb-3">
