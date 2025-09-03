@@ -220,14 +220,14 @@ export function EthAssetPage() {
           </Button>
           <Button
             onClick={() => setWithdrawOpen(true)}
-            className="bg-transparent border-2 border-gray-600 text-gray-300 hover:bg-gray-800 font-medium"
+            className="bg-[#f7931a] text-black hover:bg-[#f7931a]/90 font-medium"
             data-testid="button-eth-withdraw"
           >
             Withdraw
           </Button>
           <Button
             onClick={() => setConvertOpen(true)}
-            className="bg-transparent border-2 border-gray-600 text-gray-300 hover:bg-gray-800 font-medium"
+            className="bg-[#f7931a] text-black hover:bg-[#f7931a]/90 font-medium"
             data-testid="button-eth-convert"
           >
             Convert

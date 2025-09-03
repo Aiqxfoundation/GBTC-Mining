@@ -33,6 +33,7 @@ export class MemoryStorage implements IStorage {
   private minerActivity: Map<string, MinerActivity> = new Map();
   private lastDepositTime: Map<string, Date> = new Map(); // userId -> last deposit timestamp
   private lastWithdrawalTime: Map<string, Date> = new Map(); // userId -> last withdrawal timestamp
+  private ethConversions: Map<string, EthConversion[]> = new Map(); // userId -> conversions
   
   sessionStore: session.Store;
 
@@ -381,8 +382,8 @@ export class MemoryStorage implements IStorage {
     
     const user = this.users.get(deposit.userId);
     if (user) {
-      // Check deposit currency/network
-      if (deposit.network === 'ETH') {
+      // Check deposit currency
+      if (deposit.currency === 'ETH') {
         const newBalance = (parseFloat(user.ethBalance || "0") + parseFloat(amountToCredit)).toFixed(8);
         user.ethBalance = newBalance;
       } else {
@@ -1006,6 +1007,21 @@ export class MemoryStorage implements IStorage {
       this.users.set(userId, user);
     }
     
+    // Track conversion history
+    const conversion: EthConversion = {
+      id: 'conv-' + randomBytes(8).toString('hex'),
+      userId,
+      ethAmount,
+      ethPrice,
+      usdtAmount: netUsdtAmount.toFixed(2),
+      feeAmount: feeAmount.toFixed(2),
+      createdAt: new Date()
+    };
+    
+    const userConversions = this.ethConversions.get(userId) || [];
+    userConversions.push(conversion);
+    this.ethConversions.set(userId, userConversions);
+    
     return {
       usdtAmount: netUsdtAmount.toFixed(2),
       feeAmount: feeAmount.toFixed(2)
@@ -1013,8 +1029,8 @@ export class MemoryStorage implements IStorage {
   }
   
   async getEthConversions(userId: string): Promise<EthConversion[]> {
-    // In-memory storage doesn't track conversion history
-    return [];
+    const conversions = this.ethConversions.get(userId) || [];
+    return conversions.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
   }
   
   async getCurrentEthPrice(): Promise<string> {
