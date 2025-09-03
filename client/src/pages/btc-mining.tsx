@@ -110,6 +110,7 @@ export default function BtcStakingEnhanced() {
   const [btcSliderValue, setBtcSliderValue] = useState([0]);
   const [hashrateSliderValue, setHashrateSliderValue] = useState([0]);
   const [lockMonths, setLockMonths] = useState([12]); // Default to 1 year (12 months)
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Fetch BTC prices and hashrate info
   const { data: priceData } = useQuery<{
@@ -184,14 +185,16 @@ export default function BtcStakingEnhanced() {
   const maxBtcBasedOnHashrate = btcPrice > 0 ? userHashPower / btcPrice : 0;
   const maxBtcAllowed = Math.min(btcBalance, maxBtcBasedOnHashrate);
   
-  // Initialize sliders based on available balance and hashrate
+  // Automatically initialize sliders to 100% of available resources
   useEffect(() => {
-    if (btcBalance > 0 && btcSliderValue[0] === 0 && maxBtcAllowed > 0) {
-      // Set default to 10% of allowed amount or 0.1 BTC, whichever is smaller
-      const defaultAmount = Math.min(maxBtcAllowed * 0.1, 0.1);
-      setBtcSliderValue([defaultAmount]);
+    if (!isInitialized && maxBtcAllowed > 0 && btcPrice > 0) {
+      // Set to 100% of what's possible based on both limits
+      setBtcSliderValue([maxBtcAllowed]);
+      // Set hashrate to match the BTC amount
+      setHashrateSliderValue([maxBtcAllowed * btcPrice]);
+      setIsInitialized(true);
     }
-  }, [btcBalance, maxBtcAllowed]);
+  }, [btcBalance, userHashPower, btcPrice, maxBtcAllowed, isInitialized]);
   
   const btcAmount = btcSliderValue[0];
   const hashrateAmount = hashrateSliderValue[0];
@@ -206,13 +209,13 @@ export default function BtcStakingEnhanced() {
   const dollarReturn = totalReturn * btcPrice;
 
   // Update hashrate slider when BTC slider changes
-  // Using 1 GH/s = 1 USD model, so required GH/s = BTC amount * BTC price
+  // Automatically sync hashrate with BTC amount
   useEffect(() => {
-    if (btcPrice > 0 && btcAmount > 0) {
-      const requiredHashrate = Math.min(btcAmount * btcPrice, userHashPower);
+    if (btcPrice > 0) {
+      const requiredHashrate = btcAmount * btcPrice;
       setHashrateSliderValue([requiredHashrate]);
     }
-  }, [btcAmount, btcPrice, userHashPower]);
+  }, [btcAmount, btcPrice]);
 
   const handleStake = () => {
     stakeMutation.mutate({
@@ -313,7 +316,14 @@ export default function BtcStakingEnhanced() {
                 <div className="flex justify-between items-center mb-2">
                   <Label className="text-white">BTC Amount</Label>
                   <div className="text-right">
-                    <p className="text-lg font-bold text-[#f7931a]">{btcAmount} BTC</p>
+                    <p className="text-lg font-bold text-[#f7931a]">
+                      {btcAmount.toFixed(8)} BTC
+                      {maxBtcAllowed > 0 && (
+                        <span className="text-xs text-gray-400 ml-1">
+                          ({(btcAmount / maxBtcAllowed * 100).toFixed(0)}%)
+                        </span>
+                      )}
+                    </p>
                     <p className="text-xs text-gray-400">
                       ≈ ${(btcAmount * btcPrice).toLocaleString()}
                     </p>
@@ -321,20 +331,28 @@ export default function BtcStakingEnhanced() {
                 </div>
                 <BtcSlider
                   value={btcSliderValue}
-                  onValueChange={setBtcSliderValue}
-                  min={maxBtcAllowed > 0 ? Math.min(0.001, maxBtcAllowed) : 0}
-                  max={maxBtcAllowed > 0 ? maxBtcAllowed : 1}
-                  step={maxBtcAllowed > 1 ? 0.01 : 0.001}
+                  onValueChange={(value: number[]) => {
+                    // Ensure value doesn't exceed max allowed
+                    const safeValue = value.map((v: number) => Math.min(v, maxBtcAllowed));
+                    setBtcSliderValue(safeValue);
+                  }}
+                  min={0}
+                  max={maxBtcAllowed > 0 ? maxBtcAllowed : 0.001}
+                  step={maxBtcAllowed > 0 ? maxBtcAllowed / 100 : 0.001}
                   className="mb-2"
                   data-testid="slider-btc-amount"
                 />
                 <div className="flex justify-between text-xs text-gray-400">
-                  <span>{maxBtcAllowed > 0 ? `${Math.min(0.001, maxBtcAllowed).toFixed(3)} BTC` : '0 BTC'}</span>
+                  <span>0 BTC</span>
                   <span>
                     {maxBtcAllowed > 0 ? (
-                      maxBtcBasedOnHashrate < btcBalance ?
-                      `${maxBtcAllowed.toFixed(8)} BTC (Hashrate limit)` :
-                      `${maxBtcAllowed.toFixed(8)} BTC (Balance limit)`
+                      <>
+                        {maxBtcAllowed.toFixed(8)} BTC (100% Max)
+                        {maxBtcBasedOnHashrate < btcBalance ? 
+                          <span className="text-yellow-500"> - Hashrate limited</span> : 
+                          <span className="text-blue-500"> - Balance limited</span>
+                        }
+                      </>
                     ) : '0 BTC'}
                   </span>
                 </div>
@@ -347,6 +365,11 @@ export default function BtcStakingEnhanced() {
                   <div className="text-right">
                     <p className="text-lg font-bold text-green-400">
                       {hashrateAmount.toFixed(0)} GH/s
+                      {userHashPower > 0 && (
+                        <span className="text-xs text-gray-400 ml-1">
+                          ({(hashrateAmount / userHashPower * 100).toFixed(0)}%)
+                        </span>
+                      )}
                     </p>
                     <p className="text-xs text-gray-400">
                       {userHashPower >= hashrateAmount ? 'Ready ✓' : `Need ${(hashrateAmount - userHashPower).toFixed(0)} more`}
@@ -357,15 +380,20 @@ export default function BtcStakingEnhanced() {
                   value={hashrateSliderValue}
                   onValueChange={setHashrateSliderValue}
                   min={0}
-                  max={Math.max(userHashPower, btcPrice * 10)}
-                  step={100}
+                  max={userHashPower > 0 ? userHashPower : btcPrice * 10}
+                  step={userHashPower > 0 ? userHashPower / 100 : 100}
                   className="mb-2"
                   disabled={true}
                   data-testid="slider-hashrate-amount"
                 />
                 <div className="flex justify-between text-xs text-gray-400">
                   <span>0 GH/s</span>
-                  <span>{userHashPower > 0 ? `${userHashPower.toLocaleString()} GH/s (Available)` : `${(btcPrice * 10).toLocaleString()} GH/s`}</span>
+                  <span>
+                    {userHashPower > 0 ? 
+                      `${userHashPower.toLocaleString()} GH/s (100% Available)` : 
+                      `${(btcPrice * 10).toLocaleString()} GH/s`
+                    }
+                  </span>
                 </div>
               </div>
 
@@ -414,23 +442,23 @@ export default function BtcStakingEnhanced() {
 
               {/* Requirements Check */}
               <div className="bg-yellow-900/20 border border-yellow-600/30 rounded p-3 mb-6">
-                <p className="text-xs text-yellow-400 mb-2">Requirements Check:</p>
+                <p className="text-xs text-yellow-400 mb-2">Auto-Balance Status (100% Optimized):</p>
                 <ul className="text-xs text-gray-400 space-y-1">
                   <li className="flex items-center gap-1">
                     <CheckCircle className={`w-3 h-3 ${btcBalance >= btcAmount ? 'text-green-400' : 'text-gray-600'}`} />
-                    BTC Balance: {btcBalance >= btcAmount ? 'Sufficient' : `Need ${(btcAmount - btcBalance).toFixed(8)} more BTC`}
+                    BTC: Using {btcBalance > 0 ? ((btcAmount / btcBalance) * 100).toFixed(0) : '0'}% of {btcBalance.toFixed(8)} BTC
                   </li>
                   <li className="flex items-center gap-1">
                     <CheckCircle className={`w-3 h-3 ${userHashPower >= hashrateAmount ? 'text-green-400' : 'text-gray-600'}`} />
-                    Hashrate: {userHashPower >= hashrateAmount ? 'Sufficient' : `Need ${(hashrateAmount - userHashPower).toFixed(0)} more GH/s`}
+                    Hashrate: Using {userHashPower > 0 ? ((hashrateAmount / userHashPower) * 100).toFixed(0) : '0'}% of {userHashPower.toLocaleString()} GH/s
                   </li>
                   <li className="flex items-center gap-1">
                     <CheckCircle className="w-3 h-3 text-yellow-400" />
-                    Lock Period: {formatDuration(months)} commitment
+                    Lock Period: {formatDuration(months)} @ {apr}% APR
                   </li>
-                  <li className="flex items-center gap-1 text-yellow-500">
-                    <CheckCircle className="w-3 h-3 text-yellow-400" />
-                    Max BTC for your hashrate: {maxBtcBasedOnHashrate.toFixed(8)} BTC
+                  <li className="flex items-center gap-1 text-green-400">
+                    <CheckCircle className="w-3 h-3 text-green-400" />
+                    Auto-set to maximum: {maxBtcAllowed.toFixed(8)} BTC
                   </li>
                 </ul>
               </div>
