@@ -48,27 +48,32 @@ export default function AdminPage() {
     toast({ title: "Copied!", description: "Withdrawal address copied to clipboard" });
   };
 
-  const { data: pendingDeposits, isLoading: depositsLoading } = useQuery({
+  const { data: pendingDeposits = [], isLoading: depositsLoading } = useQuery<any[]>({
     queryKey: ["/api/deposits/pending"],
     enabled: !!user?.isAdmin
   });
 
-  const { data: pendingWithdrawals, isLoading: withdrawalsLoading } = useQuery({
+  const { data: pendingWithdrawals = [], isLoading: withdrawalsLoading } = useQuery<any[]>({
     queryKey: ["/api/withdrawals/pending"],
     enabled: !!user?.isAdmin
   });
 
-  const { data: adminStats } = useQuery({
+  const { data: adminStats = { userCount: 0, totalDeposits: "0", totalWithdrawals: "0", totalHashPower: "0" } } = useQuery<{
+    userCount: number;
+    totalDeposits: string;
+    totalWithdrawals: string;
+    totalHashPower: string;
+  }>({
     queryKey: ["/api/admin/stats"],
     enabled: !!user?.isAdmin
   });
 
-  const { data: allUsers } = useQuery({
+  const { data: allUsers = [] } = useQuery<any[]>({
     queryKey: ["/api/admin/users"],
     enabled: !!user?.isAdmin
   });
 
-  const { data: blockRewardSetting } = useQuery({
+  const { data: blockRewardSetting = { value: "50" } } = useQuery<{ value: string }>({
     queryKey: ["/api/settings/blockReward"],
     enabled: !!user?.isAdmin
   });
