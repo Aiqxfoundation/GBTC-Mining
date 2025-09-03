@@ -53,7 +53,7 @@ const BtcSlider = ({ value, onValueChange, min, max, step, className }: any) => 
   </SliderPrimitive.Root>
 );
 
-// Custom Slider with Hash Icon Handle
+// Custom Slider with Hashrate Icon Handle
 const HashSlider = ({ value, onValueChange, min, max, step, className, disabled }: any) => (
   <SliderPrimitive.Root
     className={cn("relative flex w-full touch-none select-none items-center", className)}
@@ -68,7 +68,7 @@ const HashSlider = ({ value, onValueChange, min, max, step, className, disabled 
       <SliderPrimitive.Range className="absolute h-full bg-gradient-to-r from-green-500 to-green-600" />
     </SliderPrimitive.Track>
     <SliderPrimitive.Thumb className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-green-500 bg-black shadow-lg ring-offset-background transition-all hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
-      <Hash className="h-4 w-4 text-green-500" />
+      <Zap className="h-4 w-4 text-green-500" />
     </SliderPrimitive.Thumb>
   </SliderPrimitive.Root>
 );
