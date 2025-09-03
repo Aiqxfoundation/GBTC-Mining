@@ -456,7 +456,7 @@ export default function BtcStakingEnhanced() {
                   </li>
                   <li className="flex items-center gap-1">
                     <CheckCircle className={`w-3 h-3 ${userHashPower >= hashrateAmount ? 'text-green-400' : 'text-gray-600'}`} />
-                    Hashrate: Using {userHashPower > 0 ? ((hashrateAmount / userHashPower) * 100).toFixed(0) : '0'}% of {userHashPower.toLocaleString()} GH/s
+                    Hashrate: {userHashPower > 0 ? ((hashrateAmount / userHashPower) * 100).toFixed(0) : '0'}% of {userHashPower.toLocaleString()} GH/s (Mining continues!)
                   </li>
                   <li className="flex items-center gap-1">
                     <CheckCircle className="w-3 h-3 text-yellow-400" />
@@ -465,6 +465,10 @@ export default function BtcStakingEnhanced() {
                   <li className="flex items-center gap-1 text-green-400">
                     <CheckCircle className="w-3 h-3 text-green-400" />
                     Auto-set to maximum: {maxBtcAllowed.toFixed(8)} BTC
+                  </li>
+                  <li className="flex items-center gap-1 text-blue-400">
+                    <CheckCircle className="w-3 h-3 text-blue-400" />
+                    Your mining continues while hashrate is staked!
                   </li>
                 </ul>
               </div>

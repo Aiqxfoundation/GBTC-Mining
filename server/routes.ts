@@ -746,7 +746,7 @@ export async function registerRoutes(app: Express) {
       // Calculate required hashrate (1 GH/s = 1 USD, so GH/s needed = BTC amount * BTC price)
       const requiredHashrate = parseFloat(btcAmount) * parseFloat(btcPrice);
       
-      // Always require hashrate
+      // Check if user has enough hashrate (but don't deduct it - mining continues!)
       if (userHashPower < requiredHashrate) {
         return res.status(400).json({ 
           message: `Insufficient hashrate. Need ${requiredHashrate} GH/s but you have ${userHashPower} GH/s` 
@@ -763,13 +763,13 @@ export async function registerRoutes(app: Express) {
         apr
       );
 
-      // Deduct BTC balance and hashrate
+      // Only deduct BTC balance (NOT hashrate - mining continues!)
       const newBtcBalance = (btcBalance - parseFloat(btcAmount)).toFixed(8);
       await storage.updateUserBtcBalance(user.id, newBtcBalance);
       
-      // Always deduct hashrate
-      const newHashPower = (userHashPower - requiredHashrate).toFixed(2);
-      await storage.updateUser(user.id, { hashPower: newHashPower });
+      // DON'T deduct hashrate - mining continues to work normally!
+      // The staked hashrate is tracked in the stake record but doesn't affect mining
+      // Mining rewards continue based on full hashPower
 
       res.json({
         message: "BTC stake created successfully",
