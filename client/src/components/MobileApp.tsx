@@ -23,9 +23,9 @@ export default function MobileApp() {
   const { user } = useAuth();
   const [location] = useLocation();
   const [showLoading, setShowLoading] = useState(() => {
-    // Check for referral link or first load
+    // Only show loading for referral links
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.has('ref') || sessionStorage.getItem('firstLoad') !== 'false';
+    return urlParams.has('ref');
   });
   const [showBottomNav, setShowBottomNav] = useState(true);
   
