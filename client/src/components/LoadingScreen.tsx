@@ -16,29 +16,61 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
   ];
 
   useEffect(() => {
-    // Initialize binary matrix with random values
-    setBinaryMatrix(Array.from({ length: 40 }, () => 
-      Array.from({length: 80}, () => Math.round(Math.random())).join('')
-    ));
+    // Generate hash-like binary strings
+    const generateHashLikeString = () => {
+      const chars = '01';
+      let result = '';
+      for (let i = 0; i < 80; i++) {
+        // Create blocks that look like hash segments
+        if (i % 8 === 0 && i > 0) {
+          result += chars[Math.floor(Math.random() * 2)];
+        }
+        result += chars[Math.floor(Math.random() * 2)];
+      }
+      return result;
+    };
 
-    // Generate binary stream
+    // Initialize binary matrix with hash-like values
+    setBinaryMatrix(Array.from({ length: 40 }, () => generateHashLikeString()));
+
+    // Generate binary stream with rapid updates
     const binaryInterval = setInterval(() => {
       setBinaryStream(prev => {
         const newBinary = Math.random().toString(2).substring(2, 10);
         return [...prev.slice(-20), newBinary];
       });
       
-      // Update binary matrix dynamically
-      setBinaryMatrix(prev => prev.map(line => {
-        // Randomly update parts of each line for dynamic effect
-        if (Math.random() > 0.7) {
-          const start = Math.floor(Math.random() * 60);
-          const newChunk = Array.from({length: 20}, () => Math.round(Math.random())).join('');
-          return line.substring(0, start) + newChunk + line.substring(start + 20);
+      // Update binary matrix to simulate hash calculations
+      setBinaryMatrix(prev => prev.map((line, index) => {
+        // Each column updates at different rates for realistic effect
+        const updateChance = 0.3 + (Math.sin(Date.now() / 1000 + index) * 0.3);
+        
+        if (Math.random() < updateChance) {
+          // Simulate hash-like progressive changes
+          const newLine = line.split('');
+          const updateCount = Math.floor(Math.random() * 30) + 10;
+          
+          for (let i = 0; i < updateCount; i++) {
+            const pos = Math.floor(Math.random() * newLine.length);
+            // Flip the bit to simulate hash calculation
+            newLine[pos] = newLine[pos] === '0' ? '1' : '0';
+          }
+          
+          // Sometimes replace entire segments (like new hash blocks)
+          if (Math.random() < 0.1) {
+            const blockStart = Math.floor(Math.random() * 60);
+            const blockSize = 8 + Math.floor(Math.random() * 8);
+            const newBlock = Array.from({length: blockSize}, () => 
+              Math.random() > 0.5 ? '1' : '0'
+            ).join('');
+            newLine.splice(blockStart, blockSize, ...newBlock.split(''));
+          }
+          
+          return newLine.join('');
         }
         return line;
       }));
-    }, 100);
+    }, 50); // Faster updates for hash-like effect
 
     const progressInterval = setInterval(() => {
       setProgress(prev => {
@@ -78,21 +110,22 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70"></div>
         <div className="absolute inset-0 bitcoin-grid opacity-10 animate-pulse"></div>
         
-        {/* Binary rain effect - optimized with dynamic updates */}
+        {/* Binary rain effect - hash-like dynamic updates */}
         <div className="absolute inset-0">
           {binaryMatrix.map((binary, i) => (
             <div
               key={i}
-              className="absolute font-mono text-xs overflow-hidden whitespace-pre"
+              className="absolute font-mono text-xs overflow-hidden whitespace-pre tracking-wider"
               style={{
                 left: `${i * 2.5}%`,
-                color: `hsl(142, ${70 + (i * 3) % 30 + 70}%, ${40 + (i * 2) % 20}%)`,
+                color: `hsl(142, ${70 + (i * 3) % 30 + 70}%, ${45 + (i * 2) % 25}%)`,
                 animation: `matrix-fall ${3 + (i % 4)}s linear infinite`,
                 animationDelay: `${(i * 0.1) % 3}s`,
-                opacity: 0.3 + (i % 3) * 0.2,
-                textShadow: '0 0 8px rgba(0, 255, 0, 0.5)',
-                filter: 'blur(0.3px)',
-                willChange: 'transform'
+                opacity: 0.4 + (i % 3) * 0.2,
+                textShadow: '0 0 10px rgba(0, 255, 0, 0.6), 0 0 20px rgba(0, 255, 0, 0.3)',
+                filter: i % 2 === 0 ? 'blur(0.2px)' : 'blur(0.4px)',
+                willChange: 'transform, opacity',
+                fontWeight: i % 3 === 0 ? '600' : '400'
               }}
             >
               {binary}
