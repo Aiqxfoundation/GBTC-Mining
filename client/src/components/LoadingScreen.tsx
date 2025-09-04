@@ -141,7 +141,7 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
               className="h-full bg-gradient-to-r from-green-500 via-primary to-accent transition-all duration-300 ease-out relative"
               style={{ width: `${progress}%` }}
             >
-              <div className="absolute inset-0 bg-white/30 animate-pulse"></div>
+              <div className="absolute inset-0 bg-primary/30 animate-pulse"></div>
             </div>
           </div>
           
@@ -172,13 +172,6 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
                   animation: `pulse-scale 1.5s ease-in-out infinite`,
                   animationDelay: `${i * 0.1}s`,
                   opacity: progress > i * 14 ? 1 : 0.3
-                }}
-              ></div>
-              <div 
-                className="absolute -top-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-white rounded-full"
-                style={{
-                  animation: `blink 0.5s ease-in-out infinite`,
-                  animationDelay: `${i * 0.2}s`
                 }}
               ></div>
             </div>
