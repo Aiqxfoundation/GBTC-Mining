@@ -22,11 +22,7 @@ import LoadingScreen from "./LoadingScreen";
 export default function MobileApp() {
   const { user } = useAuth();
   const [location] = useLocation();
-  const [showLoading, setShowLoading] = useState(() => {
-    // Only show loading for referral links
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.has('ref');
-  });
+  const [showLoading, setShowLoading] = useState(true); // Always show loading screen at startup
   const [showBottomNav, setShowBottomNav] = useState(true);
   
   useEffect(() => {
