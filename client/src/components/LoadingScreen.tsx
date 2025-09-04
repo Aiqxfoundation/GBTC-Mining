@@ -42,12 +42,12 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
       // Update matrix to simulate hash calculations with all digits
       setBinaryMatrix(prev => prev.map((line, index) => {
         // Each column updates at different rates for realistic effect
-        const updateChance = 0.3 + (Math.sin(Date.now() / 1000 + index) * 0.3);
+        const updateChance = 0.5 + (Math.sin(Date.now() / 500 + index) * 0.4);
         
         if (Math.random() < updateChance) {
           // Simulate hash-like progressive changes
           const newLine = line.split('');
-          const updateCount = Math.floor(Math.random() * 30) + 10;
+          const updateCount = Math.floor(Math.random() * 40) + 20;
           
           for (let i = 0; i < updateCount; i++) {
             const pos = Math.floor(Math.random() * newLine.length);
@@ -56,7 +56,7 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
           }
           
           // Sometimes replace entire segments (like new hash blocks)
-          if (Math.random() < 0.1) {
+          if (Math.random() < 0.2) {
             const blockStart = Math.floor(Math.random() * 60);
             const blockSize = 8 + Math.floor(Math.random() * 8);
             const newBlock = Array.from({length: blockSize}, () => 
@@ -69,21 +69,21 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
         }
         return line;
       }));
-    }, 50); // Faster updates for hash-like effect
+    }, 30); // Much faster updates for intense effect
 
     const progressInterval = setInterval(() => {
       setProgress(prev => {
         if (prev >= 100) {
           clearInterval(progressInterval);
           clearInterval(binaryInterval);
-          setTimeout(onComplete, 1500); // Smooth fade out transition
+          setTimeout(onComplete, 800); // Quick fade out
           return 100;
         }
-        // Optimized progress with easing (100% in ~7s + 1.5s fade)
-        const increment = prev < 30 ? 2.5 : prev < 70 ? 1.8 : prev < 90 ? 1.2 : 0.8;
+        // Fast progress (100% in ~4.2 seconds)
+        const increment = prev < 30 ? 3.5 : prev < 70 ? 2.8 : prev < 90 ? 2.0 : 1.5;
         return Math.min(100, prev + increment);
       });
-    }, 100); // Update every 100ms for smoother animation
+    }, 100); // Update every 100ms
 
     const phaseInterval = setInterval(() => {
       setCurrentPhase(prev => {
@@ -93,7 +93,7 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
         }
         return prev + 1;
       });
-    }, 1150); // Each phase shows for ~1.15 seconds (6 phases in ~7 seconds)
+    }, 700); // Each phase shows for 0.7 seconds (6 phases in ~4.2 seconds)
 
     return () => {
       clearInterval(progressInterval);
@@ -217,7 +217,7 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
             </div>
             <div className="flex justify-between mt-2">
               <span className="text-accent transition-all duration-300 font-bold">Progress: {Math.floor(progress)}%</span>
-              <span className="text-chart-4 transition-all duration-300 font-bold">ETA: {Math.max(0, Math.ceil((100 - progress) / 14))}s</span>
+              <span className="text-chart-4 transition-all duration-300 font-bold">ETA: {Math.max(0, Math.ceil((100 - progress) / 20))}s</span>
             </div>
           </div>
         </div>
