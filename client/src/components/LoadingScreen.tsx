@@ -28,12 +28,13 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
         if (prev >= 100) {
           clearInterval(progressInterval);
           clearInterval(binaryInterval);
-          setTimeout(onComplete, 800);
+          setTimeout(onComplete, 1200); // Smooth fade out transition
           return 100;
         }
-        return prev + 2;
+        // Slower progress for 7 seconds total (100% in ~6800ms + 1200ms fade = 8s total)
+        return Math.min(100, prev + 1.47);
       });
-    }, 30);
+    }, 100); // Update every 100ms for smoother animation
 
     const phaseInterval = setInterval(() => {
       setCurrentPhase(prev => {
@@ -43,7 +44,7 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
         }
         return prev + 1;
       });
-    }, 500);
+    }, 1150); // Each phase shows for ~1.15 seconds (6 phases in ~7 seconds)
 
     return () => {
       clearInterval(progressInterval);
@@ -53,7 +54,7 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
   }, [onComplete]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-background flex items-center justify-center">
+    <div className="fixed inset-0 z-50 bg-background flex items-center justify-center transition-opacity duration-1000 ease-in-out" style={{ opacity: progress >= 100 ? 0 : 1 }}>
       {/* Matrix-style Background */}
       <div className="absolute inset-0 overflow-hidden bg-black">
         <div className="absolute inset-0 bitcoin-grid opacity-5"></div>
@@ -122,7 +123,7 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
           {/* Progress bar */}
           <div className="h-3 bg-black rounded-full overflow-hidden border border-primary/20 mb-3">
             <div 
-              className="h-full bg-gradient-to-r from-green-500 via-primary to-accent transition-all duration-300 ease-out relative"
+              className="h-full bg-gradient-to-r from-green-500 via-primary to-accent transition-all duration-500 ease-out relative"
               style={{ width: `${progress}%` }}
             >
               <div className="absolute inset-0 bg-white/30 animate-pulse"></div>
@@ -140,8 +141,8 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
               ))}
             </div>
             <div className="flex justify-between mt-2">
-              <span className="text-accent">Progress: {progress}%</span>
-              <span className="text-chart-4">ETA: {Math.max(0, 5 - Math.floor(progress / 20))}s</span>
+              <span className="text-accent transition-all duration-300">Progress: {Math.floor(progress)}%</span>
+              <span className="text-chart-4 transition-all duration-300">ETA: {Math.max(0, 7 - Math.floor(progress / 14.3))}s</span>
             </div>
           </div>
         </div>
