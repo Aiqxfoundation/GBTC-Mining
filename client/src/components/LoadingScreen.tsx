@@ -77,22 +77,6 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
           ))}
         </div>
 
-        {/* Hexadecimal particles */}
-        {[...Array(15)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute text-primary/20 font-mono text-sm"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `float-up ${10 + Math.random() * 10}s linear infinite`,
-              animationDelay: `${Math.random() * 5}s`,
-              transform: `rotate(${Math.random() * 360}deg)`
-            }}
-          >
-            0x{Math.random().toString(16).substr(2, 8).toUpperCase()}
-          </div>
-        ))}
       </div>
 
       {/* Main Content */}
@@ -185,14 +169,6 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
           ))}
         </div>
         
-        {/* Hash display */}
-        <div className="mt-6 text-center">
-          <div className="text-xs text-muted-foreground font-mono">
-            Current Hash: <span className="text-primary">
-              {progress > 0 ? `0x${Math.floor(progress * 999999).toString(16).toUpperCase().padStart(6, '0')}` : '0x000000'}
-            </span>
-          </div>
-        </div>
       </div>
 
     </div>
