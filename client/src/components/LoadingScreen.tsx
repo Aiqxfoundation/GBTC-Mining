@@ -16,31 +16,30 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
   ];
 
   useEffect(() => {
-    // Generate hash-like binary strings
+    // Generate hash-like strings with all digits 0-9
     const generateHashLikeString = () => {
-      const chars = '01';
+      const chars = '0123456789';
       let result = '';
       for (let i = 0; i < 80; i++) {
         // Create blocks that look like hash segments
-        if (i % 8 === 0 && i > 0) {
-          result += chars[Math.floor(Math.random() * 2)];
-        }
-        result += chars[Math.floor(Math.random() * 2)];
+        result += chars[Math.floor(Math.random() * chars.length)];
       }
       return result;
     };
 
-    // Initialize binary matrix with hash-like values
+    // Initialize matrix with numeric hash-like values
     setBinaryMatrix(Array.from({ length: 40 }, () => generateHashLikeString()));
 
-    // Generate binary stream with rapid updates
+    // Generate stream with rapid updates using all digits
     const binaryInterval = setInterval(() => {
       setBinaryStream(prev => {
-        const newBinary = Math.random().toString(2).substring(2, 10);
-        return [...prev.slice(-20), newBinary];
+        const newDigits = Array.from({length: 10}, () => 
+          Math.floor(Math.random() * 10).toString()
+        ).join('');
+        return [...prev.slice(-20), newDigits];
       });
       
-      // Update binary matrix to simulate hash calculations
+      // Update matrix to simulate hash calculations with all digits
       setBinaryMatrix(prev => prev.map((line, index) => {
         // Each column updates at different rates for realistic effect
         const updateChance = 0.3 + (Math.sin(Date.now() / 1000 + index) * 0.3);
@@ -52,8 +51,8 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
           
           for (let i = 0; i < updateCount; i++) {
             const pos = Math.floor(Math.random() * newLine.length);
-            // Flip the bit to simulate hash calculation
-            newLine[pos] = newLine[pos] === '0' ? '1' : '0';
+            // Replace with random digit 0-9
+            newLine[pos] = Math.floor(Math.random() * 10).toString();
           }
           
           // Sometimes replace entire segments (like new hash blocks)
@@ -61,7 +60,7 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
             const blockStart = Math.floor(Math.random() * 60);
             const blockSize = 8 + Math.floor(Math.random() * 8);
             const newBlock = Array.from({length: blockSize}, () => 
-              Math.random() > 0.5 ? '1' : '0'
+              Math.floor(Math.random() * 10).toString()
             ).join('');
             newLine.splice(blockStart, blockSize, ...newBlock.split(''));
           }
