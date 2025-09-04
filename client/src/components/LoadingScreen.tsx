@@ -28,12 +28,12 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
         if (prev >= 100) {
           clearInterval(progressInterval);
           clearInterval(binaryInterval);
-          setTimeout(onComplete, 800);
+          setTimeout(onComplete, 1200);
           return 100;
         }
-        return prev + 2;
+        return prev + 1;
       });
-    }, 30);
+    }, 70); // 7 seconds total (100 steps * 70ms = 7000ms)
 
     const phaseInterval = setInterval(() => {
       setCurrentPhase(prev => {
@@ -43,7 +43,7 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
         }
         return prev + 1;
       });
-    }, 500);
+    }, 1100); // Smoother phase transitions for 7 second duration
 
     return () => {
       clearInterval(progressInterval);
@@ -58,35 +58,18 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
       <div className="absolute inset-0 overflow-hidden bg-black">
         <div className="absolute inset-0 bitcoin-grid opacity-5"></div>
         
-        {/* Binary rain effect */}
-        <div className="absolute inset-0">
-          {[...Array(30)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute font-mono text-xs"
-              style={{
-                left: `${i * 3.33}%`,
-                color: `hsl(142, ${50 + Math.random() * 30}%, ${30 + Math.random() * 20}%)`,
-                animation: `matrix-fall ${5 + Math.random() * 10}s linear infinite`,
-                animationDelay: `${Math.random() * 5}s`,
-                opacity: Math.random() * 0.8 + 0.2
-              }}
-            >
-              {Array.from({length: 50}, () => Math.round(Math.random())).join('')}
-            </div>
-          ))}
-        </div>
+        {/* Binary rain effect - removed to clean up animation */}
 
         {/* Hexadecimal particles */}
-        {[...Array(15)].map((_, i) => (
+        {[...Array(8)].map((_, i) => (
           <div
             key={i}
-            className="absolute text-primary/20 font-mono text-sm"
+            className="absolute text-primary/10 font-mono text-xs"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
-              animation: `float-up ${10 + Math.random() * 10}s linear infinite`,
-              animationDelay: `${Math.random() * 5}s`,
+              animation: `float-up ${15 + Math.random() * 15}s linear infinite`,
+              animationDelay: `${Math.random() * 7}s`,
               transform: `rotate(${Math.random() * 360}deg)`
             }}
           >
@@ -101,9 +84,9 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
         <div className="mb-8 text-center">
           <div className="w-32 h-32 mx-auto mb-6 relative">
             {/* Rotating rings */}
-            <div className="absolute inset-0 border-2 border-primary/30 rounded-full animate-spin" style={{ animationDuration: '3s' }}></div>
-            <div className="absolute inset-2 border-2 border-accent/30 rounded-full animate-spin" style={{ animationDuration: '4s', animationDirection: 'reverse' }}></div>
-            <div className="absolute inset-4 border-2 border-chart-4/30 rounded-full animate-spin" style={{ animationDuration: '5s' }}></div>
+            <div className="absolute inset-0 border-2 border-primary/30 rounded-full animate-spin" style={{ animationDuration: '6s' }}></div>
+            <div className="absolute inset-2 border-2 border-accent/30 rounded-full animate-spin" style={{ animationDuration: '8s', animationDirection: 'reverse' }}></div>
+            <div className="absolute inset-4 border-2 border-chart-4/30 rounded-full animate-spin" style={{ animationDuration: '10s' }}></div>
             
             {/* Central logo */}
             <div className="absolute inset-0 bg-primary/20 rounded-full animate-pulse"></div>
