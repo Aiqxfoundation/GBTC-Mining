@@ -47,11 +47,32 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
-      retry: false,
+      // Optimize caching based on query type
+      staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+      gcTime: 10 * 60 * 1000, // Keep cache for 10 minutes
+      retry: (failureCount, error: any) => {
+        // Only retry on network errors, not on 4xx errors
+        if (error?.message?.startsWith('4')) return false;
+        return failureCount < 2;
+      },
     },
     mutations: {
       retry: false,
+      // Optimistic updates for better UX
+      onError: (_error, _variables, context: any) => {
+        // Rollback optimistic updates on error
+        if (context?.rollback) {
+          context.rollback();
+        }
+      },
     },
   },
 });
+
+// Custom invalidation helper for real-time updates
+export function invalidateRealTimeQueries() {
+  // Invalidate only time-sensitive queries
+  queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+  queryClient.invalidateQueries({ queryKey: ['/api/mining'] });
+  queryClient.invalidateQueries({ queryKey: ['/api/btc'] });
+}

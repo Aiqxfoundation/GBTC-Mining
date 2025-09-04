@@ -1,6 +1,4 @@
 import { storage } from "./storage";
-import { db } from "./db";
-import { users } from "@shared/schema";
 import cron from "node-cron";
 
 let dailyBlockNumber = 1; // Daily block counter (resets to 1 at 00:00 UTC)
@@ -51,7 +49,7 @@ async function checkAndPerformDailyReset() {
       lastResetDate = today;
     }
   } catch (error) {
-    console.error("Error checking daily reset:", error);
+    // Silent error handling
   }
 }
 
@@ -71,7 +69,7 @@ async function dailyReset() {
     
     // Reset complete
   } catch (error) {
-    console.error("Error during daily reset:", error);
+    // Silent error handling
   }
 }
 
@@ -107,23 +105,20 @@ async function initializeSettings() {
       // Check and perform daily reset if needed
       await checkAndPerformDailyReset();
       
-      console.log(`Mining initialized: Daily Block ${dailyBlockNumber}, Total Height ${totalBlockHeight}, Reward ${currentBlockReward} GBTC`);
+      // Mining initialized successfully
       return; // Success, exit retry loop
       
     } catch (error: any) {
       retries--;
       if (error?.message?.includes('endpoint has been disabled') || error?.code === 'XX000') {
-        console.log(`Database is reactivating... Retrying in 5 seconds (${3 - retries}/3)`);
+        // Database reactivating, retry silently
         if (retries > 0) {
           await new Promise(resolve => setTimeout(resolve, 5000));
           continue;
         }
       }
       
-      console.error("Error initializing mining settings:", error.message || error);
-      if (retries === 0) {
-        console.log("Mining will use default settings until database is available");
-      }
+      // Error initializing, will use defaults
     }
   }
 }
@@ -178,7 +173,7 @@ async function generateBlock() {
     if (error?.message?.includes('endpoint has been disabled') || error?.code === 'XX000') {
       // Database temporarily unavailable
     } else {
-      console.error("Error generating block:", error);
+      // Block generation error
     }
   }
 }
@@ -250,7 +245,7 @@ async function distributeRewards() {
     if (error?.message?.includes('endpoint has been disabled') || error?.code === 'XX000') {
       // Database temporarily unavailable
     } else {
-      console.error("Error distributing rewards:", error);
+      // Reward distribution error
     }
   }
 }
@@ -279,11 +274,10 @@ export async function halveBlockReward() {
     }
     
     await storage.setSystemSetting("blockReward", currentBlockReward.toString());
-    console.log(`Block reward halved to ${currentBlockReward} GBTC at total block ${totalBlockHeight}`);
-    console.log(`Halving #${Math.floor(totalBlockHeight / 4200)} completed`);
+    // Block reward halved
     return currentBlockReward;
   } catch (error) {
-    console.error("Error halving block reward:", error);
+    // Halving error
     throw error;
   }
 }
@@ -291,13 +285,9 @@ export async function halveBlockReward() {
 // BTC Staking Daily Rewards Distribution
 async function distributeBtcStakingRewards() {
   try {
-    console.log("Processing daily BTC staking rewards at 00:00 UTC");
-    
     // Process all active BTC stakes and pay daily rewards
     await storage.processDailyBtcRewards();
-    
-    console.log("Daily BTC staking rewards distributed successfully");
   } catch (error) {
-    console.error("Error distributing BTC staking rewards:", error);
+    // BTC staking rewards error
   }
 }

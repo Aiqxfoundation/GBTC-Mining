@@ -109,8 +109,6 @@ export class MemoryStorage implements IStorage {
     this.users.set(tempUserId, tempUser);
     this.usersByUsername.set('tempuser', tempUserId);
     
-    // Test user created
-    
     // Create test referral users for admin
     for (let i = 1; i <= 3; i++) {
       const refUserId = 'user-ref' + i + randomBytes(6).toString('hex');
@@ -148,7 +146,6 @@ export class MemoryStorage implements IStorage {
       
       this.users.set(refUserId, refUser);
       this.usersByUsername.set('refuser' + i, refUserId);
-      // Referral user created
     }
     
     // Initialize system settings
@@ -166,7 +163,6 @@ export class MemoryStorage implements IStorage {
       updatedAt: new Date()
     });
     
-    // Memory storage initialized with default users
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -1088,11 +1084,11 @@ export class MemoryStorage implements IStorage {
           timestamp: now
         };
         
-        console.log('Fetched live BTC price:', priceStr);
+        // Price fetched successfully
         return priceStr;
       }
     } catch (error) {
-      console.error('Failed to fetch BTC price:', error);
+      // Failed to fetch price, using fallback
     }
     
     // Fallback to a default if API fails

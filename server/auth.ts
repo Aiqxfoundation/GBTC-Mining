@@ -1,6 +1,6 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import { Express } from "express";
+import { type Express } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
@@ -58,7 +58,6 @@ export function setupAuth(app: Express) {
         }
       } catch (error: any) {
         if (error?.message?.includes('endpoint has been disabled') || error?.code === 'XX000') {
-          console.log('Database reactivating for authentication...');
           // Retry once after a brief delay to allow database to reactivate
           setTimeout(async () => {
             try {
@@ -86,8 +85,7 @@ export function setupAuth(app: Express) {
       done(null, user);
     } catch (error: any) {
       if (error?.message?.includes('endpoint has been disabled') || error?.code === 'XX000') {
-        // For session deserialization, just log and continue without user
-        console.log('Database temporarily unavailable for session deserialization');
+        // For session deserialization, continue without user
         done(null, null);
       } else {
         done(error);
