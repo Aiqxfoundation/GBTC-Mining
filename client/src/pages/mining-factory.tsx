@@ -5,7 +5,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Cpu, TrendingUp, Clock, Zap, Award, Hash, Activity, Blocks, Binary, Shield, Sparkles } from "lucide-react";
+import { Loader2, Cpu, TrendingUp, Clock, Zap, Award, Hash, Activity, Blocks, Binary, Shield, Sparkles, Bitcoin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 
@@ -515,7 +515,10 @@ export default function MiningFactory() {
                 <Award className="w-3 h-3 text-orange-500/50" />
               </div>
               <p className="text-sm font-bold text-orange-500">{(totalSupply / 1000000).toFixed(1)}M</p>
-              <p className="text-[9px] text-gray-500">GBTC</p>
+              <div className="flex items-center justify-center space-x-0.5">
+                <Bitcoin className="w-2.5 h-2.5 text-gray-500" />
+                <p className="text-[9px] text-gray-500">GBTC</p>
+              </div>
             </div>
           </Card>
 
@@ -526,7 +529,10 @@ export default function MiningFactory() {
                 <TrendingUp className="w-3 h-3 text-orange-500/50" />
               </div>
               <p className="text-sm font-bold text-orange-500">{circulation.toFixed(2)}</p>
-              <p className="text-[9px] text-gray-500">GBTC</p>
+              <div className="flex items-center justify-center space-x-0.5">
+                <Bitcoin className="w-2.5 h-2.5 text-gray-500" />
+                <p className="text-[9px] text-gray-500">GBTC</p>
+              </div>
             </div>
           </Card>
 
@@ -554,28 +560,20 @@ export default function MiningFactory() {
         </div>
 
         {/* Personal Mining Stats */}
-        <div className="grid grid-cols-3 gap-2 mb-3">
+        <div className="grid grid-cols-2 gap-2 mb-3">
           <Card className="bg-black/80 border-orange-500/20">
-            <div className="p-1.5 text-center">
-              <Zap className="w-3 h-3 text-orange-500 mx-auto mb-0.5" />
-              <p className="text-[8px] text-gray-400">Network Share</p>
-              <p className="text-xs font-bold text-orange-500">{networkShare.toFixed(2)}%</p>
+            <div className="p-2 text-center">
+              <Zap className="w-3.5 h-3.5 text-orange-500 mx-auto mb-1" />
+              <p className="text-[9px] text-gray-400">Network Share</p>
+              <p className="text-sm font-bold text-orange-500">{networkShare.toFixed(2)}%</p>
             </div>
           </Card>
 
           <Card className="bg-black/80 border-orange-500/20">
-            <div className="p-1.5 text-center">
-              <Cpu className="w-3 h-3 text-orange-500 mx-auto mb-0.5" />
-              <p className="text-[8px] text-gray-400">Your Hashrate</p>
-              <p className="text-xs font-bold text-orange-500">{formatHashrate(hashPower)}</p>
-            </div>
-          </Card>
-
-          <Card className="bg-black/80 border-orange-500/20">
-            <div className="p-1.5 text-center">
-              <TrendingUp className="w-3 h-3 text-orange-500 mx-auto mb-0.5" />
-              <p className="text-[8px] text-gray-400">Est. Daily</p>
-              <p className="text-xs font-bold text-orange-500">{estimatedDaily.toFixed(4)}</p>
+            <div className="p-2 text-center">
+              <Cpu className="w-3.5 h-3.5 text-orange-500 mx-auto mb-1" />
+              <p className="text-[9px] text-gray-400">Your Hashrate</p>
+              <p className="text-sm font-bold text-orange-500">{formatHashrate(hashPower)}</p>
             </div>
           </Card>
         </div>
@@ -595,7 +593,7 @@ export default function MiningFactory() {
                 {claimAllMutation.isPending ? (
                   <Loader2 className="w-3 h-3 animate-spin mr-1" />
                 ) : (
-                  <Award className="w-3 h-3 mr-1" />
+                  <Bitcoin className="w-3 h-3 mr-1" />
                 )}
                 CLAIM ALL ({totalUnclaimedReward.toFixed(4)} GBTC)
               </Button>
@@ -653,7 +651,10 @@ export default function MiningFactory() {
                             >
                               {parseFloat(block.reward).toFixed(6)}
                             </motion.p>
-                            <p className="text-[9px] text-orange-400">GBTC</p>
+                            <div className="flex items-center justify-end space-x-0.5">
+                              <Bitcoin className="w-2.5 h-2.5 text-orange-400" />
+                              <p className="text-[9px] text-orange-400">GBTC</p>
+                            </div>
                           </div>
                         </div>
                         
@@ -681,7 +682,7 @@ export default function MiningFactory() {
                               <Loader2 className="w-3 h-3 animate-spin" />
                             ) : (
                               <>
-                                <Award className="w-2.5 h-2.5 mr-0.5" />
+                                <Bitcoin className="w-2.5 h-2.5 mr-0.5" />
                                 CLAIM
                               </>
                             )}
