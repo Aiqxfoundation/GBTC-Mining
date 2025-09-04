@@ -747,17 +747,25 @@
   
   @keyframes matrix-fall {
     from {
-      transform: translateY(-100vh);
+      transform: translateY(-100vh) scaleY(0.8);
       opacity: 0;
     }
-    5% {
-      opacity: 0.8;
+    2% {
+      opacity: 0.4;
     }
-    95% {
-      opacity: 0.8;
+    10% {
+      opacity: 0.9;
+      transform: translateY(-80vh) scaleY(1);
+    }
+    90% {
+      opacity: 0.9;
+      transform: translateY(80vh) scaleY(1);
+    }
+    98% {
+      opacity: 0.4;
     }
     to {
-      transform: translateY(100vh);
+      transform: translateY(100vh) scaleY(0.8);
       opacity: 0;
     }
   }

@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 export default function LoadingScreen({ onComplete }: { onComplete: () => void }) {
   const [progress, setProgress] = useState(0);
   const [currentPhase, setCurrentPhase] = useState(0);
   const [binaryStream, setBinaryStream] = useState<string[]>([]);
+  const [binaryMatrix, setBinaryMatrix] = useState<string[]>([]);
   
   const phases = [
     "[BOOT] Initializing GBTC Mining OS...",
@@ -15,12 +16,28 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
   ];
 
   useEffect(() => {
+    // Initialize binary matrix with random values
+    setBinaryMatrix(Array.from({ length: 40 }, () => 
+      Array.from({length: 80}, () => Math.round(Math.random())).join('')
+    ));
+
     // Generate binary stream
     const binaryInterval = setInterval(() => {
       setBinaryStream(prev => {
         const newBinary = Math.random().toString(2).substring(2, 10);
         return [...prev.slice(-20), newBinary];
       });
+      
+      // Update binary matrix dynamically
+      setBinaryMatrix(prev => prev.map(line => {
+        // Randomly update parts of each line for dynamic effect
+        if (Math.random() > 0.7) {
+          const start = Math.floor(Math.random() * 60);
+          const newChunk = Array.from({length: 20}, () => Math.round(Math.random())).join('');
+          return line.substring(0, start) + newChunk + line.substring(start + 20);
+        }
+        return line;
+      }));
     }, 100);
 
     const progressInterval = setInterval(() => {
@@ -28,11 +45,12 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
         if (prev >= 100) {
           clearInterval(progressInterval);
           clearInterval(binaryInterval);
-          setTimeout(onComplete, 1200); // Smooth fade out transition
+          setTimeout(onComplete, 1500); // Smooth fade out transition
           return 100;
         }
-        // Slower progress for 7 seconds total (100% in ~6800ms + 1200ms fade = 8s total)
-        return Math.min(100, prev + 1.47);
+        // Optimized progress with easing (100% in ~7s + 1.5s fade)
+        const increment = prev < 30 ? 2.5 : prev < 70 ? 1.8 : prev < 90 ? 1.2 : 0.8;
+        return Math.min(100, prev + increment);
       });
     }, 100); // Update every 100ms for smoother animation
 
@@ -54,26 +72,51 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
   }, [onComplete]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-background flex items-center justify-center transition-opacity duration-1000 ease-in-out" style={{ opacity: progress >= 100 ? 0 : 1 }}>
-      {/* Matrix-style Background */}
+    <div className="fixed inset-0 z-50 bg-black flex items-center justify-center transition-all duration-1500 ease-out" style={{ opacity: progress >= 100 ? 0 : 1, backgroundColor: 'rgba(0,0,0,0.95)' }}>
+      {/* Matrix-style Background with dim overlay */}
       <div className="absolute inset-0 overflow-hidden bg-black">
-        <div className="absolute inset-0 bitcoin-grid opacity-5"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70"></div>
+        <div className="absolute inset-0 bitcoin-grid opacity-10 animate-pulse"></div>
         
-        {/* Binary rain effect */}
+        {/* Binary rain effect - optimized with dynamic updates */}
         <div className="absolute inset-0">
-          {[...Array(30)].map((_, i) => (
+          {binaryMatrix.map((binary, i) => (
             <div
               key={i}
-              className="absolute font-mono text-xs"
+              className="absolute font-mono text-xs overflow-hidden whitespace-pre"
               style={{
-                left: `${i * 3.33}%`,
-                color: `hsl(142, ${50 + Math.random() * 30}%, ${30 + Math.random() * 20}%)`,
-                animation: `matrix-fall ${5 + Math.random() * 10}s linear infinite`,
-                animationDelay: `${Math.random() * 5}s`,
-                opacity: Math.random() * 0.8 + 0.2
+                left: `${i * 2.5}%`,
+                color: `hsl(142, ${70 + (i * 3) % 30 + 70}%, ${40 + (i * 2) % 20}%)`,
+                animation: `matrix-fall ${3 + (i % 4)}s linear infinite`,
+                animationDelay: `${(i * 0.1) % 3}s`,
+                opacity: 0.3 + (i % 3) * 0.2,
+                textShadow: '0 0 8px rgba(0, 255, 0, 0.5)',
+                filter: 'blur(0.3px)',
+                willChange: 'transform'
               }}
             >
-              {Array.from({length: 50}, () => Math.round(Math.random())).join('')}
+              {binary}
+            </div>
+          ))}
+        </div>
+        
+        {/* Dynamic binary overlay for depth */}
+        <div className="absolute inset-0 opacity-20">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={`overlay-${i}`}
+              className="absolute font-mono text-lg font-bold"
+              style={{
+                left: `${Math.random() * 100}%`,
+                color: '#00ff00',
+                animation: `matrix-fall ${2 + Math.random() * 2}s linear infinite`,
+                animationDelay: `${Math.random() * 2}s`,
+                opacity: Math.random() * 0.3,
+                textShadow: '0 0 20px rgba(0, 255, 0, 0.8)',
+                transform: 'scaleY(1.5)'
+              }}
+            >
+              {Array.from({length: 60}, () => Math.round(Math.random())).join('')}
             </div>
           ))}
         </div>
@@ -141,8 +184,8 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
               ))}
             </div>
             <div className="flex justify-between mt-2">
-              <span className="text-accent transition-all duration-300">Progress: {Math.floor(progress)}%</span>
-              <span className="text-chart-4 transition-all duration-300">ETA: {Math.max(0, 7 - Math.floor(progress / 14.3))}s</span>
+              <span className="text-accent transition-all duration-300 font-bold">Progress: {Math.floor(progress)}%</span>
+              <span className="text-chart-4 transition-all duration-300 font-bold">ETA: {Math.max(0, Math.ceil((100 - progress) / 14))}s</span>
             </div>
           </div>
         </div>
